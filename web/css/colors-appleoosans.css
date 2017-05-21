@@ -1,0 +1,26 @@
+body {
+    background: url(../images/appleoosans/background.png) no-repeat fixed center center #b5a66c;
+    color: white;
+}
+#chatbuffer .drinkWrap {
+    border-bottom: 3px solid #b5a66c;
+    border-top: 3px solid #b5a66c;
+}
+.wrapper{ 
+	background: url(../images/25.png); 
+}
+#videobg { 
+	background: url(../images/appleoosans/player_back.png) no-repeat center center; 
+}
+#banner {
+    background: url(../images/appleoosans/banner.png) no-repeat center;	
+}
+#playlist ul li {
+    border: 1px solid #B5A66C;
+}
+#chatbuffer .message.drink{
+	background: url(../images/appleoosans/pie.png) no-repeat scroll right center transparent
+}
+#extras{
+	background: url(../images/25.png);
+}

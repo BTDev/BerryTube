@@ -1,0 +1,20 @@
+{
+  "name": "berrytube",
+  "version": "1.0.0",
+  "description": "",
+  "main": "berrytube2.js",
+  "dependencies": {
+    "elementtree": "^0.1.2",
+    "npm": "^1.1.59",
+    "ircd": "^0.1.0",
+    "supervisor": "^0.4.1",
+    "mysql": "^0.9.6",
+    "socket.io": "^0.9.10"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Eric Cutler <bulzeeb@gmail.com> (https://github.com/GreyMage)",
+  "license": "ISC"
+}

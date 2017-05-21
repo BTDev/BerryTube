@@ -1,0 +1,22 @@
+body {
+    background: url(../images/holiday/background.png) no-repeat fixed center top #04602f;
+}
+.wrapper{
+	background: url(../images/holiday/50.png);
+}
+#videobg {
+	background: url(../images/holiday/player_back.png) no-repeat center center;
+}
+#playlist ul li {
+    border: 1px solid #008000;
+}
+#playlist .track {
+    border-left: 1px solid #008000;
+}
+#playlist .thumb .end, #playlist .thumb {
+    background-color: #008000;
+}
+#banner {
+    background: url(../images/holiday/banner.png) no-repeat center;	
+	width:1076px;
+}

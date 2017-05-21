@@ -1,0 +1,68 @@
+#videobg {
+	height: 480px;
+}
+#videowrap {
+    height: 390px;
+    width: 693px;
+}
+#scBackground {
+	width: 693px;
+	height: 220px;
+	background-size: auto 220px;
+}
+#scPlayer {
+	width: 653px;
+}
+#leftpane {
+	width: 693px;
+}
+#rightpane {
+    width: 507px;
+}
+/* Chat Stuff */
+#chatpane {
+    width: 507px;
+}
+.chatbuffer {
+    width: 336px;
+}
+#rcvOverlay {
+	width: 335px;
+}
+#chatControls {
+    width: 336px;
+}
+#chatinput {
+    width: 336px;
+}
+#chatlist {
+    width: 169px;
+}
+#chattabs {
+	width: 336px;
+}
+#connectedCountWrapper {
+    width: 169px;
+}
+/* Playlist Stuff */
+#playlist {
+	width: 693px;
+}
+#playlist .viewport {
+	width: 678px;
+}
+#playlist ul {
+	width: 679px;
+}
+#playlist ul .title {
+    width: 609px;
+}
+#playlist ul.controlsOn .title {
+    width: 549px;
+}
+#playlistAddControls .import input {
+    width: 609px;
+}
+.admin #playlistAddControls .import input, .mod #playlistAddControls .import input, .assistant #playlistAddControls .import input {
+    width: 571px;
+}

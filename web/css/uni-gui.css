@@ -1,0 +1,183 @@
+.dialogWindow{
+	background:white;
+	color:black;
+	position:absolute;
+	border: 1px solid black;
+	-moz-box-shadow: 3px 3px 8px #000;
+	-webkit-box-shadow: 3px 3px 8px #000;
+	box-shadow: 3px 3px 8px #000;
+	display:none;
+}
+.dialogWindow .loading{
+	opacity: .2;
+	position:absolute;
+	width:100%;
+	height:100%;
+	background:url(../images/ajax-loader.gif) no-repeat center center black;
+}
+.dialogWindow .dialogContent{
+	padding:5px;
+}
+.dialogWindow .dialogToolbar{
+	background:#DEDEDE;
+	padding:2px;
+	border-bottom:1px solid black;
+	margin-bottom:5px;
+	cursor:move;
+}
+.dialogTitlebar{
+	float:left;
+}
+.dialogWindow .dialogToolbar .close{
+	background:red;
+	cursor:pointer;
+	width:1em;
+	border: 1px solid black;
+	height:1em;
+	float:right;
+}
+.dialogWindow .button{
+	padding:0 3px;
+	border: 1px solid black;
+	display:inline-block;
+	cursor:pointer;
+	margin:3px;
+	background:#DEDEDE;
+}
+.dialogWindow .button:hover{
+	background:#F9F9F9;
+}
+.dialogWindow .button.confirm {
+	background:red;
+	text-align: center;
+}
+.dialogWindow input{
+	border:1px solid black;
+}
+.dialogWindow input.tiny{
+	width:20px;
+	text-align:center;
+}
+.dialogWindow input.small{
+	width:90px;
+}
+.dialogWindow input.hidden{
+	display:none;
+}
+.dialogWindow .dialogContent h1{
+	margin:0;
+	padding:0;
+	text-align:center;
+	font-size:1.4em;
+}
+.dialogWindow .dialogContent h2{
+	margin:0;
+	padding:0;
+	text-align:center;
+	font-size:1em;
+}
+
+#settingsGui .button{
+	padding:0 3px;
+	border: 1px solid black;
+	cursor:pointer;
+	text-align:center;
+	background:#DEDEDE;
+}
+
+.ruleZone{
+	height:500px;
+	overflow-y:scroll;
+}
+.ruleZone .row{
+	border: 1px solid gray;
+	margin: 5px 0;
+}
+.dialogWindow .optionList {
+    list-style: none outside none;
+    margin: 0;
+    padding: 0;
+}
+#settingsGui {
+    background: none repeat scroll 0 0 white;
+    color: black;
+}
+#settingsGui ul{
+    list-style:none;
+	margin:0;
+	padding:0;
+}
+#settingsGui .small {
+    text-align: center;
+    width: 30px;
+	margin-right: 4px;
+	margin-left: 4px;
+}
+.ruleZone .titleBar{
+    cursor: pointer;
+    border-bottom: 1px solid black;
+    border-right: 1px solid black;
+    width: 400px;
+    height: 20px;
+    overflow:hidden;
+}
+.ruleZone .code {
+    font-size: 12px;
+    font-family: courier new,monospace;
+}
+.ruleZone .name {
+    font-size: 12px;
+    font-weight: bold;
+}
+.ruleZone .hidden {
+    display: none;
+}
+
+.warnText {
+	font-size: 14px;
+	color: red;
+}
+.pluginNode {
+	margin-bottom: 10px;
+}
+.pluginTitle {
+	font-weight: bold;
+}
+.pluginDesc {
+	font-size: 14px;
+}
+.pluginAuthors {
+	font-size: 14px;
+	font-style: italic;
+	margin-bottom: 3px;
+}
+.pluginEnable span {
+	font-size:14px;
+	margin-right: 5px;
+}
+.pluginExists {
+	font-size: 14px;
+	color: red;
+}
+
+.banZone {
+	min-height: 100px;
+	max-height: 300px;
+	width: 400px;
+	overflow-y: scroll;
+}
+.banZone .row {
+	border: 1px solid gray;
+	width: 365px;
+	padding: 3px 5px;
+	font-size: 13px;
+}
+.banZone .row .content {
+	float: left;
+	width: 310px;
+	padding: 4px 0px;
+}
+.banZone .row .unban {
+	float: right;
+	width: 40px;
+}

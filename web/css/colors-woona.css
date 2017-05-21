@@ -1,0 +1,59 @@
+body {
+    background: url(../images/woona/moon.png) no-repeat fixed -200px -200px black;
+    color: white;
+}
+#playlist .thumb .end, #playlist .thumb { background-color: #5c4fd1; }
+.wrapper{ background: url(../images/woona/50.png); }
+#videobg { background: url(../images/woona/player_back.png) no-repeat center center; }
+#chatbuffer .message.drink { background: url(../images/woona/bp_tiny.png) no-repeat scroll right center transparent; }
+#drinkWrap { background:url(../images/woona/drink_back.png) repeat-y center; }
+#banner {
+    background: url(../images/woona/banner.png) no-repeat center;	
+    height: 255px;
+    margin: 0 auto;
+    width: 538px;
+}
+#chatlist ul .admin,.flaunt.level_2 { color:#8f5ee7; }
+#chatlist ul .mod,.flaunt.level_1 { color:#668af6; }
+#chatlist ul .anon,.flaunt.level_0 { color: gray; }
+#chatlist ul .nobody,.flaunt.level_-1 { color: lightgray; }
+#chatlist ul .leader {
+    background: url(../images/woona/star.png) no-repeat scroll left center transparent;
+    padding-left: 25px;
+}
+#chatbuffer .drinkWrap{
+	border-bottom: 3px solid #5c4fd1;
+    border-top: 3px solid #5c4fd1;
+}
+#chatbuffer .drinkWrap .drink .multi{
+    color: #5c4fd1;
+}
+#playlist ul li{
+	font-family: Arial;
+	background: none repeat scroll 0 0 #000000;
+    border: 1px solid #5c4fd1;
+    cursor: ns-resize;
+}
+#playlist ul li.active {
+    background: none repeat scroll 0 0 #876C00;
+    border-color: #FFCC00;
+    color: #FFCC00;
+}
+#playlist ul li.volatile {
+    background: none repeat scroll 0 0 #690000;
+}
+#playlist ul li.volatile.active {
+    background: none repeat scroll 0 0 #876C00;
+	border: 1px solid red;
+}
+#playlist .track{
+    border-left: 1px solid #5c4fd1;
+	background: black url(../images/woona/purpledot.png) repeat-x 0 0;
+}
+#v{
+	display:none;
+	background:url(../images/woona/v.jpg);
+	width:604px;
+	height:350px;
+	margin:0 auto;
+}

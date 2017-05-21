@@ -1,0 +1,40 @@
+[07-Feb-2013 20:40:29 UTC] PHP Catchable fatal error:  Object of class stdClass could not be converted to string in /home/btube/public_html/api/playlist.php on line 23
+[07-Feb-2013 20:43:11 UTC] PHP Catchable fatal error:  Object of class stdClass could not be converted to string in /home/btube/public_html/api/playlist.php on line 53
+[07-Feb-2013 20:43:13 UTC] PHP Catchable fatal error:  Object of class stdClass could not be converted to string in /home/btube/public_html/api/playlist.php on line 53
+[07-Feb-2013 20:43:44 UTC] PHP Fatal error:  Call to undefined method stdClass::asArray() in /home/btube/public_html/api/playlist.php on line 37
+[07-Feb-2013 20:43:44 UTC] PHP Fatal error:  Call to undefined method stdClass::asArray() in /home/btube/public_html/api/playlist.php on line 37
+[07-Feb-2013 20:44:01 UTC] PHP Fatal error:  Call to a member function asArray() on a non-object in /home/btube/public_html/api/playlist.php on line 37
+[07-Feb-2013 20:44:01 UTC] PHP Fatal error:  Call to a member function asArray() on a non-object in /home/btube/public_html/api/playlist.php on line 37
+[07-Feb-2013 20:44:06 UTC] PHP Fatal error:  Call to a member function asArray() on a non-object in /home/btube/public_html/api/playlist.php on line 37
+[07-Feb-2013 20:44:08 UTC] PHP Warning:  SimpleXMLElement::addChild() [<a href='simplexmlelement.addchild'>simplexmlelement.addchild</a>]: unterminated entity reference %20Klinga%20-%20Trixie's%20Downfall in /home/btube/public_html/api/playlist.php on line 23
+[07-Feb-2013 20:44:08 UTC] PHP Warning:  SimpleXMLElement::addChild() [<a href='simplexmlelement.addchild'>simplexmlelement.addchild</a>]: unterminated entity reference %20Klinga%20-%20Trixie's%20Downfall in /home/btube/public_html/api/playlist.php on line 23
+[07-Feb-2013 20:44:09 UTC] PHP Warning:  SimpleXMLElement::addChild() [<a href='simplexmlelement.addchild'>simplexmlelement.addchild</a>]: unterminated entity reference %20Klinga%20-%20Trixie's%20Downfall in /home/btube/public_html/api/playlist.php on line 23
+[07-Feb-2013 20:44:09 UTC] PHP Warning:  SimpleXMLElement::addChild() [<a href='simplexmlelement.addchild'>simplexmlelement.addchild</a>]: unterminated entity reference %20Klinga%20-%20Trixie's%20Downfall in /home/btube/public_html/api/playlist.php on line 23
+[07-Feb-2013 20:46:21 UTC] PHP Warning:  Cannot modify header information - headers already sent by (output started at /home/btube/public_html/api/playlist.php:38) in /home/btube/public_html/api/playlist.php on line 44
+[07-Feb-2013 20:48:18 UTC] PHP Parse error:  syntax error, unexpected ']', expecting T_STRING or T_VARIABLE or T_NUM_STRING in /home/btube/public_html/api/playlist.php on line 41
+[07-Feb-2013 20:51:48 UTC] PHP Parse error:  syntax error, unexpected T_SL in /home/btube/public_html/api/playlist.php on line 50
+[07-Feb-2013 20:52:13 UTC] PHP Parse error:  syntax error, unexpected $end in /home/btube/public_html/api/playlist.php on line 4873
+[07-Feb-2013 20:52:13 UTC] PHP Parse error:  syntax error, unexpected $end in /home/btube/public_html/api/playlist.php on line 4873
+[07-Feb-2013 20:52:14 UTC] PHP Parse error:  syntax error, unexpected $end in /home/btube/public_html/api/playlist.php on line 4873
+[07-Feb-2013 20:52:24 UTC] PHP Parse error:  syntax error, unexpected $end in /home/btube/public_html/api/playlist.php on line 4873
+[07-Feb-2013 20:52:24 UTC] PHP Parse error:  syntax error, unexpected $end in /home/btube/public_html/api/playlist.php on line 4873
+[19-Aug-2013 22:24:13 UTC] PHP Warning:  session_start() [<a href='function.session-start'>function.session-start</a>]: Cannot send session cookie - headers already sent by (output started at /home/btube/public_html/api/login.php:11) in /home/btube/public_html/api/login.php on line 13
+[19-Aug-2013 22:24:13 UTC] PHP Warning:  session_start() [<a href='function.session-start'>function.session-start</a>]: Cannot send session cache limiter - headers already sent (output started at /home/btube/public_html/api/login.php:11) in /home/btube/public_html/api/login.php on line 13
+[19-Aug-2013 22:25:51 UTC] PHP Parse error:  syntax error, unexpected '.' in /home/btube/public_html/api/login.php on line 11
+[19-Aug-2013 22:25:52 UTC] PHP Parse error:  syntax error, unexpected '.' in /home/btube/public_html/api/login.php on line 11
+[19-Aug-2013 22:25:56 UTC] PHP Parse error:  syntax error, unexpected '.' in /home/btube/public_html/api/login.php on line 11
+[19-Aug-2013 22:35:16 UTC] PHP Parse error:  syntax error, unexpected T_VARIABLE, expecting T_FUNCTION in /home/btube/public_html/api/login.php on line 18
+[19-Aug-2013 22:35:23 UTC] PHP Parse error:  syntax error, unexpected T_VARIABLE, expecting T_FUNCTION in /home/btube/public_html/api/login.php on line 18
+[19-Aug-2013 22:35:24 UTC] PHP Parse error:  syntax error, unexpected T_VARIABLE, expecting T_STRING or T_NAMESPACE or T_NS_SEPARATOR in /home/btube/public_html/api/login.php on line 31
+[19-Aug-2013 22:40:40 UTC] PHP Parse error:  syntax error, unexpected T_IF in /home/btube/public_html/api/login.php on line 27
+[19-Aug-2013 22:40:42 UTC] PHP Parse error:  syntax error, unexpected T_IF in /home/btube/public_html/api/login.php on line 27
+[19-Aug-2013 22:40:43 UTC] PHP Parse error:  syntax error, unexpected T_IF in /home/btube/public_html/api/login.php on line 27
+[19-Aug-2013 22:50:17 UTC] PHP Warning:  Attempt to assign property of non-object in /home/btube/public_html/api/login.php on line 69
+[19-Aug-2013 22:50:17 UTC] PHP Fatal error:  Call to undefined method ipSession::save() in /home/btube/public_html/api/login.php on line 70
+[19-Aug-2013 22:50:28 UTC] PHP Fatal error:  Call to undefined method ipSession::save() in /home/btube/public_html/api/login.php on line 70
+[19-Aug-2013 22:54:26 UTC] PHP Fatal error:  Cannot use object of type stdClass as array in /home/btube/public_html/api/login.php on line 75
+[19-Aug-2013 22:55:06 UTC] PHP Fatal error:  Cannot use object of type stdClass as array in /home/btube/public_html/api/login.php on line 75
+[16-Sep-2013 19:07:36 UTC] PHP Warning:  Cannot modify header information - headers already sent by (output started at /home/btube/public_html/api/login.php:137) in /home/btube/public_html/api/login.php on line 159
+[16-Sep-2013 19:08:00 UTC] PHP Warning:  Cannot modify header information - headers already sent by (output started at /home/btube/public_html/api/login.php:137) in /home/btube/public_html/api/login.php on line 159
+[16-Sep-2013 19:08:19 UTC] PHP Warning:  Cannot modify header information - headers already sent by (output started at /home/btube/public_html/api/login.php:137) in /home/btube/public_html/api/login.php on line 159
+[16-Sep-2013 19:08:24 UTC] PHP Warning:  Cannot modify header information - headers already sent by (output started at /home/btube/public_html/api/login.php:137) in /home/btube/public_html/api/login.php on line 159

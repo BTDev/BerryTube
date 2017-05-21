@@ -1,0 +1,560 @@
+#ytapiplayer {
+    border: 0 none;
+}
+#pollpane .btn {
+    -moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box;
+}
+#pollpane .btn.voted {
+    border: 3px solid;
+    line-height: 26px;
+}
+body {
+    background: url(../images/stain.png) no-repeat fixed center top #421C52;
+    color: white;
+    font-family: arial;
+	margin:0;
+	padding:0;
+}
+#extras{
+	position:absolute;
+	right:10px;
+	top:10px;
+}
+#extras .elem{
+	float:left;
+	margin:5px;
+}
+#extras .elem a{
+	color:white;
+	text-decoration:none;
+}
+#playlist .thumb .end,
+#playlist .thumb { background-color: #732C7B; }
+#videobg {
+	background: url(../images/player_back.png) no-repeat center center;
+}
+.chatbuffer .message.drink {
+    background: url(../images/bp_tiny.png) no-repeat scroll right center transparent;
+}
+#drinkWrap {
+	background:url(../images/drink_back.png) repeat-y center;
+}
+#connectedCountWrapper{
+	cursor:pointer;
+	background:url(../images/collapse.png) no-repeat 2px center ;
+}
+#connectedCountWrapper.wide{
+	background-image:url(../images/expand.png);
+}
+#dd-jquery .drinkflair{
+	margin:3px;
+}
+.drinkflair{
+	height: 16px;
+	width: 16px;
+}
+#flairMenu{
+	border: 1px solid gray;
+    float: left;
+    height: 16px;
+    margin: 1px 0 1px 0;
+    width: 16px;
+	background: url(../images/flair.png) no-repeat 0 0;
+}
+.nick .flair {
+    display: inline-block;
+    height: 16px;
+    /*left: 3px;*/
+    line-height: 20px;
+    position: relative;
+    top: 3px;
+    width: 16px;
+}
+.flair_0{background: url(../images/flair.png) no-repeat 0 0 !important;}
+.flair_1{background: url(../images/flair.png) no-repeat 0 -16px !important;}
+.flair_2{background: url(../images/flair.png) no-repeat 0 -32px !important;}
+.flair_3{background: url(../images/flair.png) no-repeat 0 -48px !important;}
+.flair_4{background: url(../images/flair.png) no-repeat 0 -64px !important;}
+.flair_5{background: url(../images/flair.png) no-repeat 0 -80px !important;}
+.flair_6{background: url(../images/flair.png) no-repeat 0 -96px !important;}
+.flair_7{background: url(../images/flair.png) no-repeat 0 -112px !important;}
+.dd-jquery{
+	display:none;
+}
+#chatControls .loginAs {
+    float: left;
+    line-height: 20px;
+    margin-left: 5px;
+}
+#chatControls .settings {
+    background: url(../images/wrench.png) no-repeat scroll left center transparent;
+    cursor: pointer;
+    float: right;
+    font-weight: bold;
+    height: 20px;
+    line-height: 20px;
+    padding-left: 20px;
+}
+#chatControls .log {
+    background: url(../images/scroll.png) no-repeat scroll left center transparent;
+    cursor: pointer;
+    float: right;
+    font-weight: bold;
+    height: 20px;
+    line-height: 20px;
+    padding-left: 20px;
+    margin-right: 10px;
+}
+#chatControls .loginAs .nick {
+    font-weight: bold;
+    margin: 0 3px;
+}
+#chatControls #flairArrow {
+    background: url(../images/flairow.png) no-repeat scroll left center transparent;
+    border-color: gray;
+    border-style: solid solid solid none;
+    border-width: 1px 1px 1px 0;
+    float: left;
+    height: 16px;
+    margin: 1px 10px 1px 0;
+    width: 10px;
+}
+.clear{
+	clear:both;
+}
+.preload{
+	display:none;
+}
+.flutter {
+    color: #FF5499;
+}
+.rmTimer {
+    background: none repeat scroll 0 0 white;
+    border: 1px solid;
+    color: gray;
+    float: right;
+    height: 15px;
+    width: 15px;
+} 
+#rcvOverlay{
+	color:black;
+	background:white;
+}
+#banner {
+    background: url(../images/banner.png) no-repeat center;	
+    height: 255px;
+    margin: 0 auto;
+    width: 538px;
+}
+.chatbuffer {
+	color: black;
+	background-color: white;
+}
+.chatbuffer:hover {
+	background-color: #CCCCCC;
+}
+#chatpane {
+	background:white;
+}
+#chatlist{
+	background: none repeat scroll 0 0 white;
+	color: black;
+}
+#chatlist ul .admin,.flaunt.level_2 { color:green; } 
+#chatlist ul .mod,.flaunt.level_1 { color: red; }
+#chatlist ul .assistant { color: #4b0082; }
+#chatlist ul .anon,.flaunt.level_0 { color: gray; }
+#chatlist ul .nobody,.flaunt.level_-1 { color: lightgray; }
+#chatlist ul .ignored { text-decoration: line-through; }
+#chatlist ul .sbanned { 
+	text-decoration: line-through; 
+	font-style: italic;
+	opacity: 0.5;
+	filter: alpha(opacity=50);
+}
+
+#chatlist ul li.leader {
+    background: url(../images/star.png) no-repeat scroll left center transparent;
+    padding-left: 25px;
+	height: 20px;
+    line-height: 20px;
+}
+#chatpane .setNick {
+    background: none repeat scroll 0 0 lightgray;
+    border: 1px solid;
+    color: black;
+    height: 29px;
+    left: 0;
+    line-height: 29px;
+    padding: 0 10px;
+    position: absolute;
+    top: 359px;
+    z-index: 1;
+}
+#chatinput input {
+    padding: 0 5px;
+	-moz-box-sizing: border-box;
+	-webkit-box-sizing: border-box;
+	box-sizing: border-box;
+}
+#chatinput input.loading {
+    background:url(../images/textloader.gif) no-repeat right center;
+}
+#chatinput.right input {
+    text-align:right;
+}
+#adminRainbow {
+	display: inline-block;
+	position: relative;
+	width: 54px;
+	background-color: lightgrey;
+	height: 18px;
+	font-weight: bold;
+	padding: 6px 3px;
+	font-size: 0.95em;
+}
+#chatlist .me {
+    border-bottom: 1px solid;
+}
+.chatbuffer .message .nick, #rcvOverlay .message .nick {
+	font-weight:bold;
+}
+.chatbuffer .highlight {
+	background:url(../images/highlight.png);
+}
+.chatbuffer .message.act {
+    font-style: italic;
+	color:gray;
+}
+.chatbuffer .message.rcv, #rcvOverlay .message.rcv {
+    color: red;
+    font-size: 1.4em;
+}
+.chatbuffer .message.act .nick {
+    font-weight: normal;
+}
+.chatbuffer .drinkWrap{
+	border-bottom: 3px solid #C600AD;
+    border-top: 3px solid #C600AD;
+}
+.chatbuffer .drinkWrap .drink .multi{
+    color: #C600AD;
+}
+.chatbuffer .kicked{
+	text-align: center;
+	border: 1px solid red;
+	margin: 5px;
+	color: red;
+}
+.chatbuffer .reconnecting {
+	text-align: center;
+	margin: 5px;
+	font-style: italic;
+}
+#pollControl{
+	background:#C3C4BD;
+	color:black;
+}
+#pollControl .btn {
+    background: none repeat scroll 0 0 lightgray;
+    color: black;
+}
+#pollControl .options .center{
+	color:black;
+}
+#pollpane .poll {
+    background: none repeat scroll 0 0 #C3C4BD;
+    color: gray;
+}
+#pollpane .poll.active {
+	background: none repeat scroll 0 0 #525A2B;
+    color: white;
+}
+.poll .btn.disabled {
+    color: gray;
+}
+.poll.active .btn.disabled {
+    color: lightgray;
+}
+.msg .green {
+    color: #789922 !important;
+}
+#playlist{
+	background:black;
+}
+#playlist ul li{
+	font-family: Arial;
+	background: none repeat scroll 0 0 #000000;
+    border: 1px solid #732C7B;
+    cursor: ns-resize;
+}
+#playlist ul li.active {
+    background: none repeat scroll 0 0 #876C00;
+    border-color: #FFCC00;
+    color: #FFCC00;
+	display:block !important;
+}
+#playlist ul li.search-hidden {
+    display:none !important;
+}
+#playlist ul li.volatile {
+    background: none repeat scroll 0 0 #690000;
+}
+#playlist ul li.volatile.active {
+    background: none repeat scroll 0 0 #876C00;
+	border: 1px solid red;
+}
+#playlist ul .delete{
+	background: none repeat scroll 0 0 black;
+    border: 1px solid red;
+    color: red;
+    cursor: pointer;
+    float: right;
+    font-size: 10px;
+    height: 14px;
+    line-height: 14px;
+    margin-left: 5px;
+    padding: 0;
+    text-align: center;
+    width: 14px;
+	display:none;
+}
+#playlist ul .delete.confirm {
+	background-color: #880000;
+}
+#playlist ul .requeue{
+	background: none repeat scroll 0 0 black;
+    border: 1px solid white;
+    color: white;
+    cursor: pointer;
+    float: right;
+    font-size: 10px;
+    height: 14px;
+    line-height: 14px;
+    margin-left: 5px;
+    padding: 0;
+    text-align: center;
+    width: 14px;
+	display:none;
+}
+#playlist ul .setVolatile{
+    border: 1px solid;
+    color: yellow;
+    cursor: pointer;
+    float: right;
+    font-size: 10px;
+    height: 14px;
+    line-height: 14px;
+    margin-left: 5px;
+    padding: 0;
+    text-align: center;
+    width: 14px;
+	display:none;
+}
+.admin #playlist ul .delete, .mod #playlist ul .delete, .assistant #playlist ul .delete, 
+.admin #playlist ul .setVolatile, .mod #playlist ul .setVolatile, .assistant #playlist ul .setVolatile {
+	display:block;
+}
+.admin #playlist ul .requeue, .mod #playlist ul .requeue, .berry #playlist ul .requeue, .assistant #playlist ul .requeue{
+	display:block;
+}
+#playlist ul li.notify .title:after {
+    content: ' ★';
+}
+#playlist .track{
+    border-left: 1px solid #732C7B;
+	background: black url(../images/purpledot.png) repeat-x 0 0;
+}
+#searchbox { display:none; }	
+#searchbox.show { display:block; }
+#searchbox input {
+    background: none repeat scroll 0 0 black;
+    border: 1px solid white;
+    color: inherit;
+    display: block;
+    margin: 5px auto;
+    width: 95%;
+}
+#playlistAddControls {
+    display:none;
+}
+#playlistAddControls .note {
+    color: white;
+}
+#playlistAddControls .import input {
+	background: none repeat scroll 0 0 black;
+    color: white;
+}
+#playlistAddControls .impele.btn.loading {
+	background:url(../images/ajax-loader.gif) no-repeat center center;
+}
+#playlistAddControls .slideBtn{
+    background: gray;
+    border: 1px solid white;
+    color: white;
+}
+#playlistAddControls .import{
+    display:none;
+}
+form .submit {
+    background: black;
+    border: 1px solid white;
+    cursor: pointer;
+    font-size: 12px;
+    height: 20px;
+    line-height: 20px;
+    text-align: center;
+    width: 60px;
+}
+form .submit:hover {
+    background: #555;
+}
+.chatbuffer .message.request {
+    color: blue;
+    font-style: italic;
+    font-weight: bold;
+}
+.spoiler .msg * {
+    background: none repeat scroll 0 0 black;
+    color: black !important;
+}
+.spoiler .msg:hover * {
+	color: white !important;
+}
+#v{
+	display:none;
+	background:url(../images/v.jpg);
+	width:604px;
+	height:350px;
+	margin:0 auto;
+}
+#dyn_motd {
+	background: none repeat scroll 0 0 #C3C4BD;
+    border: 1px solid #464346;
+    color: #464346;
+    padding: 5px;
+}
+#dyn_motd a {
+    color: #464346;
+}
+#dyn_header {
+    padding: 5px;
+}
+#dyn_header a {
+    color: white;
+}
+#dyn_footer {
+    padding: 5px;
+}
+#dyn_footer a {
+    color: white;
+}
+.colorTag {
+    border: 1px solid black;
+    float: left;
+    height: 9px;
+    margin: 2px 5px 2px 2px;
+    width: 9px;
+	display:none;
+	border-radius:9px;
+}
+.colorGrid {
+    width: 150px;
+}
+.colorGrid .swatch {
+    border: 1px solid black;
+    float: left;
+    height: 10px;
+    margin: 3px;
+    width: 10px;
+	cursor:pointer;
+}
+.swatch.volatile {
+    border: 1px solid #880000;
+}
+.colorTag.volatile {
+    border: 1px solid #880000;
+    box-shadow: 0 0 3px red;
+}
+.colorGrid .swatch.kill{
+	background:url(../images/noswatch.png);
+}
+#adminbuffer {
+	background-image: url(../images/adminbg.png) !important;
+	background-repeat: no-repeat !important;
+	background-position: center !important;
+}
+#chattabs {
+	display: none;
+	border-top: 1px solid black;
+}
+.admin #chattabs, .mod #chattabs, .assistant #chattabs {
+	display: block;
+    position: absolute;
+    top: 20px;
+	height: 20px;
+}
+#chattabs .tab {
+	display: inline-block;
+	color: black;
+	padding: 0px 5px;
+	margin: 3px 1px;
+	border: 1px solid black;
+	background-color: #CCCCCC;
+	cursor: pointer;
+}
+#chattabs .active {
+	background-color: white;
+}
+#chattabs .newmsg {
+	color: blue;
+	border-color: blue;
+}
+#chattabs .squee {
+	color: red !important;
+}
+#chatpane.squee * {
+	border-color: red !important;
+}
+#filterControls, #filterRemove {
+	display: none;
+}
+.admin #filterControls, .admin #filterRemove {
+	display: block;
+}
+#scBackground {
+	background-image: url(../images/scbg.png);
+}
+#chatbuffer .graymute {
+    opacity: 0.3;
+}
+#chatbuffer .server {
+    color: #008000;
+    font-weight: bold;
+    margin: 10px 0;
+    text-align: center;
+}
+
+#chatlist li.gilded {
+	text-shadow: 0px 0px 4px #FF9E28;
+    background: url(../images/gold.png) no-repeat scroll left center rgba(0, 0, 0, 0);
+    line-height: 20px;
+    padding-left: 25px;
+}
+#goldButton {
+	text-align: center;
+}
+#goldButton div {
+	display: inline-block;
+	color: gold;
+	background-color: #444444;
+	padding: 6px;
+	margin: 10px 0px;
+	border: 1px solid gold;
+	border-radius: 4px;
+	cursor: pointer;
+	font-size: 13px;
+}
+.noAds #goldButton, .noAds .ad {
+	display: none;
+}
