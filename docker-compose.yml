@@ -8,15 +8,18 @@ services:
     nginx:
         image: nginx:latest
         ports:
-            - 80:80
+            - 81:80
         volumes:
             - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
         volumes_from:
             - php
     node:
         build: ./docker/node/
+        working_dir: /home/node/app
         volumes:
-            - "./docker/node/:/src"
+            - "./docker/node/:/home/node/app"
+        expose:
+            - 8344
         ports:
             - "8344:8344"
         command: nodemon
@@ -35,8 +38,6 @@ services:
         hostname: mysql
         expose:
             - 3306
-        ports:
-            - "3306:3306"
         volumes:
             - ./docker/db/mysql:/var/lib/mysql
         environment:

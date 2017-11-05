@@ -197,32 +197,6 @@ var POLL_OPTIONS = [];
 	}
 })();
 
-try{
-	var socket = io.connect('http://'+socketIOTarget,{
-		'connect timeout': 5000, 
-		'reconnect': true, 
-		'reconnection delay': 500, 
-		'reopen delay': 500, 
-		'max reconnection attempts': 10 
-	});	
-	
-	socket.on('error', function (reason){
-		if(reason == "handshake error") {
-			window.location = "ban.php";
-		} else {
-			$(function() {
-				var AWSHIT = $("<center><h1>Unable to connect Socket.IO: "+reason+"</h1></center>").prependTo(document.body);
-				console.error(e);
-			});
-		}
-	});
-} catch(e) {
-	$(function() {
-		var debugging = $("<center><h3>"+e+"</h3></center>").prependTo(document.body);
-		var AWSHIT = $("<center><h1>Aw shit! Couldn't connect to the server!</h1></center>").prependTo(document.body);
-		console.error(e);
-	});
-}
 function addColorTag(entry,elem){
 	$("<div/>").addClass("colorTag").prependTo(entry);
 	if("colorTag" in elem.meta){

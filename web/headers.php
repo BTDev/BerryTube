@@ -52,21 +52,70 @@
 <script src="https://w.soundcloud.com/player/api.js"></script>
 <script src="http://vjs.zencdn.net/5.4.4/video.js"></script>
 <!-- Socket.IO stuff -->
-<script src="http://<?php echo SocketIO_HOST.":".SocketIO_PORT; ?>/socket.io/socket.io.js"></script>
 <script>
-	var socketIOTarget = "<?php echo SocketIO_HOST.":".SocketIO_PORT; ?>";
+		
+	var socketIOTarget = location.hostname+":<?php echo SocketIO_PORT; ?>";
 	var videoWidth = <?php echo $playerDims['w']; ?>;
 	var videoHeight = <?php echo $playerDims['h']; ?>;
 	var WINDOW_TITLE = '<?php echo $TITLE; ?>';
+		
+	var _s = document.createElement("script");
+	_s.src = "http://"+(location.hostname)+":<?php echo SocketIO_PORT; ?>/socket.io/socket.io.js";
+	document.head.appendChild(_s);
+	
+	var scripts = [
+		"js/plugin-data.js",
+		"js/lib.js",
+		"js/init.js",
+		"js/functions.js",
+		"js/callbacks.js",
+		"js/player.js",
+	];
+	
+	// When socket is loaded...
+	(_i = function(){
+
+		if(!window.io){
+			return setTimeout(_i,100);
+		}
+		
+		try{
+
+			window.socket = io.connect('http://'+socketIOTarget,{
+				'connect timeout': 5000, 
+				'reconnect': true, 
+				'reconnection delay': 500, 
+				'reopen delay': 500, 
+				'max reconnection attempts': 10 
+			});	
+			
+			window.socket.on('error', function (reason){
+				if(reason == "handshake error") {
+					window.location = "ban.php";
+				} else {
+					$(function() {
+						var AWSHIT = $("<center><h1>Unable to connect Socket.IO: "+reason+"</h1></center>").prependTo(document.body);
+						console.error(e);
+					});
+				}
+			});
+		} catch(e) {
+			$(function() {
+				var debugging = $("<center><h3>"+e+"</h3></center>").prependTo(document.body);
+				var AWSHIT = $("<center><h1>Aw shit! Couldn't connect to the server!</h1></center>").prependTo(document.body);
+			});
+		}
+		
+		scripts.forEach(function(el){
+			var _s = document.createElement("script");
+			_s.src = el;
+			document.head.appendChild(_s);
+		})
+		
+	})();
+	
+		
 </script>
-
-<script src="js/plugin-data.js"></script>
-<script src="js/lib.js"></script>
-<script src="js/init.js"></script>
-<script src="js/functions.js"></script>
-<script src="js/callbacks.js"></script>
-<script src="js/player.js"></script>
-
 <?php
 	// Load plugins	
 	if ($handle = opendir('./js/plugins')) {
