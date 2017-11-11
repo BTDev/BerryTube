@@ -7,14 +7,16 @@ volumes:
 services:
     nginx:
         image: nginx:latest
+        restart: always
         ports:
-            - 81:80
+            - "80:80"
         volumes:
             - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
         volumes_from:
             - php
     node:
         build: ./docker/node/
+        restart: always
         working_dir: /home/node/app
         volumes:
             - "./docker/node/:/home/node/app"
@@ -25,6 +27,7 @@ services:
         command: nodemon
     php:
         build: ./docker/php/
+        restart: always
         expose:
             - 9000
         volumes:
@@ -35,7 +38,7 @@ services:
             - mysql
     mysql:
         image: mysql:latest
-        hostname: mysql
+        restart: always
         expose:
             - 3306
         volumes:
@@ -43,5 +46,3 @@ services:
         environment:
             MYSQL_ROOT_PASSWORD: root
             MYSQL_DATABASE: local
-            MYSQL_USER: root
-            MYSQL_PASSWORD: root
