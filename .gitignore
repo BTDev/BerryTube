@@ -1,2 +1,3 @@
 docker/node/node_modules/
 docker/node/bt_data/db_info.js
+docker/db/mysql/
