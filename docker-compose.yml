@@ -9,7 +9,7 @@ services:
         image: nginx:latest
         restart: always
         ports:
-            - "80:80"
+            - "${WEB_PORT}:80"
         volumes:
             - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
         volumes_from:
@@ -23,7 +23,7 @@ services:
         expose:
             - 8344
         ports:
-            - "8344:8344"
+            - "${NODE_PORT}:8344"
         command: nodemon
     php:
         build: ./docker/php/

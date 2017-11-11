@@ -10,7 +10,7 @@ function removeCurrentPlayer() {
 	setVal("DMPLAYERREADY", false);
 }
 
-PLAYERS.drive = {
+window.PLAYERS.drive = {
     playVideo: function (id, at) {
         var self = this; 
         waitForFlag("YTAPREADY", function () {
@@ -142,7 +142,7 @@ PLAYERS.drive = {
 	}
 };
 
-PLAYERS.yt = {
+window.PLAYERS.yt = {
     playVideo: function (id, at) {
         var self = this;
         waitForFlag("YTAPREADY", function () {
@@ -251,98 +251,103 @@ PLAYERS.yt = {
 	}
 };
 
-PLAYERS.vimeo = {
-    playerType: "FLASH",
+window.PLAYERS.vimeo = {
     loadPlayer: function (id, at, volume) {
-	
-		var self = this;
-		
-		this.videoId = id;
+        var self = this;
 
-		var currentEmbed = $("#ytapiplayer");
-		var ustream = $("<iframe/>").appendTo(currentEmbed);
-		ustream.attr("width", videoWidth);
-		ustream.attr("height", videoHeight);
-		ustream.attr("wmode", 'transparent');
-		ustream.attr("src", "https://player.vimeo.com/video/" + id + "?api=1&player_id=vimeo");
-		ustream.attr("webkitAllowFullScreen", "");
-		ustream.attr("mozallowfullscreen", "");
-		ustream.attr("allowFullScreen", "");
-		ustream.attr("id", "vimeo");
-		ustream.css("border", "0");
+        this.videoId = id;
 
-		
-		$f(ustream[0]).addEvent('ready', function () {
-			console.log("lel");
-			self.f = $f(ustream[0]);
-            if(volume !== false) {
-                self.f.api('setVolume', volume);
+        this.loadSources(id, function (error, sources) {
+            if (error) {
+                console.log("Shit's fucked");
+                console.error(error);
+                return;
             }
-			if (at < 0) {
-				var wait = (at * -1000);
-				setTimeout(function () {
-					videoPlay();
-				}, wait);
-				//videoPlay();
-				//videoPause();
-			} else {
-				videoSeekTo(at);
-				//videoPlay();
-			}
-		});
-		
+
+            var player = $("<video/>")
+                    .addClass("video-js vjs-default-skin")
+                    .css({ width: "100%", height: "100%" })
+                    .attr({ id: "vjs_player" })
+                    .appendTo($("#ytapiplayer"));
+
+            sources.forEach(function (source) {
+                $("<source/>")
+                        .attr({
+                            src: source.link,
+                            type: source.contentType
+                        })
+                        .appendTo(player);
+            });
+
+            self.player = videojs(player[0], {
+                autoplay: true,
+                controls: true
+            });
+
+            self.player.ready(function onReady() {
+                console.log("lel");
+
+                self.player.on("error", function() {
+                    console.log("Shit's fucked");
+                    console.error(self.player.error());
+                });
+
+                self.player.volume(volume);
+
+                self.player.on("ended", function onEnded() {
+                    videoEnded();
+                });
+
+                self.player.on("play", function onPlay() {
+                    videoPlaying();
+                });
+
+                self.player.on("pause", function onPause() {
+                    videoPaused();
+                });
+            });
+        });
+    },
+    loadSources: function (id, cb) {
+        console.log("Asking proxy server for " + id);
+        $.getJSON("http://tirek.cyzon.us:9999/vimeodata?id=" + id)
+                .done(function (result) {
+                    if (result.error) {
+                        cb(new Error(result.error));
+                    } else {
+                        cb(null, result.sources);
+                    }
+                }).fail(function () {
+                    cb(new Error("Unable to contact Vimeo data proxy"));
+                });
     },
     playVideo: function (id, at) {
         this.videoId = id;
-		removeCurrentPlayer();
-		this.loadPlayer(id, at);
-		return;
-		
-		/*this.f.api("loadVideo",id);
-        //this.PLAYER.api_loadVideo(id);
-        if (at < 0) {
-            videoSeekTo(0);
-            videoPlay();
-            videoPause();
-            var wait = (at * -1000);
-            setTimeout(function () {
-                videoPlay();
-            }, wait);
-        } else {
-            videoSeekTo(at);
-            videoPlay();
-        }*/
-    },
-    setVimeoType: function (str) {
-        this.playerType = str;
-        this.loadPlayer(this.videoId, 0);
+        removeCurrentPlayer();
+        this.loadPlayer(id, at);
+        return;
     },
     pause: function () {
-		this.f.api("pause");
+        this.player && this.player.readyState() > 0 && this.player.pause();
     },
     play: function () {
-		this.f.api("play");
+        this.player && this.player.readyState() > 0 && this.player.play();
     },
     getVideoState: function () {
         return 1;
     },
     seek: function (pos) {
-		this.f.api("seekTo",pos);
+        this.player && this.player.readyState() > 0 && this.player.currentTime(pos);
     },
     getTime: function (callback) {
-		this.f.api("getCurrentTime", function (data) {
-			if(callback)callback(data);
-		});
+        this.player && this.player.readyState() > 0 && callback(this.player.currentTime());
     },
-    getVolume: function(callback){
-		this.f.api("getVolume", function (data) {
-			if(callback)callback(data);
-		});
+    getVolume: function(callback) {
+        this.player && this.player.readyState() > 0 && callback(this.player.volume());
     }
 };
 
-
-PLAYERS.ustream = {
+window.PLAYERS.ustream = {
     loadPlayer: function (id) {
         var currentEmbed = $("#ytapiplayer");
         var ustream = $("<iframe/>").appendTo(currentEmbed);
@@ -355,7 +360,7 @@ PLAYERS.ustream = {
     }
 };
 
-PLAYERS.livest = {
+window.PLAYERS.livest = {
     loadPlayer: function (id) {
         var currentEmbed = $("#ytapiplayer");
         var livestream = $("<iframe/>").appendTo(currentEmbed);
@@ -368,7 +373,7 @@ PLAYERS.livest = {
     }
 };
 
-PLAYERS.twitch = {
+window.PLAYERS.twitch = {
     loadPlayer: function (channel, time, volume) {
         var url = "http://www.justin.tv/widgets/live_embed_player.swf?channel=" + channel;
         var params = {
@@ -389,7 +394,7 @@ function osmfEventHandler(playerId, event, data) {
     }
 }
 
-PLAYERS.osmf = {
+window.PLAYERS.osmf = {
     loadPlayer: function (src, to, volume) {
         if (volume === false){
             volume = 1;
@@ -423,7 +428,7 @@ PLAYERS.osmf = {
     
 };
 
-PLAYERS.soundcloud = {
+window.PLAYERS.soundcloud = {
 	/*playVideo: function (id, at) {
         
     },*/
@@ -509,7 +514,7 @@ PLAYERS.soundcloud = {
     }
 };
 
-PLAYERS.dm = {
+window.PLAYERS.dm = {
 	loadPlayer: function (id, at, volume) {
 		if (volume === false) {
             volume = 1;
