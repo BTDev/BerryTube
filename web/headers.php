@@ -52,43 +52,31 @@
 <script src="https://w.soundcloud.com/player/api.js"></script>
 <script src="http://vjs.zencdn.net/5.4.4/video.js"></script>
 <!-- Socket.IO stuff -->
+<script src="//<?= $_SERVER['HTTP_HOST'] ?>:<?= SocketIO_PORT ?>/socket.io/socket.io.js"></script>
 <script>
-		
+
 	var socketIOTarget = location.hostname+":<?php echo SocketIO_PORT; ?>";
 	var videoWidth = <?php echo $playerDims['w']; ?>;
 	var videoHeight = <?php echo $playerDims['h']; ?>;
 	var WINDOW_TITLE = '<?php echo $TITLE; ?>';
-		
-	var _s = document.createElement("script");
-	_s.src = "http://"+(location.hostname)+":<?php echo SocketIO_PORT; ?>/socket.io/socket.io.js";
-	document.head.appendChild(_s);
-	
-	var scripts = [
-		"js/plugin-data.js",
-		"js/lib.js",
-		"js/init.js",
-		"js/functions.js",
-		"js/callbacks.js",
-		"js/player.js",
-	];
-	
+
 	// When socket is loaded...
 	(_i = function(){
 
 		if(!window.io){
 			return setTimeout(_i,100);
 		}
-		
+
 		try{
 
-			window.socket = io.connect('http://'+socketIOTarget,{
-				'connect timeout': 5000, 
-				'reconnect': true, 
-				'reconnection delay': 500, 
-				'reopen delay': 500, 
-				'max reconnection attempts': 10 
-			});	
-			
+			window.socket = io.connect('//'+socketIOTarget,{
+				'connect timeout': 5000,
+				'reconnect': true,
+				'reconnection delay': 500,
+				'reopen delay': 500,
+				'max reconnection attempts': 10
+			});
+
 			window.socket.on('error', function (reason){
 				if(reason == "handshake error") {
 					window.location = "ban.php";
@@ -105,19 +93,20 @@
 				var AWSHIT = $("<center><h1>Aw shit! Couldn't connect to the server!</h1></center>").prependTo(document.body);
 			});
 		}
-		
-		scripts.forEach(function(el){
-			var _s = document.createElement("script");
-			_s.src = el;
-			document.head.appendChild(_s);
-		})
-		
 	})();
-	
-		
+
+
 </script>
+
+<script src="js/plugin-data.js"></script>
+<script src="js/lib.js"></script>
+<script src="js/init.js"></script>
+<script src="js/functions.js"></script>
+<script src="js/callbacks.js"></script>
+<script src="js/player.js"></script>
+
 <?php
-	// Load plugins	
+	// Load plugins
 	if ($handle = opendir('./js/plugins')) {
 		/* This is the correct way to loop over the directory. */
 		while (false !== ($entry = readdir($handle))) {
@@ -138,15 +127,15 @@
 	if(isset($_SESSION['overrideCss']) && !empty($_SESSION['overrideCss'])){
 		$forceTheme = $_SESSION['overrideCss'];
 	}
-	
+
 	//$forceTheme = ""; // Used for like, holiday shit. Neat effect: Does not need to be an actual selectable theme!
-	
+
 	if(!empty($forceTheme)){
 		//setcookie("siteThemePath", $forceTheme, time()+(60*60*24*30));
 		$_COOKIE['siteThemePath'] = $forceTheme;
 		print('<script> $(function(){ $("body").data("cssOverride","'.$forceTheme.'"); } );</script>');
 	}
-	
+
 	if(isset($_COOKIE['siteThemePath']) && !empty($_COOKIE['siteThemePath'])){
 		print('<link rel="stylesheet" type="text/css" href="'.$_COOKIE['siteThemePath'].'" id="themeCss"/>');
 	}
