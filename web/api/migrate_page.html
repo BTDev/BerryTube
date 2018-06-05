@@ -1,3 +1,4 @@
+<body style="color:white;background-color:#421C52">
 <h2 id="title">Copying settings to new system...</h2>
 <p id="desc">If you are stuck on this page, you are probably blocking scripts and/or cookies from BerryTube.</p>
 <script>
@@ -18,6 +19,8 @@ frame.onload = function(){
     }
     frame.contentWindow.postMessage(data, origin);
 };
+frame.style.border = 'none';
 frame.src = origin + '/api/migrate_frame.html';
-document.head.appendChild(frame);
+document.body.appendChild(frame);
 </script>
+</body>

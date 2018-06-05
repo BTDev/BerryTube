@@ -41,9 +41,20 @@
 	$TITLE = $titles[array_rand($titles)];
 ?>
 <title><?php echo $TITLE; ?></title>
+
 <meta name="description" content="<?php echo $TITLE; ?>">
 <meta name="author" content="Cades / GreyMage / Eric Cutler">
 <meta name="robots" content="noindex">
+<meta name="theme-color" content="#421C52">
+
+<link rel="preload" as="script" href="https://<?= SocketIO_HOST ?>:<?= SocketIO_PORT ?>/socket.io/socket.io.js">
+
+<link rel="stylesheet" href="css/colors.css" id="mainTheme"/>
+<link rel="stylesheet" href="css/layout-other.css"/>
+<link rel="stylesheet" href="https://vjs.zencdn.net/5.4.4/video-js.css">
+<link rel="stylesheet" href="css/uni-gui.css" />
+<link rel="stylesheet" href="css/ui-lightness/jquery-ui.css" />
+
 <script src="js/jquery-1.8.2.js"></script>
 <script src="js/jquery-ui-1.9.1.custom.js"></script>
 <script src="js/jquery.tinyscrollbar.min.js"></script>
@@ -51,7 +62,7 @@
 <script src="js/froogaloop.min.js"></script>
 <script src="https://w.soundcloud.com/player/api.js"></script>
 <script src="https://vjs.zencdn.net/5.4.4/video.js"></script>
-<!-- Socket.IO stuff -->
+
 <script src="https://<?= SocketIO_HOST ?>:<?= SocketIO_PORT ?>/socket.io/socket.io.js"></script>
 <script>
 
@@ -105,10 +116,6 @@
 <script src="js/callbacks.js"></script>
 <script src="js/player.js"></script>
 
-<link rel="stylesheet" type="text/css" href="css/colors.css" id="mainTheme"/>
-<link rel="stylesheet" type="text/css" href="css/layout-other.css"/>
-<link href="https://vjs.zencdn.net/5.4.4/video-js.css" rel="stylesheet">
-
 <?php
 	// Load any other headers, like from the theme cookie.
 	if(isset($_SESSION['overrideCss']) && !empty($_SESSION['overrideCss'])){
@@ -124,8 +131,6 @@
 	}
 
 	if(isset($_COOKIE['siteThemePath']) && !empty($_COOKIE['siteThemePath'])){
-		print('<link rel="stylesheet" type="text/css" href="'.$_COOKIE['siteThemePath'].'" id="themeCss"/>');
+		print('<link rel="stylesheet" href="'.$_COOKIE['siteThemePath'].'" id="themeCss"/>');
 	}
 ?>
-<link rel="stylesheet" type="text/css" href="css/uni-gui.css" />
-<link rel="stylesheet" type="text/css" href="css/ui-lightness/jquery-ui.css" />
