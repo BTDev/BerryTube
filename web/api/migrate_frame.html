@@ -1,0 +1,12 @@
+<script>
+window.onmessage = function(event){
+    if (event.origin === 'http://' + location.hostname || event.origin === 'http://www.' + location.hostname) {
+        for (const key of Object.keys(event.data)) {
+            if (localStorage[key] === undefined)
+                localStorage[key] = event.data[key];
+        }
+        document.cookie = 'bt-migrated=1; path=/; domain=.' + location.hostname + '; max-age=2147483647';
+    }
+    event.source.postMessage('done', '*');
+};
+</script>

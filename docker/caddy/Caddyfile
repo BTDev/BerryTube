@@ -14,7 +14,7 @@
         Feature-Policy "camera 'none'; encrypted-media 'none'; fullscreen 'none'; geolocation 'none'; microphone 'none'; midi 'none'; payment 'none'; speaker 'none'; usb 'none'; vr 'none'"
         Referrer-Policy "no-referrer"
         X-Content-Type-Options "nosniff"
-        X-Frame-Options "SAMEORIGIN"
+        X-Frame-Options "DENY"
         X-XSS-Protection "1; mode=block; report=\"https://atte.report-uri.com/r/d/xss/enforce\""
         -Public-Key-Pins
         -Server
@@ -39,18 +39,42 @@
 }
 
 http://{$DOMAIN}:{$HTTP_PORT},
-http://www.{$DOMAIN}:{$HTTP_PORT},
-https://www.{$DOMAIN}:{$HTTPS_PORT} {
+http://www.{$DOMAIN}:{$HTTP_PORT} {
     import main
 
     redir {
         if {path} not_starts_with /api/
+        if {~bt-migrated} is 1
         / https://{$DOMAIN}:{$HTTPS_PORT}{uri}
+    }
+
+    rewrite / /api/migrate_page.html
+}
+
+https://www.{$DOMAIN}:{$HTTPS_PORT} {
+    redir {
+        if {~bt-migrated} is 1
+        / https://{$DOMAIN}:{$HTTPS_PORT}{uri}
+    }
+
+    redir {
+        if {~bt-migrated} not 1
+        / "http://www.{$DOMAIN}:{$HTTP_PORT}/api/migrate_page.html#{uri}"
     }
 }
 
 https://{$DOMAIN}:{$HTTPS_PORT} {
     import main
+
+    header /api/migrate_frame.html {
+        -X-Frame-Options
+    }
+
+    redir {
+        if {~bt-migrated} not 1
+        if {path} not /api/migrate_frame.html
+        / "http://{$DOMAIN}:{$HTTP_PORT}/api/migrate_page.html#{uri}"
+    }
 }
 
 http://{$DOMAIN}:{$NODE_HTTP_PORT},

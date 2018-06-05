@@ -11,7 +11,7 @@ services:
         build: ./docker/caddy/
         image: registry.gitlab.com/berrytube/berrytube/caddy:latest
         command: caddy -agree -log stderr -ca "${CA_URL}" -email "${CA_EMAIL}"
-        restart: 'no'
+        restart: always
         environment:
             - DOMAIN
             - HTTP_PORT
@@ -34,6 +34,7 @@ services:
         image: registry.gitlab.com/berrytube/berrytube/php:latest
         restart: always
         environment:
+            - DOMAIN
             - NODE_HTTPS_PORT
         volumes:
             - ./web:/var/www/html:ro

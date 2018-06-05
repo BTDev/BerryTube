@@ -1,0 +1,18 @@
+<script>
+const origin = 'https://' + location.hostname.replace(/^www\./, '');
+window.onmessage = function(event){
+    if (event.data === 'done')
+        location.href = origin + location.hash.replace(/^#/, '');
+};
+const frame = document.createElement('iframe');
+frame.onload = function(){
+    const data = {};
+    for (const key of Object.keys(localStorage)) {
+        if (localStorage.hasOwnProperty(key))
+            data[key] = localStorage[key];
+    }
+    frame.contentWindow.postMessage(data, origin);
+};
+frame.src = origin + '/api/migrate_frame.html';
+document.head.appendChild(frame);
+</script>
