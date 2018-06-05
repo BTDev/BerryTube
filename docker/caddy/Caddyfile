@@ -1,0 +1,55 @@
+(common) {
+    gzip
+    realip cloudflare
+
+    log / stdout "[{when_iso}] {remote}@{>CF-IPCountry} {method} \"{scheme}://{host}{uri}\" {status} in {latency} CF:{>CF-RAY}" {
+        except /ping.txt /ping.php
+    }
+
+    tls {
+        clients cloudflare-origin-pull-ca.pem
+        dns cloudflare
+        must_staple
+    }
+
+    header / {
+        Cache-Control "public, no-cache, must-revalidate"
+        Feature-Policy "camera 'none'; encrypted-media 'none'; fullscreen 'none'; geolocation 'none'; microphone 'none'; midi 'none'; payment 'none'; speaker 'none'; usb 'none'; vr 'none'"
+        Referrer-Policy "no-referrer"
+        X-Content-Type-Options "nosniff"
+        X-Frame-Options "SAMEORIGIN"
+        X-XSS-Protection "1; mode=block; report=\"https://atte.report-uri.com/r/d/xss/enforce\""
+        -Public-Key-Pins
+        -Server
+        -Strict-Transport-Security
+        -X-Powered-By
+    }
+}
+
+bt.atte.fi {
+    import common
+
+    root /var/www/html
+
+    status 404 /404
+    rewrite / {
+        regexp /\.
+        to /404
+    }
+
+    index index.php
+    fastcgi / bt-php:9000 php
+}
+
+bt.atte.fi:8443 {
+    import common
+
+    tls {
+        alpn http/1.1
+    }
+
+    proxy / http://bt-node:8443 {
+        transparent
+        websocket
+    }
+}

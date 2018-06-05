@@ -1,4 +1,3 @@
-docker/node/node_modules/
-docker/db/mysql/
-*.log
-.env
+/docker/node/node_modules/
+/.env
+/database/

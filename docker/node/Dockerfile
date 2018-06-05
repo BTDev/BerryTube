@@ -1,4 +1,10 @@
 FROM node:argon
-RUN npm install nodemon -g
-ADD package.json package.json
-RUN npm i
+
+WORKDIR /app
+CMD ["npm", "start"]
+
+COPY package.json ./
+RUN npm install
+
+COPY bt_data/ ./bt_data/
+COPY server.js ./

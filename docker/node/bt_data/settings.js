@@ -7,11 +7,11 @@ settings.vc = {};
 
 // Init Core settings
 settings.core.version = "2.1.0";
-settings.core.nodeport = 8344; // the server listening port.
+settings.core.nodeport = 8443; // the server listening port.
 settings.core.log_file_name = "bt.log";
 settings.core.error_file_name = "error_bt.log";
 settings.core.debug_file_name = "debug.log";
-settings.core.max_saved_buffer = 15; // # of saved messages in chatlog sent to people who join.
+settings.core.max_saved_buffer = 30; // # of saved messages in chatlog sent to people who join.
 settings.core.db_commit_delay = 1000 * 60 * 10; // ms
 settings.core.heartbeat_interval = 10000; // ms
 settings.core.max_connections_per_ip = 100;

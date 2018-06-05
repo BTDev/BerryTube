@@ -1,58 +1,63 @@
 version: '2'
 
+networks:
+    bt-net:
+
 volumes:
-    database_data:
-        driver: local
+    bt-caddy:
 
 services:
-    nginx:
-        image: nginx:latest
+    bt-caddy:
+        build: ./docker/caddy/
+        image: registry.gitlab.com/berrytube/berrytube/caddy:latest
         restart: always
+        environment:
+            - CLOUDFLARE_EMAIL
+            - CLOUDFLARE_API_KEY
         volumes:
-            - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
-            - .:/var/www/html
-        expose:
-            - 80
-        links:
-            - php
+            - bt-caddy:/root/.caddy
+            - ./web:/var/www/html:ro
         ports:
-            - "${WEB_PORT}:80"
-    node:
-        build: ./docker/node/
-        image: registry.gitlab.com/berrytube/berrytube/node
-        command: nodemon
-        restart: always
-        working_dir: /home/node/app
-        volumes:
-            - "./docker/node/:/home/node/app"
-        expose:
-            - 8344
-        ports:
-            - "${NODE_PORT}:8344"
-        links:
-            - mysql
-        depends_on:
-            - mysql
-    php:
+            - '80:80/tcp'
+            - '443:443/tcp'
+            - '8443:8443/tcp'
+        networks:
+            - bt-net
+
+    bt-php:
         build: ./docker/php/
-        image: registry.gitlab.com/berrytube/berrytube/php
+        image: registry.gitlab.com/berrytube/berrytube/php:latest
+        restart: always
+        volumes:
+            - ./web:/var/www/html:ro
+        expose:
+            - '9000'
+        networks:
+            - bt-net
+
+    bt-node:
+        build: ./docker/node/
+        image: registry.gitlab.com/berrytube/berrytube/node:latest
+        command: node server.js
         restart: always
         expose:
-            - 9000
-        volumes:
-            - .:/var/www/html
-        links:
-            - mysql
-        depends_on:
-            - mysql
-    mysql:
-        image: mysql:latest
+            - '8443'
+        networks:
+            - bt-net
+
+    bt-mysql:
+        image: mysql:8.0
         command: --default-authentication-plugin=mysql_native_password
         restart: always
-        expose:
-            - 3306
-        volumes:
-            - ./docker/db/mysql:/var/lib/mysql
         environment:
-            MYSQL_ROOT_PASSWORD: root
-            MYSQL_DATABASE: local
+            MYSQL_RANDOM_ROOT_PASSWORD: 'yes'
+            MYSQL_DATABASE: berrytube
+            MYSQL_USER: berrytube
+            MYSQL_PASSWORD: berrytube
+        volumes:
+            - ./schema.sql:/docker-entrypoint-initdb.d/berrytube.sql:ro
+            - ./database/:/var/lib/mysql
+        expose:
+            - '3306'
+        networks:
+            - bt-net

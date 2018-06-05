@@ -1,9 +1,9 @@
 <?php
 
-	define("DB_HOST","mysql");
-	define("DB_NAME","btube");
-	define("DB_USER","root");
-	define("DB_PASS","root");
+	define("DB_HOST","bt-mysql");
+	define("DB_NAME","berrytube");
+	define("DB_USER","berrytube");
+	define("DB_PASS","berrytube");
 	// define("SocketIO_HOST","192.168.99.100");
 	define("SocketIO_PORT","8443");
 	/* CUT AFTER ME FOR ANY CHANGES. */
