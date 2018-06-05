@@ -11,7 +11,6 @@
 
     header / {
         Cache-Control "public, no-cache, must-revalidate"
-        Feature-Policy "camera 'none'; encrypted-media 'none'; fullscreen 'none'; geolocation 'none'; microphone 'none'; midi 'none'; payment 'none'; speaker 'none'; usb 'none'; vr 'none'"
         Referrer-Policy "no-referrer"
         X-Content-Type-Options "nosniff"
         X-Frame-Options "DENY"
