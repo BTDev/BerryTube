@@ -1,13 +1,7 @@
 <?php
 
-	//TODO: Abstract these later.
-	define("DB_HOST","127.0.0.1");
-	define("DB_NAME","btube_db");
-	define("DB_USER","btube_db");
-	define("DB_PASS","d)4o&rOt7#PK");
-	define("SocketIO_HOST","96.127.152.99");
-	define("SocketIO_PORT","8344");
-	
+	require('apiconfig.php');
+
 	function array_to_xml($x, &$y) {
 		foreach($x as $key => $value) {
 			if(is_array($value)) {
@@ -24,7 +18,7 @@
 			}
 		}
 	}
-	
+
 	$mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
 	if (mysqli_connect_error()) {
 		die('Connect Error (' . mysqli_connect_errno() . ') '. mysqli_connect_error());
@@ -49,7 +43,7 @@
 		print $output;
 		die();
 	}
-	
+
 	if($_GET['format'] == "json"){
 		$output = array();
 		$q = sprintf('SELECT * FROM videos order by `position`');

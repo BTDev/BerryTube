@@ -10,17 +10,22 @@ services:
     bt-caddy:
         build: ./docker/caddy/
         image: registry.gitlab.com/berrytube/berrytube/caddy:latest
-        restart: always
+        command: caddy -agree -log stderr -ca "${CA_URL}" -email "${CA_EMAIL}"
+        restart: 'no'
         environment:
-            - CLOUDFLARE_EMAIL
-            - CLOUDFLARE_API_KEY
+            - DOMAIN
+            - HTTP_PORT
+            - HTTPS_PORT
+            - NODE_HTTP_PORT
+            - NODE_HTTPS_PORT
         volumes:
             - bt-caddy:/root/.caddy
             - ./web:/var/www/html:ro
         ports:
-            - '80:80/tcp'
-            - '443:443/tcp'
-            - '8443:8443/tcp'
+            - '${HTTP_PORT}:${HTTP_PORT}/tcp'
+            - '${HTTPS_PORT}:${HTTPS_PORT}/tcp'
+            - '${NODE_HTTP_PORT}:${NODE_HTTP_PORT}/tcp'
+            - '${NODE_HTTPS_PORT}:${NODE_HTTPS_PORT}/tcp'
         networks:
             - bt-net
 
@@ -28,6 +33,8 @@ services:
         build: ./docker/php/
         image: registry.gitlab.com/berrytube/berrytube/php:latest
         restart: always
+        environment:
+            - NODE_HTTPS_PORT
         volumes:
             - ./web:/var/www/html:ro
         expose:
@@ -41,7 +48,7 @@ services:
         command: node server.js
         restart: always
         expose:
-            - '8443'
+            - '8344'
         networks:
             - bt-net
 

@@ -4,8 +4,8 @@
 	define("DB_NAME","berrytube");
 	define("DB_USER","berrytube");
 	define("DB_PASS","berrytube");
-	// define("SocketIO_HOST","192.168.99.100");
-	define("SocketIO_PORT","8443");
+	define("SocketIO_HOST", $_SERVER['HTTP_HOST']);
+	define("SocketIO_PORT", getenv('NODE_HTTPS_PORT'));
 	/* CUT AFTER ME FOR ANY CHANGES. */
 	define("PATH","/");
 

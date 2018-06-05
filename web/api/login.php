@@ -1,35 +1,29 @@
 <?php
 
-	//TODO: Abstract these later.
-	define("DB_HOST","127.0.0.1");
-	define("DB_NAME","btube");
-	define("DB_USER","root");
-	define("DB_PASS","BerryPunch");
-	define("SocketIO_HOST","btc.berrytube.tv");
-	define("SocketIO_PORT","8344");
-	
+	require('apiconfig.php');
+
 	header('Access-Control-Allow-Origin: '.$_SERVER['HTTP_ORIGIN']);
     header('Access-Control-Allow-Methods: GET, PUT, POST, DELETE, OPTIONS');
     header('Access-Control-Max-Age: 1000');
     header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With');
-	
+
 	$mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
 	if (mysqli_connect_error()) {
 		die('Connect Error (' . mysqli_connect_errno() . ') '. mysqli_connect_error());
 	}
-	
+
 	class ipSession{
-	
+
 		var $mysqli;
 		var $session;
-		
+
 		function ipSession($mysqli){
 			$this->session = new stdClass();
-			// Load IP Session	
+			// Load IP Session
 			$this->mysqli = $mysqli;
 			$q = 'select `session` from `api` where `ip` = "'.$_SERVER['REMOTE_ADDR'].'"';
 			$result = $this->mysqli->query($q);
-			
+
 			// Handle No Table
 			if(!$result){
 				//die($mysqli->error);
@@ -43,29 +37,29 @@
 				';
 				$this->mysqli->query($create);
 				$result = $this->mysqli->query($q);
-			} 
-			
+			}
+
 			// Handle New IP.
 			if($result->num_rows == 0){
 				// Create inital.
 				$q = 'insert into `api` (`ip`,`session`) VALUES ("'.$_SERVER['REMOTE_ADDR'].'","'.(base64_encode(json_encode(array()))).'");';
 				$this->mysqli->query($q);
-			} 
-			
+			}
+
 			while($row = $result->fetch_array(MYSQLI_ASSOC)){
 				$this->session = json_decode(base64_decode($row['session']));
 			}
 			/* free result set */
 			$result->close();
 		}
-		
+
 		function save(){
 			$q = 'update `api` set `session` = "'.(base64_encode(json_encode($this->session))).'" where `ip` = "'.$_SERVER['REMOTE_ADDR'].'"';
 			//print $q;
 			$this->mysqli->query($q);
 		}
 		/*
-		
+
 CREATE TABLE IF NOT EXISTS `api` (
   `id` int(10) unsigned NOT NULL auto_increment,
   `ip` varchar(20) NOT NULL,
@@ -75,19 +69,19 @@ CREATE TABLE IF NOT EXISTS `api` (
 
 */
 	}
-	
+
 	$ips = new ipSession($mysqli);
-	
+
 	if(!isset($ips->session->last_hit)){
 		$ips->session->last_hit = time()-1;
 	}
 	if($ips->session->last_hit == time()){
 		die("Rate-limit Exceeded");
 	}
-	
+
 	$ips->session->last_hit = time();
 	$ips->save();
-	
+
 	$mode = "fail";
 	$format = "fail";
 	if(isset($_GET['username']) && isset($_GET['password'])){ $mode = "get"; }
@@ -106,7 +100,7 @@ CREATE TABLE IF NOT EXISTS `api` (
 		);
 		die($x["message"]);
 	}
-	
+
 	if($format == "fail"){
 		$x = array(
 			"result" => "fail",
@@ -114,7 +108,7 @@ CREATE TABLE IF NOT EXISTS `api` (
 		);
 		die($x["message"]);
 	}
-	
+
 	if($mode == "get"){
 		$username = $mysqli->real_escape_string($_GET['username']);
 		if(isset($_GET['md5pass'])){
@@ -123,7 +117,7 @@ CREATE TABLE IF NOT EXISTS `api` (
 			$password = md5($_GET['password']);
 		}
 	}
-	
+
 	if($mode == "post"){
 		$username = $mysqli->real_escape_string($_POST['username']);
 		if(isset($_POST['md5pass'])){
@@ -132,13 +126,13 @@ CREATE TABLE IF NOT EXISTS `api` (
 			$password = md5($_POST['password']);
 		}
 	}
-	
+
 	$q = sprintf('SELECT * FROM users where `name` = "%s" and `pass` = "%s"',$username,$password);
 	$blacklist = array(
 		"meta",
 		"pass"
 	);
-	
+
 	if($format == "xml"){
 		$output = "<?xml version=\"1.0\"?>\n<user>";
 		if ($result = $mysqli->query($q)) {
@@ -159,7 +153,7 @@ CREATE TABLE IF NOT EXISTS `api` (
 		print $output;
 		die();
 	}
-	
+
 	if($format == "json"){
 		$output = array();
 		if ($result = $mysqli->query($q)) {

@@ -50,12 +50,12 @@
 <script src="js/swfobject.js"></script>
 <script src="js/froogaloop.min.js"></script>
 <script src="https://w.soundcloud.com/player/api.js"></script>
-<script src="http://vjs.zencdn.net/5.4.4/video.js"></script>
+<script src="https://vjs.zencdn.net/5.4.4/video.js"></script>
 <!-- Socket.IO stuff -->
-<script src="//<?= $_SERVER['HTTP_HOST'] ?>:<?= SocketIO_PORT ?>/socket.io/socket.io.js"></script>
+<script src="https://<?= SocketIO_HOST ?>:<?= SocketIO_PORT ?>/socket.io/socket.io.js"></script>
 <script>
 
-	var socketIOTarget = location.hostname+":<?php echo SocketIO_PORT; ?>";
+	var socketIOTarget = "<?= SocketIO_HOST ?>:<?= SocketIO_PORT ?>";
 	var videoWidth = <?php echo $playerDims['w']; ?>;
 	var videoHeight = <?php echo $playerDims['h']; ?>;
 	var WINDOW_TITLE = '<?php echo $TITLE; ?>';
@@ -69,7 +69,7 @@
 
 		try{
 
-			window.socket = io.connect('//'+socketIOTarget,{
+			window.socket = io.connect('https://'+socketIOTarget,{
 				'connect timeout': 5000,
 				'reconnect': true,
 				'reconnection delay': 500,
@@ -105,22 +105,9 @@
 <script src="js/callbacks.js"></script>
 <script src="js/player.js"></script>
 
-<?php
-	// Load plugins
-	if ($handle = opendir('./js/plugins')) {
-		/* This is the correct way to loop over the directory. */
-		while (false !== ($entry = readdir($handle))) {
-			if(preg_match('/\.js$/',$entry)){
-				echo '<script src="js/plugins/'.$entry.'"></script>';
-			}
-		}
-		closedir($handle);
-	}
-?>
-
 <link rel="stylesheet" type="text/css" href="css/colors.css" id="mainTheme"/>
 <link rel="stylesheet" type="text/css" href="css/layout-other.css"/>
-<link href="http://vjs.zencdn.net/5.4.4/video-js.css" rel="stylesheet">
+<link href="https://vjs.zencdn.net/5.4.4/video-js.css" rel="stylesheet">
 
 <?php
 	// Load any other headers, like from the theme cookie.

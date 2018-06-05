@@ -1,7 +1,6 @@
 FROM node:argon
 
-WORKDIR /app
-CMD ["npm", "start"]
+WORKDIR /app/
 
 COPY package.json ./
 RUN npm install

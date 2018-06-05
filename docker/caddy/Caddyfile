@@ -1,14 +1,11 @@
 (common) {
     gzip
-    realip cloudflare
 
-    log / stdout "[{when_iso}] {remote}@{>CF-IPCountry} {method} \"{scheme}://{host}{uri}\" {status} in {latency} CF:{>CF-RAY}" {
+    log / stdout {combined} {
         except /ping.txt /ping.php
     }
 
     tls {
-        clients cloudflare-origin-pull-ca.pem
-        dns cloudflare
         must_staple
     }
 
@@ -26,7 +23,7 @@
     }
 }
 
-bt.atte.fi {
+(main) {
     import common
 
     root /var/www/html
@@ -41,14 +38,32 @@ bt.atte.fi {
     fastcgi / bt-php:9000 php
 }
 
-bt.atte.fi:8443 {
+http://{$DOMAIN}:{$HTTP_PORT},
+http://www.{$DOMAIN}:{$HTTP_PORT},
+https://www.{$DOMAIN}:{$HTTPS_PORT} {
+    import main
+
+    redir {
+        if {path} not_starts_with /api/
+        / https://{$DOMAIN}:{$HTTPS_PORT}{uri}
+    }
+}
+
+https://{$DOMAIN}:{$HTTPS_PORT} {
+    import main
+}
+
+http://{$DOMAIN}:{$NODE_HTTP_PORT},
+https://{$DOMAIN}:{$NODE_HTTPS_PORT},
+http://www.{$DOMAIN}:{$NODE_HTTP_PORT},
+https://www.{$DOMAIN}:{$NODE_HTTPS_PORT} {
     import common
 
     tls {
         alpn http/1.1
     }
 
-    proxy / http://bt-node:8443 {
+    proxy / http://bt-node:8344 {
         transparent
         websocket
     }

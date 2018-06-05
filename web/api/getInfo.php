@@ -1,37 +1,31 @@
 <?php
 
-	//TODO: Abstract these later.
-	define("DB_HOST","127.0.0.1");
-	define("DB_NAME","btube_db");
-	define("DB_USER","btube_db");
-	define("DB_PASS","d)4o&rOt7#PK");
-	define("SocketIO_HOST","96.127.152.99");
-	define("SocketIO_PORT","8344");
-	
+	require('apiconfig.php');
+
 	header('Access-Control-Allow-Origin: '.$_SERVER['HTTP_ORIGIN']);
     header('Access-Control-Allow-Methods: GET, PUT, POST, DELETE, OPTIONS');
     header('Access-Control-Max-Age: 1000');
     header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With');
-	
+
 	$mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
 	if (mysqli_connect_error()) {
 		die('Connect Error (' . mysqli_connect_errno() . ') '. mysqli_connect_error());
 	}
-	
+
 	require("IPSession.php");
-	
+
 	$ips = new ipSession($mysqli);
-	
+
 	if(!isset($ips->session->last_hit)){
 		$ips->session->last_hit = time()-1;
 	}
 	if($ips->session->last_hit == time()){
 		die("Rate-limit Exceeded");
 	}
-	
+
 	$ips->session->last_hit = time();
 	$ips->save();
-	
+
 	$mode = "fail";
 	$format = "fail";
 	if(isset($_GET['username'])){ $mode = "get"; }
@@ -48,7 +42,7 @@
 		);
 		die($x["message"]);
 	}
-	
+
 	if($format == "fail"){
 		$x = array(
 			"result" => "fail",
@@ -56,21 +50,21 @@
 		);
 		die($x["message"]);
 	}
-	
+
 	if($mode == "get"){
 		$username = $mysqli->real_escape_string($_GET['username']);
 	}
-	
+
 	if($mode == "post"){
 		$username = $mysqli->real_escape_string($_POST['username']);
 	}
-	
+
 	$q = sprintf('SELECT * FROM users where `name` = "%s"',$username);
 	$blacklist = array(
 		"meta",
 		"pass"
 	);
-	
+
 	if($format == "xml"){
 		$output = "<?xml version=\"1.0\"?>\n<user>";
 		if ($result = $mysqli->query($q)) {
@@ -91,7 +85,7 @@
 		print $output;
 		die();
 	}
-	
+
 	if($format == "json"){
 		$output = array();
 		if ($result = $mysqli->query($q)) {
