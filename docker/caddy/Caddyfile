@@ -48,7 +48,10 @@ http://www.{$DOMAIN}:{$HTTP_PORT} {
         / https://{$DOMAIN}:{$HTTPS_PORT}{uri}
     }
 
-    rewrite / /api/migrate_page.html
+    rewrite / {
+        if {path} not_starts_with /api/
+        to /api/migrate_page.html
+    }
 }
 
 https://www.{$DOMAIN}:{$HTTPS_PORT} {
