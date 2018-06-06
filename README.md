@@ -4,9 +4,7 @@ BerryTube
 Before running
 --------------
 
-Copy `.env.sample` to `.env` and fill in the domain you'll use to access BT, and an email address that's given to Let's Encrypt when requesting certificates. Both the domain itself and the domain prefixed with www. must point to the server.
-
-If you want proper trusted certificates, remove `-staging` from `CA_URL`.
+Copy `.env.sample` to `.env` and tweak the values. Both the domain itself and the domain prefixed with www. must point to the server.
 
 
 Running

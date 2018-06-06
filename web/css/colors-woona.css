@@ -1,14 +1,14 @@
 body {
-    background: url(../images/woona/moon.png) no-repeat fixed -200px -200px black;
+    background: url(/images/woona/moon.png) no-repeat fixed -200px -200px black;
     color: white;
 }
 #playlist .thumb .end, #playlist .thumb { background-color: #5c4fd1; }
-.wrapper{ background: url(../images/woona/50.png); }
-#videobg { background: url(../images/woona/player_back.png) no-repeat center center; }
-#chatbuffer .message.drink { background: url(../images/woona/bp_tiny.png) no-repeat scroll right center transparent; }
-#drinkWrap { background:url(../images/woona/drink_back.png) repeat-y center; }
+.wrapper{ background: url(/images/woona/50.png); }
+#videobg { background: url(/images/woona/player_back.png) no-repeat center center; }
+#chatbuffer .message.drink { background: url(/images/woona/bp_tiny.png) no-repeat scroll right center transparent; }
+#drinkWrap { background:url(/images/woona/drink_back.png) repeat-y center; }
 #banner {
-    background: url(../images/woona/banner.png) no-repeat center;	
+    background: url(/images/woona/banner.png) no-repeat center;
     height: 255px;
     margin: 0 auto;
     width: 538px;
@@ -18,7 +18,7 @@ body {
 #chatlist ul .anon,.flaunt.level_0 { color: gray; }
 #chatlist ul .nobody,.flaunt.level_-1 { color: lightgray; }
 #chatlist ul .leader {
-    background: url(../images/woona/star.png) no-repeat scroll left center transparent;
+    background: url(/images/woona/star.png) no-repeat scroll left center transparent;
     padding-left: 25px;
 }
 #chatbuffer .drinkWrap{
@@ -48,11 +48,11 @@ body {
 }
 #playlist .track{
     border-left: 1px solid #5c4fd1;
-	background: black url(../images/woona/purpledot.png) repeat-x 0 0;
+	background: black url(/images/woona/purpledot.png) repeat-x 0 0;
 }
 #v{
 	display:none;
-	background:url(../images/woona/v.jpg);
+	background:url(/images/woona/v.jpg);
 	width:604px;
 	height:350px;
 	margin:0 auto;

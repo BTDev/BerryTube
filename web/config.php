@@ -6,8 +6,18 @@
 	define("DB_PASS","berrytube");
 	define("SocketIO_HOST", getenv('DOMAIN'));
 	define("SocketIO_PORT", getenv('NODE_HTTPS_PORT'));
+	define('CDN_ORIGIN', 'https://' . getenv('CDN_DOMAIN') . ((getenv('HTTPS_PORT') === '443') ? '' : (':' . getenv('HTTPS_PORT'))));
 	/* CUT AFTER ME FOR ANY CHANGES. */
 	define("PATH","/");
+
+	function cdn($fname) {
+		$hash = md5_file($fname);
+		if ($hash) {
+			return CDN_ORIGIN . "/md5/$hash/$fname";
+		} else {
+			return $fname;
+		}
+	}
 
 	$mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
 	if (mysqli_connect_error()) {

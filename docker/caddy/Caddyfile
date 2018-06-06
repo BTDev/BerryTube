@@ -1,5 +1,6 @@
 (common) {
     gzip
+    realip cloudflare
 
     log / stdout {combined} {
         except /ping.txt /ping.php
@@ -26,12 +27,6 @@
     import common
 
     root /var/www/html
-
-    status 404 /404
-    rewrite / {
-        regexp /\.
-        to /404
-    }
 
     index index.php
     fastcgi / bt-php:9000 php
@@ -77,6 +72,26 @@ https://{$DOMAIN}:{$HTTPS_PORT} {
         if {path} not /api/migrate_frame.html
         / "http://{$DOMAIN}:{$HTTP_PORT}/api/migrate_page.html#{uri}"
     }
+}
+
+https://{$CDN_DOMAIN}:{$HTTPS_PORT} {
+    import main
+
+    status 404 /404
+    rewrite / {
+        if {file} ends_with .html
+        if {file} ends_with .php
+        if_op or
+        to /404
+    }
+
+    rewrite /md5/ {
+        regexp ^/[^/]+/(.+)$
+        to /md5/{1}
+    }
+
+    # browser 1 day, cache 1 month, allow stale for 1 day, allow stale while revalidate for 1 minute
+    header /md5/ Cache-Control "public, max-age=86400, s-maxage=262974, stale-if-error=86400, stale-while-revalidate=60"
 }
 
 http://{$DOMAIN}:{$NODE_HTTP_PORT},

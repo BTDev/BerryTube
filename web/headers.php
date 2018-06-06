@@ -47,74 +47,65 @@
 <meta name="robots" content="noindex">
 <meta name="theme-color" content="#421C52">
 
-<link rel="preload" as="script" href="https://<?= SocketIO_HOST ?>:<?= SocketIO_PORT ?>/socket.io/socket.io.js">
-
-<link rel="stylesheet" href="css/colors.css" id="mainTheme"/>
-<link rel="stylesheet" href="css/layout-other.css"/>
+<link rel="stylesheet" href="<?= cdn('css/colors.css') ?>" id="mainTheme"/>
+<link rel="stylesheet" href="<?= cdn('css/layout-other.css') ?>"/>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/video.js/5.4.4/video-js.min.css" integrity="sha256-UeMWbsVFjXKSEQ5njaTwWasAFZJsen4UMOHfTHNZtBA=" crossorigin="anonymous" />
-<link rel="stylesheet" href="css/uni-gui.css" />
+<link rel="stylesheet" href="<?= cdn('css/uni-gui.css') ?>" />
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.9.1/themes/ui-lightness/jquery-ui.min.css" integrity="sha256-dDoVsDysTyYZ4RNtdY7V1zNeujxOVejwbj0HEXF5GDI=" crossorigin="anonymous" />
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.8.2/jquery.min.js" integrity="sha256-8j1LMJtydDqor+H4yYols+4xJG+lcsZtnYyxmCyuT7w=" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.9.1/jquery-ui.min.js" integrity="sha256-H7C2ZUhiTIz56/LQyBlwkQqwyAMaitpvjm+IQRQ0To0=" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/tinyscrollbar/2.4.2/jquery.tinyscrollbar.min.js" integrity="sha256-gENsdwXJl1qiwOqS0DF+kfqTP5Dy+0gDTtxpRcWVhrU=" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/swfobject/2.2/swfobject.min.js" integrity="sha256-oYy9uw+7cz1/TLpdKv1rJwbj8UHHQ/SRBX5YADaM2OU=" crossorigin="anonymous"></script>
-<script src="js/froogaloop.min.js"></script>
+<script src="<?= cdn('js/froogaloop.min.js') ?>"></script>
 <script src="https://w.soundcloud.com/player/api.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/video.js/5.4.4/video.min.js" integrity="sha256-G7x2zGxKAoYkH+OZEozBSzZ5K7Dh+5T+k9FBQ0GGTcw=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/0.9.16/socket.io.min.js" integrity="sha256-bFYtqOZj1MLDlOrOlxCU9aruDP2zxiIKvmoo+dHsy4w=" crossorigin="anonymous"></script>
 
-<script src="https://<?= SocketIO_HOST ?>:<?= SocketIO_PORT ?>/socket.io/socket.io.js"></script>
 <script>
 
+	var CDN_ORIGIN = "<?= CDN_ORIGIN ?>";
 	var socketIOTarget = "<?= SocketIO_HOST ?>:<?= SocketIO_PORT ?>";
 	var videoWidth = <?php echo $playerDims['w']; ?>;
 	var videoHeight = <?php echo $playerDims['h']; ?>;
 	var WINDOW_TITLE = '<?php echo $TITLE; ?>';
 
-	// When socket is loaded...
-	(_i = function(){
+	try{
 
-		if(!window.io){
-			return setTimeout(_i,100);
-		}
+		window.socket = io.connect('https://'+socketIOTarget,{
+			'connect timeout': 5000,
+			'reconnect': true,
+			'reconnection delay': 500,
+			'reopen delay': 500,
+			'max reconnection attempts': 10
+		});
 
-		try{
-
-			window.socket = io.connect('https://'+socketIOTarget,{
-				'connect timeout': 5000,
-				'reconnect': true,
-				'reconnection delay': 500,
-				'reopen delay': 500,
-				'max reconnection attempts': 10
-			});
-
-			window.socket.on('error', function (reason){
-				if(reason == "handshake error") {
-					window.location = "ban.php";
-				} else {
-					$(function() {
-						var AWSHIT = $("<center><h1>Unable to connect Socket.IO: "+reason+"</h1></center>").prependTo(document.body);
-						console.error(e);
-					});
-				}
-			});
-		} catch(e) {
-			$(function() {
-				var debugging = $("<center><h3>"+e+"</h3></center>").prependTo(document.body);
-				var AWSHIT = $("<center><h1>Aw shit! Couldn't connect to the server!</h1></center>").prependTo(document.body);
-			});
-		}
-	})();
+		window.socket.on('error', function (reason){
+			if(reason == "handshake error") {
+				window.location = "ban.php";
+			} else {
+				$(function() {
+					var AWSHIT = $("<center><h1>Unable to connect Socket.IO: "+reason+"</h1></center>").prependTo(document.body);
+					console.error(e);
+				});
+			}
+		});
+	} catch(e) {
+		$(function() {
+			var debugging = $("<center><h3>"+e+"</h3></center>").prependTo(document.body);
+			var AWSHIT = $("<center><h1>Aw shit! Couldn't connect to the server!</h1></center>").prependTo(document.body);
+		});
+	}
 
 
 </script>
 
-<script src="js/plugin-data.js"></script>
-<script src="js/lib.js"></script>
-<script src="js/init.js"></script>
-<script src="js/functions.js"></script>
-<script src="js/callbacks.js"></script>
-<script src="js/player.js"></script>
+<script src="<?= cdn('js/plugin-data.js') ?>"></script>
+<script src="<?= cdn('js/lib.js') ?>"></script>
+<script src="<?= cdn('js/init.js') ?>"></script>
+<script src="<?= cdn('js/functions.js') ?>"></script>
+<script src="<?= cdn('js/callbacks.js') ?>"></script>
+<script src="<?= cdn('js/player.js') ?>"></script>
 
 <?php
 	// Load any other headers, like from the theme cookie.

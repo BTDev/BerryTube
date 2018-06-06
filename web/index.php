@@ -1,7 +1,4 @@
 <?php
-	if( $_SERVER['REMOTE_ADDR'] == "24.96.63.69" ){
-		//header('Location: http://meatspin.com/');
-	}
 
 	if(isset($_GET['LayoutType'])) { $_COOKIE['LayoutType'] = $_GET['LayoutType']; }
 	if(isset($_COOKIE['LayoutType'])){

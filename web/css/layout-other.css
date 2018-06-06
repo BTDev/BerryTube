@@ -1,7 +1,7 @@
 /* Etc. */
 .fifty, .wrapper.fifty{
     width: 50%;
-	background: url(../images/50.png);
+	background: url(/images/50.png);
 	padding:10px;
 }
 body {
@@ -93,7 +93,7 @@ body {
     font-size: 25px;
     margin: 5px 10px;
     text-align: center;
-	cursor: move;	
+	cursor: move;
 }
 #userCmds .btn.close {
     background: none repeat scroll 0 0 red;

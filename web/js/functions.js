@@ -1454,7 +1454,7 @@ function attachAreaEdit(elem,name){
 		var editbtn = $('<button>Edit</button>').addClass("editBtn").insertAfter(orig);
 
 		editbtn.hover(function(){
-			orig.css("background-image","url(images/attn.png)");
+			orig.css("background-image","url(" + CDN_ORIGIN + "/images/attn.png)");
 		},function(){
 			orig.css("background-image","none");
 		});

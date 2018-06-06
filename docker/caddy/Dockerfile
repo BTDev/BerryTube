@@ -5,12 +5,13 @@ WORKDIR /etc/caddy
 
 RUN apk add --no-cache bash ca-certificates && \
     apk add --no-cache --virtual caddy-install-deps gnupg curl && \
-    curl https://getcaddy.com | bash -s personal && \
+    curl https://getcaddy.com | bash -s personal http.realip && \
     apk del --no-cache caddy-install-deps
 
 COPY Caddyfile ./
 RUN env \
     DOMAIN=localhost \
+    CDN_DOMAIN=cdn.localhost \
     HTTP_PORT=80 \
     HTTPS_PORT=443 \
     NODE_HTTP_PORT=8344 \

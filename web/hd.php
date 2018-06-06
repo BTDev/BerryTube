@@ -1,10 +1,10 @@
 <?php
 	require_once("config.php");
 	setcookie("LayoutType", "hd", time()+(60*60*24*30));
-	
-	$w = 853; $r = 9/16; 
+
+	$w = 853; $r = 9/16;
 	$playerDims = Array(
-		"w" => $w, 
+		"w" => $w,
 		"h" => ceil($w * $r)
 	);
 ?>
@@ -12,7 +12,7 @@
 <html lang="en">
 <head>
 	<?php require("headers.php"); ?>
-	<link rel="stylesheet" type="text/css" href="css/layout-hd.css" />
+	<link rel="stylesheet" type="text/css" href="<?= cdn('css/layout-hd.css') ?>" />
 </head>
 <body class="layout_hd">
 	<div id="extras">
@@ -32,7 +32,7 @@
 		}
 	?>
 	<div class="wrapper">
-		<div id="headbar">	
+		<div id="headbar">
 		</div>
 	</div>
 	<div id="videobg">
@@ -44,7 +44,7 @@
 	</div>
 	<div id="main" class="wrapper">
 		<div id="rightpane">
-			
+
 		</div>
 		<div id="leftpane">
 
@@ -54,8 +54,8 @@
 	<div class="wrapper">
 		<center>
 			<b>Theme</b><br>
-			<span><a style="color:white" href="?LayoutType=hd">HD</a></span> | 
-			<span><a style="color:white" href="?LayoutType=compact">Regular</a></span> | 
+			<span><a style="color:white" href="?LayoutType=hd">HD</a></span> |
+			<span><a style="color:white" href="?LayoutType=compact">Regular</a></span> |
 			<span><a style="color:white" id="kiosk" href="#">Kiosk Mode</a></span>
 			<script>
 				$("#kiosk").click(function(){
@@ -68,4 +68,4 @@
 		</center>
 	</div>
 </body>
-</html>  
+</html>

@@ -96,20 +96,20 @@ LinkedList.Circular.prototype.toArray = function(){
 };
 
 var btEvents = (function(){
-  
+
   var self = {};
   var hooks = {};
-    
+
   self.on = function(evt,fn,once){
     once = !!once || false;
     hooks[evt] = hooks[evt] || [];
     hooks[evt].push({fn:fn,once:once});
   }
-  
+
   self.once = function(evt,fn){
     return self.on(evt,fn,true);
   }
-  
+
   self.emit = function(evt,data){
     hooks[evt] = hooks[evt] || [];
     for(var i=hooks[evt].length -1; i >= 0; i -= 1){
@@ -120,9 +120,9 @@ var btEvents = (function(){
       }
     }
   }
-  
+
   Object.freeze(self);
-  
+
   return self;
 
 })();
@@ -233,7 +233,7 @@ function addDelete(entry){
 }
 function doDelete(entry){
 	if(canDeleteVideo())
-	{	
+	{
 		var index = $(entry).index();
         var id = $(entry).data('plobject').videoid;
         var data = { index:index, sanityid:id };
@@ -261,13 +261,13 @@ function doRequeue(entry){
 	setVal("sorting",true)
 	console.log("Called doRequeue()");
 	if(controlsPlaylist())
-	{	
+	{
 		var from = $(entry).index();
 		var to = ACTIVE.domobj.index();
         var id = $(entry).data('plobject').videoid;
-		
+
 		if(from > to) to++;
-		
+
 		var data = {
 			from: from,
 			to: to,
@@ -290,7 +290,7 @@ function addVolatile(entry){
 	}
 }
 function doVolatile(entry){
-	if(canToggleVolatile()) {	
+	if(canToggleVolatile()) {
 		var pos = $(entry).index();
 		var volat = true;
         var id = $(entry).data('plobject').videoid;
@@ -310,7 +310,7 @@ function doVolatile(entry){
 	}
 }
 function doColorTag(entry,tag,volat){
-	if(canColorTag()) {	
+	if(canColorTag()) {
 		var pos = $(entry).index();
         var id = $(entry).data('plobject').videoid;
 		var data = {
@@ -334,7 +334,7 @@ function sortUserList(){
 	   return $(a).text().toUpperCase().localeCompare($(b).text().toUpperCase());
 	})
 	$.each(listitems, function(idx, itm) { if($(itm).data('nick') != NAME) mylist.append(itm); });
-	
+
 	var listitems = mylist.children('li.user.gilded, li.assistant.gilded').get();
 	listitems.sort(function(a, b) {
 	   return $(a).text().toUpperCase().localeCompare($(b).text().toUpperCase());
@@ -346,25 +346,25 @@ function sortUserList(){
            return $(a).text().toUpperCase().localeCompare($(b).text().toUpperCase());
         })
         $.each(listitems, function(idx, itm) { if($(itm).data('nick') != NAME) mylist.append(itm); });
-	
+
 	var listitems = mylist.children('li.user:not(.gilded,.leader), li.assistant:not(.gilded,.leader)').get();
 	listitems.sort(function(a, b) {
 	   return $(a).text().toUpperCase().localeCompare($(b).text().toUpperCase());
 	})
 	$.each(listitems, function(idx, itm) { if($(itm).data('nick') != NAME) mylist.append(itm); });
-	
+
 	var listitems = mylist.children('li.anon').get();
 	listitems.sort(function(a, b) {
 	   return $(a).text().toUpperCase().localeCompare($(b).text().toUpperCase());
 	})
 	$.each(listitems, function(idx, itm) { if($(itm).data('nick') != NAME) mylist.append(itm); });
-	
+
 	var listitems = mylist.children('li.nobody').get();
 	listitems.sort(function(a, b) {
 	   return $(a).text().toUpperCase().localeCompare($(b).text().toUpperCase());
 	})
 	$.each(listitems, function(idx, itm) { if($(itm).data('nick') != NAME) mylist.append(itm); });
-	
+
 	dbg("sorting");
 }
 
@@ -374,10 +374,10 @@ function showLogMenu(on){
 		uid:"logmenu",
 		center:true
 	});
-	
+
 	var filters = $('<fieldset id="logFilters"/>').appendTo(settWin);
 	$('<legend/>').appendTo(filters).text("Search Filters");
-	
+
 	var nickFilter = $('<select id="logNickFilter"/>').appendTo(filters);
 	$('<option/>').text('All modmins').appendTo(nickFilter);
 	$('<option/>').text('BATMAN').appendTo(nickFilter);
@@ -397,7 +397,7 @@ function showLogMenu(on){
 	nickFilter.change(function() {
 		filterAdminLog();
 	});
-	
+
 	var typeFilter = $('<select id="logTypeFilter"/>').appendTo(filters);
 	$('<option/>').text('All types').appendTo(typeFilter);
 	$('<option/>').text('site').appendTo(typeFilter);
@@ -406,12 +406,12 @@ function showLogMenu(on){
 	typeFilter.change(function() {
 		filterAdminLog();
 	});
-	
+
 	var logBuffer = $("<div/>").attr('id','logBuffer').appendTo(settWin);
     for(var i=0; i < ADMIN_LOG.length; ++i){
         addLogMsg(ADMIN_LOG[i], logBuffer);
     }
-	
+
 	settWin.resizable({ handles:'e' });
 	settWin.css('min-width', '400px');
 	settWin.window.center();
@@ -433,8 +433,8 @@ function showConfigMenu(on){
 		uid:"configmenu",
 		center:true
 	});
-	
-	var cmds = $("<div/>").attr('id','settingsGui').prependTo(settWin)	
+
+	var cmds = $("<div/>").attr('id','settingsGui').prependTo(settWin)
 	var optWrap = $("<ul/>").prependTo(cmds);
 
 	var configOps = $('<fieldset/>').appendTo($('<li/>').appendTo(optWrap));
@@ -444,7 +444,7 @@ function showConfigMenu(on){
 	$('<span/>').text("Sync video:").appendTo(row);
 	var syncOnOff = $('<input/>').attr('type','checkbox').appendTo(row);
 	if(getStorage('syncAtAll') == 1) syncOnOff.attr('checked','checked');
-	syncOnOff.change(function(){ // 
+	syncOnOff.change(function(){ //
 		if($(this).is(":checked")){
 			setStorage('syncAtAll',1);
 		} else {
@@ -455,7 +455,7 @@ function showConfigMenu(on){
 	var row = $('<div/>').appendTo(configOps);
 	$('<span/>').text("Sync within").appendTo(row);
 	var syncAccuracy = $('<input/>').attr('type','text').val(getStorage('syncAccuracy')).addClass("small").appendTo(row);
-	syncAccuracy.keyup(function(){ // 
+	syncAccuracy.keyup(function(){ //
 		setStorage('syncAccuracy',parseInt(syncAccuracy.val()))
 	});
 	$('<span/>').text("seconds.").appendTo(row);
@@ -464,7 +464,7 @@ function showConfigMenu(on){
 	$('<span/>').text("Enable notify sound:").appendTo(row);
 	var notifyMute = $('<input/>').attr('type','checkbox').appendTo(row);
 	if(getStorage('notifyMute') == 0) notifyMute.attr('checked','checked');
-	notifyMute.change(function(){ // 
+	notifyMute.change(function(){ //
 		if($(this).is(":checked")){
 			setStorage('notifyMute',0)
 		} else {
@@ -476,7 +476,7 @@ function showConfigMenu(on){
 	$('<span/>').text("Enable drink sound:").appendTo(row);
 	var notifyDrink = $('<input/>').attr('type','checkbox').appendTo(row);
 	if(getStorage("drinkNotify") == 1) {	notifyDrink.attr('checked','checked'); }
-	notifyDrink.change(function(){ // 
+	notifyDrink.change(function(){ //
 		if($(this).is(":checked")){
 			setStorage("drinkNotify",1);
 		} else {
@@ -488,7 +488,7 @@ function showConfigMenu(on){
 	$('<span/>').text("Use alternate video player:").appendTo(row);
 	var useLegacyPlayer = $('<input/>').attr('type','checkbox').appendTo(row);
 	if(getStorage("legacyPlayer") == 1) {useLegacyPlayer.attr('checked','checked'); }
-	useLegacyPlayer.change(function(){ // 
+	useLegacyPlayer.change(function(){ //
 		if($(this).is(":checked")){
 			setStorage('legacyPlayer',1)
 		} else {
@@ -500,7 +500,7 @@ function showConfigMenu(on){
 	$('<span/>').text("Show timestamps in chat:").appendTo(row);
 	var showChatTimestamps = $('<input/>').attr('type','checkbox').appendTo(row);
 	if(getStorage("showTimestamps") == 1) {showChatTimestamps.attr('checked','checked'); }
-	showChatTimestamps.change(function(){ // 
+	showChatTimestamps.change(function(){ //
 		if($(this).is(":checked")){
 			$('body').addClass('showTimestamps');
 			setStorage('showTimestamps',1)
@@ -514,21 +514,21 @@ function showConfigMenu(on){
 	$('<span/>').text("Show flair in chat:").appendTo(row);
 	var showChatFlair = $('<input/>').attr('type','checkbox').appendTo(row);
 	if(getStorage("showChatflair") == 1) {showChatFlair.attr('checked','checked'); }
-	showChatFlair.change(function(){ 
+	showChatFlair.change(function(){
 		if($(this).is(":checked")){
 			$('body').removeClass('hideChatFlair');
 			setStorage('showChatflair',1)
 		} else {
 			$('body').addClass('hideChatFlair');
 			setStorage('showChatflair',0)
-		} 
+		}
 	});
 	//----------------------------------------
 	var row = $('<div/>').appendTo(configOps);
 	$('<span/>').text("Playlist follows active video:").appendTo(row);
 	var plFolAcVid = $('<input/>').attr('type','checkbox').appendTo(row);
 	if(getStorage("plFolAcVid") == 1) plFolAcVid.attr('checked','checked');
-	plFolAcVid.change(function(){ // 
+	plFolAcVid.change(function(){ //
 		if($(this).is(":checked")){
 			setStorage('plFolAcVid',1)
 		} else {
@@ -539,7 +539,7 @@ function showConfigMenu(on){
 	var row = $('<div/>').appendTo(configOps);
 	$('<span/>').text("Keep").appendTo(row);
 	var keepPolls = $('<input/>').attr('type','text').val(getStorage("keeppolls")).addClass("small").appendTo(row);
-	keepPolls.keyup(function(){ // 
+	keepPolls.keyup(function(){ //
 		setStorage('keeppolls',parseInt(keepPolls.val()))
 	});
 	$('<span/>').text("old polls.").appendTo(row);
@@ -547,7 +547,7 @@ function showConfigMenu(on){
 	var row = $('<div/>').appendTo(configOps);
 	$('<span/>').text("Select theme:").appendTo(row);
 	var themeSelect = $('<select/>').appendTo(row);
-	
+
 	var themes = [];
 	var found = false;
 	themes.push({name:"Berry Punch",path:""});
@@ -573,7 +573,7 @@ function showConfigMenu(on){
 	$('<span/>').text("Night mode (for select themes):").appendTo(row);
 	var nightMode = $('<input/>').attr('type','checkbox').appendTo(row);
 	if(getStorage("nightMode") == 1) nightMode.attr('checked','checked');
-	nightMode.change(function(){ // 
+	nightMode.change(function(){ //
 		if($(this).is(":checked")){
 			setStorage('nightMode',1);
 			$('body').addClass('night');
@@ -596,13 +596,13 @@ function showConfigMenu(on){
 	if(TYPE >= 1){
 		var modOps = $('<fieldset/>').appendTo($('<li/>').appendTo(optWrap));
 		$('<legend/>').appendTo(modOps).text("+Options").addClass("mod");
-		
+
 		// Show Hidden
 		var row = $('<div/>').appendTo(modOps);
 		$('<span/>').text("Show Shadowban Chatter:").appendTo(row);
 		var showShadowChatter = $('<input/>').attr('type','checkbox').appendTo(row);
 		if(getStorage("sbchatter") == 1) showShadowChatter.attr('checked','checked');
-		showShadowChatter.change(function(){ // 
+		showShadowChatter.change(function(){ //
 			if($(this).is(":checked")){
 				$('body').addClass('showSBChatter');
 				setStorage('sbchatter',1)
@@ -613,7 +613,7 @@ function showConfigMenu(on){
 		});
 
 		if(TYPE >= 2){
-		
+
 			for(var i in TOGGLEABLES){
 				(function(i){
 					var row = $('<div/>').appendTo(modOps);
@@ -633,7 +633,7 @@ function showConfigMenu(on){
 					});
 				})(i);
 			}
-			
+
 			// Filter window
 			var row = $('<div/>').appendTo(modOps);
 			var showFilterBtn = $('<div/>').appendTo(row).addClass('button');
@@ -641,7 +641,7 @@ function showConfigMenu(on){
 			showFilterBtn.click(function(){
 				showAdminFilterWindow();
 			});
-			
+
 			// Ban list
 			var row = $('<div/>').appendTo(modOps);
 			var showBanlistBtn = $('<div/>').appendTo(row).addClass('button');
@@ -656,7 +656,7 @@ function showConfigMenu(on){
 	if(TYPE >= 2){
 		var adminOps = $('<fieldset/>').appendTo($('<li/>').appendTo(optWrap));
 		$('<legend/>').appendTo(adminOps).text("Admin Options").addClass("admin");
-		
+
 		// Filter window
 		var row = $('<div/>').appendTo(adminOps);
 		var showCssBtn = $('<div/>').appendTo(row).addClass('button');
@@ -664,16 +664,16 @@ function showConfigMenu(on){
 		showCssBtn.click(function(){
 			showCssOverrideWindow();
 		});
-		
+
 	}
-	
+
 	settWin.window.center();
 }
 function showUserActions(who){
 
 	var who = $(who);
 	var target = who.data('nick');
-	
+
 	// Position this beast.
 	var cmds = $("body").dialogWindow({
 		title:"User Menu",
@@ -681,17 +681,17 @@ function showUserActions(who){
 		offset:who.offset(),
 		toolBox:true
 	});
-	
+
 	var name = $('<h1/>').text(target).appendTo(cmds);
 	var optWrap = $("<ul/>").attr('id','userOps').appendTo(cmds);
-	
+
 	if(canMoveBerry() && (!LEADER || target != NAME)){
 		var option = $('<li/>').text("Give berry").addClass('btn').appendTo(optWrap);
 		option.click(function(){
 			socket.emit("moveLeader",target);
 			cmds.window.close();
 		})
-	}	
+	}
 	if(LEADER && target == NAME){
 		var option = $('<li/>').text("Give server berry").addClass('btn').appendTo(optWrap);
 		option.click(function(){
@@ -730,7 +730,7 @@ function showUserActions(who){
 			cmds.window.close();
 		})
 	}
-	
+
 	if(canTempShadowBan() && target != NAME){
 		var tban = $('<li/>').text("Temp shadowban").addClass('btn').appendTo(optWrap);
 		var uban = $('<li/>').text("Unshadowban").addClass('btn').appendTo(optWrap);
@@ -743,7 +743,7 @@ function showUserActions(who){
 			cmds.window.close();
 		})
 	}
-	
+
 	if (canBan() && target != NAME) {
 		var ban = $('<li/>').text("Ban").addClass('btn').appendTo(optWrap);
 		ban.click(function() {
@@ -751,7 +751,7 @@ function showUserActions(who){
 			cmds.window.close();
 		});
 	}
-	
+
 	if (TYPE >= 1 && target != NAME && !who.hasClass('anon')) {
 		var edit = $('<li/>').text("Edit note").addClass('btn').appendTo(optWrap);
 		edit.click(function() {
@@ -759,7 +759,7 @@ function showUserActions(who){
 			cmds.window.close();
 		});
 	}
-	
+
 	var aliases = who.data('aliases');
 	if (aliases !== undefined) {
 		$('<h2/>').text('Recent Aliases').appendTo(cmds);
@@ -789,9 +789,9 @@ function showEditNote(nick) {
 	$('<span/>').appendTo(saveBtn).text("Save");
 	saveBtn.click(function(){
 		socket.emit('fondleUser', {
-			action:'setUserNote', 
+			action:'setUserNote',
 			info: {
-				nick:nick, 
+				nick:nick,
 				note:input.val()
 			}
 		});
@@ -806,7 +806,7 @@ function addUser(data, sortafter){
 		var type = data.type;
 		var shadowbanned = data.shadowbanned;
 		var ip = ((TYPE >= 1 && data.meta !== undefined) ? data.meta.ip : false);
-		
+
 		var newusr = $('<li/>').append($('<span/>').addClass('chatlistname').text(nick)).data('nick',nick).show("blind").appendTo(chatul).addClass(nick);
 		if (nick == NAME) {
 			newusr.addClass("me");
@@ -932,7 +932,7 @@ function addVideoControls(entry,optionList){
 			window.open('http://www.dailymotion.com/video/' + vid, '_blank');
         });
     }
-	
+
 	// Video end notification
 	if ($(entry).data('plobject') == ACTIVE) {
 		var optBtn = $('<div/>').addClass('button').appendTo($('<li/>').appendTo(optionList));
@@ -948,7 +948,7 @@ function addVideoControls(entry,optionList){
 			}
 		});
 	}
-	
+
 	// Color Tags
 	if(canColorTag()){
 		$("<hr/>").appendTo($("<li/>").appendTo(optionList));
@@ -993,7 +993,7 @@ function addVideoControls(entry,optionList){
 			})(i);
 		}
 		$("<div/>").css("clear","both").appendTo(colorGrid);
-		
+
 		$("<hr/>").appendTo($("<li/>").appendTo(optionList));
 		var colorGrid = $("<div/>").addClass("colorGrid").appendTo($("<li/>").appendTo(optionList));
 		for(var i=0;i<colors.length;i++){
@@ -1039,15 +1039,15 @@ function populatePlEntry(entry,elem){
 		if(optionList.children().length == 0){
 			cmds.window.close();
 		}
-		
+
 		return false;
-	}); 
+	});
 }
 function initRCVOverlay(above){
 	var overlay = $("<div/>").insertBefore(above).attr('id','rcvOverlay');
-	
+
 	above.data("rcv",[]);
-	
+
 	above.scroll(function(){
 		var importantMsgs = $(this).data("rcv");
         for (var i = importantMsgs.length - 1; i >= 0; i--) {
@@ -1087,15 +1087,15 @@ function initPlaylistControls(plwrap){
 			videoImportWrap.hide("blind");
 		}
 	});
-	
+
 	$('<div/>').addClass("note").text("Insert Video URL or ID Below.").appendTo(videoImportWrap);
 	var container = $('<div/>').appendTo(videoImportWrap);
 	var impwrap = $('<div/>').addClass("impele").appendTo(container);
 	var videoImport = $('<input/>').appendTo(impwrap);
-		
+
 	var vqBtn = $('<div/>').addClass("impele").addClass("btn").text("Q").appendTo(container);
 	vqBtn.click(function(){
-		if(controlsPlaylist()){	
+		if(controlsPlaylist()){
 			var btn = $(this);
 			parseVideoURL($(videoImport).val(),function(id,type,videotitle){
 				elem=PLAYLIST.first; var found = false;
@@ -1123,10 +1123,10 @@ function initPlaylistControls(plwrap){
 			});
 		}
 	});
-	
+
 	var vvBtn = $('<div id="addVolatButton"/>').addClass("impele").addClass("btn").text("V").appendTo(container);
 	vvBtn.click(function(){
-		if(controlsPlaylist()){	
+		if(controlsPlaylist()){
 			var btn = $(this);
 			parseVideoURL($(videoImport).val(),function(id,type,videotitle){
 				elem=PLAYLIST.first; var found = false;
@@ -1154,10 +1154,10 @@ function initPlaylistControls(plwrap){
 			});
 		}
 	});
-	
+
 	var vaddBtn = $('<div/>').addClass("impele").addClass("btn").text("+").appendTo(container);
 	vaddBtn.click(function(){
-		if(controlsPlaylist()){	
+		if(controlsPlaylist()){
 			var btn = $(this);
 			parseVideoURL($(videoImport).val(),function(id,type,videotitle){
 				elem=PLAYLIST.first; var found = false;
@@ -1197,7 +1197,7 @@ function initPlaylistControls(plwrap){
 			playlistImportWrap.hide("blind");
 		}
 	});
-	
+
 	$('<div/>').addClass("note").text("Insert Playlist ID Below.").appendTo(playlistImportWrap);
 	var container = $('<div/>').appendTo(playlistImportWrap);
 	var impwrap = $('<div/>').addClass("impele").appendTo(container);
@@ -1225,7 +1225,7 @@ function initPlaylistControls(plwrap){
 			playlistControlWrap.hide("blind");
 		}
 	});
-	
+
 	var container = $('<div/>').appendTo(playlistControlWrap);
 	window.MISC_CONTROL = container;
 	var randomizeBtn = $('<div/>').addClass("misc").addClass("btn").text("Randomize List").appendTo(container);
@@ -1246,7 +1246,7 @@ function doPlaylistJump(elem){
 	}
 }
 function newPlaylist(plul){
-	
+
 	$(plul).children().remove();
 	var elem = PLAYLIST.first
 	for(var i=0;i<PLAYLIST.length;i++)
@@ -1254,7 +1254,7 @@ function newPlaylist(plul){
 		var entry = $("<li/>").appendTo(plul);
 		entry.data('plobject',elem);
 		elem.domobj = entry;
-			
+
 		populatePlEntry(entry,elem);
 
 		elem=elem.next;
@@ -1274,7 +1274,7 @@ function initPlaylist(parent){
 	var x = $('<div/>').addClass('end').appendTo(x);
 	var viewPort = $('<div/>').addClass('viewport').appendTo(plwrap);
 	var overview = $('<div/>').addClass('overview').appendTo(viewPort);
-	
+
 	plul = $("<ul/>").appendTo(overview).attr('id','plul');
 	if(controlsPlaylist()){
 		plul.addClass("controlsOn");
@@ -1284,13 +1284,13 @@ function initPlaylist(parent){
 	dbg("asking for permission to make the player");
 	socket.emit("myPlaylistIsInited");
 	$('<div/>').addClass("clear").appendTo(plwrap);
-	
+
 	var searchArea = $('<div/>').appendTo(plwrap).attr('id','searchbox');
 	var videoSearch = $('<input/>').appendTo(searchArea);
-	videoSearch.keyup(function(e) { 
+	videoSearch.keyup(function(e) {
 		if(e.keyCode == 13) {
 			clearInterval(getVal("searchTime"));
-			videoSearch.submit(); 
+			videoSearch.submit();
 		} else {
 			clearInterval(getVal("searchTime"));
 			var x = setTimeout(function(){
@@ -1302,11 +1302,11 @@ function initPlaylist(parent){
 	videoSearch.submit(function(){
 		plSearch($(this).val());
 	});
-	
+
 	var stats = $('<div/>').appendTo(plwrap).attr('id','plstats');
 	var totalVideos = $('<div/>').appendTo(stats).addClass('totalVideos').text("0");
 	var totalLength = $('<div/>').appendTo(stats).addClass('totalLength').text("0");
-	
+
 	totalVideos.click(function(){
 		videoSearch.val('');
 		if(searchArea.is(":hidden")){
@@ -1318,10 +1318,10 @@ function initPlaylist(parent){
 			plSearch();
 		}
 	});
-	
+
 	// This looks silly, but it's to avoid double-firing events on reconnect
 	$(window).unbind('keydown', keydownEventHandler).keydown(keydownEventHandler);
-	
+
 	newPlaylist(plul);
 }
 
@@ -1402,14 +1402,14 @@ function initChatControls(parent){
 	flairArrow.click(function(){
 		flairMenuWrap.click();
 	});
-	
+
 	var settingsMenu = $('<div/>').addClass('settings').appendTo(chatControls).text("Settings");
 	settingsMenu.click(function(){
 		showConfigMenu(settingsMenu);
 	});
 }
 function updateUserBreakdown(){
-	whenExists("#connectedCountWrapper",function(area){	
+	whenExists("#connectedCountWrapper",function(area){
 		var total = CONNECTED;
 		var numAdmins = $("#chatlist .admin").length;
 		var numMods = $("#chatlist .assistant").length;
@@ -1428,16 +1428,16 @@ function updateUserBreakdown(){
 function initChat(parent){
 	$("#chatpane").remove()
 	var chatpane = $('<div id="chatpane"/>').appendTo(parent);
-	
+
 	var chattabs = $('<div id="chattabs"/>').appendTo(chatpane);
 	var maintab = $('<div id="maintab"/>').addClass('tab active').text('#Main').click(function() { showChat('main'); }).appendTo(chattabs);
 	var admintab = $('<div id="admintab"/>').addClass('tab').text('#OPS').click(function() { showChat('admin'); }).appendTo(chattabs);
-	
+
 	var chatbuffer = $('<div id="chatbuffer"/>').addClass('chatbuffer').css('display', 'block').appendTo(chatpane);
 	var sbstare = $('<marquee/>').html('[](/sbstare)').appendTo(chatbuffer);
-	
+
 	var adminbuffer = $('<div id="adminbuffer"/>').addClass('chatbuffer').css('display', 'none').appendTo(chatpane);
-	
+
 	var userCountWrap = $('<div id="connectedCountWrapper"/>').appendTo(chatpane);
 	var userCount = $('<span id="connectedCount"/>').appendTo(userCountWrap);
 	userCountWrap.append("Connected Users:").append(userCount);
@@ -1446,10 +1446,10 @@ function initChat(parent){
 	userCountWrap.click(function(){
 		toggleChatMode();
 	});
-	
+
 	var chatlist = $('<div id="chatlist"/>').appendTo(chatpane);
 	var chatlistul = $('<ul/>').appendTo(chatlist);
-	
+
 	var chatinput = $('<div id="chatinput"/>').addClass("right").appendTo(chatpane);
 	var setNick = $('<div/>').text("Enter a Nickname:").addClass("setNick").appendTo(chatpane);
 	var tt = setInterval(function(){
@@ -1460,8 +1460,8 @@ function initChat(parent){
 		}
 	},500)
 	var chatinputbar = $('<input/>').attr('maxlength','400').appendTo(chatinput);
-	chatinputbar.keyup(function(e) { 
-		if(e.keyCode == 13) {chatinputbar.submit(); } 
+	chatinputbar.keyup(function(e) {
+		if(e.keyCode == 13) {chatinputbar.submit(); }
 	});
 	chatinputbar.keydown(function(objEvent) {
 		if (objEvent.keyCode == 9) {  //tab pressed
@@ -1470,7 +1470,7 @@ function initChat(parent){
 		}else{
 			$(this).data('tabcycle',false);
 			$(this).data('tabindex',0);
-			
+
 			if (objEvent.keyCode == 38) { //pressed up.
 			if(HISTORY_POS < HISTORY.length){
 				HISTORY_POS++;
@@ -1485,7 +1485,7 @@ function initChat(parent){
 				HISTORY_POS = 0;
 				HISTORY[HISTORY_POS] = $(this).val();
 			}
-			
+
 		}
 	})
 
@@ -1500,11 +1500,11 @@ function initChat(parent){
 			$(this).val("");
 		}
 	});
-	
+
 	// Because FUCK YOUR EYEBALLS
 	var adminRainbow = $('<div id="adminRainbow"/>').html('<span style="color: #EE4144;">A</span><span style="color: #F37033;">D</span><span style="color: #FDF6AF;">M</span><span style="color: #62BC4D;">O</span><span style="color: #1E98D3;">P</span><span style="color: #672F89;">S</span>').appendTo(chatinput);
 	adminRainbow.css('display', 'none');
-	
+
 	$('<div/>').addClass("clear").appendTo(chatpane);
 	initPolls(chatpane);
 	initChatControls(chatpane)
@@ -1521,12 +1521,12 @@ function initChatList(data){
 function initLogoutForm(headbar){
     var logoutForm = $('<form/>').attr('method','post').appendTo(headbar);
     var layoutTable = $('<table/>').appendTo(logoutForm);
-    
+
     var row = $('<tr/>').appendTo(layoutTable);
     $('<span/>').text('Logged in as '+ORIGNAME).appendTo($('<td/>').appendTo(row));
     $('<input/>').attr('name','logout').attr('type','hidden').appendTo($('<td/>').appendTo(row));
     var logoutbtn = $('<div/>').addClass("submit").text("Logout").appendTo($('<td/>').appendTo(row));
-    
+
     logoutbtn.click(function(){
         if(typeof localStorage != 'undefined') {
             localStorage.removeItem('nick');
@@ -1538,21 +1538,21 @@ function initLogoutForm(headbar){
 function initLoginForm(headbar){
     var loginWrap = $('<div/>').appendTo(headbar);
     var regWrap = $('<div/>').hide().appendTo(headbar);
-    
+
     /*=============================================*/
-    
+
     var loginForm = $('<form/>').attr('method','post').appendTo(loginWrap);
     var layoutTable = $('<table/>').appendTo(loginForm);
     var row = $('<tr/>').appendTo(layoutTable);
     $('<span/>').text('Username').appendTo($('<td/>').appendTo(row));
     var userBar = $('<input/>').attr('name','loginname').attr('type','text').appendTo($('<td/>').appendTo(row));
     var showregbtn = $('<div/>').addClass("submit").text("Register").appendTo($('<td/>').appendTo(row));
-    
+
     var row = $('<tr/>').appendTo(layoutTable);
     $('<span/>').text('Password').appendTo($('<td/>').appendTo(row));
     var loginBar = $('<input/>').attr('name','loginpass').attr('type','password').appendTo($('<td/>').appendTo(row));
     var loginbtn = $('<div/>').addClass("submit").text("Login").appendTo($('<td/>').appendTo(row));
-    
+
     showregbtn.click(function(){
         loginWrap.hide("blind",function(){
             regWrap.show("blind");
@@ -1571,7 +1571,7 @@ function initLoginForm(headbar){
     loginbtn.click(function(){loginForm.submit()});
     userBar.keyup(function(e) { if(e.keyCode == 13) { loginForm.submit(); } });
     loginBar.keyup(function(e) { if(e.keyCode == 13) { loginForm.submit(); } });
-    
+
     /*=============================================*/
 
     var regForm = $('<form/>').attr('method','post').appendTo(regWrap);
@@ -1580,17 +1580,17 @@ function initLoginForm(headbar){
     $('<span/>').text('Desired Username').appendTo($('<td/>').appendTo(row));
     var newUserBar = $('<input/>').attr('name','regname').attr('type','text').appendTo($('<td/>').appendTo(row));
     var showloginbtn = $('<div/>').addClass("submit").text("Login").appendTo($('<td/>').appendTo(row));
-    
+
     var row = $('<tr/>').appendTo(layoutTable);
     $('<span/>').text('Password').appendTo($('<td/>').appendTo(row));
     var passBar = $('<input/>').attr('name','regpass').attr('type','password').appendTo($('<td/>').appendTo(row));
     $('<div/>').text("").appendTo($('<td/>').appendTo(row));
-    
+
     var row = $('<tr/>').appendTo(layoutTable);
     $('<span/>').text('Confirm Password').appendTo($('<td/>').appendTo(row));
     var pass2Bar = $('<input/>').attr('name','regpass2').attr('type','password').appendTo($('<td/>').appendTo(row));
     var regbtn = $('<div/>').addClass("submit").text("Register").appendTo($('<td/>').appendTo(row));
-    
+
     showloginbtn.click(function(){
         regWrap.hide("blind",function(){
             loginWrap.show("blind");
@@ -1615,7 +1615,7 @@ function initLoginForm(headbar){
     regbtn.click(function(){regForm.submit()});
     newUserBar.keyup(function(e) { if(e.keyCode == 13) { regForm.submit() } });
     passBar.keyup(function(e) { if(e.keyCode == 13) { regForm.submit() } });
-    pass2Bar.keyup(function(e) { if(e.keyCode == 13) { regForm.submit() } });   
+    pass2Bar.keyup(function(e) { if(e.keyCode == 13) { regForm.submit() } });
     // Autologin.
     if(typeof localStorage != 'undefined'){
         var nick = localStorage.getItem('nick');
@@ -1640,7 +1640,7 @@ function addPollOpt(to,amt){
 function initPolls(under){
 	$("#pollpane").remove()
 	var chatpane = $('<div id="pollpane"/>').insertAfter(under);
-	
+
 	// Poll Controls
 	var pollControl = $('<div/>').attr('id','pollControl').insertBefore(chatpane);
 	var btns = $('<table/>').appendTo(pollControl).addClass("mainbtns");
@@ -1648,9 +1648,9 @@ function initPolls(under){
 	var newPollBtn = $('<div/>').addClass("btn").text("New Poll").appendTo($('<td/>').appendTo(row));
 	var endPollBtn = $('<div/>').addClass("btn").text("Close Active Poll").appendTo($('<td/>').appendTo(row));
 	var canvas = $('<div/>').addClass("options").appendTo(pollControl);
-	
+
 	$("<div/>").addClass("clear").insertAfter(btns);
-	
+
 	newPollBtn.click(function(){
 		if(canvas.is(":hidden")){
 			canvas.show("blind");
@@ -1660,57 +1660,57 @@ function initPolls(under){
 			newPollBtn.text("New Poll");
 		}
 	});
-	
+
 	endPollBtn.click(function(){
 		if(canClosePoll()){
 			socket.emit("closePoll");
 		}
 	});
-	
+
 	var table = $('<table/>').appendTo(canvas);
-	
+
 	// Title Row
 	var row = $('<tr/>').appendTo(table);
 	var td = $('<td/>').appendTo(row);
 	$('<label/>').text('Poll Title').appendTo(td);
-	
+
 	var td = $('<td/>').appendTo(row);
 	var x = $('<div/>').appendTo(td).addClass("optionWrap");
 	newPollTitle = $('<input/>').attr('type','text').appendTo(x);
-	
+
 	var td = $('<td/>').appendTo(row);
 	newPollObscure = $('<input/>').addClass("cb").attr('type','checkbox').attr("title","Obscure votes until poll closes.").appendTo(td);
-		
+
 	// Options Row Container
 	var row = $('<tr/>').appendTo(table);
 	var td = $('<td/>').appendTo(row);
 	$('<label/>').text('Poll Options').appendTo(td);
-	
+
 	var td = $('<td/>').appendTo(row);
 	var optionContainer = $('<div/>').addClass("optionContainer").appendTo(td);
-		
+
 	// New Option Row
 	var row = $('<tr/>').appendTo(table);
-	$('<td/>').appendTo(row);		
+	$('<td/>').appendTo(row);
 	var td = $('<td/>').appendTo(row);
 	var newOptionBtn = $('<div/>').addClass("btn").text("New Option").appendTo(td);
-		
+
 	// Submit Row
 	var row = $('<tr/>').appendTo(table);
 	$('<td/>').appendTo(row);
 	var td = $('<td/>').appendTo(row);
 	var createPollBtn = $('<div/>').addClass("btn").text("Create Poll").appendTo(td);
-		
+
 	// Runoff row
 	var row = $('<tr/>').appendTo(table);
 	$('<td/>').appendTo(row);
 	var td = $('<td/>').appendTo(row);
 	var createRunoffBtn = $('<div/>').addClass('btn').text('Create Runoff').appendTo(td);
-	
+
 	var td = $('<td/>').appendTo(row);
 	var x = $('<div/>').appendTo(td).addClass('optionWrap').css('width', '30px');
 	var runoffThreshold = $('<input/>').attr('type', 'text').attr('title', 'Vote threshold for the runoff.').appendTo(x);
-	
+
 	// Init
 	addPollOpt(optionContainer,2);
 	newOptionBtn.click(function(){
@@ -1743,7 +1743,7 @@ function initPolls(under){
 			if (isNaN(threshold)) {
 				return;
 			}
-			
+
 			var ops = [];
 			$('.poll.active tr').each(function(index, elem) {
 				var $elem = $(elem);
@@ -1752,7 +1752,7 @@ function initPolls(under){
 					ops.push($elem.find('.label').text());
 				}
 			});
-			
+
 			if (ops.length > 0) {
 				socket.emit('newPoll', {
 					title:newPollTitle.val(),
@@ -1768,7 +1768,7 @@ function initPolls(under){
 			}
 		}
 	});
-	
+
 	$('<div/>').css("clear",'both').appendTo(pollControl);
 }
 function initAreas(){
@@ -1776,7 +1776,7 @@ function initAreas(){
 	var header = $("<div/>").attr('id','dyn_header').addClass('dynarea').appendTo(hw);
 	var motd = $("<div/>").attr('id','dyn_motd').addClass('dynarea').insertAfter($("#pollpane"));
 	var footer = $("<div/>").attr('id','dyn_footer').addClass('dynarea').appendTo($("#main"));
-	
+
 	var now = new Date();
 	if (now >= new Date("Tue, 1 Apr 2014 00:00:00 EDT") && now < new Date("Wed, 2 Apr 2014 00:00:00 EDT")) {
 		function getAdUrl(vertical) {
@@ -1789,7 +1789,7 @@ function initAreas(){
 				return ads[Math.floor(Math.random() * ads.length)];
 			}
 		}
-		
+
 		$('<div id="goldButton"><div>Don\'t like the ads? Click here for your free trial subscription to BerryTube Gold!</div></div>')
 			.click(function() {
 				socket.emit('activateGold');
@@ -1802,7 +1802,7 @@ function initAreas(){
 			'margin-left':'-300px', 'z-index':'10000', 'background-image':getAdUrl(false)}).appendTo('body');
 		$('<div class="ad"/>').css({'position':'fixed', 'right':'0px', 'top':'50%', 'width':'160px', 'height':'600px',
 			'margin-top':'-300px', 'z-index':'10000', 'background-image':getAdUrl(true)}).appendTo('body');
-			
+
 		$('<link rel="stylesheet" type="text/css" href="http://toast.berrytube.tv/evil.css">').appendTo('head');
 	}
 }
@@ -1817,7 +1817,7 @@ function initMailbox() {
 						$('#mailButtonDiv').removeClass('new');
 						toggleMailDiv();
 					}))),
-			$('<div id="mailButtonDiv"/>').html('<img src="images/envelope.png"></img>').click(toggleMailDiv)));
+			$('<div id="mailButtonDiv"/>').html('<img src="' + CDN_ORIGIN + '/images/envelope.png"></img>').click(toggleMailDiv)));
 }
 $(function(){
 	dbg("page loaded, firing onload scripts")
@@ -1840,7 +1840,7 @@ $(function(){
 	initAreas();
 	initRCVOverlay($("#chatbuffer"));
 	initMailbox();
-	
+
 	// Defaults.
 	if(getStorage('syncAtAll') == null){setStorage('syncAtAll',1);}
 	if(getStorage('syncAccuracy') == null){setStorage('syncAccuracy',2);}
@@ -1859,7 +1859,7 @@ $(function(){
 	if(getStorage('sbchatter') == 1){ $('body').addClass('showSBChatter'); }
 	if(getStorage('showChatflair') == 0){ $('body').addClass('hideChatFlair'); }
 	if(getStorage('nightMode') == 1){ $('body').addClass('night'); }
-	
+
 	var t = getStorage('myFlairID');
 	if(t != null) {
 		MY_FLAIR_ID = t;
@@ -1878,7 +1878,7 @@ $(function(){
 		WINDOW_FOCUS = true;
 		windowFocused()
 	});
-	
+
 	$(".chatbuffer")
 		.mouseenter(function() { KEEP_BUFFER = false; })
 		.mouseleave(function() { KEEP_BUFFER = true; });
@@ -1890,14 +1890,14 @@ $(function(){
 			$("#adminbuffer").prop({ scrollTop: $("#adminbuffer").prop("scrollHeight") });
 		}
 	},100);
-	
+
 	var preloads = $('<div/>').addClass("preload").appendTo("body");
-	$('<img src="images/ajax-loader.gif"/>').appendTo(preloads);
-	
+	$('<img src="' + CDN_ORIGIN + '/images/ajax-loader.gif"/>').appendTo(preloads);
+
 	//Init plugin manager stuff
 	for (var i in scriptNodes) {
 		var node = scriptNodes[i];
-		
+
 		var selector = '';
 		if (node.js.length > 0) {
 			// Use the first js file as the selector, if there is one
@@ -1914,7 +1914,7 @@ $(function(){
 			console.log('Bad node ' + node.title + ', ignoring.');
 			continue;
 		}
-		
+
 		var exists = $(selector).length > 0;
 
 		var enabled = getStorage(node.setting);
