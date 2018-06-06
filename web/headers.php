@@ -60,7 +60,6 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js" integrity="sha256-KM512VNnjElC30ehFwehXjx1YCHPiQkOPmqnrWtpccM=" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/tinyscrollbar/2.4.2/jquery.tinyscrollbar.min.js" integrity="sha256-gENsdwXJl1qiwOqS0DF+kfqTP5Dy+0gDTtxpRcWVhrU=" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/swfobject/2.2/swfobject.min.js" integrity="sha256-oYy9uw+7cz1/TLpdKv1rJwbj8UHHQ/SRBX5YADaM2OU=" crossorigin="anonymous"></script>
-<script src="<?= cdn('js/froogaloop.min.js') ?>"></script>
 <script src="https://w.soundcloud.com/player/api.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/video.js/5.4.4/video.min.js" integrity="sha256-G7x2zGxKAoYkH+OZEozBSzZ5K7Dh+5T+k9FBQ0GGTcw=" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/0.9.16/socket.io.min.js" integrity="sha256-bFYtqOZj1MLDlOrOlxCU9aruDP2zxiIKvmoo+dHsy4w=" crossorigin="anonymous"></script>
@@ -68,58 +67,12 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/moment-duration-format/1.3.0/moment-duration-format.min.js" integrity="sha256-SjPDuWPRLxUNqTwhiAcTNcIwQLbf5khquJsz5fekYms=" crossorigin="anonymous"></script>
 
 <script>
-
 	var CDN_ORIGIN = "<?= CDN_ORIGIN ?>";
-	var socketIOTarget = "<?= SocketIO_HOST ?>:<?= SocketIO_PORT ?>";
+	var socketIOTarget = "https://<?= SocketIO_HOST ?>:<?= SocketIO_PORT ?>";
 	var videoWidth = <?php echo $playerDims['w']; ?>;
 	var videoHeight = <?php echo $playerDims['h']; ?>;
 	var WINDOW_TITLE = '<?php echo $TITLE; ?>';
-
-	try{
-
-		window.socket = io.connect('https://'+socketIOTarget,{
-			'connect timeout': 5000,
-			'reconnect': true,
-			'reconnection delay': 500,
-			'reopen delay': 500,
-			'max reconnection attempts': 10
-		});
-
-		window.socket.on('error', function (reason){
-			if(reason == "handshake error") {
-				window.location = "ban.php";
-			} else {
-				$(function() {
-					var AWSHIT = $("<center><h1>Unable to connect Socket.IO: "+reason+"</h1></center>").prependTo(document.body);
-					console.error(e);
-				});
-			}
-		});
-	} catch(e) {
-		$(function() {
-			var debugging = $("<center><h3>"+e+"</h3></center>").prependTo(document.body);
-			var AWSHIT = $("<center><h1>Aw shit! Couldn't connect to the server!</h1></center>").prependTo(document.body);
-		});
-	}
-
 </script>
-
-<template id="countdown-future-row">
-    <tr>
-        <th class="countdown-title" scope="row"></th>
-        <td class="countdown-start-time"></td>
-        <td class="countdown-time-diff"></td>
-        <td class="countdown-note"></td>
-    </tr>
-</template>
-
-<template id="countdown-happening-row">
-    <tr>
-        <th class="countdown-title" scope="row"></th>
-        <td class="countdown-happening" colspan="2">It's happening!</td>
-        <td class="countdown-note"></td>
-    </tr>
-</template>
 
 <script src="<?= cdn('js/plugin-data.js') ?>"></script>
 <script src="<?= cdn('js/lib.js') ?>"></script>
@@ -147,3 +100,20 @@
 		print('<link rel="stylesheet" href="'.$_COOKIE['siteThemePath'].'" id="themeCss"/>');
 	}
 ?>
+
+<template id="countdown-future-row">
+    <tr>
+        <th class="countdown-title" scope="row"></th>
+        <td class="countdown-start-time"></td>
+        <td class="countdown-time-diff"></td>
+        <td class="countdown-note"></td>
+    </tr>
+</template>
+
+<template id="countdown-happening-row">
+    <tr>
+        <th class="countdown-title" scope="row"></th>
+        <td class="countdown-happening" colspan="2">It's happening!</td>
+        <td class="countdown-note"></td>
+    </tr>
+</template>

@@ -1,5 +1,5 @@
+$(function(){
 'use strict';
-(function(){
 
 const API_KEY = '7f33ca4b6abd4ff029d44986b52dcf9afb601aabd752017bebf6637443501487';
 const CALENDAR_KEY = 'ks1vk8rt2qcy3vpk6j';
@@ -117,4 +117,4 @@ setTimeout(() => {
     });
 }, 1000 * Math.random());
 
-})();
+});
