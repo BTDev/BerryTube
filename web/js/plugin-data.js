@@ -37,7 +37,7 @@ var scriptNodes = [
         authors:['wut'],
         setting:'scriptNodeTtsEnabled',
         css:[],
-        js:['http://btc.berrytube.tv/wut/tts.js']
+        js:['plugins/tts/tts.js']
     },
 /*    {
         title:'Berrychievements',
