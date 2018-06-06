@@ -51,17 +51,17 @@
 
 <link rel="stylesheet" href="css/colors.css" id="mainTheme"/>
 <link rel="stylesheet" href="css/layout-other.css"/>
-<link rel="stylesheet" href="https://vjs.zencdn.net/5.4.4/video-js.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/video.js/5.4.4/video-js.min.css" integrity="sha256-UeMWbsVFjXKSEQ5njaTwWasAFZJsen4UMOHfTHNZtBA=" crossorigin="anonymous" />
 <link rel="stylesheet" href="css/uni-gui.css" />
-<link rel="stylesheet" href="css/ui-lightness/jquery-ui.css" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.9.1/themes/ui-lightness/jquery-ui.min.css" integrity="sha256-dDoVsDysTyYZ4RNtdY7V1zNeujxOVejwbj0HEXF5GDI=" crossorigin="anonymous" />
 
-<script src="js/jquery-1.8.2.js"></script>
-<script src="js/jquery-ui-1.9.1.custom.js"></script>
-<script src="js/jquery.tinyscrollbar.min.js"></script>
-<script src="js/swfobject.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.8.2/jquery.min.js" integrity="sha256-8j1LMJtydDqor+H4yYols+4xJG+lcsZtnYyxmCyuT7w=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.9.1/jquery-ui.min.js" integrity="sha256-H7C2ZUhiTIz56/LQyBlwkQqwyAMaitpvjm+IQRQ0To0=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tinyscrollbar/2.4.2/jquery.tinyscrollbar.min.js" integrity="sha256-gENsdwXJl1qiwOqS0DF+kfqTP5Dy+0gDTtxpRcWVhrU=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/swfobject/2.2/swfobject.min.js" integrity="sha256-oYy9uw+7cz1/TLpdKv1rJwbj8UHHQ/SRBX5YADaM2OU=" crossorigin="anonymous"></script>
 <script src="js/froogaloop.min.js"></script>
 <script src="https://w.soundcloud.com/player/api.js"></script>
-<script src="https://vjs.zencdn.net/5.4.4/video.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/video.js/5.4.4/video.min.js" integrity="sha256-G7x2zGxKAoYkH+OZEozBSzZ5K7Dh+5T+k9FBQ0GGTcw=" crossorigin="anonymous"></script>
 
 <script src="https://<?= SocketIO_HOST ?>:<?= SocketIO_PORT ?>/socket.io/socket.io.js"></script>
 <script>

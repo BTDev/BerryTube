@@ -1,1 +1,0 @@
-sendChat("Cades Massive Horsecock",{ msg: '[](/horsecock)', metadata: { flair: '0' } });

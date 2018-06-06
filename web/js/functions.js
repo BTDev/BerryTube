@@ -265,12 +265,12 @@ function showBanlistWindow() {
 		center:true,
 		initialLoading:true
 	});
-	
+
 	var mainOptWrap = $('<div/>').appendTo(parent).addClass('controlWindow');
 	var banZone = $('<div/>').addClass('banZone').appendTo(mainOptWrap);
 
 	parent.window.center();
-	
+
 	function addBanRow(data) {
 		var row = $('<div/>').addClass('row').appendTo(banZone);
 		var nicks = $('<span/>').text(data.nicks[0]).attr('title', data.nicks.length > 1 ? data.nicks.join(', ') : '');
@@ -289,7 +289,7 @@ function showBanlistWindow() {
 		});
 		$('<div/>').addClass('clear').appendTo(row);
 	}
-	
+
 	function loadExisting() {
 		dbg(BANLIST);
 		if (BANLIST.length == 0) {
@@ -303,7 +303,7 @@ function showBanlistWindow() {
 		BANLIST = false;
 		parent.window.setLoaded();
 	}
-	
+
 	function waitForExisting() {
 		dbg("Waiting for ban list");
 		setTimeout(function() {
@@ -315,7 +315,7 @@ function showBanlistWindow() {
 			}
 		}, 500);
 	}
-	
+
 	waitForExisting();
 }
 function showBanDialog(nick) {
@@ -324,7 +324,7 @@ function showBanDialog(nick) {
 		uid:"banuser",
 		center:true
 	});
-	
+
 	var mainOptWrap = $('<div/>').appendTo(parent).addClass('controlWindow');
 	$('<p>').appendTo(mainOptWrap).text("Applying ban to " + nick + ":").css('margin', '10px 5px 10px 5px');
 	var timeSelect = $('<select/>').appendTo(mainOptWrap).css('margin', '0px 5px 10px 5px');
@@ -340,7 +340,7 @@ function showBanDialog(nick) {
 	if (TYPE >= 2) {
 		$("<option/>").appendTo(timeSelect).data("time", -1).text("Permanent");
 	}
-	
+
 	var buttonDiv = $('<div/>').css("text-align", "center").appendTo(mainOptWrap);
 	var cancelBtn = $('<div/>').addClass('button').appendTo(buttonDiv);
 	$('<span/>').appendTo(cancelBtn).text("Cancel");
@@ -391,22 +391,22 @@ function showCustomSqueesWindow() {
 		uid:'squeemanagement',
 		center:true
 	});
-	
+
 	var mainOptWrap = $('<div/>').appendTo(parent).addClass('controlWindow');
 	var controlBar = $('<div/>').appendTo(mainOptWrap);
 	var nameZone = $('<div/>').addClass('nameZone').appendTo(mainOptWrap);
-	
+
 	function addName(name) {
 		var newName = $('<div/>').appendTo(nameZone);
-		newName.append($('<input/>').attr('type','text').val(name), 
+		newName.append($('<input/>').attr('type','text').val(name),
 			$('<div/>').addClass('button').append('<span>X</span>').click(function() { $(this).parent().remove(); }));
 	}
-	
+
 	// Control buttons
 	var newNameBtn = $('<div/>').addClass('button').appendTo(controlBar);
 	$('<span/>').appendTo(newNameBtn).text("Add New Name");
 	newNameBtn.click(function() { addName(''); });
-	
+
 	var saveBtn = $('<div/>').addClass('button').appendTo(controlBar);
 	$('<span/>').appendTo(saveBtn).text("Save Names");
 	saveBtn.click(function() {
@@ -430,7 +430,7 @@ function showCustomSqueesWindow() {
 		}
 		else {
 			HIGHLIGHT_LIST = newList;
-			
+
 			var nameList = '';
 			var first = true;
 			for (var i = 0; i < HIGHLIGHT_LIST.length; i++) {
@@ -446,11 +446,11 @@ function showCustomSqueesWindow() {
 		}
 		highlight(saveBtn);
 	});
-	
+
 	for (var i in HIGHLIGHT_LIST) {
 		addName(HIGHLIGHT_LIST[i]);
 	}
-	
+
 	parent.window.center();
 }
 
@@ -471,7 +471,7 @@ function showPluginWindow() {
 		$('<div/>').addClass('pluginTitle').text(node.title).appendTo(nodeDiv);
 		$('<div/>').addClass('pluginDesc').text(node.desc).appendTo(nodeDiv);
 		$('<div/>').addClass('pluginAuthors').text('Author' + (node.authors.length != 1 ? 's' : '') + ': ' + node.authors.join(', ')).appendTo(nodeDiv);
-		
+
 		if (!node.exists) {
 			var checkbox = $('<input type="checkbox"/>').data('node', node);
 			if (node.enabled) {
@@ -716,7 +716,7 @@ function handleACL(){
 
     try{
         dbg("ACL INIT:");
-		
+
 		var body = $('body');
 		body.removeClass('admin mod berry assistant');
 		if (TYPE == 2) {
@@ -728,7 +728,7 @@ function handleACL(){
 		if (LEADER) {
 			body.addClass('berry');
 		}
-		
+
         if(isRegisteredUser()) {
             var headbar = $('#headbar');
             var rememberMe = headbar.find('.rememberMe');
@@ -753,7 +753,7 @@ function handleACL(){
             }
             initLogoutForm(headbar.html(''));
         }
-        
+
         if(canSeeAdminLog()) {
             whenExists('#chatControls', function(chatControls){
                 if($('#chatControls .log').length == 0) {
@@ -900,7 +900,7 @@ function addLogMsg(data, to){
 		var h = addZero(timestamp.getHours());
 		var m = addZero(timestamp.getMinutes());
 		var s = addZero(timestamp.getSeconds());
-		
+
         var newmsg = $('<div/>').addClass('message').addClass(data.nick).addClass(data.type).append(
 			$('<div/>').addClass('nickwrap').append(
 				$('<span/>').addClass('timestamp').text('<' + h + ':' + m + ':' + s + '>'),
@@ -917,9 +917,9 @@ function addLogMsg(data, to){
 function addChatMsg(data,_to) {
 	whenExists(_to, function(to) {
 
-		// Added for a safe event hook for handling addons, etc. 
+		// Added for a safe event hook for handling addons, etc.
 		btEvents.emit("chat",data);
-	
+
 		// New format cause fuck all that argument shit. know whats cool? Objects.
 		var nick = data.msg.nick;
 		var msgText = data.msg.msg; // Don't hate me.
@@ -934,13 +934,13 @@ function addChatMsg(data,_to) {
 			// Don't add the message if we're ignoring the sender or it's a ghost on a reconnect
 			return;
 		}
-		
+
 		msgwrap.addClass($("#chatlist ."+nick).attr("class"));
 		if(metadata.graymute){msgwrap.addClass("graymute");}
-		
+
 		var isSquee = (nick != NAME && NAME.length > 0 && detectName(NAME, msgText));
 		var includeTimestamp = false;
-		
+
 		switch (data.msg.emote) {
 			case false:
 				// Regular message
@@ -949,9 +949,9 @@ function addChatMsg(data,_to) {
 					doSqueeNotify();
 					addNewMailMessage(data.msg.nick, data.msg.msg);
 				}
-				
+
 				newmsg.addClass("message").appendTo(msgwrap);
-				
+
 				if (to.data("lastMsgRecvBy") != nick) {
 					var name = $("<span/>").addClass("nick").appendTo(newmsg);
 					if (metadata.nameflaunt) {
@@ -967,17 +967,17 @@ function addChatMsg(data,_to) {
 					}
 					includeTimestamp = true;
 				}
-				
+
 				$("<span/>").addClass("msg").appendTo(newmsg).append(formatChatMsg(msgText));
 				to.data("lastMsgRecvBy", nick);
 				break;
-			case "act": 
+			case "act":
 				// Action text
 				if (isSquee) {
 					msgwrap.addClass("highlight");
 					doSqueeNotify();
 				}
-				
+
 				newmsg.addClass("message act").appendTo(msgwrap);
 				$("<span/>").addClass("nick").appendTo(newmsg).text(nick);
 				$("<span/>").addClass("msg").appendTo(newmsg).append(formatChatMsg(msgText));
@@ -1024,12 +1024,12 @@ function addChatMsg(data,_to) {
 				newmsg.addClass("message rcv").appendTo(msgwrap);
 				$("<span/>").addClass("nick").appendTo(newmsg).text(nick + ":");
 				var msg = $("<span/>").addClass("msg").appendTo(newmsg).append(formatChatMsg(msgText));
-				
+
 				msgwrap.data("oldPlace", msg.prev());
 				msgwrap.data("madeAt", new Date().getTime());
 				var rcv = $("#chatbuffer").data("rcv");
 				rcv.unshift(msgwrap);
-				
+
 				includeTimestamp = true;
 				to.data("lastMsgRecvBy", "");
 				break;
@@ -1044,11 +1044,11 @@ function addChatMsg(data,_to) {
 				var td = $('<td width="100%"/>').appendTo(tr);
 				$("<span/>").addClass("nick").appendTo(td).text(nick + ":");
 				$("<span/>").addClass("msg").appendTo(td).html(msgText + " drink!");
-				
+
 				if (data.msg.multi > 1) {
 					$("<span/>").addClass("multi").appendTo($("<td/>").appendTo(tr)).text(data.msg.multi + "x");
 				}
-				
+
 				to.data("lastMsgRecvBy", "");
 				break;
 			case "poll":
@@ -1080,7 +1080,7 @@ function addChatMsg(data,_to) {
 			var s = addZero(d.getSeconds());
 			var name = $("<span/>").addClass("timestamp").prependTo(newmsg).text("<" + h + ":" + m + ":" + s + ">");
 		}
-		
+
 		if (!isGhost) {
 			notifyNewMsg(metadata.channel, isSquee, data.msg.emote == "rcv");
 		}
@@ -1191,7 +1191,7 @@ function toggleChatMode(){
 }
 function toggleMailDiv() {
 	var mailboxDiv = $('#mailboxDiv');
-	
+
 	if (mailboxDiv.css('display') == 'none' && $('#mailMessageDiv').children().length > 0) {
 		mailboxDiv.css('display', 'block');
 		$('#mailButtonDiv').addClass('expanded').removeClass('new');
@@ -1217,11 +1217,11 @@ function addNewMailMessage(nick, msg) {
 					toggleMailDiv();
 				}
 			}));
-		
+
 		if (typeof postEmoteEffects != 'undefined') {
 			postEmoteEffects(newMsg);
 		}
-		
+
 		var mailMsgDiv = $('#mailMessageDiv');
 		mailMsgDiv.append(newMsg);
 		while (mailMsgDiv.children().length > 10) {
@@ -1242,7 +1242,7 @@ function plSearch(term){
 		if (TYPE >= 1) {
 			socket.emit('searchHistory', {search:term});
 		}
-		
+
         $("#plul li").addClass("search-hidden");
         $("#plul li.active").removeClass("search-hidden");
         elem=PLAYLIST.first;
@@ -1386,7 +1386,7 @@ function setCookie(c_name,value,exdays){
 function getStorage(key){
 	return localStorage.getItem(key);
 }
-function getCookie(c_name){	
+function getCookie(c_name){
 	// Kept for backwards compatability. Update references when found.
 	console.log("Old getCookie ref, update please!");
 	return getStorage(c_name);
@@ -1414,7 +1414,7 @@ function addVideo(data, queue, sanityid){
     else {
         var elem = data;
         plul = $("#playlist ul");
-        
+
         if(PLAYLIST.length == 0){
             PLAYLIST.append(elem);
             var entry = $("<li/>").appendTo(plul);
@@ -1535,7 +1535,7 @@ function setColorTheme(cssPath){
 	if(cssPath.length > 0)
 		$("<link/>").insertAfter("#mainTheme").attr('href',cssPath).attr('rel','stylesheet').attr('id',"themeCss");
 	setStorage("siteThemePath", cssPath);
-		
+
 	var exdate = new Date();
 	exdate.setDate(exdate.getDate() + 30);
 	var c_value = escape(cssPath) + '; expires=' + exdate.toUTCString();
@@ -1639,16 +1639,16 @@ function videoLoadAtTime(vidObj, time) {
     var id = vidObj.videoid;
     var ptype = vidObj.videotype;
 	var length = vidObj.videolength;
-	
+
     if (VIDEO_TYPE != ptype || !PLAYERS[ptype].playVideo) {
         if(PLAYER.getVolume) {
 			try {
 				PLAYER.getVolume(function(v){
                     try {
 						if(v !== null) VOLUME = v;
-    					PLAYER = PLAYERS[ptype]; 
+    					PLAYER = PLAYERS[ptype];
     					removeCurrentPlayer();
-    					VIDEO_TYPE = ptype; 
+    					VIDEO_TYPE = ptype;
     					PLAYER.loadPlayer(id, time, VOLUME, length);
                     }
                     catch (e) {
@@ -1700,7 +1700,7 @@ function formatChatMsg(msg){
 	var h = $('<span/>').html(msg);
     var re = RegExp("^>");
 	if(h.text().match(re)) h.addClass("green");
- 
+
 	return h;
 }
 function secondsToString(seconds){
@@ -1803,7 +1803,7 @@ function detectName(nick, msg){
 		list += HIGHLIGHT_LIST[i];
 	}
 	list = '(' + list + ')';
-	
+
     return (msg.match(RegExp("(^|[^\-a-zA-Z0-9_])" + list + "([^a-zA-Z0-9_]|$)",'i')) != null);
 }
 function tabComplete(elem) {
@@ -1964,11 +1964,11 @@ function setPlaylistPosition(to){
 
 function showChat(channel) {
 	ACTIVE_CHAT = channel;
-	
+
 	$('.chatbuffer').css('display', 'none');
 	$('#chattabs .tab').removeClass('active');
 	$('#chatpane').removeClass('admin');
-	
+
 	switch (channel) {
 		case 'main':
 			$('#chatbuffer').css('display', 'block');
@@ -2037,7 +2037,7 @@ function notifyNewMsg(channel, isSquee, isRcv) {
 							maintab.addClass('squee');
 						}
 					}, 1000);
-					
+
 					if (getStorage('notifyMute') == 0) {
 						NOTIFY.play();
 					}
@@ -2060,7 +2060,7 @@ function notifyNewMsg(channel, isSquee, isRcv) {
 							$('#chatpane').addClass('squee');
 						}
 					}, 1000);
-					
+
 					if (getStorage('notifyMute') == 0) {
 						NOTIFY.play();
 					}
@@ -2100,7 +2100,7 @@ function sortPlaylist(data) {
             }
             elem=elem.next;
         }
-        
+
         PLAYLIST.remove(fromelem);
         if(data.to > data.from){
             PLAYLIST.insertAfter(toelem,fromelem);
