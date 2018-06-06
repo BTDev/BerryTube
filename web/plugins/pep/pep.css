@@ -1,0 +1,346 @@
+
+/*loading pulse for button*/
+@-webkit-keyframes pulse  
+{0% {border-color: #732C7B;} 
+25% {border-color: #d400eb;}
+50% {border-color: #ed27ff;}
+75% {border-color: #d400eb;}
+100% {border-color: #732C7B;}}
+@-moz-keyframes pulse  
+{0% {border-color: #732C7B;} 
+25% {border-color: #d400eb;}
+50% {border-color: #ed27ff;}
+75% {border-color: #d400eb;}
+100% {border-color: #732C7B;}}
+@-o-keyframes pulse  
+{0% {border-color: #732C7B;} 
+25% {border-color: #d400eb;}
+50% {border-color: #ed27ff;}
+75% {border-color: #d400eb;}
+100% {border-color: #732C7B;}}
+@keyframes pulse  
+{0% {border-color: #732C7B;} 
+25% {border-color: #d400eb;}
+50% {border-color: #ed27ff;}
+75% {border-color: #d400eb;}
+100% {border-color: #732C7B;}}
+/*#global-zeroclipboard-flash-bridge, #global-zeroclipboard-flash-bridge:focus,#global-zeroclipboard-flash-bridge::-moz-focus-inner, #global-zeroclipboard-flash-bridge:active {
+    outline:0 !important;
+    border:none !important;
+}*/
+.copyCaption{
+    font-size:9px;
+    margin:0px 3px;
+    width:160px;
+    margin-top:-2px;
+    display:inline-block;
+}
+body.admin #playlist ul li div.title,
+body.assistant #playlist ul li div.title,
+body.berry #playlist ul li div.title
+{
+    width:-webkit-calc(100% - 110px);
+    width:-moz-calc(100% - 110px);
+    width:calc(100% - 110px);
+}
+#playlist ul li div.title{
+    width:-webkit-calc(100% - 90px);
+    width:-moz-calc(100% - 90px);
+    width:calc(100% - 90px);
+}
+#playlist ul li div.colorTag[style*=block] ~ div.title{
+    width:-webkit-calc(100% - 100px);
+    width:-moz-calc(100% - 100px);
+    width:calc(100% - 100px);
+}
+#playlist ul li.alarm:not(.history) div.title{
+    width:-webkit-calc(100% - 80px);
+    width:-moz-calc(100% - 80px);
+    width:calc(100% - 80px);
+}
+#playlist ul li.alarm:not(.history) div.colorTag[style*=block] ~ div.title{
+    width:-webkit-calc(100% - 90px);
+    width:-moz-calc(100% - 90px);
+    width:calc(100% - 90px);
+}
+body.admin #playlist ul li.alarm:not(.history) div.title,
+body.assistant #playlist ul li.alarm:not(.history) div.title,
+body.berry #playlist ul li.alarm:not(.history) div.title{
+    width:-webkit-calc(100% - 100px);
+    width:-moz-calc(100% - 100px);
+    width:calc(100% - 100px);
+}
+body.admin #playlist ul li.alarm:not(.history) div.colorTag[style*=block] ~ div.title,
+body.assistant #playlist ul li.alarm:not(.history) div.colorTag[style*=block] ~ div.title,
+body.berry #playlist ul li.alarm:not(.history) div.colorTag[style*=block] ~ div.title{
+    width:-webkit-calc(100% - 110px);
+    width:-moz-calc(100% - 110px);
+    width:calc(100% - 110px);
+}
+#playlist ul.showStarts li:not(.history) div.title{
+    width:-webkit-calc(100% - 110px);
+    width:-moz-calc(100% - 110px);
+    width:calc(100% - 110px);
+}
+#playlist ul.showStarts li:not(.history) div.colorTag[style*=block] ~ div.title{
+    width:-webkit-calc(100% - 120px);
+    width:-moz-calc(100% - 120px);
+    width:calc(100% - 120px);
+}
+body.admin #playlist ul.showStarts li:not(.history) div.title,
+body.assistant #playlist ul.showStarts li:not(.history) div.title,
+body.berry #playlist ul.showStarts li:not(.history) div.title{
+    width:-webkit-calc(100% - 130px);
+    width:-moz-calc(100% - 130px);
+    width:calc(100% - 130px);
+}
+body.admin #playlist ul.showStarts li:not(.history) div.colorTag[style*=block] ~ div.title,
+body.assistant #playlist ul.showStarts li:not(.history) div.colorTag[style*=block] ~ div.title,
+body.berry #playlist ul.showStarts li:not(.history) div.colorTag[style*=block] ~ div.title{
+    width:-webkit-calc(100% - 140px);
+    width:-moz-calc(100% - 140px);
+    width:calc(100% - 140px);
+}
+#playlist ul.showStarts li:not(.history) div.time{
+    font-size:0px;
+    visibility:hidden;
+}
+#playlist ul.showStarts li:not(.history) div.time:after{
+    font-size:10px;
+    text-indent: 0px; 
+    visibility:visible;
+    content: attr(data-till);
+}
+#manageAlarms{
+    background-image:url('pep.svg');
+    background-repeat:none;
+    border:1px solid #DDDD00;
+    color: #DDDD00;
+    width:19px;
+    height:19px;
+    float:right;
+    line-height:1em;
+    font-size:1.1em;
+    text-align:center;
+    cursor:pointer;
+    margin-left:4px;
+    font-weight:bold;
+}
+#toggleTimes{
+    background-image:url('pep.svg');
+    background-repeat:none;
+    background-position:0 -19px;
+    border:1px solid #732C7B;
+    color: #732C7B;
+    width:19px;
+    height:19px;
+    float:right;
+    line-height:1em;
+    font-size:1.1em;
+    text-align:center;
+    cursor:pointer;
+    margin-left:4px;
+    font-weight:bold;
+}
+#playlist #plstats .totalLength{
+    float:right;
+    position:static;
+}
+#plstats{
+    padding: 3px;
+}
+/*#manageAlarms,#toggleTimes{
+    font-family:Symbola;
+}*/
+#manageAlarms:hover{
+    background-position:-19px 0px;
+    border:1px solid #FFFF00;
+    color: #FFFF00;
+}
+#toggleTimes:hover{
+    border:1px solid #d400eb;
+    background-position:-19px -19px;
+    color: #d400eb;
+}
+#toggleTimes.timesOn,#toggleTimes.timesOn:hover{
+    background-position:-38px -19px;
+    border:1px solid #b526c4;
+    color: #b526c4;
+}
+#toggleTimes.timesOn.loading{
+animation: pulse 3s ease-in-out infinite;
+-o-animation: pulse 3s ease-in-out infinite;
+-moz-animation: pulse 3s ease-in-out infinite;
+-webkit-animation: pulse 3s ease-in-out infinite;
+}
+/*#playlist ul li.alarm .time{*/
+    /*[>outline:1px solid yellow;    <]*/
+/*}*/
+#playlist ul li.alarm .time{
+    color:#FFFF00;
+}
+#playlist ul li.alarm .time:before{
+    /*-webkit-box-shadow: 0px 0px 2px 1px yellow;*/
+    /*-mox-box-shadow: 0px 0px 2px 1px yellow;*/
+    /*box-shadow: 0px 0px 2px 1px yellow;*/
+    font-size:10px;
+    text-indent: 0px; 
+    visibility:visible;
+    color:yellow;
+    content:'★';
+    float:left;
+    font-size: 20px;
+    line-height: 2px;
+    position: relative;
+    top: 5px;
+    right: 2px;
+}
+/*#playlist ul li.alarm.once .time{*/
+    /*[>outline:1px solid red;    <]*/
+/*}*/
+#playlist ul li.alarm.once .time{
+    color:#FF0000;
+}
+#playlist ul li.alarm.once .time:before{
+    color:#FF0000;
+    /*-webkit-box-shadow: 0px 0px 2px 1px red;*/
+    /*-mox-box-shadow: 0px 0px 2px 1px red;*/
+    /*box-shadow: 0px 0px 2px 1px red;*/
+}
+#alertsDialog .alert1b{
+    background-color:red;
+}
+#alertsDialog .alert2b{
+    background-color:yellow;
+}
+#alertsDialog .alert1ex,#alertsDialog .alert2ex{
+    background-color:black;
+    color:white;
+    padding:2px;
+    border:1px solid red;
+    outline:1px solid black;
+    margin:1px;
+    font-size:12px;
+}
+#alertsDialog .alert2ex{
+    border-color:yellow;
+}
+#alertsSelect{
+    background-color:black;
+    text-align:left;
+    border-radius:0;
+    border:2px solid #444444;
+    border-style: inset;
+}
+#alertsSelect li{
+    font-size:11px;
+    background-color:black;
+    font-family:Arial,sans-serif;
+    color:white;
+    margin:3px;
+    padding:3px;
+    border:1px solid yellow;
+}
+#alertsSelect .alert1{
+    border-color:red;
+
+}
+#alertsSelect .alert2{
+    border-color:yellow;
+}
+#alertsSelect .selected{
+    color:black;
+    background-image:none;
+}
+#alertsSelect .alert1.selected{
+    background-color:red;
+}
+#alertsSelect .alert2.selected{
+    background-color:yellow;
+}
+.alertNote{
+    font-size:70%;
+}
+/*#global-zeroclipboard-html-bridge{
+    max-width:100% !important;
+    max-height:100% !important;
+}*/
+
+/*fix accidental selection gliching*/
+#playlist {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  z-index: 1;
+  overflow-y:hidden;
+  width: auto !important;
+  resize: vertical;
+  padding-bottom: 0px;
+  position: relative;
+  min-height:377px
+  }
+
+
+#playlist * {
+  resize: none; }
+#plstats {
+    position:absolute;
+    bottom:0px;
+    padding:0px 10px 0px 3px;
+    width: -moz-calc(100% - 15px) !important;
+    width: -o-calc(100% - 15px) !important;
+    width: -webkit-calc(100% - 15px) !important;
+    width: calc(100% - 15px) !important;
+}
+#plstats {pointer-events: none;}
+#plstats * {pointer-events: auto;}
+#searchbox {pointer-events: none}
+#searchbox * {pointer-events: auto;}
+#plstats .totalVideos{
+    position:static;
+    float:left;
+}
+#searchbox {
+  background:inherit !important;
+  position: absolute;
+  width: 100%;
+  bottom: 1.3em; }
+
+#playlist .viewport {
+  min-height:350px;
+  width: -moz-calc(100% - 20px) !important;
+  width: -o-calc(100% - 20px) !important;
+  width: -webkit-calc(100% - 20px) !important;
+  width: calc(100% - 20px) !important;
+  height: -moz-calc(100% - 27px) !important;
+  height: -o-calc(100% - 27px) !important;
+  height: -webkit-calc(100% - 27px) !important;
+  height: calc(100% - 27px) !important;
+   }
+  #playlist .viewport .overview, #playlist .viewport .overview ul {
+    width: 100%; }
+#searchbox{background-color:none}
+
+/*chat only forces the the scrollbar over the resize handle. Let's fix that*/
+/* throw in body as a selector, weight intensifies!*/
+body #playlist .scrollbar{
+        height: -moz-calc(100% - 27px) !important;
+        height: -o-calc(100% - 27px) !important;
+        height: -webkit-calc(100% - 27px) !important;
+        height: calc(100% - 27px) !important;
+        position:absolute !important;
+        right:0px !important;
+        top:0px !important;
+        float:none !important;
+}
+body #playlist .track{
+    float:none !important;
+ }
+body #leftpane{
+height:auto !important;
+min-height: 0 !important;
+ }
+#playlist .viewport .overview{padding-bottom:20px}

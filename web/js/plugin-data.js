@@ -60,8 +60,8 @@ var scriptNodes = [
         desc:'Set one-time or recurring alarms for upcoming/favorite playlist items! View estimated play times! Copy video links to the clipboard!',
         authors:['Malsententia'],
         setting:'scriptNodePEPEnabled',
-        css:['http://btc.berrytube.tv/toastdeib/plugins/pep/pep.css','http://btc.berrytube.tv/toastdeib/plugins/pep/multipleselectbox.css'],
-        js:['http://btc.berrytube.tv/toastdeib/plugins/pep/pep.js']
+        css:['plugins/pep/pep.css','plugins/pep/multipleselectbox.css'],
+        js:['plugins/pep/pep.js']
     },
     {
         title:'Video Blacklist',
