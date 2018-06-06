@@ -1,0 +1,84 @@
+body {
+    background: url(images/bg.png) repeat fixed #F6F6F6;
+    color: white;
+}
+#extras { background: url(/images/50.png); }
+#playlist .thumb .end, #playlist .thumb { background-color: #01719C; }
+.wrapper{ background: url(/images/50.png); }
+#videobg { background: url(images/player_back.png) no-repeat center center; }
+.chatbuffer .message.drink { background: url(images/drink_icon.png) no-repeat scroll right center transparent; }
+#banner {
+    background: url(images/banner.png) no-repeat center;	
+    height: 255px;
+    margin: 0 auto;
+    width: 538px;
+}
+#chatlist ul .admin,.flaunt.level_2 { color:#E53D54; }
+#chatlist ul .mod,.flaunt.level_1 { color:#EC7446; }
+#chatlist ul .anon,.flaunt.level_0 { color: gray; }
+#chatlist ul .nobody,.flaunt.level_-1 { color: lightgray; }
+#chatlist ul .leader {
+    background: url(images/berry_icon.png) no-repeat scroll left center transparent;
+    padding-left: 25px;
+}
+.chatbuffer .drinkWrap{
+	border-bottom: 3px solid #E53D54;
+    border-top: 3px solid #E53D54;
+}
+.chatbuffer .drinkWrap .drink .multi{
+    color: #E53D54;
+}
+#playlist ul li{
+	font-family: Arial;
+	background: none repeat scroll 0 0 #000000;
+    border: 1px solid #78D460;
+    cursor: ns-resize;
+}
+#playlist ul li.active {
+    background: none repeat scroll 0 0 #6E2E91;
+    border-color: #36AEDA;
+    color: #36AEDA;
+}
+#playlist ul li.volatile {
+    background: none repeat scroll 0 0 #690000;
+}
+#playlist ul li.volatile.active {
+    background: none repeat scroll 0 0 #6E2E91;
+	border: 1px solid red;
+}
+#playlist .track{
+    border-left: 1px solid #78D460;
+	background: black url(images/tracking_dot.png) repeat-x 0 0;
+}
+#v{
+	display:none;
+	background:url(images/v.png);
+	width:604px;
+	height:350px;
+	margin:0 auto;
+}
+#pollpane .poll {
+    background: none repeat scroll 0 0 #C1C1C1;
+    color: gray;
+}
+#pollpane .poll.active {
+	background: none repeat scroll 0 0 #EC7446;
+    color: #FFFEBC;
+}
+.poll.active .btn.disabled {
+    color: #CECD98 !important;
+}
+#drinkWrap span{
+	font-size:0;
+	visibility:hidden;
+}
+#drinkCounter:after {
+    content: " dashes.";
+}
+#drinkCounter:before {
+    content: "Current video has ";
+}
+#drinkCounter {
+    font-size: 40px !important;
+    visibility: visible !important;
+}

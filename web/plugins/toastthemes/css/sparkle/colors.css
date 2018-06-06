@@ -1,0 +1,145 @@
+body {
+    background: url(images/bg.png) repeat #263773;
+    color: white;
+}
+#playlist .thumb .end, #playlist .thumb { background-color: #263773; }
+.wrapper{ background: url(/images/50.png); }
+#videobg { background: url(images/player_back.png) no-repeat center center; }
+.chatbuffer .message.drink { background: url(images/drink_icon.png) no-repeat scroll right center transparent; }
+#banner {
+    background: url(images/banner.png) no-repeat center;	
+    height: 255px;
+    margin: 0 auto;
+    width: 538px;
+}
+#chatlist ul .admin,.flaunt.level_2 { color:#A76BC2; }
+#chatlist ul .mod,.flaunt.level_1 { color:#C9AAD0; }
+#chatlist ul .anon,.flaunt.level_0 { color: gray; }
+#chatlist ul .nobody,.flaunt.level_-1 { color: lightgray; }
+#chatlist ul .leader {
+    background: url(images/berry_icon.png) no-repeat scroll left center transparent;
+    padding-left: 25px;
+}
+.chatbuffer .drinkWrap{
+	border-bottom: 3px solid #ED438A;
+    border-top: 3px solid #ED438A;
+}
+.chatbuffer .drinkWrap .drink .multi{
+    color: #ED438A;
+}
+#videowrap {
+	position: relative;
+}
+#playlist {
+	background-color: #22093F;
+}
+#playlist ul li{
+	font-family: Arial;
+	background: none repeat scroll 0 0 #22093F;
+    border: 1px solid #B689C8;
+    cursor: ns-resize;
+}
+#playlist ul li.active {
+    background: none repeat scroll 0 0 #C9AAD0;
+    border-color: #263773;
+    color: #263773;
+}
+#playlist ul li.volatile {
+    background: none repeat scroll 0 0 #690000;
+}
+#playlist ul li.volatile.active {
+    background: none repeat scroll 0 0 #C9AAD0;
+	border: 1px solid red;
+}
+#playlist .track{
+    border-left: 1px solid #B689C8;
+	background: #22093F url(images/tracking_dot.png) repeat-x 0 0;
+}
+#v{
+	display:none;
+	background:url(images/v.png);
+	width:604px;
+	height:350px;
+	margin:0 auto;
+}
+#pollpane .poll {
+    background: none repeat scroll 0 0 #C1C1C1;
+    color: gray;
+}
+#pollpane .poll.active {
+	background: none repeat scroll 0 0 #263773;
+    color: white;
+}
+#chatpane, #chatControls {
+	background-color: #22093F !important;
+	color: #EEEEEE !important;
+}
+#chatControls a {
+	color: #B9E0F7;
+}
+.chatbuffer {
+	background-color: #22093F !important;
+	color: #EEEEEE !important;
+	border-bottom-color: #C9AAD0 !important;
+	border-top-color: #C9AAD0 !important;
+}
+.chatbuffer:hover {
+	background-color: #532976 !important;
+}
+.chatbuffer a {
+    color: #B9E0F7;
+}
+.chatbuffer a:visited {
+    color: #9561A8;
+}
+.chatbuffer .message.request {
+    color: #B9E0F7;
+    font-style: italic;
+    font-weight: bold;
+}
+.chatbuffer .highlight {
+    background:url(images/beep.png);
+}
+#chatlist {
+	background-color: #22093F !important;
+	color: #EEEEEE !important;
+	border-left-color: #C9AAD0 !important;
+	border-top-color: #C9AAD0 !important;
+}
+#chatinput input {
+	background-color: #131F46;
+	color: #EEEEEE;
+}
+#rcvOverlay{
+	background-color: #22093F !important;
+	border-color: #C9AAD0 !important;
+}
+#connectedCountWrapper {
+	color: #EEEEEE !important;
+	background: url(images/collapse.png) no-repeat 2px center;
+}
+#connectedCountWrapper.wide {
+    background-image: url(images/expand.png);
+}
+#chatControls #flairArrow {
+    background: url(images/flairow.png) no-repeat scroll left center transparent;
+}
+#chattabs .tab {
+	display: inline-block;
+	color: #EEEEEE;
+	padding: 0px 5px;
+	margin: 3px 1px;
+	border: 1px solid #EEEEEE;
+	background-color: #555555;
+	cursor: pointer;
+}
+#chattabs .active {
+	background-color: #22093F;
+}
+#chattabs .newmsg {
+	color: #9999FF;
+	border-color: #9999FF;
+}
+#scBackground {
+	background-image: url(images/scbg.png);
+}

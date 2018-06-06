@@ -1,0 +1,72 @@
+body {
+    background: url(images/bg.png) repeat lightgray;
+    color: white;
+}
+#extras { background: url(/images/50.png); }
+#playlist .thumb .end, #playlist .thumb { background-color: #838383; }
+.wrapper{ background: url(/images/50.png); }
+#videobg { background: url(images/player_back.png) no-repeat center center; }
+.chatbuffer .message.drink { background: url(images/drink_icon.png) no-repeat scroll right center transparent; }
+#banner {
+    background: url(images/banner.gif) no-repeat center;	
+    height: 255px;
+    margin: 0 auto;
+    width: 538px;
+}
+@-moz-document url-prefix() {
+	#banner { 
+		background: url(images/banner.png) no-repeat center; 
+	}
+}
+#chatlist ul .admin,.flaunt.level_2 { color:#B91F1F; }
+#chatlist ul .mod,.flaunt.level_1 { color:#0000FF; }
+#chatlist ul .anon,.flaunt.level_0 { color: gray; }
+#chatlist ul .nobody,.flaunt.level_-1 { color: lightgray; }
+#chatlist ul .leader {
+    background: url(images/berry_icon.png) no-repeat scroll left center transparent;
+    padding-left: 25px;
+}
+.chatbuffer .drinkWrap{
+	border-bottom: 3px solid #838383;
+    border-top: 3px solid #838383;
+}
+.chatbuffer .drinkWrap .drink .multi{
+    color: #838383;
+}
+#playlist ul li{
+	font-family: Arial;
+	background: none repeat scroll 0 0 #1E1E1E;
+    border: 1px solid #AFAFAF;
+    cursor: ns-resize;
+}
+#playlist ul li.active {
+    background: none repeat scroll 0 0 #AFAFAF;
+    border-color: #2C2C2C;
+    color: #2C2C2C;
+}
+#playlist ul li.volatile {
+    background: none repeat scroll 0 0 #690000;
+}
+#playlist ul li.volatile.active {
+    background: none repeat scroll 0 0 #AFAFAF;
+	border: 1px solid red;
+}
+#playlist .track{
+    border-left: 1px solid #AFAFAF;
+	background: black url(images/tracking_dot.png) repeat-x 0 0;
+}
+#v{
+	display:none;
+	background:url(images/v.png);
+	width:604px;
+	height:350px;
+	margin:0 auto;
+}
+#pollpane .poll {
+    background: none repeat scroll 0 0 #C1C1C1;
+    color: gray;
+}
+#pollpane .poll.active {
+	background: none repeat scroll 0 0 #0000FF;
+    color: white;
+}

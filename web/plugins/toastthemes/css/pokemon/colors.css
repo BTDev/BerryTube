@@ -1,0 +1,83 @@
+﻿body {
+	background: url(images/bg.png) repeat fixed #18A068;
+    color: white;
+}
+#playlist .thumb .end, #playlist .thumb { background-color: #F08400; }
+.wrapper { background: url(/images/50.png); }
+#videobg { background: url(images/player_back.png) no-repeat center center; }
+.chatbuffer .message.drink { background: url(images/drink_icon.png) no-repeat scroll right center transparent; }
+#banner {
+    background: url(images/banner.png) no-repeat center;	
+    height: 255px;
+    margin: 0 auto;
+    width: 650px;
+}
+#chatlist ul .admin,.flaunt.level_2 { color: #00A63C; }
+#chatlist ul .mod,.flaunt.level_1 { color: #5DC1CF; }
+#chatlist ul .anon,.flaunt.level_0 { color: gray; }
+#chatlist ul .nobody,.flaunt.level_-1 { color: lightgray; }
+#chatlist ul .leader {
+    background: url(images/berry_icon.png) no-repeat scroll left center transparent;
+    padding-left: 25px;
+}
+.chatbuffer .drinkWrap {
+	border-bottom: 3px solid #009233;
+    border-top: 3px solid #009233;
+}
+.chatbuffer .drinkWrap .drink .multi {
+    color: #009233;
+}
+#playlist ul li {
+	font-family: Arial;
+	background: none repeat scroll 0 0 #002628;
+    border: 1px solid #F08400;
+    cursor: ns-resize;
+}
+#playlist ul li.active {
+    background: none repeat scroll 0 0 #006D74;
+    border-color: #F08400;
+    color: #FFF57D;
+}
+#playlist ul li.volatile {
+    background: none repeat scroll 0 0 #690000;
+}
+#playlist ul li.volatile.active {
+    background: none repeat scroll 0 0 #006D74;
+	border: 1px solid red;
+}
+#playlist .track {
+    border-left: 1px solid #F08400;
+	background: black url(images/tracking_dot.png) repeat-x 0 0;
+}
+#v {
+	display: none;
+	background: url(images/v.png);
+	width: 604px;
+	height: 350px;
+	margin: 0 auto;
+}
+#pollpane .poll {
+    background: none repeat scroll 0 0 #C1C1C1;
+    color: gray;
+}
+#pollpane .poll.active {
+	background: none repeat scroll 0 0 #196CA1;
+    color: white;
+}
+#scBackground {
+	background-image: url(images/scbg.png);
+}
+#drinkWrap span{
+	font-size:0;
+	visibility:hidden;
+}
+#drinkCounter:after {
+    content: " Pokémon.";
+}
+#drinkCounter:before {
+    content: "Current box has ";
+}
+#drinkCounter {
+    font-size: 40px !important;
+    visibility: visible !important;
+}

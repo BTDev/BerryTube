@@ -1,0 +1,73 @@
+body {
+    background: url(images/bg.png) repeat #6666BB;
+    color: white;
+}
+#extras { background: url(/images/50.png); }
+#playlist .thumb .end, #playlist .thumb { background-color: #CCCCFF; }
+.wrapper{ background: url(/images/50.png); }
+#videobg { background: url(images/player_back.png) no-repeat center center; }
+.chatbuffer .message.drink { background: url(images/drink_icon.png) no-repeat scroll right center transparent; }
+#banner {
+    background: url(images/banner.png) no-repeat center;	
+    height: 255px;
+    margin: 0 auto;
+    width: 538px;
+}
+#chatlist ul .admin,.flaunt.level_2 { color:#0000CC; }
+#chatlist ul .mod,.flaunt.level_1 { color:#8888DD; }
+#chatlist ul .anon,.flaunt.level_0 { color: gray; }
+#chatlist ul .nobody,.flaunt.level_-1 { color: lightgray; }
+#chatlist ul .leader {
+    background: url(images/berry_icon.png) no-repeat scroll left center transparent;
+    padding-left: 25px;
+}
+.chatbuffer {
+	background-image: url(images/chat_bg.png) !important;
+}
+.chatbuffer .drinkWrap{
+	border-bottom: 3px solid #6666BB;
+    border-top: 3px solid #6666BB;
+}
+.chatbuffer .drinkWrap .drink .multi{
+    color: #6666BB;
+}
+#playlist {
+	background-color: #000033;
+}
+#playlist ul li{
+	font-family: Arial;
+	background: none repeat scroll 0 0 #000022;
+    border: 1px solid #8888DD;
+    cursor: ns-resize;
+}
+#playlist ul li.active {
+    background: none repeat scroll 0 0 #444477;
+    border-color: #8888DD;
+    color: #CCCCFF;
+}
+#playlist ul li.volatile {
+    background: none repeat scroll 0 0 #690000;
+}
+#playlist ul li.volatile.active {
+    background: none repeat scroll 0 0 #444477;
+	border: 1px solid red;
+}
+#playlist .track{
+    border-left: 1px solid #8888DD;
+	background: #000033 url(images/tracking_dot.png) repeat-x 0 0;
+}
+#v{
+	display:none;
+	background:url(images/v.png);
+	width:604px;
+	height:350px;
+	margin:0 auto;
+}
+#pollpane .poll {
+    background: none repeat scroll 0 0 #C1C1C1;
+    color: gray;
+}
+#pollpane .poll.active {
+	background: none repeat scroll 0 0 #000055;
+    color: white;
+}

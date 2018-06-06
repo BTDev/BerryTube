@@ -1,0 +1,81 @@
+body {
+    background: url(images/bg.png) no-repeat fixed center #111828;
+    color: white;
+}
+#playlist .thumb .end, #playlist .thumb { background-color: #C6D2E1; }
+.wrapper{ background: url(/images/50.png); }
+#videobg { background: url(images/player_back.png) no-repeat center center; }
+.chatbuffer .message.drink { 
+	background: url(images/drink_icon.png) no-repeat scroll left center transparent;
+}
+#banner {
+    background: url(images/banner.png) no-repeat center;	
+    height: 255px;
+    margin: 0 auto;
+    width: 538px;
+}
+#chatlist ul .admin,.flaunt.level_2 { color:#FBDD6F; }
+#chatlist ul .mod,.flaunt.level_1 { color:#925D37; }
+#chatlist ul .anon,.flaunt.level_0 { color: gray; }
+#chatlist ul .nobody,.flaunt.level_-1 { color: lightgray; }
+#chatlist ul .leader {
+    background: url(images/berry_icon.png) no-repeat scroll left center transparent;
+    padding-left: 25px;
+}
+.chatbuffer .drinkWrap{
+	border-bottom: 3px solid #C1C1C1;
+    border-top: 3px solid #C1C1C1;
+}
+.chatbuffer .drinkWrap .drink .multi{
+    color: #C1C1C1;
+}
+#playlist ul li{
+	font-family: Arial;
+	background: none repeat scroll 0 0 #000000;
+    border: 1px solid #C6D2E1;
+    cursor: ns-resize;
+}
+#playlist ul li.active {
+    background: none repeat scroll 0 0 #7F8DA5;
+    border-color: #F9ED9B;
+    color: #F9ED9B;
+	-ms-transform: rotate(180deg);
+	-moz-transform: rotate(180deg);
+	-webkit-transform: rotate(180deg);
+	-o-transform: rotate(180deg);
+}
+#playlist ul li.volatile {
+    background: none repeat scroll 0 0 #690000;
+}
+#playlist ul li.volatile.active {
+    background: none repeat scroll 0 0 #7F8DA5;
+	border: 1px solid red;
+}
+#playlist .track{
+    border-left: 1px solid #C6D2E1;
+	background: black url(images/tracking_dot.png) repeat-x 0 0;
+}
+#v{
+	display:none;
+	background:url(images/v.png);
+	width:604px;
+	height:350px;
+	margin:0 auto;
+}
+#pollpane .poll {
+    background: none repeat scroll 0 0 #C1C1C1;
+    color: gray;
+}
+#pollpane .poll.active {
+	background: none repeat scroll 0 0 #513625;
+    color: white;
+}
+#pollpane .btn.close {
+	background: none repeat scroll 0 0 #C5AC52;
+}
+#dyn_motd {
+	-ms-transform: rotate(-3deg);
+	-moz-transform: rotate(-3deg);
+	-webkit-transform: rotate(-3deg);
+	-o-transform: rotate(-3deg);
+}

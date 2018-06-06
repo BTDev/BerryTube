@@ -1,0 +1,213 @@
+body {
+    background: url(images/bg.png) repeat fixed #EC9DC4;
+    color: white;
+}
+#playlist .thumb .end, #playlist .thumb { background-color: #F5BAD9; }
+.wrapper { background: url(/images/50.png); }
+#videobg { background: url(images/player_back.png) no-repeat center center; }
+.chatbuffer .message.drink { background: url(images/drink_icon.png) no-repeat scroll right center transparent; }
+#banner {
+    background: url(images/banner.png) no-repeat center;	
+    height: 255px;
+    margin: 0 auto;
+    width: 625px;
+}
+#chatlist ul .admin,.flaunt.level_2 { color: #E60000; }
+#chatlist ul .mod,.flaunt.level_1 { color: #EC9DC4; }
+#chatlist ul .anon,.flaunt.level_0 { color: gray; }
+#chatlist ul .nobody,.flaunt.level_-1 { color: lightgray; }
+#chatlist ul .leader {
+    background: url(images/berry_icon.png) no-repeat scroll left center transparent;
+    padding-left: 25px;
+}
+.chatbuffer .drinkWrap {
+	border-bottom: 3px solid #E580BB;
+    border-top: 3px solid #E580BB;
+}
+.chatbuffer .drinkWrap .drink .multi {
+    color: #E580BB;
+}
+#playlist ul li {
+	font-family: Arial;
+	background: none repeat scroll 0 0 #000000;
+    border: 1px solid #F5BAD9;
+    cursor: ns-resize;
+}
+#playlist ul li.active {
+    background: none repeat scroll 0 0 #B90B85;
+    border-color: #EC9DC4;
+    color: #EC9DC4;
+}
+#playlist ul li.volatile {
+    background: none repeat scroll 0 0 #690000;
+}
+#playlist ul li.volatile.active {
+    background: none repeat scroll 0 0 #B90B85;
+	border: 1px solid red;
+}
+#playlist .track {
+    border-left: 1px solid #F5BAD9;
+	background: black url(images/tracking_dot.png) repeat-x 0 0;
+}
+#v {
+	display: none;
+	background: url(images/v.png);
+	width: 684px;
+	height: 350px;
+	margin: 0 auto;
+}
+#pollpane .poll {
+    background: none repeat scroll 0 0 #C1C1C1;
+    color: gray;
+}
+#pollpane .poll.active {
+	background: none repeat scroll 0 0 #E580BB;
+    color: white;
+}
+#scBackground {
+	background-image: url(images/scbg.png);
+}
+.chatbuffer .highlight {
+    background:url(images/beep.png);
+}
+.chatbuffer .message.rcv, #rcvOverlay .message.rcv {
+	color: #E43B96 !important;
+}
+
+#connectedCountWrapper {
+	background:url(images/collapse.png) no-repeat 2px center;
+}
+#connectedCountWrapper.wide {
+    background-image:url(images/expand.png);
+}
+#chatControls #flairArrow {
+    background: url(images/flairow.png) no-repeat scroll left center transparent;
+}
+
+#drinkWrap span{
+	font-size:0;
+	visibility:hidden;
+}
+#drinkCounter:after {
+    content: " ships.";
+}
+#drinkCounter:before {
+    content: "Current video has ";
+}
+#drinkCounter {
+    font-size: 40px !important;
+    visibility: visible !important;
+}
+
+body.night {
+    background: url(images/bg-night.png) repeat fixed black;
+}
+.night #banner {
+    background: url(images/banner-night.png) no-repeat center;
+}
+.night #videobg {
+	background: url(images/player_back-night.png) no-repeat center center;
+}
+.night #scBackground {
+	background-image: url(images/scbg-night.png);
+}
+.night #connectedCountWrapper {
+	color: white !important;
+	background:url(images/collapse-night.png) no-repeat 2px center;
+}
+.night #connectedCountWrapper.wide {
+    background-image:url(images/expand-night.png);
+}
+.night #chatControls #flairArrow {
+    background: url(images/flairow-night.png) no-repeat scroll left center transparent;
+}
+
+.night #pollpane .poll {
+    background-color: #888888;
+    color: #606060;
+}
+.night #pollpane .poll.active {
+	background-color: #700000;
+    color: #EEEEEE;
+}
+.night #dyn_motd, .night #pollControl {
+	background-color: #999999;
+}
+.night .poll .btn.disabled {
+	color: #777777;
+}
+
+.night #chatlist ul .user { color:#EEEEEE; }
+.night #chatlist ul .anon,.flaunt.level_0 { color: #BBBBBB; }
+.night #chatlist ul .nobody,.flaunt.level_-1 { color: #888888; }
+.night #chatpane {
+	color: #EEEEEE;
+	background: #440000;
+}
+.night #chatControls {
+	color: #EEEEEE !important;
+}
+.night #chatControls a {
+	color: #EEEEEE;
+}
+.night #chatlist {
+	background-color: #220000;
+	border-left-color: #BBBBBB !important;
+	border-top-color: #BBBBBB !important;
+}
+.night .chatbuffer {
+	color: #EEEEEE;
+	background-color: #220000 !important;
+	border-bottom-color: #BBBBBB !important;
+	border-top-color: #BBBBBB !important;
+}
+.night .chatbuffer:hover {
+	background-color: #550000 !important;
+}
+.night .chatbuffer a, #rcvOverlay a {
+    color: #4DCCFF;
+}
+.night .chatbuffer a:visited, #rcvOverlay a:visited {
+    color: #E749B8;
+}
+.night .chatbuffer .message.request {
+    color: #4DCCFF;
+    font-style: italic;
+    font-weight: bold;
+}
+.night .chatbuffer .pollNote {
+	color: #2AB23C !important;
+}
+.night .msg .green {
+	color: #2AB23C !important;
+}
+.night .chatbuffer .message.rcv, .night #rcvOverlay .message.rcv {
+	color: #C90221 !important;
+}
+.night #chatinput input {
+	background-color: #440000;
+	color: #EEEEEE;
+}
+.night .chatbuffer .highlight {
+    background:url(images/beep-night.png);
+}
+.night #rcvOverlay{
+	background-color: #220000 !important;
+	border-color: #BBBBBB !important;
+}
+.night #chattabs .tab {
+	display: inline-block;
+	color: #EEEEEE;
+	padding: 0px 5px;
+	margin: 3px 1px;
+	border: 1px solid #BBBBBB;
+	background-color: #777777;
+	cursor: pointer;
+}
+.night #chattabs .active {
+	background-color: #440000;
+}
+.night #chattabs .newmsg {
+	color: #E580BB;
+	border-color: #E580BB;
+}

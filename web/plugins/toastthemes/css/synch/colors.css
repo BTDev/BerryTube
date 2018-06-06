@@ -1,0 +1,195 @@
+body {
+    background: #222222;
+    color: white;
+}
+#playlist .thumb .end, #playlist .thumb { background-color: #777777; }
+.wrapper{ background: none; }
+#videobg { background: url(images/player_back.png) no-repeat center center; }
+.chatbuffer .message.drink { background: url(images/drink_icon.png) no-repeat scroll right center transparent; }
+#banner {
+    background: url(images/banner.png) no-repeat;
+    margin: 0 auto;
+	width: 800px;
+	height: 50px;
+}
+#chatlist ul {
+	font-weight: normal !important;
+	padding: 0px !important;
+}
+#chatlist ul li {
+	padding-left: 10px !important;
+	margin-left: 0px !important;
+}
+#chatlist ul .me {
+	background-color: #EEEEEE !important;
+	margin: 0px !important;
+	padding-top: 5px !important;
+	padding-bottom: 5px !important;
+	border-bottom: 0px;
+}
+#chatlist ul .admin,.flaunt.level_2 { 
+	color:#C9421D;
+}
+#chatlist ul .mod,.flaunt.level_1 { 
+	color:#C9421D; 
+}
+#chatlist ul .anon,.flaunt.level_0 { color: #000000; }
+#chatlist ul .nobody,.flaunt.level_-1 { color: #000000; }
+#chatlist ul .leader {
+    background: url(images/berry_icon.png) no-repeat scroll left center transparent;
+	padding-left: 30px !important;
+}
+.chatbuffer .drinkWrap{
+	border-bottom: 3px solid #777777;
+    border-top: 3px solid #777777;
+}
+.chatbuffer .drinkWrap .drink .multi{
+    color: #777777;
+}
+.chatbuffer .message .nick {
+	color: #666666;
+}
+.chatbuffer .message.request .nick {
+	color: blue !important;
+}
+.chatbuffer .message.rcv .nick {
+	color: red !important;
+}
+#chatinput {
+	-moz-box-shadow: inset 0 0 3px #CCCCCC;
+	box-shadow: inset 0 0 3px #CCCCCC;
+}
+#chatpane {
+	border-bottom: 1px solid #A4A4A4;
+}
+#chatpane .setNick {
+	background-color: white;
+	height: 30px;
+	border: 1px solid #A4A4A4;
+}
+#playlist {
+	background: none repeat scroll 0 0 #444444;
+}
+#playlist ul li{
+	font-family: Arial;
+	background: none repeat scroll 0 0 #444444;
+    border: 0px;
+	border-bottom: 1px solid #666666;
+    cursor: ns-resize;
+	margin: 0px !important;
+	padding: 6px 3px 6px 15px !important;
+}
+#playlist ul li.active {
+    background: none repeat scroll 0 0 #D1E1FA;
+    border-color: #666666;
+    color: #000000;
+}
+#playlist ul li.volatile {
+    background: none repeat scroll 0 0 #690000;
+}
+#playlist ul li.volatile.active {
+    background: none repeat scroll 0 0 #D1E1FA;
+	border: 0px;
+	border-bottom: 1px solid #666666;
+	color: #690000;
+}
+#playlist ul .time {
+	margin-right: 10px;
+	color: #BBBBBB;
+}
+#playlist ul li.active .time {
+	color: #444444;
+}
+#playlist .track{
+    border-left: 0px;
+	background: #BBBBBB url(images/tracking_dot.png) repeat-x 0 0;
+}
+#v{
+	display: none;
+	background: none;
+	width: 604px;
+	height: 0px;
+	margin: 0 auto;
+}
+#pollControl {
+	background-color: #FFFFFF;
+	font-size: 12px;
+}
+#pollControl .options {
+	padding: 10px 30px !important;
+	margin: 0px 25px !important;
+	background: none repeat scroll 0 0 #CCCCCC;
+	-moz-border-radius: 3px;
+	-webkit-border-radius: 3px;
+	border-radius: 3px;
+}
+#pollControl .options .optionWrap { 
+	border: none !important;
+	margin: 5px 0px !important;
+}
+#pollControl .options .optionWrap input {
+	padding-left: 3px !important;
+	width: 99% !important;
+}
+#pollpane {
+	background-color: #FFFFFF;
+	padding-top: 5px;
+	padding-bottom: 5px;
+}
+#pollpane .poll {
+    background: none repeat scroll 0 0 #CCCCCC;
+    color: #666666;
+	-moz-border-radius: 3px;
+	-webkit-border-radius: 3px;
+	border-radius: 3px;
+	opacity: 0.3;
+	border: 0px !important;
+	position: relative;
+	font-size: 13px;
+}
+#pollpane .poll.active {
+	background: none repeat scroll 0 0 #CCCCCC;
+    color: #000000;
+	opacity: 0.9;
+}
+#pollpane .poll.active .title {
+	font-weight: bold;
+}
+#pollpane .poll.active .btn, #pollControl .btn {
+	-moz-border-radius: 3px;
+	-webkit-border-radius: 3px;
+	background: -webkit-gradient(linear, 0% 40%, 0% 70%, from(#F9F9F9), to(#E3E3E3)) !important;
+	background: -moz-linear-gradient(center top, #F9F9F9, #E3E3E3) repeat scroll 0 0 transparent !important;
+	border: 1px solid !important;
+	border-color: #CCCCCC #BBBBBB #A0A0A0 #BBBBBB !important;
+	font-size: 12px;
+}
+#pollpane .poll .btn, #pollpane .poll.active .btn.disabled {
+	background: none !important;
+	border-color: transparent !important;
+	color: #000000;
+	font-size: 12px;
+	font-weight: normal;
+}
+#pollpane .poll .btn.close {
+	background: url(images/poll_close_button.png) no-repeat 0 0 !important;
+	border: none !important;
+	height: 16px;
+	width: 16px;
+	border: 0px;
+	position: absolute;
+	top: 0px;
+	right: 0px;
+	text-indent: -9999px;
+}
+.chatbuffer {
+	border-bottom-color: #A4A4A4 !important;
+	border-top-color: #A4A4A4 !important;
+}
+#chatlist {
+	border-left-color: #A4A4A4 !important;
+	border-top-color: #A4A4A4 !important;
+}
+#rcvOverlay{
+	border-color: #A4A4A4 !important;
+}

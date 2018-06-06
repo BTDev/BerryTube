@@ -1,0 +1,45 @@
+#headbar {
+    text-align: right !important;
+}
+#headbar form {
+    display: inline-block !important;
+}
+
+#rightpane {
+    float: left !important;
+}
+
+#mailDiv {
+    left: auto !important;
+    right: 0px !important;
+    text-align: right !important;
+}
+#mailButtonDiv {
+    margin-right: 5px !important;
+}
+.mail {
+    text-align: left !important;
+}
+
+#extras {
+    left: 10px !important;
+    right: auto !important;
+}
+
+#toastThemesContainer {
+    left: auto !important;
+    right: 0px !important;
+}
+.buttonListContainer {
+    left: auto !important;
+    right: 350px !important;
+}
+
+.ponypen_btns {
+    left: 20px !important;
+}
+
+#achievementButton, #achievementMenu {
+    left: 5px !important;
+    right: auto !important;
+}

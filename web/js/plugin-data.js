@@ -1,4 +1,5 @@
 var scriptNodes = [
+    // Berrymotes is now always enabled
     /*{
         title:'Berrymotes',
         desc:'A custom emote script for BerryTube, superior in every way to BPM.',
@@ -13,8 +14,8 @@ var scriptNodes = [
         authors:['Toastdeib'],
         setting:'scriptNodeToastThemesEnabled',
         css:[],
-        js:['http://btc.berrytube.tv/toastdeib/js/toastthemes/toastthemes.js']
-    },
+        js:['plugins/toastthemes/toastthemes.js']
+    }/*,
     {
         title:'Ponypen',
         desc:'A script that turns the video player into a pony playground.',
@@ -22,7 +23,7 @@ var scriptNodes = [
         setting:'scriptNodePonypenEnabled',
         css:[],
         js:['http://btc.berrytube.tv/wut/ponypen.js']
-    },
+    }*/,
     {
         title:'DPM Counter',
         desc:'A script that displays the drinks per minute for the active video next to the drink counter.',
