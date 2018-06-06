@@ -1,5 +1,5 @@
 (function($){
-	$.fn.timeOut = function(duration,callback) {  
+	$.fn.timeOut = function(duration,callback) {
 		return this.each(function() {
 			var me = $(this);
 			me.css('position','relative');
@@ -39,7 +39,7 @@
 })(jQuery);
 
 (function($){
-	$.fn.confirmClick = function(callback) {  
+	$.fn.confirmClick = function(callback) {
 		return this.each(function() {
 			var btn = $(this);
 			var origText = $(btn).children("span").text();
@@ -72,11 +72,11 @@
 })(jQuery);
 
 (function($){
-	$.fn.superSelect = function(data) {  
+	$.fn.superSelect = function(data) {
 		return this.each(function() {
 			var on = $(this);
 			var dropDown = $('<div/>').attr('id','dd-jquery').appendTo('body');
-			
+
 			var mhtml = "";
 			$(data.options).each(function(key,val){
 				var op = $(val).clone().appendTo(dropDown);
@@ -86,7 +86,7 @@
 					dropDown.remove();
 				});
 			});
-			
+
 			var t = on.offset().top// + on.outerHeight(true)
 			var l = on.offset().left;
 			dropDown.css({
@@ -105,8 +105,8 @@
 })(jQuery);
 
 (function($){
-	$.fn.dialogWindow = function(data) {  
-	
+	$.fn.dialogWindow = function(data) {
+
 		var parent = $('body');
 		var myData = {
 			title: "New Window",
@@ -123,17 +123,17 @@
 		for(var i in data){
 			myData[i] = data[i];
 		}
-		
+
 		//Tweak data
 		myData.title = myData.title.replace(/ /g,'&nbsp;');
-		
+
 		//get handle to window list.
 		var windows = $(parent).data('windows');
 		if(typeof windows == "undefined"){
 			$(parent).data('windows',[]);
 			windows = $(parent).data('windows');
 		}
-		
+
 		// Remove old window if new uid matches an old one.
 		if(myData.uid != false){
 			$(windows).each(function(key,val){
@@ -142,7 +142,7 @@
 				}
 			});
 		}
-		
+
 		// Create Window
 		var newWindow = $('<div/>').appendTo(parent);
 		newWindow.addClass("dialogWindow");
@@ -179,9 +179,9 @@
 		newWindow.mousedown(function(){
 			newWindow.winFocus()
 		});
-		
+
 		windows.push(newWindow);
-	
+
 		if(myData.toolBox){
 			$(document).bind("mouseup.rmWindows",function (e){
 				var container = newWindow;
@@ -191,7 +191,7 @@
 				}
 			});
 		}
-		
+
 		if(!myData.toolBox){
 			// Toolbar
 			var toolBar = $('<div/>').addClass("dialogToolbar").prependTo(newWindow);
@@ -202,37 +202,37 @@
 				stop: function() {
 				}
 			});
-			
+
 			// Title
 			var titleBar = $('<div/>').addClass("dialogTitlebar").appendTo(toolBar).html(myData.title);
-			
+
 			// Close Button
 			var closeBtn = $('<div/>').addClass("close").appendTo(toolBar);
 			closeBtn.click(function(){
 				newWindow.close();
 			});
-		
+
 			//break
 			$('<div/>').css("clear",'both').appendTo(toolBar);
 		}
-		
+
 		var contentArea = $('<div/>').appendTo(newWindow).addClass("dialogContent");
 		contentArea.window = newWindow;
-				
+
 		// Position window
 		if(myData.center){
 			newWindow.center();
 		} else {
 			newWindow.offset(myData.offset);
 		}
-		
+
 		// Handle block for loading.
 		if(data.initialLoading){
 			var block = $('<div/>').addClass("loading").prependTo(newWindow);
 		}
 		newWindow.winFocus();
 		newWindow.fadeIn('fast');
-		
+
 		return contentArea;
 	};
 })(jQuery);

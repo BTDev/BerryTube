@@ -12,7 +12,7 @@ function removeCurrentPlayer() {
 
 window.PLAYERS.drive = {
     playVideo: function (id, at) {
-        var self = this; 
+        var self = this;
         waitForFlag("YTAPREADY", function () {
             self.PLAYER.loadVideoById(id);
             if (at < 0) {
@@ -37,19 +37,19 @@ window.PLAYERS.drive = {
 				for(i in params){ htmlparams.push(i+"="+params[i]); }
 				return (base+htmlparams.join("&"));
 			}
-		
-			
+
+
 			self.PLAYER = (function(id){
-			  
+
 				var embed = document.createElement('embed');
 				embed.width = "100%";
 				embed.height = "100%";
 				embed.type = "application/x-shockwave-flash";
 				embed.setAttribute("allowscriptaccess",'always');
 				embed.setAttribute("wmode",'opaque');
-				
+
 				embed.src = (function(id){
-				
+
 					var params = {
 						docid: id,
 						ps: 'docs',
@@ -58,16 +58,16 @@ window.PLAYERS.drive = {
 						cc_load_policy: 1,
 						auth_timeout: 86400000000
 					};
-					
+
 					var str = 'https://www.youtube.com/get_player?';
 					return getEncodeObject(str,params);
-					
+
 				})(id);
-				
+
 				return embed;
-				
+
 			})(id);
-			
+
 			window.onYouTubePlayerReady = function () {
 				if (volume !== false) {
 					self.PLAYER.setVolume(volume*100);
@@ -85,7 +85,7 @@ window.PLAYERS.drive = {
 					videoPlay();
 				}
 			}
-			
+
 			$("#ytapiplayer").append(self.PLAYER);
 
         });
@@ -240,7 +240,7 @@ window.PLAYERS.yt = {
         this.PLAYER.seekTo(pos);
     },
     getTime: function (callback) {
-        if(callback)callback(this.PLAYER.getCurrentTime());
+        if(callback && this.PLAYER.getCurrentTime)callback(this.PLAYER.getCurrentTime());
     },
 	getVolume: function(callback){
         var volume = this.PLAYER.getVolume() / 100;
@@ -421,41 +421,41 @@ window.PLAYERS.osmf = {
             });
         });
 
-    },  
+    },
     getVolume: function(callback){
         if (callback) callback(videojs('vjs_player').volume());
     }
-    
+
 };
 
 window.PLAYERS.soundcloud = {
 	/*playVideo: function (id, at) {
-        
+
     },*/
     loadPlayer: function (id, at, volume, length) {
 		var self = this;
-		
+
 		if (volume === false) {
             volume = 1;
         }
-		
+
 		var placeHolderDiv = $('#ytapiplayer');
 		var background = $('<div id="scBackground"/>').appendTo(placeHolderDiv);
 		var player = $('<iframe id="scPlayer"/>').appendTo(placeHolderDiv);
 		var volumeSliderWrap = $('<div id="scVolumeSliderWrap"/>').appendTo(placeHolderDiv);
 		var volumeSlider = $('<div id="scVolumeSlider"/>').slider({orientation:'vertical', range:'min', value:volume * 100,
-			stop:function(event, ui) { 
+			stop:function(event, ui) {
 				self.PLAYER.setVolume(ui.value / 100.0);
 			}}).appendTo(volumeSliderWrap);
-		player.attr('src', 'http://w.soundcloud.com/player/?url=http://api.soundcloud.com/tracks/' + id.substr(2) + 
+		player.attr('src', 'http://w.soundcloud.com/player/?url=http://api.soundcloud.com/tracks/' + id.substr(2) +
 			encodeURIComponent('?liking=false&sharing=false&show_comments=false&show_playcount=false'));
-		
+
 		this.PLAYER = SC.Widget(player[0]);
 		// If Soundbutt ever gets its shit together, this should fix our volume woes
 		self.getVolume(function(vol){
             self.PLAYER.setVolume(vol);
         });
-		
+
 		if (at < 0) {
             var wait = (at * -1000);
             setTimeout(function () {
@@ -469,7 +469,7 @@ window.PLAYERS.soundcloud = {
                     }
                 });
             }, wait);
-        } 
+        }
 		else {
             videoPlay();
             var initial = new Date();
@@ -519,7 +519,7 @@ window.PLAYERS.dm = {
 		if (volume === false) {
             volume = 1;
         }
-		
+
 		$('#ytapiplayer').append('<div id="dmplayer"/>');
 		var url = 'http://www.dailymotion.com/swf/' + id.substr(2) + '&enableApi=1&playerapiid=dmplayer';
 		var params = { allowScriptAccess:'always' };
@@ -540,7 +540,7 @@ window.PLAYERS.dm = {
                 videoSeekTo(at);
                 videoPlay();
 			}
-		});		
+		});
 	},
 	playVideo: function (id, at) {
 		this.PLAYER.cueVideoById(id.substr(2));

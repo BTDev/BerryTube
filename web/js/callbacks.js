@@ -25,7 +25,7 @@ function videoSeeked(time){
 }
 function videoPlaying(){
 	//PLAYING_VID = getLiteralPlayingVidID();
-	if(controlsVideo())	
+	if(controlsVideo())
 	{
 		videoGetTime(function(time){
 			SEEK_TO=time;
@@ -40,7 +40,7 @@ function videoPlaying(){
 	}
 }
 function videoPaused(){
-	if(controlsVideo())	
+	if(controlsVideo())
 	{
 		videoGetTime(function(time){
 			if(SEEK_FROM == 0) SEEK_FROM=time;
@@ -83,7 +83,7 @@ socket.on("recvPlaylist",function(data){
 	});
 });
 socket.on("hbVideoDetail",function(data){
-	
+
 	//if(videoGetState() == -1 || videoGetState() == 3 ) return;
 	if(controlsVideo()) return
 	dbg('hbVideoDetail data')
@@ -101,7 +101,7 @@ socket.on("hbVideoDetail",function(data){
 		dbg("SHIT: ho-hum");
 	}*/
 	else if(getStorage('syncAtAll') == 1)
-	{	
+	{
 		dbg("SYNCH_AT_ALL");
 		videoGetTime(function(time){
 			if(Math.abs(time - data.time) > getStorage('syncAccuracy'))
@@ -115,20 +115,20 @@ socket.on("hbVideoDetail",function(data){
 				dbg("SHIT: "+videoGetState()+" > 2");
 				videoSeekTo(data.time);
 			}
-			
+
 			if(data.state == 1 && videoGetState() != 1)
 			{
 				dbg("SHIT: "+data.state+" == 1 && "+videoGetState()+" != 1");
 				videoPlay();
 			}
-			
+
 			if(data.state == 2 && videoGetState() != 2)
 			{
 				dbg("SHIT: "+data.state+" == 2 && "+videoGetState()+" != 2");
 				videoPause();
 				videoSeekTo(data.time);
 			}
-			
+
 			if(data.state == 3 && videoGetState() != 2) // Intentionally 2
 			{
 				dbg("SHIT: "+data.state+" == 3 && "+videoGetState()+" != 2");
@@ -269,7 +269,7 @@ socket.on("leaderIs",function(data){
 		$("#chatlist ul li").removeClass("leader");
 		return;
 	}
-	
+
 	whenExists("#chatlist ul li",function(obj){
 		$(obj).removeClass("leader");
 		$(obj).each(function(key,val){
@@ -324,7 +324,7 @@ socket.on("setToggleables",function(data){
 });
 socket.on("clearPoll",function(data){
 	console.log(data);
-	updatePoll(data); 
+	updatePoll(data);
 	closePoll();
 });
 socket.on("recvFilters",function(data){
@@ -367,7 +367,7 @@ socket.on('reconnecting', function() {
 		$('.chatbuffer').append($('<div/>').addClass('reconnecting').text('Connection lost. Attempting to reconnect...'));
 		$('#chatinput input').attr('disabled', 'disabled');
 	}
-	
+
 	// Also set this flag so that we don't get the ghost messages when we reconnect
 	IGNORE_GHOST_MESSAGES = true;
 });
@@ -396,23 +396,23 @@ socket.on('searchHistoryResults', function(data) {
 		var entry = $("<li/>").addClass('history').appendTo(plul);
 		entry.data('plobject', vid);
 		vid.domobj = entry;
-		
+
 		$("<div/>").addClass('title').text(decodeURIComponent(vid.videotitle)).appendTo(entry);
-		
+
 		$("<div/>").addClass('delete').text("X").click(function() {
 			var video = $(this).parent().data('plobject');
 			var type = video.videotype;
 			var id = video.videoid;
-			socket.emit('delVideoHistory', { 
+			socket.emit('delVideoHistory', {
 				videotype:type,
 				videoid:id });
-				
+
 			$(this).parent().remove();
 		}).mousedown(function(e) {
 			e.stopPropagation();
 			e.preventDefault();
 		}).appendTo(entry);
-		
+
 		$("<div/>").addClass('requeue').text("V").click(function() {
 			var video = $(this).parent().data('plobject');
 			var type = video.videotype;
@@ -426,13 +426,13 @@ socket.on('searchHistoryResults', function(data) {
 				volat:true
 			};
 			socket.emit('addVideo', LAST_QUEUE_ATTEMPT);
-				
+
 			$(this).parent().remove();
 		}).mousedown(function(e) {
 			e.stopPropagation();
 			e.preventDefault();
 		}).appendTo(entry);
-		
+
 		$("<div/>").addClass('requeue').text("Q").click(function() {
 			var video = $(this).parent().data('plobject');
 			var type = video.videotype;
@@ -446,13 +446,13 @@ socket.on('searchHistoryResults', function(data) {
 				volat:false
 			};
 			socket.emit('addVideo', LAST_QUEUE_ATTEMPT);
-				
+
 			$(this).parent().remove();
 		}).mousedown(function(e) {
 			e.stopPropagation();
 			e.preventDefault();
 		}).appendTo(entry);
-		
+
 		entry.bind("contextmenu", function(e) {
 			var me = $(this);
 			var cmds = $("body").dialogWindow({
@@ -503,13 +503,13 @@ socket.on('searchHistoryResults', function(data) {
 			if (optionList.children().length == 0){
 				cmds.window.close();
 			}
-			
+
 			return false;
 		});
-		
+
 		var seconds = vid.videolength;
 		$("<div/>").addClass('time').text(secToTime(seconds)).appendTo(entry);
-		
+
 		$('<div/>').addClass("clear").appendTo(entry);
 	}
 	smartRefreshScrollbar();
