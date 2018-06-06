@@ -29,7 +29,7 @@ var scriptNodes = [
         authors:['Cades', 'Toastdeib'],
         setting:'scriptNodeDpmEnabled',
         css:[],
-        js:['http://btc.berrytube.tv/toastdeib/plugins/dpm.js']
+        js:['plugins/dpm/dpm.js']
     },
     {
         title:'Moonbase Alpha',
