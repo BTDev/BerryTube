@@ -5,7 +5,7 @@ var scriptNodes = [
         authors:['Marminator'],
         setting:'scriptNodeBerrymotesEnabled',
         css:[],
-        js:['http://berrymotes.com/berrymotes.berrytube.js']
+        js:['plugins/berrymotes/berrymotes.berrytube.js']
     },
     {
         title:'ToastThemes',

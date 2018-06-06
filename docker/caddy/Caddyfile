@@ -90,6 +90,18 @@ https://{$CDN_DOMAIN}:{$HTTPS_PORT} {
         to /sha1/{1}
     }
 
+    proxy /berrymotes http://berrymotes.com {
+        without /berrymotes
+        # 1 hour
+        header_downstream Cache-Control "public, max-age=3600"
+        header_downstream Access-Control-Max-Age 600
+        header_downstream Access-Control-Allow-Origin https://{$DOMAIN}
+        header_downstream Access-Control-Allow-Methods "OPTIONS, GET"
+        header_upstream X-Real-IP {remote}
+        header_upstream X-Forwarded-For {remote}
+        header_upstream X-Forwarded-Proto {scheme}
+    }
+
     # 1 month, stale while revalidate 1 day
     header /images/ Cache-Control "public, max-age=2592000, stale-while-revalidate=86400"
     header /sounds/ Cache-Control "public, max-age=2592000, stale-while-revalidate=86400"

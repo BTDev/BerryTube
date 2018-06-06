@@ -1,0 +1,460 @@
+.berrymotes_button {
+    cursor: pointer;
+    float: right;
+    font-weight: bold;
+    height: 20px;
+    line-height: 20px;
+    padding-left: 20px;
+}
+
+/* Dialog windows (search, settings, etc.) */
+.berrymotes.dialogWindow {
+    font-family: sans-serif;
+	background: white;
+	color: black;
+    font-size: 12px;
+	position: absolute;
+	border: 1px solid black;
+	-moz-box-shadow: 3px 3px 8px #000;
+	-webkit-box-shadow: 3px 3px 8px #000;
+	box-shadow: 3px 3px 8px #000;
+}
+.berrymotes.dialogWindow .dialogContent {
+	padding: 5px;
+}
+.berrymotes.dialogWindow .dialogToolbar {
+	background: #DEDEDE;
+	padding: 2px;
+	border-bottom: 1px solid black;
+	margin-bottom: 5px;
+	cursor: move;
+}
+.berrymotes.dialogWindow .dialogTitlebar {
+	float: left;
+}
+.berrymotes.dialogWindow .dialogToolbar .close {
+	background: red;
+	cursor: pointer;
+	width: 1em;
+	border: 1px solid black;
+	height: 1em;
+	float: right;
+}
+.berrymotes.dialogWindow .settings_span {
+    margin-right: 5px;
+}
+.berrymotes.dialogWindow input {
+	border: 1px solid black;
+}
+.berrymotes.dialogWindow input.small {
+	width: 90px;
+}
+
+.berrymotes_search {
+    width: 300px;
+}
+
+.berrymotes_search_results {
+    margin: 5px 0px;
+}
+
+.berryemote_hover>span {
+    display: none !important;
+}
+
+/* Hover-related CSS */
+.berryemote_hover .berryemote_placeholder {
+    display: inline-block !important;
+    background-color: lightcyan;
+    color: black;
+}
+
+.berryemote_hover {
+    position: relative;
+}
+
+.berryemote_hover:hover>.berryemote-wrapper-outer,
+.berryemote_hover:hover>.berryemote {
+    background-color: rgba(0, 0, 0, 0.6);
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+    display: inline-block !important;
+    position: absolute !important;
+    right: 0;
+    bottom: 0;
+    z-index: 10;
+}
+
+/* Animations */
+@-webkit-keyframes spin {
+    from {
+        -webkit-transform: rotate(0deg) rotateX(0deg) rotateY(0deg);
+    }
+    to {
+        -webkit-transform: rotate(359deg) rotateX(359deg) rotateY(359deg);
+    }
+}
+
+@-webkit-keyframes zspin {
+    from {
+        -webkit-transform: rotate(0deg);
+    }
+    to {
+        -webkit-transform: rotate(359deg);
+    }
+}
+
+@-webkit-keyframes xspin {
+    from {
+        -webkit-transform: rotateX(0deg);
+    }
+    to {
+        -webkit-transform: rotateX(359deg);
+    }
+}
+
+@-webkit-keyframes yspin {
+    from {
+        -webkit-transform: rotateY(0deg);
+    }
+    to {
+        -webkit-transform: rotateY(359deg);
+    }
+}
+
+@-webkit-keyframes -spin {
+    to {
+        -webkit-transform: rotate(0deg) rotateX(0deg) rotateY(0deg);
+    }
+    from {
+        -webkit-transform: rotate(359deg) rotateX(359deg) rotateY(359deg);
+    }
+}
+
+@-webkit-keyframes -zspin {
+    to {
+        -webkit-transform: rotate(0deg);
+    }
+    from {
+        -webkit-transform: rotate(359deg);
+    }
+}
+
+@-webkit-keyframes -xspin {
+    to {
+        -webkit-transform: rotateX(0deg);
+    }
+    from {
+        -webkit-transform: rotateX(359deg);
+    }
+}
+
+@-webkit-keyframes -yspin {
+    to {
+        -webkit-transform: rotateY(0deg);
+    }
+    from {
+        -webkit-transform: rotateY(359deg);
+    }
+}
+
+@-webkit-keyframes slideleft {
+    0% {
+        left: 0;
+    }
+    45% {
+        left: 50%;
+    }
+    50% {
+        left: 50%;
+    }
+    95% {
+        left: 0;
+    }
+    100% {
+        left: 0;
+    }
+}
+
+@-webkit-keyframes slideflip {
+    0% {
+        -webkit-transform: scaleX(1);
+    }
+    45% {
+        -webkit-transform: scaleX(1);
+    }
+    50% {
+        -webkit-transform: scaleX(-1);
+    }
+    95% {
+        -webkit-transform: scaleX(-1);
+    }
+    100% {
+        -webkit-transform: scaleX(1);
+    }
+}
+
+@-webkit-keyframes -slideflip {
+    0% {
+        -webkit-transform: scaleX(-1);
+    }
+    45% {
+        -webkit-transform: scaleX(-1);
+    }
+    50% {
+        -webkit-transform: scaleX(1);
+    }
+    95% {
+        -webkit-transform: scaleX(1);
+    }
+    100% {
+        -webkit-transform: scaleX(-1);
+    }
+}
+
+@-webkit-keyframes vibrate {
+    0% {
+        top: -1px;
+        left: -1px;
+    }
+    25% {
+        top: -1px;
+        left: 1px;
+    }
+    50% {
+        top: 1px;
+        left: 1px;
+    }
+    100% {
+        top: 1px;
+        left: -1px;
+    }
+}
+
+@-webkit-keyframes brody /* Safari and Chrome */
+{
+    0% {
+        -webkit-transform: rotate(-10deg);
+        top: 5px;
+    }
+    20% {
+        -webkit-transform: rotate(-10deg);
+        top: 5px;
+    }
+    25% {
+        -webkit-transform: rotate(0deg);
+        top: -5px;
+    }
+    45% {
+        -webkit-transform: rotate(0deg);
+        top: -5px;
+    }
+    50% {
+        -webkit-transform: rotate(10deg);
+        top: 5px;
+    }
+    70% {
+        -webkit-transform: rotate(10deg);
+        top: 5px;
+    }
+    75% {
+        -webkit-transform: rotate(0deg);
+        top: -5px;
+    }
+    95% {
+        -webkit-transform: rotate(0deg);
+        top: -5px;
+    }
+    100% {
+        -webkit-transform: rotate(-10deg);
+        top: 5px;
+    }
+}
+
+/*no prefixed versions*/
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg) rotateX(0deg) rotateY(0deg);
+    }
+    to {
+        transform: rotate(359deg) rotateX(359deg) rotateY(359deg);
+    }
+}
+
+@keyframes zspin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(359deg);
+    }
+}
+
+@keyframes xspin {
+    from {
+        transform: rotateX(0deg);
+    }
+    to {
+        transform: rotateX(359deg);
+    }
+}
+
+@keyframes yspin {
+    from {
+        transform: rotateY(0deg);
+    }
+    to {
+        transform: rotateY(359deg);
+    }
+}
+
+@keyframes -spin {
+    to {
+        transform: rotate(0deg) rotateX(0deg) rotateY(0deg);
+    }
+    from {
+        transform: rotate(359deg) rotateX(359deg) rotateY(359deg);
+    }
+}
+
+@keyframes -zspin {
+    to {
+        transform: rotate(0deg);
+    }
+    from {
+        transform: rotate(359deg);
+    }
+}
+
+@keyframes -xspin {
+    to {
+        transform: rotateX(0deg);
+    }
+    from {
+        transform: rotateX(359deg);
+    }
+}
+
+@keyframes -yspin {
+    to {
+        transform: rotateY(0deg);
+    }
+    from {
+        transform: rotateY(359deg);
+    }
+}
+
+@keyframes slideleft {
+    0% {
+        left: 0;
+    }
+    45% {
+        left: 50%;
+    }
+    50% {
+        left: 50%;
+    }
+    95% {
+        left: 0;
+    }
+    100% {
+        left: 0;
+    }
+}
+
+@keyframes slideflip {
+    0% {
+        transform: scaleX(1);
+    }
+    45% {
+        transform: scaleX(1);
+    }
+    50% {
+        transform: scaleX(-1);
+    }
+    95% {
+        transform: scaleX(-1);
+    }
+    100% {
+        transform: scaleX(1);
+    }
+}
+
+
+@keyframes -slideflip {
+    0% {
+        transform: scaleX(-1);
+    }
+    45% {
+        transform: scaleX(-1);
+    }
+    50% {
+        transform: scaleX(1);
+    }
+    95% {
+        transform: scaleX(1);
+    }
+    100% {
+        transform: scaleX(-1);
+    }
+}
+
+@keyframes vibrate {
+    0% {
+        top: -1px;
+        left: -1px;
+    }
+    25% {
+        top: -1px;
+        left: 1px;
+    }
+    50% {
+        top: 1px;
+        left: 1px;
+    }
+    100% {
+        top: 1px;
+        left: -1px;
+    }
+}
+
+@keyframes brody {
+    0% {
+        transform: rotate(-10deg);
+        top: 5px;
+    }
+    20% {
+        transform: rotate(-10deg);
+        top: 5px;
+    }
+    25% {
+        transform: rotate(0deg);
+        top: -5px;
+    }
+    45% {
+        transform: rotate(0deg);
+        top: -5px;
+    }
+    50% {
+        transform: rotate(10deg);
+        top: 5px;
+    }
+    70% {
+        transform: rotate(10deg);
+        top: 5px;
+    }
+    75% {
+        transform: rotate(0deg);
+        top: -5px;
+    }
+    95% {
+        transform: rotate(0deg);
+        top: -5px;
+    }
+    100% {
+        transform: rotate(-10deg);
+        top: 5px;
+    }
+}
