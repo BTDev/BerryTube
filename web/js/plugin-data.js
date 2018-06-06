@@ -13,7 +13,7 @@ var scriptNodes = [
         desc:'A script that provides a large assortment of custom themes for the site, along with a few other fun features.',
         authors:['Toastdeib'],
         setting:'scriptNodeToastThemesEnabled',
-        css:[],
+        css:['plugins/toastthemes/toastthemes.css'],
         js:['plugins/toastthemes/toastthemes.js']
     }/*,
     {
@@ -24,6 +24,14 @@ var scriptNodes = [
         css:[],
         js:['http://btc.berrytube.tv/wut/ponypen.js']
     }*/,
+    {
+        title:'wutColors',
+        desc:'Gives each user a unique color to make chat easier to keep track of.',
+        authors:['wut'],
+        settings:'scriptNodeWutColorsEnabled',
+        css:['https://dl.dropboxusercontent.com/s/f5axkxk4wojatsf/style.css'],
+        js:['plugins/wutcolors/wutColors.js']
+    },
     {
         title:'DPM Counter',
         desc:'A script that displays the drinks per minute for the active video next to the drink counter.',

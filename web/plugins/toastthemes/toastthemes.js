@@ -205,9 +205,6 @@ function GroupButton(id, name, hasNew, hasUpdated, suffix, themeButtons) {
 }
 
 function initToastThemes(data, textStatus, jqxhr) {
-	// Load the ToastThemes CSS file into the document
-	$('head').append($('<link/>').attr('rel', 'stylesheet').attr('type', 'text/css').attr('href', 'plugins/toastthemes/toastthemes.css'));
-
 	// Theme group buttons
 	officialGroup = new GroupButton('officialGroup', 'Official', false, false);
 	mainPonyGroup = new GroupButton('mainPonyGroup', 'Main Pony', false, false);
@@ -303,7 +300,7 @@ function initToastThemes(data, textStatus, jqxhr) {
 	imageVisible = false;
 	showBonusPonies = getStoredBoolean('showBonusPonies', true);
 	slamming = false;
-	welcomeToTheJam = new Audio('plugins/toastthemes/css/slam/slam.wav');
+	welcomeToTheJam = new Audio('plugins/toastthemes/slam.wav');
 	originalTheme = $('body').data('cssOverride');
 	if (!originalTheme) {
 		originalTheme = getStorage('siteThemePath') || '';

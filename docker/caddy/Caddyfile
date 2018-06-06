@@ -10,6 +10,8 @@
         must_staple
     }
 
+    status 404 /404
+
     header / {
         Cache-Control "public, no-cache, must-revalidate"
         Referrer-Policy "no-referrer"
@@ -77,7 +79,6 @@ https://{$DOMAIN}:{$HTTPS_PORT} {
 https://{$CDN_DOMAIN}:{$HTTPS_PORT} {
     import main
 
-    status 404 /404
     rewrite / {
         if {file} ends_with .html
         if {file} ends_with .php
@@ -94,6 +95,18 @@ https://{$CDN_DOMAIN}:{$HTTPS_PORT} {
         without /berrymotes
         # 1 hour
         header_downstream Cache-Control "public, max-age=3600"
+        header_downstream Access-Control-Max-Age 600
+        header_downstream Access-Control-Allow-Origin https://{$DOMAIN}
+        header_downstream Access-Control-Allow-Methods "OPTIONS, GET"
+        header_upstream X-Real-IP {remote}
+        header_upstream X-Forwarded-For {remote}
+        header_upstream X-Forwarded-Proto {scheme}
+    }
+
+    proxy /wutcolors http://btc.berrytube.tv/wut/wutColors {
+        without /wutcolors
+        # 1 hour
+        header_downstream Cache-Control "public, max-age=60"
         header_downstream Access-Control-Max-Age 600
         header_downstream Access-Control-Allow-Origin https://{$DOMAIN}
         header_downstream Access-Control-Allow-Methods "OPTIONS, GET"

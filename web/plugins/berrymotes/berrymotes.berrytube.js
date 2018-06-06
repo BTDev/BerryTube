@@ -333,7 +333,7 @@ Bem.settings = {
     }
 };
 
-Bem.settings.set('siteWhitelist', ['berrytube.tv', 'www.berrytube.tv']);
+Bem.settings.set('siteWhitelist', [location.hostname]);
 
 
 //Bem.emoteRefresh = function() {
