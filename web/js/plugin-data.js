@@ -53,7 +53,7 @@ var scriptNodes = [
         authors:['Malsententia'],
         setting:'scriptNodeDesktopSqueesEnabled',
         css:[],
-        js:['http://btc.berrytube.tv/malsententia/desktopSquees/desktopSquees.js']
+        js:['plugins/desktopSquees/desktopSquees.js']
     },
     {
         title:'Playlist Enhancement Plugin',
@@ -62,7 +62,7 @@ var scriptNodes = [
         setting:'scriptNodePEPEnabled',
         css:['plugins/pep/pep.css','plugins/pep/multipleselectbox.css'],
         js:['plugins/pep/pep.js']
-    },
+    }/*,
     {
         title:'Video Blacklist',
         desc:'Adds right-click buttons for playlist entries allowing you to specify videos to not play.',
@@ -70,6 +70,6 @@ var scriptNodes = [
         setting:'scriptNodeVideoBlacklistEnabled',
         css:[],
         js:['http://cades.me/projects/BTVideoBlacklist/videoBlacklist.js']
-    }
+    }*/
 ];
 
