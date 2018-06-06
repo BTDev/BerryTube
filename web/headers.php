@@ -55,6 +55,7 @@
 <link rel="stylesheet" href="<?= cdn('css/uni-gui.css') ?>" />
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/themes/ui-lightness/jquery-ui.min.css" integrity="sha256-N7K28w/GcZ69NlFwqiKb1d5YXy37TSfgduj5gQ6x8m0=" crossorigin="anonymous" />
 <link rel="stylesheet" href="<?= cdn('css/countdown.css') ?>" />
+<link rel="stylesheet" href="<?= cdn('css/berrymotes.core.css') ?>" />
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.12.4/jquery.min.js" integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ=" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js" integrity="sha256-KM512VNnjElC30ehFwehXjx1YCHPiQkOPmqnrWtpccM=" crossorigin="anonymous"></script>
@@ -80,6 +81,8 @@
 <script src="<?= cdn('js/functions.js') ?>"></script>
 <script src="<?= cdn('js/callbacks.js') ?>"></script>
 <script src="<?= cdn('js/player.js') ?>"></script>
+<script src="<?= cdn('js/berrymotes.berrytube.js') ?>"></script>
+<script src="<?= cdn('js/berrymotes.core.js') ?>" async defer></script>
 <script src="<?= cdn('js/countdown.js') ?>" async defer></script>
 
 <?php

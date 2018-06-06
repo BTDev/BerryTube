@@ -355,6 +355,9 @@ Bem.emoteRefresh = function (cache) {
     });
 };
 
+Bem.apngSupported = true;
+
+/*
 Bem.settings.get('apngSupported', function (apngSupported) {
     if (apngSupported === null || apngSupported === undefined) {
         (function () {
@@ -389,8 +392,4 @@ Bem.settings.get('apngSupported', function (apngSupported) {
         Bem.apngSupported = true;
     }
 });
-
-var script = document.createElement('script');
-script.type = 'text/javascript';
-script.src = 'plugins/berrymotes/assets/berrymotes.core.js';
-document.body.appendChild(script);
+*/

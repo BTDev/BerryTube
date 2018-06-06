@@ -1,12 +1,12 @@
 var scriptNodes = [
-    {
+    /*{
         title:'Berrymotes',
         desc:'A custom emote script for BerryTube, superior in every way to BPM.',
         authors:['Marminator'],
         setting:'scriptNodeBerrymotesEnabled',
         css:[],
         js:['plugins/berrymotes/berrymotes.berrytube.js']
-    },
+    },*/
     {
         title:'ToastThemes',
         desc:'A script that provides a large assortment of custom themes for the site, along with a few other fun features.',

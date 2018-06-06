@@ -620,8 +620,7 @@ Bem = typeof Bem === "undefined" ? {} : Bem;
         else {
             if (Bem.debug) console.log('starting');
 
-            $("head").append('<link rel="stylesheet" type="text/css" ' +
-                'href="plugins/berrymotes/assets/berrymotes.core.css" />');
+            //$("head").append('<link rel="stylesheet" type="text/css" href="plugins/berrymotes/assets/berrymotes.core.css" />');
 
             Bem.berrySiteInit();
             Bem.listenForInput();
