@@ -11,9 +11,9 @@
 	define("PATH","/");
 
 	function cdn($fname) {
-		$hash = md5_file($fname);
+		$hash = sha1_file($fname);
 		if ($hash) {
-			return CDN_ORIGIN . "/md5/$hash/$fname";
+			return CDN_ORIGIN . "/sha1/$hash/$fname";
 		} else {
 			return $fname;
 		}

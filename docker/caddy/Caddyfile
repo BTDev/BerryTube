@@ -85,13 +85,13 @@ https://{$CDN_DOMAIN}:{$HTTPS_PORT} {
         to /404
     }
 
-    rewrite /md5/ {
+    rewrite /sha1/ {
         regexp ^/[^/]+/(.+)$
-        to /md5/{1}
+        to /sha1/{1}
     }
 
     # browser 1 day, cache 1 month, allow stale for 1 day, allow stale while revalidate for 1 minute
-    header /md5/ Cache-Control "public, max-age=86400, s-maxage=262974, stale-if-error=86400, stale-while-revalidate=60"
+    header / Cache-Control "public, max-age=86400, s-maxage=262974, stale-if-error=86400, stale-while-revalidate=60"
 }
 
 http://{$DOMAIN}:{$NODE_HTTP_PORT},
