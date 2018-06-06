@@ -90,11 +90,12 @@ https://{$CDN_DOMAIN}:{$HTTPS_PORT} {
         to /sha1/{1}
     }
 
-    # browser 1 day, cache 1 month, stale while revalidate for 1 hour
-    header / Cache-Control "public, max-age=86400, s-maxage=262974, stale-while-revalidate=3600"
+    # 1 month, stale while revalidate 1 day
+    header /images/ Cache-Control "public, max-age=2592000, stale-while-revalidate=86400"
+    header /sounds/ Cache-Control "public, max-age=2592000, stale-while-revalidate=86400"
 
-    # 1 year, stale while revalidate for 1 hour, never changes
-    header /sha1/ Cache-Control "public, max-age=31557600, stale-while-revalidate=3600, immutable"
+    # 1 year, stale while revalidate 1 day, never changes
+    header /sha1/ Cache-Control "public, max-age=31557600, stale-while-revalidate=86400, immutable"
 }
 
 http://{$DOMAIN}:{$NODE_HTTP_PORT},

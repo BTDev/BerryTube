@@ -1,48 +1,50 @@
 <meta charset="utf-8">
+<style>body { background: url(/images/stain.png) no-repeat fixed center top #421C52; }</style>
+
 <?php // Pick random title.
 	$titles = array(
-		'BerryTube :: This is why I drink!',
-		'BerryTube :: It seemed like a good idea at the time.',
-		'BerryTube :: IM SO FRESH YOU CAN SUCK MY NUTS SWAG',
-		'BerryTube :: The 24/7 out of control party abomination that is berrytube.tv!',
-		'BerryTube :: What could go wrong?',
-		'BerryTube :: Love the mods with mouth',
-		'BerryTube :: This website runs on electricity and Stockholm Syndrome.',
-		'BerryTube :: "If you dont like the wordfilters, you can fuck off back to synchtube".',
-		'BerryTube :: "If you dont like the wordfilters, you can sexual intercourse off back to synchtube."',
-		'BerryTube :: In which two dapper strapping lads attempt to flirt with me.',
-		'BerryTube :: I made a Rainbow Dash Space Marine Army. Friendship is Bolters.',
-		'BerryTube :: Of all the substances in the movie, that is the most ejaculate-like.',
-		'BerryTube :: We are all about special treatment, not ascii statistics.',
-		'BerryTube :: Like 500 picoHitlers.',
-		'BerryTube :: STAPHG HO NOP',
-		'BerryTube :: Really little pony if you were open up my always and now it through this crystal Greer its a roof sunrise.',
-		'BerryTube :: Shes too busy with her titties to stop the changelings.',
-		'BerryTube :: Now were cooking with nipples.',
-		'BerryTube :: Drunk is a universal language.',
-		'BerryTube :: GO TO BERRYTUBE.TV FOR MORE AMAAAAZING PONY VIDEOS #YOLO #SWAG',
-		'BerryTube :: Blueshift: aw, EternalLullaby isnt here, i had an orgy related question for him',
-		'BerryTube :: I forgot I had amplification on.',
-		'BerryTube :: Its where alcohol and ponies merge and there are no survivors',
-		'BerryTube :: The desk needs foreplay',
-		'BerryTube :: its easier to deal with omnomtom than peta',
-		'BerryTube :: Im sorry I made your dick twitch.',
-		'BerryTube :: What is this? A Daycare for the sexually deviant?',
-		'BerryTube :: It appears to run on some form of alcohol.',
-		'BerryTube :: Its basically a drinking site with a pony problem.',
-		'BerryTube :: Theres too many mouths and only one dick. Please take turns.',
-		'BerryTube :: You can always be deeper.',
-		'BerryTube :: Strive to be as honest as hitler.',
-		'BerryTube :: Hats and Lies.',
-		'BerryTube :: The soundtrack of a perfect porno',
-		'BerryTube :: WHO NINAsfa FUCMER',
-		'BerryTube :: Lion-O is in the set of "not Snoop Lion".'
+		'This is why I drink!',
+		'It seemed like a good idea at the time.',
+		'IM SO FRESH YOU CAN SUCK MY NUTS SWAG',
+		'The 24/7 out of control party abomination that is berrytube.tv!',
+		'What could go wrong?',
+		'Love the mods with mouth',
+		'This website runs on electricity and Stockholm Syndrome.',
+		'"If you dont like the wordfilters, you can fuck off back to synchtube".',
+		'"If you dont like the wordfilters, you can sexual intercourse off back to synchtube."',
+		'In which two dapper strapping lads attempt to flirt with me.',
+		'I made a Rainbow Dash Space Marine Army. Friendship is Bolters.',
+		'Of all the substances in the movie, that is the most ejaculate-like.',
+		'We are all about special treatment, not ascii statistics.',
+		'Like 500 picoHitlers.',
+		'STAPHG HO NOP',
+		'Really little pony if you were open up my always and now it through this crystal Greer its a roof sunrise.',
+		'Shes too busy with her titties to stop the changelings.',
+		'Now were cooking with nipples.',
+		'Drunk is a universal language.',
+		'GO TO BERRYTUBE.TV FOR MORE AMAAAAZING PONY VIDEOS #YOLO #SWAG',
+		'Blueshift: aw, EternalLullaby isnt here, i had an orgy related question for him',
+		'I forgot I had amplification on.',
+		'Its where alcohol and ponies merge and there are no survivors',
+		'The desk needs foreplay',
+		'its easier to deal with omnomtom than peta',
+		'Im sorry I made your dick twitch.',
+		'What is this? A Daycare for the sexually deviant?',
+		'It appears to run on some form of alcohol.',
+		'Its basically a drinking site with a pony problem.',
+		'Theres too many mouths and only one dick. Please take turns.',
+		'You can always be deeper.',
+		'Strive to be as honest as hitler.',
+		'Hats and Lies.',
+		'The soundtrack of a perfect porno',
+		'WHO NINAsfa FUCMER',
+		'Lion-O is in the set of "not Snoop Lion".'
 	);
-	$TITLE = $titles[array_rand($titles)];
+	$TITLE = 'BerryTube :: ' . $titles[array_rand($titles)];
 ?>
 <title><?php echo $TITLE; ?></title>
 
-<meta name="description" content="<?php echo $TITLE; ?>">
+<meta name="description" content="BerryTube">
 <meta name="author" content="Cades / GreyMage / Eric Cutler">
 <meta name="robots" content="noindex">
 <meta name="theme-color" content="#421C52">
@@ -51,10 +53,10 @@
 <link rel="stylesheet" href="<?= cdn('css/layout-other.css') ?>"/>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/video.js/5.4.4/video-js.min.css" integrity="sha256-UeMWbsVFjXKSEQ5njaTwWasAFZJsen4UMOHfTHNZtBA=" crossorigin="anonymous" />
 <link rel="stylesheet" href="<?= cdn('css/uni-gui.css') ?>" />
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.9.1/themes/ui-lightness/jquery-ui.min.css" integrity="sha256-dDoVsDysTyYZ4RNtdY7V1zNeujxOVejwbj0HEXF5GDI=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/themes/ui-lightness/jquery-ui.min.css" integrity="sha256-N7K28w/GcZ69NlFwqiKb1d5YXy37TSfgduj5gQ6x8m0=" crossorigin="anonymous" />
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.8.2/jquery.min.js" integrity="sha256-8j1LMJtydDqor+H4yYols+4xJG+lcsZtnYyxmCyuT7w=" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.9.1/jquery-ui.min.js" integrity="sha256-H7C2ZUhiTIz56/LQyBlwkQqwyAMaitpvjm+IQRQ0To0=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.12.4/jquery.min.js" integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js" integrity="sha256-KM512VNnjElC30ehFwehXjx1YCHPiQkOPmqnrWtpccM=" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/tinyscrollbar/2.4.2/jquery.tinyscrollbar.min.js" integrity="sha256-gENsdwXJl1qiwOqS0DF+kfqTP5Dy+0gDTtxpRcWVhrU=" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/swfobject/2.2/swfobject.min.js" integrity="sha256-oYy9uw+7cz1/TLpdKv1rJwbj8UHHQ/SRBX5YADaM2OU=" crossorigin="anonymous"></script>
 <script src="<?= cdn('js/froogaloop.min.js') ?>"></script>
