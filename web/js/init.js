@@ -1772,7 +1772,7 @@ function initPolls(under){
 	$('<div/>').css("clear",'both').appendTo(pollControl);
 }
 function initAreas(){
-	var hw = $("<div/>").addClass("wrapper").insertAfter($("#banner"));
+	var hw = $("<div/>").addClass("wrapper").insertAfter($("#countdown-timers"));
 	var header = $("<div/>").attr('id','dyn_header').addClass('dynarea').appendTo(hw);
 	var motd = $("<div/>").attr('id','dyn_motd').addClass('dynarea').insertAfter($("#pollpane"));
 	var footer = $("<div/>").attr('id','dyn_footer').addClass('dynarea').appendTo($("#main"));

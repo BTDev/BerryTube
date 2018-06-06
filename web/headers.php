@@ -54,6 +54,7 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/video.js/5.4.4/video-js.min.css" integrity="sha256-UeMWbsVFjXKSEQ5njaTwWasAFZJsen4UMOHfTHNZtBA=" crossorigin="anonymous" />
 <link rel="stylesheet" href="<?= cdn('css/uni-gui.css') ?>" />
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/themes/ui-lightness/jquery-ui.min.css" integrity="sha256-N7K28w/GcZ69NlFwqiKb1d5YXy37TSfgduj5gQ6x8m0=" crossorigin="anonymous" />
+<link rel="stylesheet" href="<?= cdn('css/countdown.css') ?>" />
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.12.4/jquery.min.js" integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ=" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js" integrity="sha256-KM512VNnjElC30ehFwehXjx1YCHPiQkOPmqnrWtpccM=" crossorigin="anonymous"></script>
@@ -63,6 +64,8 @@
 <script src="https://w.soundcloud.com/player/api.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/video.js/5.4.4/video.min.js" integrity="sha256-G7x2zGxKAoYkH+OZEozBSzZ5K7Dh+5T+k9FBQ0GGTcw=" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/0.9.16/socket.io.min.js" integrity="sha256-bFYtqOZj1MLDlOrOlxCU9aruDP2zxiIKvmoo+dHsy4w=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.19.1/moment.min.js" integrity="sha256-zG8v+NWiZxmjNi+CvUYnZwKtHzFtdO8cAKUIdB8+U9I=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment-duration-format/1.3.0/moment-duration-format.min.js" integrity="sha256-SjPDuWPRLxUNqTwhiAcTNcIwQLbf5khquJsz5fekYms=" crossorigin="anonymous"></script>
 
 <script>
 
@@ -99,8 +102,24 @@
 		});
 	}
 
-
 </script>
+
+<template id="countdown-future-row">
+    <tr>
+        <th class="countdown-title" scope="row"></th>
+        <td class="countdown-start-time"></td>
+        <td class="countdown-time-diff"></td>
+        <td class="countdown-note"></td>
+    </tr>
+</template>
+
+<template id="countdown-happening-row">
+    <tr>
+        <th class="countdown-title" scope="row"></th>
+        <td class="countdown-happening" colspan="2">It's happening!</td>
+        <td class="countdown-note"></td>
+    </tr>
+</template>
 
 <script src="<?= cdn('js/plugin-data.js') ?>"></script>
 <script src="<?= cdn('js/lib.js') ?>"></script>
@@ -108,6 +127,7 @@
 <script src="<?= cdn('js/functions.js') ?>"></script>
 <script src="<?= cdn('js/callbacks.js') ?>"></script>
 <script src="<?= cdn('js/player.js') ?>"></script>
+<script src="<?= cdn('js/countdown.js') ?>" async defer></script>
 
 <?php
 	// Load any other headers, like from the theme cookie.

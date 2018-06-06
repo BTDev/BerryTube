@@ -19,6 +19,18 @@
 		<div class="elem first"><a href="about.php" target="_blank">About</a></div>
 	</div>
 	<div id="banner"></div>
+
+	<!-- HEADER COUNTDOWN -->
+	<div id="countdown-error"></div>
+    <table id="countdown-timers">
+        <tbody></tbody>
+        <tfoot>
+            <tr>
+                <td><a href="https://teamup.com/ksiyi7xykfdvgyocp3" target="_blank">full schedule</a></td>
+            </tr>
+        </tfoot>
+    </table>
+
 	<?php
 		if(isset($_SESSION['error']))
 		{

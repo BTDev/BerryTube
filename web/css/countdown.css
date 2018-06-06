@@ -1,0 +1,59 @@
+#countdown-timers a,
+#countdown-timers a:visited,
+#countdown-timers a:active,
+#countdown-timers a:hover {
+    color: white;
+    text-decoration: underline dashed;
+    font-style: italic;
+}
+
+#countdown-error {
+    text-align: center;
+}
+
+.countdown-error-title {
+    font-weight: bold;
+}
+
+#countdown-timers {
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#countdown-timers td {
+    padding-left: 1.5em;
+}
+
+.countdown-title, .countdown-note {
+    text-align: left;
+}
+
+.countdown-start-time, .countdown-time-diff, .countdown-happening {
+    text-align: right;
+}
+
+.countdown-happening {
+    font-style: italic;
+}
+
+.countdown-note p {
+    margin: 0;
+    padding: 0;
+}
+
+.countdown-time-diff small {
+    margin-left: 1px;
+}
+
+#countdown-timers tfoot td {
+    padding-left: 2px;
+    font-size: smaller;
+}
+
+.countdown-no-notes .countdown-note {
+    display: none;
+}
+
+.countdown-time-diff {
+    font-kerning: none;
+}
