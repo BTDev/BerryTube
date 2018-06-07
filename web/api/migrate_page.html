@@ -2,7 +2,7 @@
 <h2 id="title">Copying settings to new system...</h2>
 <p id="desc">If you are stuck on this page, you are probably blocking scripts and/or cookies from BerryTube.</p>
 <script>
-const origin = 'https://' + location.hostname.replace(/^www\./, '');
+const origin = 'https://{{.Env.DOMAIN}}:{{.Env.HTTPS_PORT}}';
 window.onmessage = function(event){
     if (event.data === 'done') {
         document.getElementById('title').textContent = 'Redirecting to new system...';

@@ -2,6 +2,8 @@
     gzip
     realip cloudflare
 
+    root /var/www/html
+
     log / stdout {combined} {
         except /ping.txt /ping.php
     }
@@ -10,8 +12,6 @@
         must_staple
     }
 
-    status 404 /404
-
     header / {
         Cache-Control "public, no-cache, must-revalidate"
         Referrer-Policy "no-referrer"
@@ -19,16 +19,14 @@
         X-Frame-Options "DENY"
         X-XSS-Protection "1; mode=block; report=\"https://atte.report-uri.com/r/d/xss/enforce\""
         -Public-Key-Pins
-        -Server
         -Strict-Transport-Security
+        -Server
         -X-Powered-By
     }
 }
 
 (main) {
     import common
-
-    root /var/www/html
 
     index index.php
     fastcgi / bt-php:9000 php
@@ -48,6 +46,9 @@ http://www.{$DOMAIN}:{$HTTP_PORT} {
         if {path} not_starts_with /api/
         to /api/migrate_page.html
     }
+
+    header /api/migrate_page.html +Link "https://{$DOMAIN}:{$HTTPS_PORT}/api/migrate_frame.html; rel=preload; as=document; nopush"
+    templates /api/migrate_page.html
 }
 
 https://www.{$DOMAIN}:{$HTTPS_PORT} {
@@ -65,9 +66,7 @@ https://www.{$DOMAIN}:{$HTTPS_PORT} {
 https://{$DOMAIN}:{$HTTPS_PORT} {
     import main
 
-    header /api/migrate_frame.html {
-        -X-Frame-Options
-    }
+    header /api/migrate_frame.html -X-Frame-Options
 
     redir {
         if {~bt-migrated} not 1
@@ -77,8 +76,9 @@ https://{$DOMAIN}:{$HTTPS_PORT} {
 }
 
 https://{$CDN_DOMAIN}:{$HTTPS_PORT} {
-    import main
+    import common
 
+    status 404 /404
     rewrite / {
         if {file} ends_with .html
         if {file} ends_with .php
@@ -105,7 +105,7 @@ https://{$CDN_DOMAIN}:{$HTTPS_PORT} {
 
     proxy /wutcolors http://btc.berrytube.tv/wut/wutColors {
         without /wutcolors
-        # 1 hour
+        # 1 minute
         header_downstream Cache-Control "public, max-age=60"
         header_downstream Access-Control-Max-Age 600
         header_downstream Access-Control-Allow-Origin https://{$DOMAIN}
