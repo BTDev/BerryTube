@@ -198,7 +198,7 @@ var POLL_OPTIONS = [];
 })();
 
 try{
-	window.socket = io.connect(socketIOTarget, {
+	window.socket = io.connect(NODE_ORIGIN, {
 		'connect timeout': 5000,
 		'reconnect': true,
 		'reconnection delay': 500,
@@ -1572,12 +1572,12 @@ function initLoginForm(headbar){
     var layoutTable = $('<table/>').appendTo(loginForm);
     var row = $('<tr/>').appendTo(layoutTable);
     $('<span/>').text('Username').appendTo($('<td/>').appendTo(row));
-    var userBar = $('<input/>').attr('name','loginname').attr('type','text').appendTo($('<td/>').appendTo(row));
+    var userBar = $('<input/>').attr('name','loginname').attr('type','text').attr('autocomplete','username').appendTo($('<td/>').appendTo(row));
     var showregbtn = $('<div/>').addClass("submit").text("Register").appendTo($('<td/>').appendTo(row));
 
     var row = $('<tr/>').appendTo(layoutTable);
     $('<span/>').text('Password').appendTo($('<td/>').appendTo(row));
-    var loginBar = $('<input/>').attr('name','loginpass').attr('type','password').appendTo($('<td/>').appendTo(row));
+    var loginBar = $('<input/>').attr('name','loginpass').attr('type','password').attr('autocomplete','current-password').appendTo($('<td/>').appendTo(row));
     var loginbtn = $('<div/>').addClass("submit").text("Login").appendTo($('<td/>').appendTo(row));
 
     showregbtn.click(function(){
@@ -1605,17 +1605,17 @@ function initLoginForm(headbar){
     var layoutTable = $('<table/>').appendTo(regForm);
     var row = $('<tr/>').appendTo(layoutTable);
     $('<span/>').text('Desired Username').appendTo($('<td/>').appendTo(row));
-    var newUserBar = $('<input/>').attr('name','regname').attr('type','text').appendTo($('<td/>').appendTo(row));
+    var newUserBar = $('<input/>').attr('name','regname').attr('type','text').attr('autocomplete','username').appendTo($('<td/>').appendTo(row));
     var showloginbtn = $('<div/>').addClass("submit").text("Login").appendTo($('<td/>').appendTo(row));
 
     var row = $('<tr/>').appendTo(layoutTable);
     $('<span/>').text('Password').appendTo($('<td/>').appendTo(row));
-    var passBar = $('<input/>').attr('name','regpass').attr('type','password').appendTo($('<td/>').appendTo(row));
+    var passBar = $('<input/>').attr('name','regpass').attr('type','password').attr('autocomplete','new-password').appendTo($('<td/>').appendTo(row));
     $('<div/>').text("").appendTo($('<td/>').appendTo(row));
 
     var row = $('<tr/>').appendTo(layoutTable);
     $('<span/>').text('Confirm Password').appendTo($('<td/>').appendTo(row));
-    var pass2Bar = $('<input/>').attr('name','regpass2').attr('type','password').appendTo($('<td/>').appendTo(row));
+    var pass2Bar = $('<input/>').attr('name','regpass2').attr('type','password').attr('autocomplete','new-password').appendTo($('<td/>').appendTo(row));
     var regbtn = $('<div/>').addClass("submit").text("Register").appendTo($('<td/>').appendTo(row));
 
     showloginbtn.click(function(){

@@ -15,6 +15,7 @@ services:
         environment:
             - DOMAIN
             - CDN_DOMAIN
+            - NODE_DOMAIN
             - HTTP_PORT
             - HTTPS_PORT
             - NODE_HTTP_PORT

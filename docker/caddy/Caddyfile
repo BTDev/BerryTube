@@ -124,10 +124,10 @@ https://{$CDN_DOMAIN}:{$HTTPS_PORT} {
     header /sha1/ Cache-Control "public, max-age=31557600, stale-while-revalidate=86400, immutable"
 }
 
-http://{$DOMAIN}:{$NODE_HTTP_PORT},
-https://{$DOMAIN}:{$NODE_HTTPS_PORT},
-http://www.{$DOMAIN}:{$NODE_HTTP_PORT},
-https://www.{$DOMAIN}:{$NODE_HTTPS_PORT} {
+http://{$NODE_DOMAIN}:{$NODE_HTTP_PORT},
+https://{$NODE_DOMAIN}:{$NODE_HTTPS_PORT},
+http://www.{$NODE_DOMAIN}:{$NODE_HTTP_PORT},
+https://www.{$NODE_DOMAIN}:{$NODE_HTTPS_PORT} {
     import common
 
     tls {

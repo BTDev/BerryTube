@@ -4,8 +4,7 @@
 	define("DB_NAME","berrytube");
 	define("DB_USER","berrytube");
 	define("DB_PASS","berrytube");
-	define("SocketIO_HOST", getenv('DOMAIN'));
-	define("SocketIO_PORT", getenv('NODE_HTTPS_PORT'));
+	define('NODE_ORIGIN', 'https://' . getenv('NODE_DOMAIN') . ((getenv('NODE_HTTPS_PORT') === '443') ? '' : (':' . getenv('NODE_HTTPS_PORT'))));
 	define('CDN_ORIGIN', 'https://' . getenv('CDN_DOMAIN') . ((getenv('HTTPS_PORT') === '443') ? '' : (':' . getenv('HTTPS_PORT'))));
 	/* CUT AFTER ME FOR ANY CHANGES. */
 	define("PATH","/");
