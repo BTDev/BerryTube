@@ -82,6 +82,7 @@ https://{$CDN_DOMAIN}:{$HTTPS_PORT} {
     rewrite / {
         if {file} ends_with .html
         if {file} ends_with .php
+        if {path} is /
         if_op or
         to /404
     }
