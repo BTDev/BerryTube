@@ -55,7 +55,7 @@
 <link rel="stylesheet" href="<?= cdn('css/uni-gui.css') ?>" />
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/themes/ui-lightness/jquery-ui.min.css" integrity="sha256-N7K28w/GcZ69NlFwqiKb1d5YXy37TSfgduj5gQ6x8m0=" crossorigin="anonymous" />
 <link rel="stylesheet" href="<?= cdn('css/countdown.css') ?>" />
-<link rel="stylesheet" href="<?= cdn('css/berrymotes.core.css') ?>" />
+<link rel="stylesheet" href="<?= cdn('berrymotes/css/berryemotecore.css') ?>" />
 
 <link rel="preload" href="<?= CDN_ORIGIN ?>/images/stain.png" as="image">
 <link rel="preload" href="<?= CDN_ORIGIN ?>/images/player_back.png" as="image">
@@ -80,7 +80,7 @@
 	var WINDOW_TITLE = '<?= $TITLE ?>';
 </script>
 
-<script src="<?= cdn('js/plugin-data.js') ?>"></script>
+<script src="js/plugin-data.js.php"></script>
 <script src="<?= cdn('js/lib.js') ?>"></script>
 <script src="<?= cdn('js/init.js') ?>"></script>
 <script src="<?= cdn('js/functions.js') ?>"></script>
@@ -91,8 +91,12 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/moment-duration-format/1.3.0/moment-duration-format.min.js" integrity="sha256-SjPDuWPRLxUNqTwhiAcTNcIwQLbf5khquJsz5fekYms=" crossorigin="anonymous" defer></script>
 <script src="<?= cdn('js/countdown.js') ?>" defer></script>
 
-<script src="<?= cdn('js/berrymotes.berrytube.js') ?>" defer></script>
-<script src="<?= cdn('js/berrymotes.core.js') ?>" defer></script>
+<script>
+	Bem = typeof Bem === "undefined" ? {} : Bem;
+	Bem.data_url = '<?= cdn('berrymotes/data/berrymotes_json_data.json') ?>';
+</script>
+<script src="<?= cdn('berrymotes/js/berrymotes.berrytube.js') ?>" defer></script>
+<script src="<?= cdn('berrymotes/js/berrymotes.core.js') ?>" defer></script>
 
 <?php
 	// Load any other headers, like from the theme cookie.

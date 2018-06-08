@@ -9,8 +9,8 @@
 	/* CUT AFTER ME FOR ANY CHANGES. */
 	define("PATH","/");
 
-	function cdn($fname) {
-		$hash = sha1_file($fname);
+	function cdn($fname, $offset='.') {
+		$hash = @sha1_file("$offset/$fname");
 		if ($hash) {
 			return CDN_ORIGIN . "/sha1/$hash/$fname";
 		} else {

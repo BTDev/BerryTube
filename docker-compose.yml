@@ -21,7 +21,12 @@ services:
             - LEGACY_SOCKET_PORT
         volumes:
             - bt-caddy:/root/.caddy
-            - ./web:/var/www/html:ro
+            - ./web:/var/www/html/web:ro
+            - ./berrymotes/data:/var/www/html/berrymotes/data:ro
+            - ./berrymotes/css:/var/www/html/berrymotes/css:ro
+            - ./berrymotes/js:/var/www/html/berrymotes/js:ro
+            - ./berrymotes/images:/var/www/html/berrymotes/images:ro
+            - ./berrymotes/single_emotes:/var/www/html/berrymotes/single_emotes:ro
         ports:
             - '${HTTP_PORT}:${HTTP_PORT}/tcp'
             - '${HTTPS_PORT}:${HTTPS_PORT}/tcp'
@@ -41,7 +46,10 @@ services:
             - HTTPS_PORT
             - LEGACY_SOCKET_PORT
         volumes:
-            - ./web:/var/www/html:ro
+            - ./web:/var/www/html/web:ro
+            - ./berrymotes/data:/var/www/html/berrymotes/data:ro
+            - ./berrymotes/css:/var/www/html/berrymotes/css:ro
+            - ./berrymotes/js:/var/www/html/berrymotes/js:ro
         expose:
             - '9000'
         networks:

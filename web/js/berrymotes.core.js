@@ -1,1 +1,0 @@
-../plugins/berrymotes/assets/berrymotes.core.js

@@ -2,7 +2,7 @@
     gzip
     realip cloudflare
 
-    root /var/www/html
+    root /var/www/html/web
 
     log / stdout {combined} {
         except /ping.txt /ping.php
@@ -93,6 +93,15 @@ https://{$CDN_DOMAIN}:{$HTTPS_PORT} {
         regexp ^/[^/]+/(.+)$
         to /sha1/{1}
     }
+
+    header / {
+        Access-Control-Allow-Origin "*"
+        Access-Control-Allow-Methods "OPTIONS, HEAD, GET"
+        Access-Control-Max-Age "600"
+    }
+
+    # 1 day, stale while revalidate 1 hour
+    header /berrymotes/ Cache-Control "public, max-age=86400, stale-while-revalidate=3600"
 
     # 1 month, stale while revalidate 1 day
     header /images/ Cache-Control "public, max-age=2592000, stale-while-revalidate=86400"

@@ -1,20 +1,18 @@
+<?php
+
+header('Content-Type: application/javascript');
+
+require('../config.php');
+
+?>
 var scriptNodes = [
-    // Berrymotes is now always enabled
-    /*{
-        title:'Berrymotes',
-        desc:'A custom emote script for BerryTube, superior in every way to BPM.',
-        authors:['Marminator'],
-        setting:'scriptNodeBerrymotesEnabled',
-        css:[],
-        js:['plugins/berrymotes/berrymotes.berrytube.js']
-    },*/
     {
         title:'ToastThemes',
         desc:'A script that provides a large assortment of custom themes for the site, along with a few other fun features.',
         authors:['Toastdeib'],
         setting:'scriptNodeToastThemesEnabled',
-        css:['plugins/toastthemes/toastthemes.css'],
-        js:['plugins/toastthemes/toastthemes.js']
+        css:['<?= cdn('plugins/toastthemes/toastthemes.css', '..') ?>'],
+        js:['<?= cdn('plugins/toastthemes/toastthemes.js', '..') ?>']
     }/*,
     {
         title:'Ponypen',
@@ -22,7 +20,7 @@ var scriptNodes = [
         authors:['wut'],
         setting:'scriptNodePonypenEnabled',
         css:[],
-        js:['http://btc.berrytube.tv/wut/ponypen.js']
+        js:['https://btc.berrytube.tv/wut/ponypen.js']
     }*/,
     {
         title:'wutColors',
@@ -30,7 +28,7 @@ var scriptNodes = [
         authors:['wut'],
         settings:'scriptNodeWutColorsEnabled',
         css:['https://dl.dropboxusercontent.com/s/f5axkxk4wojatsf/style.css'],
-        js:['plugins/wutcolors/wutColors.js']
+        js:['<?= cdn('plugins/wutcolors/wutColors.js', '..') ?>']
     },
     {
         title:'DPM Counter',
@@ -38,7 +36,7 @@ var scriptNodes = [
         authors:['Cades', 'Toastdeib'],
         setting:'scriptNodeDpmEnabled',
         css:[],
-        js:['plugins/dpm/dpm.js']
+        js:['<?= cdn('plugins/dpm/dpm.js', '..') ?>']
     },
     {
         title:'Moonbase Alpha',
@@ -46,15 +44,15 @@ var scriptNodes = [
         authors:['wut'],
         setting:'scriptNodeTtsEnabled',
         css:[],
-        js:['plugins/tts/tts.js']
+        js:['<?= cdn('plugins/tts/tts.js', '..') ?>']
     },
 /*    {
         title:'Berrychievements',
         desc:'A script that presents an excuse for making terrible jokes disguised as an achievement system.',
         authors:['DigitalVagrant', 'Toastdeib'],
         setting:'scriptNodeAchievementsEnabled',
-        css:['http://btc.berrytube.tv/digitalvagrant/achievements/achievements.css'],
-        js:['http://btc.berrytube.tv/digitalvagrant/achievements/achievements.js']
+        css:['https://btc.berrytube.tv/digitalvagrant/achievements/achievements.css'],
+        js:['https://btc.berrytube.tv/digitalvagrant/achievements/achievements.js']
     },*/
     {
         title:'Desktop Squees',
@@ -62,15 +60,15 @@ var scriptNodes = [
         authors:['Malsententia'],
         setting:'scriptNodeDesktopSqueesEnabled',
         css:[],
-        js:['plugins/desktopSquees/desktopSquees.js']
+        js:['<?= cdn('plugins/desktopSquees/desktopSquees.js', '..') ?>']
     },
     {
         title:'Playlist Enhancement Plugin',
         desc:'Set one-time or recurring alarms for upcoming/favorite playlist items! View estimated play times! Copy video links to the clipboard!',
         authors:['Malsententia'],
         setting:'scriptNodePEPEnabled',
-        css:['plugins/pep/pep.css','plugins/pep/multipleselectbox.css'],
-        js:['plugins/pep/pep.js']
+        css:['<?= cdn('plugins/pep/pep.css', '..') ?>','<?= cdn('plugins/pep/multipleselectbox.css', '..') ?>'],
+        js:['<?= cdn('plugins/pep/pep.js', '..') ?>']
     }/*,
     {
         title:'Video Blacklist',
