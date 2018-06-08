@@ -100,10 +100,11 @@ https://{$CDN_DOMAIN}:{$HTTPS_PORT} {
         Access-Control-Max-Age "600"
     }
 
-    # 1 day, stale while revalidate 1 hour
-    header /berrymotes/ Cache-Control "public, max-age=86400, stale-while-revalidate=3600"
+    # 1 hour, stale while revalidate 1 minute
+    header /berrymotes/data/ Cache-Control "public, max-age=3600, stale-while-revalidate=60"
 
     # 1 month, stale while revalidate 1 day
+    header /berrymotes/ Cache-Control "public, max-age=2592000, stale-while-revalidate=86400"
     header /images/ Cache-Control "public, max-age=2592000, stale-while-revalidate=86400"
     header /sounds/ Cache-Control "public, max-age=2592000, stale-while-revalidate=86400"
 

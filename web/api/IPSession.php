@@ -4,14 +4,14 @@ class ipSession{
 
 	var $mysqli;
 	var $session;
-	
+
 	function ipSession($mysqli){
 		$this->session = new stdClass();
-		// Load IP Session	
+		// Load IP Session
 		$this->mysqli = $mysqli;
-		$q = 'select `session` from `api` where `ip` = "'.$_SERVER['REMOTE_ADDR'].'"';
+		$q = 'select `session` from `api` where `ip` = "'.$_SERVER['HTTP_X_FORWARDED_FOR'].'"';
 		$result = $this->mysqli->query($q);
-		
+
 		// Handle No Table
 		if(!$result){
 			//die($mysqli->error);
@@ -25,29 +25,29 @@ class ipSession{
 			';
 			$this->mysqli->query($create);
 			$result = $this->mysqli->query($q);
-		} 
-		
+		}
+
 		// Handle New IP.
 		if($result->num_rows == 0){
 			// Create inital.
-			$q = 'insert into `api` (`ip`,`session`) VALUES ("'.$_SERVER['REMOTE_ADDR'].'","'.(base64_encode(json_encode(array()))).'");';
+			$q = 'insert into `api` (`ip`,`session`) VALUES ("'.$_SERVER['HTTP_X_FORWARDED_FOR'].'","'.(base64_encode(json_encode(array()))).'");';
 			$this->mysqli->query($q);
-		} 
-		
+		}
+
 		while($row = $result->fetch_array(MYSQLI_ASSOC)){
 			$this->session = json_decode(base64_decode($row['session']));
 		}
 		/* free result set */
 		$result->close();
 	}
-	
+
 	function save(){
-		$q = 'update `api` set `session` = "'.(base64_encode(json_encode($this->session))).'" where `ip` = "'.$_SERVER['REMOTE_ADDR'].'"';
+		$q = 'update `api` set `session` = "'.(base64_encode(json_encode($this->session))).'" where `ip` = "'.$_SERVER['HTTP_X_FORWARDED_FOR'].'"';
 		//print $q;
 		$this->mysqli->query($q);
 	}
 	/*
-	
+
 CREATE TABLE IF NOT EXISTS `api` (
 `id` int(10) unsigned NOT NULL auto_increment,
 `ip` varchar(20) NOT NULL,
