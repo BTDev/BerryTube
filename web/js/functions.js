@@ -467,6 +467,10 @@ function showPluginWindow() {
 
 	for (var i in scriptNodes) {
 		var node = scriptNodes[i];
+		if (typeof node.minType === 'number' && node.minType > TYPE) {
+			continue;
+		}
+
 		var nodeDiv = $('<div/>').addClass('pluginNode').appendTo(pluginZone);
 		$('<div/>').addClass('pluginTitle').text(node.title).appendTo(nodeDiv);
 		$('<div/>').addClass('pluginDesc').text(node.desc).appendTo(nodeDiv);

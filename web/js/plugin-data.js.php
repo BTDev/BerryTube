@@ -31,6 +31,15 @@ var scriptNodes = [
         js:['<?= cdn('plugins/wutcolors/wutColors.js', '..') ?>']
     },
     {
+        title:'X-Ups',
+        desc:'Helps find a random user to berry.',
+        authors:['Cades'],
+        settings:'scriptNodeXupsEnabled',
+        minType: 1,
+        css:[],
+        js:['<?= cdn('plugins/xups/xups-mod.js', '..') ?>']
+    },
+    {
         title:'DPM Counter',
         desc:'A script that displays the drinks per minute for the active video next to the drink counter.',
         authors:['Cades', 'Toastdeib'],
