@@ -10,7 +10,7 @@ Object.defineProperty(Array.prototype, "wutUniquefyArray", {
     return newarr;
   }
 });
-var wutUserColorsAddr = CDN_ORIGIN + "/wutcolors/usercolors.js"
+var wutUserColorsAddr = "https://btc.berrytube.tv/wut/wutColors/usercolors.js"
   , wutUserColors = null
   , wutStyles = null
   , wutAddedStyles = []

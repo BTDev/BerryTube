@@ -66,6 +66,8 @@ https://www.{$DOMAIN}:{$HTTPS_PORT} {
 https://{$DOMAIN}:{$HTTPS_PORT} {
     import main
 
+    header / Content-Security-Policy "upgrade-insecure-requests"
+
     header /api/migrate_frame.html -X-Frame-Options
 
     redir {
@@ -90,30 +92,6 @@ https://{$CDN_DOMAIN}:{$HTTPS_PORT} {
     rewrite /sha1/ {
         regexp ^/[^/]+/(.+)$
         to /sha1/{1}
-    }
-
-    proxy /berrymotes http://berrymotes.com {
-        without /berrymotes
-        # 1 hour
-        header_downstream Cache-Control "public, max-age=3600"
-        header_downstream Access-Control-Max-Age 600
-        header_downstream Access-Control-Allow-Origin https://{$DOMAIN}
-        header_downstream Access-Control-Allow-Methods "OPTIONS, GET"
-        header_upstream X-Real-IP {remote}
-        header_upstream X-Forwarded-For {remote}
-        header_upstream X-Forwarded-Proto {scheme}
-    }
-
-    proxy /wutcolors http://btc.berrytube.tv/wut/wutColors {
-        without /wutcolors
-        # 1 minute
-        header_downstream Cache-Control "public, max-age=60"
-        header_downstream Access-Control-Max-Age 600
-        header_downstream Access-Control-Allow-Origin https://{$DOMAIN}
-        header_downstream Access-Control-Allow-Methods "OPTIONS, GET"
-        header_upstream X-Real-IP {remote}
-        header_upstream X-Forwarded-For {remote}
-        header_upstream X-Forwarded-Proto {scheme}
     }
 
     # 1 month, stale while revalidate 1 day

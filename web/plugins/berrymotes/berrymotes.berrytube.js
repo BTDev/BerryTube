@@ -346,7 +346,7 @@ Bem.emoteRefresh = function (cache) {
     cache = cache !== false;
     $.ajax({
         cache: cache,
-        url: CDN_ORIGIN + '/berrymotes/assets/berrymotes_json_data.json',
+        url: 'https://berrymotes.com/assets/berrymotes_json_data.json',
         dataType: 'json',
         success: function (data) {
             Bem.emotes = data;
