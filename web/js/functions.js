@@ -1143,7 +1143,6 @@ function handleNumCount(data){
 
 	whenExists("#connectedCount",function(area){
 		area.text(CONNECTED);
-		updateUserBreakdown();
 	});
 }
 function closePoll(){

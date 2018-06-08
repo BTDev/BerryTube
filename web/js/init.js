@@ -870,7 +870,6 @@ function addUser(data, sortafter){
 		if (sortafter){
 			sortUserList();
 		}
-		updateUserBreakdown();
 	});
 }
 function updateUserAliases(ip, aliases) {
@@ -896,7 +895,6 @@ function rmUser(nick){
         delete CHATLIST[nick];
     };
     sortUserList();
-	updateUserBreakdown();
 }
 function addVideoControls(entry,optionList){
 	// Volatile Button
@@ -1435,23 +1433,6 @@ function initChatControls(parent){
 		showConfigMenu(settingsMenu);
 	});
 }
-function updateUserBreakdown(){
-	whenExists("#connectedCountWrapper",function(area){
-		var total = CONNECTED;
-		var numAdmins = $("#chatlist .admin").length;
-		var numMods = $("#chatlist .assistant").length;
-		var numUsers = $("#chatlist .user").length;
-		var numAnons = $("#chatlist .anon").length;
-		var numNobodies = CONNECTED - numAdmins - numMods - numUsers - numAnons;
-		area.attr("title",
-			"Admins: " + numAdmins + "<br />" +
-			"Assistants: " + numMods + "<br />" +
-			"Users: " + numUsers + "<br />" +
-			"Anons: " + numAnons + "<br />" +
-			"Lurkers: " + numNobodies + "<br />"
-		);
-	});
-}
 function initChat(parent){
 	$("#chatpane").remove()
 	var chatpane = $('<div id="chatpane"/>').appendTo(parent);
@@ -1469,7 +1450,20 @@ function initChat(parent){
 	var userCount = $('<span id="connectedCount"/>').appendTo(userCountWrap);
 	userCountWrap.append("Connected Users:").append(userCount);
 	userCountWrap.attr("title","Kick rocks<br />I'm loading.");
-	$(userCountWrap).tooltip({html:true});
+	$(userCountWrap).tooltip({
+		content: function() {
+			var numAdmins = $("#chatlist .admin").length;
+			var numMods = $("#chatlist .assistant").length;
+			var numUsers = $("#chatlist .user").length;
+			var numAnons = $("#chatlist .anon").length;
+			var numNobodies = CONNECTED - numAdmins - numMods - numUsers - numAnons;
+			return "Admins: " + numAdmins + "<br />" +
+				"Assistants: " + numMods + "<br />" +
+				"Users: " + numUsers + "<br />" +
+				"Anons: " + numAnons + "<br />" +
+				"Lurkers: " + numNobodies;
+		}
+	});
 	userCountWrap.click(function(){
 		toggleChatMode();
 	});
