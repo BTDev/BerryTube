@@ -71,7 +71,7 @@
 
 <script>
 	// not used, here for backwards compatibility
-	var socketIOTarget = "<?= getenv('NODE_DOMAIN') ?>:<?= getenv('NODE_HTTPS_PORT') ?>";
+	var socketIOTarget = "<?= getenv('SOCKET_DOMAIN') ?>:<?= getenv('LEGACY_SOCKET_PORT') ?>";
 
 	var NODE_ORIGIN = '<?= NODE_ORIGIN ?>';
 	var CDN_ORIGIN = '<?= CDN_ORIGIN ?>';

@@ -11,10 +11,9 @@ RUN apk add --no-cache bash ca-certificates && \
 COPY Caddyfile ./
 RUN env \
     DOMAIN=localhost \
-    NODE_DOMAIN=localhost \
     CDN_DOMAIN=cdn.localhost \
+    SOCKET_DOMAIN=socket.localhost \
     HTTP_PORT=80 \
     HTTPS_PORT=443 \
-    NODE_HTTP_PORT=8344 \
-    NODE_HTTPS_PORT=8443 \
+    LEGACY_SOCKET_PORT=8344 \
     caddy -validate
