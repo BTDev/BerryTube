@@ -1,6 +1,5 @@
 FROM alpine
 
-VOLUME /var/www/html
 WORKDIR /etc/caddy
 
 RUN apk add --no-cache bash ca-certificates && \

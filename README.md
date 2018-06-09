@@ -6,6 +6,8 @@ Before running
 
 Copy `.env.sample` to `.env` and tweak the values. Both the domainis themselves and the main domain prefixed with www. must point to the server.
 
+Run `docker volume create caddy` to create a shared volume for storing certificates. This can be shared across multiple instances.
+
 
 Running
 -------

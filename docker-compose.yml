@@ -6,6 +6,7 @@ networks:
 volumes:
     mysql:
     caddy:
+        external: true
 
 services:
     caddy:

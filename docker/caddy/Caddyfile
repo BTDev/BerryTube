@@ -1,7 +1,7 @@
 (tls_cloudflare) {
 	tls {
-		must_staple
 		dns cloudflare
+		must_staple
 	}
 }
 
@@ -69,6 +69,8 @@ http://www.{$DOMAIN}:{$HTTP_PORT} {
 }
 
 https://www.{$DOMAIN}:{$HTTPS_PORT} {
+	import common
+
     redir {
         if {~bt-migrated} is 1
         / https://{$DOMAIN}:{$HTTPS_PORT}{uri}
