@@ -4,13 +4,14 @@
 	define("DB_NAME","berrytube");
 	define("DB_USER","berrytube");
 	define("DB_PASS","berrytube");
+	define('ORIGIN', 'https://' . getenv('DOMAIN') . ((getenv('HTTPS_PORT') === '443') ? '' : (':' . getenv('HTTPS_PORT'))));
 	define('NODE_ORIGIN', 'https://' . getenv('SOCKET_DOMAIN') . ((getenv('HTTPS_PORT') === '443') ? '' : (':' . getenv('HTTPS_PORT'))));
 	define('CDN_ORIGIN', 'https://' . getenv('CDN_DOMAIN') . ((getenv('HTTPS_PORT') === '443') ? '' : (':' . getenv('HTTPS_PORT'))));
 	/* CUT AFTER ME FOR ANY CHANGES. */
 	define("PATH","/");
 
-	function cdn($fname, $offset='.') {
-		$hash = @sha1_file("$offset/$fname");
+	function cdn($fname) {
+		$hash = @sha1_file(__DIR__ . '/' . $fname);
 		if ($hash) {
 			return CDN_ORIGIN . "/sha1/$hash/$fname";
 		} else {

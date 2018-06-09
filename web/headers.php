@@ -53,7 +53,8 @@
 <link rel="stylesheet" href="<?= cdn('css/layout-other.css') ?>"/>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/video.js/5.4.4/video-js.min.css" integrity="sha256-UeMWbsVFjXKSEQ5njaTwWasAFZJsen4UMOHfTHNZtBA=" crossorigin="anonymous" />
 <link rel="stylesheet" href="<?= cdn('css/uni-gui.css') ?>" />
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/themes/ui-lightness/jquery-ui.min.css" integrity="sha256-N7K28w/GcZ69NlFwqiKb1d5YXy37TSfgduj5gQ6x8m0=" crossorigin="anonymous" />
+<!-- Don't update jQuery UI; it breaks sortable performance -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.4/themes/ui-lightness/jquery-ui.min.css" integrity="sha256-VQzrlVm7QjdSeQn/IecZgE9rnfM390H3VoIcDJljOSs=" crossorigin="anonymous" />
 <link rel="stylesheet" href="<?= cdn('css/countdown.css') ?>" />
 <link rel="stylesheet" href="<?= cdn('berrymotes/css/berryemotecore.css') ?>" />
 
@@ -61,8 +62,10 @@
 <link rel="preload" href="<?= CDN_ORIGIN ?>/images/player_back.png" as="image">
 <link rel="preload" href="<?= CDN_ORIGIN ?>/images/banner.png" as="image">
 
+<!-- Don't update jQuery UI; it breaks sortable performance -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.12.4/jquery.min.js" integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ=" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js" integrity="sha256-KM512VNnjElC30ehFwehXjx1YCHPiQkOPmqnrWtpccM=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js" integrity="sha256-xNjb53/rY+WmG+4L6tTl9m6PpqknWZvRt0rO1SRnJzw=" crossorigin="anonymous"></script>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/tinyscrollbar/2.4.2/jquery.tinyscrollbar.min.js" integrity="sha256-gENsdwXJl1qiwOqS0DF+kfqTP5Dy+0gDTtxpRcWVhrU=" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/swfobject/2.2/swfobject.min.js" integrity="sha256-oYy9uw+7cz1/TLpdKv1rJwbj8UHHQ/SRBX5YADaM2OU=" crossorigin="anonymous"></script>
 <script src="https://w.soundcloud.com/player/api.js"></script>
@@ -73,6 +76,7 @@
 	// not used, here for backwards compatibility
 	var socketIOTarget = "<?= getenv('SOCKET_DOMAIN') ?>:<?= getenv('LEGACY_SOCKET_PORT') ?>";
 
+	var ORIGIN = '<?= ORIGIN ?>';
 	var NODE_ORIGIN = '<?= NODE_ORIGIN ?>';
 	var CDN_ORIGIN = '<?= CDN_ORIGIN ?>';
 	var videoWidth = <?= $playerDims['w'] ?>;
@@ -93,6 +97,9 @@
 
 <script>
 	Bem = typeof Bem === "undefined" ? {} : Bem;
+	Bem.skip_css = true;
+	Bem.origin = ORIGIN + '/berrymotes';
+	Bem.cdn_origin = CDN_ORIGIN + '/berrymotes';
 	Bem.data_url = '<?= cdn('berrymotes/data/berrymotes_json_data.json') ?>';
 </script>
 <script src="<?= cdn('berrymotes/js/berrymotes.berrytube.js') ?>" defer></script>

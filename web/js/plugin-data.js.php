@@ -11,8 +11,8 @@ var scriptNodes = [
         desc:'A script that provides a large assortment of custom themes for the site, along with a few other fun features.',
         authors:['Toastdeib'],
         setting:'scriptNodeToastThemesEnabled',
-        css:['<?= cdn('plugins/toastthemes/toastthemes.css', '..') ?>'],
-        js:['<?= cdn('plugins/toastthemes/toastthemes.js', '..') ?>']
+        css:['<?= cdn('plugins/toastthemes/toastthemes.css') ?>'],
+        js:['<?= cdn('plugins/toastthemes/toastthemes.js') ?>']
     }/*,
     {
         title:'Ponypen',
@@ -24,11 +24,11 @@ var scriptNodes = [
     }*/,
     {
         title:'wutColors',
-        desc:'Gives each user a unique color to make chat easier to keep track of.',
+        desc:'Gives each user a unique color to make chat easier to keep track of. <a href="http://btc.berrytube.tv/wut/wutColors/">Set your color here</a>',
         authors:['wut'],
         settings:'scriptNodeWutColorsEnabled',
         css:['https://dl.dropboxusercontent.com/s/f5axkxk4wojatsf/style.css'],
-        js:['<?= cdn('plugins/wutcolors/wutColors.js', '..') ?>']
+        js:['<?= cdn('plugins/wutcolors/wutColors.js') ?>']
     },
     {
         title:'X-Ups',
@@ -37,7 +37,7 @@ var scriptNodes = [
         settings:'scriptNodeXupsEnabled',
         minType: 1,
         css:[],
-        js:['<?= cdn('plugins/xups/xups-mod.js', '..') ?>']
+        js:['<?= cdn('plugins/xups/xups-mod.js') ?>']
     },
     {
         title:'DPM Counter',
@@ -45,7 +45,7 @@ var scriptNodes = [
         authors:['Cades', 'Toastdeib'],
         setting:'scriptNodeDpmEnabled',
         css:[],
-        js:['<?= cdn('plugins/dpm/dpm.js', '..') ?>']
+        js:['<?= cdn('plugins/dpm/dpm.js') ?>']
     },
     {
         title:'Moonbase Alpha',
@@ -53,7 +53,7 @@ var scriptNodes = [
         authors:['wut'],
         setting:'scriptNodeTtsEnabled',
         css:[],
-        js:['<?= cdn('plugins/tts/tts.js', '..') ?>']
+        js:['<?= cdn('plugins/tts/tts.js') ?>']
     },
 /*    {
         title:'Berrychievements',
@@ -69,15 +69,15 @@ var scriptNodes = [
         authors:['Malsententia'],
         setting:'scriptNodeDesktopSqueesEnabled',
         css:[],
-        js:['<?= cdn('plugins/desktopSquees/desktopSquees.js', '..') ?>']
+        js:['<?= cdn('plugins/desktopSquees/desktopSquees.js') ?>']
     },
     {
         title:'Playlist Enhancement Plugin',
         desc:'Set one-time or recurring alarms for upcoming/favorite playlist items! View estimated play times! Copy video links to the clipboard!',
         authors:['Malsententia'],
         setting:'scriptNodePEPEnabled',
-        css:['<?= cdn('plugins/pep/pep.css', '..') ?>','<?= cdn('plugins/pep/multipleselectbox.css', '..') ?>'],
-        js:['<?= cdn('plugins/pep/pep.js', '..') ?>']
+        css:['<?= cdn('plugins/pep/pep.css') ?>','<?= cdn('plugins/pep/multipleselectbox.css') ?>'],
+        js:['<?= cdn('plugins/pep/pep.js') ?>']
     }/*,
     {
         title:'Video Blacklist',

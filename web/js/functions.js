@@ -473,7 +473,7 @@ function showPluginWindow() {
 
 		var nodeDiv = $('<div/>').addClass('pluginNode').appendTo(pluginZone);
 		$('<div/>').addClass('pluginTitle').text(node.title).appendTo(nodeDiv);
-		$('<div/>').addClass('pluginDesc').text(node.desc).appendTo(nodeDiv);
+		$('<div/>').addClass('pluginDesc').html(node.desc).appendTo(nodeDiv);
 		$('<div/>').addClass('pluginAuthors').text('Author' + (node.authors.length != 1 ? 's' : '') + ': ' + node.authors.join(', ')).appendTo(nodeDiv);
 
 		if (!node.exists) {
@@ -769,7 +769,6 @@ function handleACL(){
             });
         }
 
-        var pl = $("#playlistAddControls");
         if(controlsPlaylist()) {
             whenExists("#playlistAddControls",function(pl){
                 if(pl.is(":hidden")) pl.show("blind");
