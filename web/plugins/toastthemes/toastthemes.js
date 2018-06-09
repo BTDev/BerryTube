@@ -222,47 +222,47 @@ function initToastThemes(data, textStatus, jqxhr) {
 	officialGroup.addButton(new ThemeButton('appleoosaButton', 'FeastTube', 'css/colors-appleoosans.css', '', false, false));
 	officialGroup.addButton(new ThemeButton('holidayButton', 'HolidayTube', 'css/colors-holiday.css', '', false, false));
 
-	mainPonyGroup.addButton(new ThemeButton('scootsButton', 'ScootaTube', 'plugins/toastthemes/css/scoots/colors.css', '', false, false));
-	mainPonyGroup.addButton(new ThemeButton('dashieButton', 'DashieTube', 'plugins/toastthemes/css/dashie/colors.css', '', false, false));
-	mainPonyGroup.addButton(new ThemeButton('apocalypseButton', 'ApocalypseTube', 'plugins/toastthemes/css/apocalypse/colors.css', '', false, false));
-	mainPonyGroup.addButton(new ThemeButton('ponysockButton', 'SockTube', 'plugins/toastthemes/css/sock/colors.css', '', false, false));
-	mainPonyGroup.addButton(new ThemeButton('cmcButton', 'CMCTube', 'plugins/toastthemes/css/cmc/colors.css', '', false, false));
-	mainPonyGroup.addButton(new ThemeButton('rarityButton', 'RarityTube', 'plugins/toastthemes/css/rarity/colors.css', '', false, false));
-	mainPonyGroup.addButton(new ThemeButton('appleButton', 'AppleTube', 'plugins/toastthemes/css/apple/colors.css', '', false, false));
-	mainPonyGroup.addButton(new ThemeButton('sparkleButton', 'SparkleTube', 'plugins/toastthemes/css/sparkle/colors.css', '', false, false));
-	mainPonyGroup.addButton(new ThemeButton('flutterButton', 'FlutterTube', 'plugins/toastthemes/css/flutter/colors.css', '', false, false));
-	mainPonyGroup.addButton(new ThemeButton('pinkieButton', 'PinkieTube', 'plugins/toastthemes/css/pinkie/colors.css', '', false, false));
-	mainPonyGroup.addButton(new ThemeButton('blazeitButton', '420BlazeItTube', 'plugins/toastthemes/css/blazeit/colors.css', '', false, false));
-	mainPonyGroup.addButton(new ThemeButton('woonaButton', 'WoonaTube', 'plugins/toastthemes/css/woona/colors.css', '', false, false));
+	mainPonyGroup.addButton(new ThemeButton('scootsButton', 'ScootaTube', 'plugins/toastthemes/cdncss.php?theme=scoots', '', false, false));
+	mainPonyGroup.addButton(new ThemeButton('dashieButton', 'DashieTube', 'plugins/toastthemes/cdncss.php?theme=dashie', '', false, false));
+	mainPonyGroup.addButton(new ThemeButton('apocalypseButton', 'ApocalypseTube', 'plugins/toastthemes/cdncss.php?theme=apocalypse', '', false, false));
+	mainPonyGroup.addButton(new ThemeButton('ponysockButton', 'SockTube', 'plugins/toastthemes/cdncss.php?theme=sock', '', false, false));
+	mainPonyGroup.addButton(new ThemeButton('cmcButton', 'CMCTube', 'plugins/toastthemes/cdncss.php?theme=cmc', '', false, false));
+	mainPonyGroup.addButton(new ThemeButton('rarityButton', 'RarityTube', 'plugins/toastthemes/cdncss.php?theme=rarity', '', false, false));
+	mainPonyGroup.addButton(new ThemeButton('appleButton', 'AppleTube', 'plugins/toastthemes/cdncss.php?theme=apple', '', false, false));
+	mainPonyGroup.addButton(new ThemeButton('sparkleButton', 'SparkleTube', 'plugins/toastthemes/cdncss.php?theme=sparkle', '', false, false));
+	mainPonyGroup.addButton(new ThemeButton('flutterButton', 'FlutterTube', 'plugins/toastthemes/cdncss.php?theme=flutter', '', false, false));
+	mainPonyGroup.addButton(new ThemeButton('pinkieButton', 'PinkieTube', 'plugins/toastthemes/cdncss.php?theme=pinkie', '', false, false));
+	mainPonyGroup.addButton(new ThemeButton('blazeitButton', '420BlazeItTube', 'plugins/toastthemes/cdncss.php?theme=blazeit', '', false, false));
+	mainPonyGroup.addButton(new ThemeButton('woonaButton', 'WoonaTube', 'plugins/toastthemes/cdncss.php?theme=woona', '', false, false));
 
-	bgPonyGroup.addButton(new ThemeButton('octav3Button', 'Octav3Tub3', 'plugins/toastthemes/css/octav3/colors.css', '', false, false));
-	bgPonyGroup.addButton(new ThemeButton('tomButton', 'TomTube', 'plugins/toastthemes/css/tom/colors.css', '', false, false));
-	bgPonyGroup.addButton(new ThemeButton('derpyButton', 'DerpyToob', 'plugins/toastthemes/css/derpy/colors.css', '', false, false));
-	bgPonyGroup.addButton(new ThemeButton('twistButton', 'TwistTube', 'plugins/toastthemes/css/twist/colors.css', '', false, false));
-	bgPonyGroup.addButton(new ThemeButton('toothpasteButton', 'ToothpasteTube', 'plugins/toastthemes/css/toothpaste/colors.css', '', false, false));
-	bgPonyGroup.addButton(new ThemeButton('deskfuckButton', 'DeskFuckTube', 'plugins/toastthemes/css/deskfuck/colors.css', '', false, false));
-	bgPonyGroup.addButton(new ThemeButton('fancyButton', 'FancyTube', 'plugins/toastthemes/css/fancy/colors.css', '', false, false));
-	bgPonyGroup.addButton(new ThemeButton('teiButton', 'TeiTheTube', 'plugins/toastthemes/css/tei/colors.css', '', false, false));
-	bgPonyGroup.addButton(new ThemeButton('birthdayButton', 'BirthdayTube', 'plugins/toastthemes/css/birthday/colors.css', '', false, false));
-	bgPonyGroup.addButton(new ThemeButton('paddyButton', 'StPatrickTube', 'plugins/toastthemes/css/paddy/colors.css', '', false, false));
-	bgPonyGroup.addButton(new ThemeButton('seaButton', 'SeaprincessyTube', 'plugins/toastthemes/css/seapony/colors.css', '', false, false));
-	bgPonyGroup.addButton(new ThemeButton('octaviaButton', 'OctaviaTube', 'plugins/toastthemes/css/octavia/colors.css', '', false, false));
-	bgPonyGroup.addButton(new ThemeButton('pfbtdorButton', 'PFBTDOR', 'plugins/toastthemes/css/pfbtdor/colors.css', '', false, false));
-	bgPonyGroup.addButton(new ThemeButton('vagrantButton', 'VagrantTube', 'plugins/toastthemes/css/vagrant/colors.css', '', false, false));
-	bgPonyGroup.addButton(new ThemeButton('shippingButton', 'ShippingTube', 'plugins/toastthemes/css/shipping/colors.css', '', false, false));
+	bgPonyGroup.addButton(new ThemeButton('octav3Button', 'Octav3Tub3', 'plugins/toastthemes/cdncss.php?theme=octav3', '', false, false));
+	bgPonyGroup.addButton(new ThemeButton('tomButton', 'TomTube', 'plugins/toastthemes/cdncss.php?theme=tom', '', false, false));
+	bgPonyGroup.addButton(new ThemeButton('derpyButton', 'DerpyToob', 'plugins/toastthemes/cdncss.php?theme=derpy', '', false, false));
+	bgPonyGroup.addButton(new ThemeButton('twistButton', 'TwistTube', 'plugins/toastthemes/cdncss.php?theme=twist', '', false, false));
+	bgPonyGroup.addButton(new ThemeButton('toothpasteButton', 'ToothpasteTube', 'plugins/toastthemes/cdncss.php?theme=toothpaste', '', false, false));
+	bgPonyGroup.addButton(new ThemeButton('deskfuckButton', 'DeskFuckTube', 'plugins/toastthemes/cdncss.php?theme=deskfuck', '', false, false));
+	bgPonyGroup.addButton(new ThemeButton('fancyButton', 'FancyTube', 'plugins/toastthemes/cdncss.php?theme=fancy', '', false, false));
+	bgPonyGroup.addButton(new ThemeButton('teiButton', 'TeiTheTube', 'plugins/toastthemes/cdncss.php?theme=tei', '', false, false));
+	bgPonyGroup.addButton(new ThemeButton('birthdayButton', 'BirthdayTube', 'plugins/toastthemes/cdncss.php?theme=birthday', '', false, false));
+	bgPonyGroup.addButton(new ThemeButton('paddyButton', 'StPatrickTube', 'plugins/toastthemes/cdncss.php?theme=paddy', '', false, false));
+	bgPonyGroup.addButton(new ThemeButton('seaButton', 'SeaprincessyTube', 'plugins/toastthemes/cdncss.php?theme=seapony', '', false, false));
+	bgPonyGroup.addButton(new ThemeButton('octaviaButton', 'OctaviaTube', 'plugins/toastthemes/cdncss.php?theme=octavia', '', false, false));
+	bgPonyGroup.addButton(new ThemeButton('pfbtdorButton', 'PFBTDOR', 'plugins/toastthemes/cdncss.php?theme=pfbtdor', '', false, false));
+	bgPonyGroup.addButton(new ThemeButton('vagrantButton', 'VagrantTube', 'plugins/toastthemes/cdncss.php?theme=vagrant', '', false, false));
+	bgPonyGroup.addButton(new ThemeButton('shippingButton', 'ShippingTube', 'plugins/toastthemes/cdncss.php?theme=shipping', '', false, false));
 
-	nonPonyGroup.addButton(new ThemeButton('toastButton', 'ToastTube', 'plugins/toastthemes/css/toast/colors.css', '', false, false));
-	nonPonyGroup.addButton(new ThemeButton('attorneyButton', 'AttorneyTube', 'plugins/toastthemes/css/attorney/colors.css', '', false, false));
-	nonPonyGroup.addButton(new ThemeButton('earButton', 'EarTubes', 'plugins/toastthemes/css/ear/colors.css', '', false, false));
-	nonPonyGroup.addButton(new ThemeButton('tubeSockButton', 'TubeSock', 'plugins/toastthemes/css/tubesock/colors.css', '', false, false));
-	nonPonyGroup.addButton(new ThemeButton('slamButton', 'SlamTube', 'plugins/toastthemes/css/slam/colors.css', '', false, false));
-	nonPonyGroup.addButton(new ThemeButton('americaButton', 'AmericaTube', 'plugins/toastthemes/css/america/colors.css', '', false, false));
-	nonPonyGroup.addButton(new ThemeButton('neonButton', 'NeonTube', 'plugins/toastthemes/css/neon/colors.css', '', false, false));
-	nonPonyGroup.addButton(new ThemeButton('bufferButton', 'BufferTube', 'plugins/toastthemes/css/buffer/colors.css', '', false, false));
-	nonPonyGroup.addButton(new ThemeButton('synchButton', 'SynchTube', 'plugins/toastthemes/css/synch/colors.css', '', false, false));
-	nonPonyGroup.addButton(new ThemeButton('beeButton', 'BeeTube', 'plugins/toastthemes/css/bee/colors.css', '', false, false));
-    nonPonyGroup.addButton(new ThemeButton('pokemonButton', 'PokeTube', 'plugins/toastthemes/css/pokemon/colors.css', '', false, false));
-    nonPonyGroup.addButton(new ThemeButton('spoopyButton', 'SpoopyTube', 'plugins/toastthemes/css/spoopy/colors.css', '', false, false));
+	nonPonyGroup.addButton(new ThemeButton('toastButton', 'ToastTube', 'plugins/toastthemes/cdncss.php?theme=toast', '', false, false));
+	nonPonyGroup.addButton(new ThemeButton('attorneyButton', 'AttorneyTube', 'plugins/toastthemes/cdncss.php?theme=attorney', '', false, false));
+	nonPonyGroup.addButton(new ThemeButton('earButton', 'EarTubes', 'plugins/toastthemes/cdncss.php?theme=ear', '', false, false));
+	nonPonyGroup.addButton(new ThemeButton('tubeSockButton', 'TubeSock', 'plugins/toastthemes/cdncss.php?theme=tubesock', '', false, false));
+	nonPonyGroup.addButton(new ThemeButton('slamButton', 'SlamTube', 'plugins/toastthemes/cdncss.php?theme=slam', '', false, false));
+	nonPonyGroup.addButton(new ThemeButton('americaButton', 'AmericaTube', 'plugins/toastthemes/cdncss.php?theme=america', '', false, false));
+	nonPonyGroup.addButton(new ThemeButton('neonButton', 'NeonTube', 'plugins/toastthemes/cdncss.php?theme=neon', '', false, false));
+	nonPonyGroup.addButton(new ThemeButton('bufferButton', 'BufferTube', 'plugins/toastthemes/cdncss.php?theme=buffer', '', false, false));
+	nonPonyGroup.addButton(new ThemeButton('synchButton', 'SynchTube', 'plugins/toastthemes/cdncss.php?theme=synch', '', false, false));
+	nonPonyGroup.addButton(new ThemeButton('beeButton', 'BeeTube', 'plugins/toastthemes/cdncss.php?theme=bee', '', false, false));
+    nonPonyGroup.addButton(new ThemeButton('pokemonButton', 'PokeTube', 'plugins/toastthemes/cdncss.php?theme=pokemon', '', false, false));
+    nonPonyGroup.addButton(new ThemeButton('spoopyButton', 'SpoopyTube', 'plugins/toastthemes/cdncss.php?theme=spoopy', '', false, false));
 
 	fourthPartyGroup.addButton(new ThemeButton('sovietButton', 'RedTube', 'https://s3.amazonaws.com/Berrytube/Soviet+Style/berry-soviet.css', 'Created by SovietSparkle (yes, it\'s SFW)', false, false));
 	//fourthPartyGroup.addButton(new ThemeButton('kurtisFlutterButton', 'FlutterTube', 'http://dl.dropboxusercontent.com/u/135755256/colours.css', 'Created by Kurtis', false, false));
@@ -486,113 +486,113 @@ function initToastThemes(data, textStatus, jqxhr) {
 					break;
 				case '0Ntiphuey8g':
 					// I'm making... TOAST!
-					targetTheme = 'plugins/toastthemes/css/toast/colors.css';
+					targetTheme = 'plugins/toastthemes/cdncss.php?theme=toast';
 					break;
 				case 'lhjk5x54bsE':
 					// Turnabout Turntable
-					targetTheme = 'plugins/toastthemes/css/attorney/colors.css';
+					targetTheme = 'plugins/toastthemes/cdncss.php?theme=attorney';
 					break;
 				case 'W7VRIC2TEs8':
 				case 'cjwzwj2ebeg':
 					// Tropical Octav3
-					targetTheme = 'plugins/toastthemes/css/octav3/colors.css';
+					targetTheme = 'plugins/toastthemes/cdncss.php?theme=octav3';
 					break;
 				case 'Inj-jnZa9BU':
 					// Here Comes Tom
-					targetTheme = 'plugins/toastthemes/css/tom/colors.css';
+					targetTheme = 'plugins/toastthemes/cdncss.php?theme=tom';
 					break;
 				case 'L0cY2NWlddU':
 					// Two Best Sisters Play Portal 2
-					targetTheme = 'plugins/toastthemes/css/ear/colors.css';
+					targetTheme = 'plugins/toastthemes/cdncss.php?theme=ear';
 					break;
 				case 'u1aOQIX2W-0':
 					// SOCK
-					targetTheme = 'plugins/toastthemes/css/sock/colors.css';
+					targetTheme = 'plugins/toastthemes/cdncss.php?theme=sock';
 					break;
 				case 'cg8W_QYeL00':
 					// Twist and Shout
-					targetTheme = 'plugins/toastthemes/css/twist/colors.css';
+					targetTheme = 'plugins/toastthemes/cdncss.php?theme=twist';
 					break;
 				case 'fk8VdtjNsE8':
 					// Inspector Brushie
-					targetTheme = 'plugins/toastthemes/css/toothpaste/colors.css';
+					targetTheme = 'plugins/toastthemes/cdncss.php?theme=toothpaste';
 					break;
 				case 'NXnwQ9TSAOg':
 					// The Changeling (Twitch Remix)
-					targetTheme = 'plugins/toastthemes/css/deskfuck/colors.css';
+					targetTheme = 'plugins/toastthemes/cdncss.php?theme=deskfuck';
 					break;
 				case 'Hnqz9OdZjRQ':
 					// Beep Beep!
-					targetTheme = 'plugins/toastthemes/css/cmc/colors.css';
+					targetTheme = 'plugins/toastthemes/cdncss.php?theme=cmc';
 					break;
 				case '0EdAAZ2x5-E':
 				case 'hS-oZ_Nkp6g':
 					// America, Fuck Yeah! (two versions)
-					targetTheme = 'plugins/toastthemes/css/america/colors.css';
+					targetTheme = 'plugins/toastthemes/cdncss.php?theme=america';
 					break;
 				case 's7YB8yy9XAg':
 				case 'hHBfZxr2yLA':
 					// Flying With the Rainbow (two versions)
-					targetTheme = 'plugins/toastthemes/css/tei/colors.css';
+					targetTheme = 'plugins/toastthemes/cdncss.php?theme=tei';
 					break;
 				case 'EiO9_PJ0h8Q':
 					// Neon Pegasus
-					targetTheme = 'plugins/toastthemes/css/neon/colors.css';
+					targetTheme = 'plugins/toastthemes/cdncss.php?theme=neon';
 					break;
 				case '-WIxWkby8ok':
 					// I'm bringing the party to you
-					targetTheme = 'plugins/toastthemes/css/birthday/colors.css';
+					targetTheme = 'plugins/toastthemes/cdncss.php?theme=birthday';
 					break;
 				case 'cDuG95DXbw8':
 					// Race Like Rainbow Dash
-					targetTheme = 'plugins/toastthemes/css/dashie/colors.css';
+					targetTheme = 'plugins/toastthemes/cdncss.php?theme=dashie';
 					break;
 				case 'qQSz6gKdhO8':
 					// Shine Like Rarity
-					targetTheme = 'plugins/toastthemes/css/rarity/colors.css';
+					targetTheme = 'plugins/toastthemes/cdncss.php?theme=rarity';
 					break;
 				case 'rT31ZeCNdBw':
 					// Strive Like Applejack
-					targetTheme = 'plugins/toastthemes/css/apple/colors.css';
+					targetTheme = 'plugins/toastthemes/cdncss.php?theme=apple';
 					break;
 				case 'EXpauql2lqM':
 					// Learn Like Twilight Sparkle
-					targetTheme = 'plugins/toastthemes/css/sparkle/colors.css';
+					targetTheme = 'plugins/toastthemes/cdncss.php?theme=sparkle';
 					break;
 				case 'ikV8LL_YHv0':
 					// Love Like Fluttershy
-					targetTheme = 'plugins/toastthemes/css/flutter/colors.css';
+					targetTheme = 'plugins/toastthemes/cdncss.php?theme=flutter';
 					break;
 				case '6UXGEbaP5Ug':
 					// Play Like Pinkie Pie
-					targetTheme = 'plugins/toastthemes/css/pinkie/colors.css';
+					targetTheme = 'plugins/toastthemes/cdncss.php?theme=pinkie';
 					break;
 				case 'P4TedkQP_hM':
 				case '3_dDxISCOuM':
 					// Call Upon the Seaponies
-					targetTheme = 'plugins/toastthemes/css/seapony/colors.css';
+					targetTheme = 'plugins/toastthemes/cdncss.php?theme=seapony';
 					break;
 				case 'wHwyca7gu7E':
 				case '9w6Wa0W2y_o':
 					// Super Weed Bros. and Green & Purple
-					targetTheme = 'plugins/toastthemes/css/blazeit/colors.css';
+					targetTheme = 'plugins/toastthemes/cdncss.php?theme=blazeit';
 					break;
 				case 'qRC4Vk6kisY':
 					// Fluffle Puff Tales: PFUDOR
-					targetTheme = 'plugins/toastthemes/css/pfbtdor/colors.css';
+					targetTheme = 'plugins/toastthemes/cdncss.php?theme=pfbtdor';
 					break;
                 case 'PYtXuBN1Hvc':
                 case '-kWW9luMD4M':
                     // DR. BEES and #CHANGETHEBEES
-					targetTheme = 'plugins/toastthemes/css/bee/colors.css';
+					targetTheme = 'plugins/toastthemes/cdncss.php?theme=bee';
                     break;
                 case 'dUjNYSpr3F8':
                     // The tale of DigitalVagrant's escape
-                    targetTheme = 'plugins/toastthemes/css/vagrant/colors.css';
+                    targetTheme = 'plugins/toastthemes/cdncss.php?theme=vagrant';
                     break;
                 case 'dGpmT3uZ-kM':
                     // Pegasi Armada
-                    targetTheme = 'plugins/toastthemes/css/synch/colors.css';
+                    targetTheme = 'plugins/toastthemes/cdncss.php?theme=synch';
                     break;
 				case '3DSbowW5j34':
 					// Soviet Pony March
@@ -628,17 +628,17 @@ function initToastThemes(data, textStatus, jqxhr) {
                 case '74486243':
 					// Marmisode: Sleepless in Seaponyville
 					offset = 1134 - data.time;
-					targetTheme = 'plugins/toastthemes/css/seapony/colors.css';
+					targetTheme = 'plugins/toastthemes/cdncss.php?theme=seapony';
 					break;
                 /*case 'lxcwTSvyU6M':
                     // Part 2 of the G1 pilot (the one with the seapony song)
                     offset = 0 - data.time; //TODO
-					targetTheme = 'plugins/toastthemes/css/seapony/colors.css';
+					targetTheme = 'plugins/toastthemes/cdncss.php?theme=seapony';
                     break;*/
 				case 'wXIHH6C61I0':
 					// Pinkie breaks the fourth wall
 					offset = 47 - data.time;
-					targetTheme = 'plugins/toastthemes/css/apocalypse/colors.css';
+					targetTheme = 'plugins/toastthemes/cdncss.php?theme=apocalypse';
 					break;
 			}
 
@@ -956,52 +956,52 @@ function fourthWall() {
  */
 function addThemeEffect(theme) {
 	switch(theme) {
-		case 'plugins/toastthemes/css/slam/colors.css':
+		case 'plugins/toastthemes/cdncss.php?theme=slam':
 			slamming = true;
 			welcomeToTheJam.play();
 			$('#videowrap').append(
 				$('<div id="barkleyDiv"/>').html('<img src="plugins/toastthemes/css/slam/images/barkley.png">').click(function() { welcomeToTheJam.play(); }));
 			barkleyJump();
 			break;
-		case 'plugins/toastthemes/css/fancy/colors.css':
+		case 'plugins/toastthemes/cdncss.php?theme=fancy':
 			$('#videowrap').append(
 				$('<div id="fancyHatDiv"/>').css('display', 'none').html('<img src="plugins/toastthemes/css/fancy/images/player_hat.png">'),
 				$('<div id="fancyStacheDiv"/>').css('display', 'none').html('<img src="plugins/toastthemes/css/fancy/images/player_mustache.png">'),
 				$('<div id="fancyMonocleDiv"/>').css('display', 'none').html('<img src="plugins/toastthemes/css/fancy/images/player_monocle.png">'),
 				$('<div id="fancyToggleDiv"/>').html('Fancy<br/>OFF').click(toggleFancy));
 			break;
-		case 'plugins/toastthemes/css/dashie/colors.css':
+		case 'plugins/toastthemes/cdncss.php?theme=dashie':
 			if (showBonusPonies) {
 				$('#chatpane').append(
 					$('<div id="chatDashieDiv"/>').html('<img src="plugins/toastthemes/css/dashie/images/chat_dashie.png">'),
 					$('<div id="chatScootsDiv"/>').html('<img src="plugins/toastthemes/css/dashie/images/chat_scoots.png">'));
 			}
 			break;
-		case 'plugins/toastthemes/css/rarity/colors.css':
+		case 'plugins/toastthemes/cdncss.php?theme=rarity':
 			if (showBonusPonies) {
 				$('#playlist').css('position', 'relative').append(
 					$('<div id="playlistRarityDiv"/>').html('<img src="plugins/toastthemes/css/rarity/images/playlist_rarity.png">'));
 			}
 			break;
-		case 'plugins/toastthemes/css/apple/colors.css':
+		case 'plugins/toastthemes/cdncss.php?theme=apple':
 			if (showBonusPonies) {
 				$('#playlist').append(
 					$('<div id="playlistAjDiv"/>').html('<img src="plugins/toastthemes/css/apple/images/playlist_aj.png">'));
 			}
 			break;
-		case 'plugins/toastthemes/css/sparkle/colors.css':
+		case 'plugins/toastthemes/cdncss.php?theme=sparkle':
 			if (showBonusPonies) {
 				$('#videowrap').append(
 					$('<div id="playerTwilightDiv"/>').html('<img src="plugins/toastthemes/css/sparkle/images/player_twilight.png">'));
 			}
 			break;
-		case 'plugins/toastthemes/css/flutter/colors.css':
+		case 'plugins/toastthemes/cdncss.php?theme=flutter':
 			if (showBonusPonies) {
 				$('#chatControls').append(
 					$('<div id="chatFluttershyDiv"/>').html('<img src="plugins/toastthemes/css/flutter/images/chat_fluttershy.png">'));
 			}
 			break;
-		case 'plugins/toastthemes/css/pinkie/colors.css':
+		case 'plugins/toastthemes/cdncss.php?theme=pinkie':
 			if (showBonusPonies) {
 				$('#chatpane').append(
 					$('<div id="aboveChatPinkieDiv"/>').html('<img src="plugins/toastthemes/css/pinkie/images/abovechat_pinkie.png">'),
@@ -1012,7 +1012,7 @@ function addThemeEffect(theme) {
 					$('<div id="playlistPinkieDiv"/>').html('<img src="plugins/toastthemes/css/pinkie/images/playlist_pinkie.png">'));
 			}
 			break;
-		case 'plugins/toastthemes/css/spoopy/colors.css':
+		case 'plugins/toastthemes/cdncss.php?theme=spoopy':
             $('#banner').mouseover(function() { DOOT.play(); });
             break;
 	}
