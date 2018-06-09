@@ -1789,13 +1789,12 @@ function delVideo(data, socket){
                 // Don't archive livestreams
 
                 if(elem.videolength > 0) {
-					historyQuery = "insert into videos_history (videoid, videotitle, videolength, videotype, date_added, meta) values (?,?,?,?,?,?)";
+					historyQuery = "insert into videos_history (videoid, videotitle, videolength, videotype, date_added, meta) values (?,?,?,?,NOW(),?)";
                     historyQueryParams = [
 						elem.videoid,
 						elem.videotitle,
 						elem.videolength,
 						elem.videotype,
-						'NOW()',
 						JSON.stringify(elem.meta || {})
 					];
 
