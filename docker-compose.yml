@@ -4,8 +4,8 @@ networks:
     net:
 
 volumes:
-    caddy:
     mysql:
+    caddy:
 
 services:
     caddy:
@@ -19,6 +19,9 @@ services:
             - HTTP_PORT
             - HTTPS_PORT
             - LEGACY_SOCKET_PORT
+            - TLS_TYPE
+            - CLOUDFLARE_EMAIL
+            - CLOUDFLARE_API_KEY
         volumes:
             - caddy:/root/.caddy
             - ./web:/var/www/html/web:ro

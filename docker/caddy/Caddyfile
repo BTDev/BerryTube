@@ -1,3 +1,22 @@
+(tls_cloudflare) {
+	tls {
+		must_staple
+		dns cloudflare
+	}
+}
+
+(tls_http) {
+	tls {
+		must_staple
+	}
+}
+
+(tls_self_signed) {
+	tls {
+		self_signed
+	}
+}
+
 (common) {
     gzip
     realip cloudflare
@@ -8,9 +27,7 @@
         except /ping.txt /ping.php
     }
 
-    tls {
-        must_staple
-    }
+	import tls_{$TLS_TYPE}
 
     header / {
         Cache-Control "public, no-cache, must-revalidate"
@@ -66,8 +83,7 @@ https://www.{$DOMAIN}:{$HTTPS_PORT} {
 https://{$DOMAIN}:{$HTTPS_PORT} {
     import main
 
-    header / Content-Security-Policy "default-src *; plugin-types application/x-shockwave-flash; upgrade-insecure-requests; https://atte.report-uri.com/r/d/csp/enforce"
-
+    header / Content-Security-Policy "upgrade-insecure-requests"
     header /api/migrate_frame.html -X-Frame-Options
 
     redir {
