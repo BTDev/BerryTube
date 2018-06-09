@@ -1,13 +1,14 @@
 version: '2'
 
 networks:
-    bt-net:
+    net:
 
 volumes:
-    bt-caddy:
+    caddy:
+    mysql:
 
 services:
-    bt-caddy:
+    caddy:
         build: ./docker/caddy/
         image: registry.gitlab.com/berrytube/berrytube/caddy:latest
         command: caddy -agree -log stderr -ca "${CA_URL}" -email "${CA_EMAIL}"
@@ -20,7 +21,7 @@ services:
             - HTTPS_PORT
             - LEGACY_SOCKET_PORT
         volumes:
-            - bt-caddy:/root/.caddy
+            - caddy:/root/.caddy
             - ./web:/var/www/html/web:ro
             - ./berrymotes/data:/var/www/html/berrymotes/data:ro
             - ./berrymotes/css:/var/www/html/berrymotes/css:ro
@@ -32,9 +33,11 @@ services:
             - '${HTTPS_PORT}:${HTTPS_PORT}/tcp'
             - '${LEGACY_SOCKET_PORT}:${LEGACY_SOCKET_PORT}/tcp'
         networks:
-            - bt-net
+            - net
+        depends_on:
+            - php
 
-    bt-php:
+    php:
         build: ./docker/php/
         image: registry.gitlab.com/berrytube/berrytube/php:latest
         restart: always
@@ -53,9 +56,11 @@ services:
         expose:
             - '9000'
         networks:
-            - bt-net
+            - net
+        depends_on:
+            - mysql
 
-    bt-node:
+    node:
         build: ./docker/node/
         image: registry.gitlab.com/berrytube/berrytube/node:latest
         command: node server.js
@@ -63,9 +68,11 @@ services:
         expose:
             - '8344'
         networks:
-            - bt-net
+            - net
+        depends_on:
+            - mysql
 
-    bt-mysql:
+    mysql:
         image: mysql:8.0
         command: --default-authentication-plugin=mysql_native_password
         restart: always
@@ -75,9 +82,9 @@ services:
             MYSQL_USER: berrytube
             MYSQL_PASSWORD: berrytube
         volumes:
+            - mysql:/var/lib/mysql
             - ./schema.sql:/docker-entrypoint-initdb.d/berrytube.sql:ro
-            - ./database/:/var/lib/mysql
         expose:
             - '3306'
         networks:
-            - bt-net
+            - net

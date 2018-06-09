@@ -1,6 +1,6 @@
 <?php
 
-	define("DB_HOST","bt-mysql");
+	define("DB_HOST","mysql");
 	define("DB_NAME","berrytube");
 	define("DB_USER","berrytube");
 	define("DB_PASS","berrytube");

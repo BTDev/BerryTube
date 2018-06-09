@@ -22,4 +22,4 @@ Note that the `web` directory is mounted directly into the containers (as read-o
 Database
 --------
 
-The MySQL database will be placed in the `database` directory. To get an SQL prompt, run `docker exec -it berrytube_bt-mysql_1 mysql -uberrytube -pberrytube berrytube`.
+The database is placed in a docker volume. To get an SQL prompt, run `docker exec -it berrytube_mysql_1 mysql -uberrytube -pberrytube berrytube`.

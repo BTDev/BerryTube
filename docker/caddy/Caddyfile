@@ -29,7 +29,7 @@
     import common
 
     index index.php
-    fastcgi / bt-php:9000 php
+    fastcgi / php:9000 php
 }
 
 http://{$DOMAIN}:{$HTTP_PORT},
@@ -66,7 +66,7 @@ https://www.{$DOMAIN}:{$HTTPS_PORT} {
 https://{$DOMAIN}:{$HTTPS_PORT} {
     import main
 
-    header / Content-Security-Policy "upgrade-insecure-requests"
+    header / Content-Security-Policy "default-src *; plugin-types application/x-shockwave-flash; upgrade-insecure-requests; https://atte.report-uri.com/r/d/csp/enforce"
 
     header /api/migrate_frame.html -X-Frame-Options
 
@@ -121,7 +121,7 @@ https://{$SOCKET_DOMAIN}:{$HTTPS_PORT} {
         alpn http/1.1
     }
 
-    proxy / http://bt-node:8344 {
+    proxy / http://node:8344 {
         transparent
         websocket
     }
