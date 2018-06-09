@@ -10,7 +10,6 @@ volumes:
 services:
     caddy:
         build: ./docker/caddy/
-        image: registry.gitlab.com/berrytube/berrytube/caddy:latest
         command: caddy -agree -log stderr -ca "${CA_URL}" -email "${CA_EMAIL}"
         restart: always
         environment:
@@ -39,7 +38,6 @@ services:
 
     php:
         build: ./docker/php/
-        image: registry.gitlab.com/berrytube/berrytube/php:latest
         restart: always
         environment:
             - DOMAIN
@@ -62,7 +60,6 @@ services:
 
     node:
         build: ./docker/node/
-        image: registry.gitlab.com/berrytube/berrytube/node:latest
         command: node server.js
         restart: always
         expose:
