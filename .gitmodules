@@ -1,4 +1,4 @@
 [submodule "berrymotes"]
 	path = berrymotes
 	url = git@gitlab.com:berrytube/berrymotes.git
-	branch = master
+	branch = .
