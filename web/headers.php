@@ -58,10 +58,6 @@
 <link rel="stylesheet" href="<?= cdn('css/countdown.css') ?>" />
 <link rel="stylesheet" href="<?= cdn('berrymotes/css/berryemotecore.css') ?>" />
 
-<link rel="preload" href="<?= CDN_ORIGIN ?>/images/stain.png" as="image">
-<link rel="preload" href="<?= CDN_ORIGIN ?>/images/player_back.png" as="image">
-<link rel="preload" href="<?= CDN_ORIGIN ?>/images/banner.png" as="image">
-
 <!-- Don't update jQuery UI; it breaks sortable performance -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.12.4/jquery.min.js" integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ=" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js" integrity="sha256-xNjb53/rY+WmG+4L6tTl9m6PpqknWZvRt0rO1SRnJzw=" crossorigin="anonymous"></script>
