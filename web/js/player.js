@@ -356,6 +356,7 @@ window.PLAYERS.ustream = {
         ustream.attr("src", "http://www.ustream.tv/embed/" + id + "?v=3&amp;wmode=direct");
         ustream.attr("scrolling", "no");
         ustream.attr("frameborder", "0");
+        ustream.attr("allow", "autoplay; encrypted-media");
         ustream.css("border", "0");
     }
 };
@@ -369,6 +370,7 @@ window.PLAYERS.livest = {
         livestream.attr("src", "http://cdn.livestream.com/embed/" + id + "?layout=4&amp;height=" + videoHeight + "&amp;width=" + videoWidth + "&amp;autoplay=true");
         livestream.attr("scrolling", "no");
         livestream.attr("frameborder", "0");
+        livestream.attr("allow", "autoplay; encrypted-media");
         livestream.css("border", "0");
     }
 };
@@ -442,6 +444,7 @@ window.PLAYERS.soundcloud = {
 		var placeHolderDiv = $('#ytapiplayer');
 		var background = $('<div id="scBackground"/>').appendTo(placeHolderDiv);
 		var player = $('<iframe id="scPlayer"/>').appendTo(placeHolderDiv);
+        player.attr("allow", "autoplay; encrypted-media");
 		var volumeSliderWrap = $('<div id="scVolumeSliderWrap"/>').appendTo(placeHolderDiv);
 		var volumeSlider = $('<div id="scVolumeSlider"/>').slider({orientation:'vertical', range:'min', value:volume * 100,
 			stop:function(event, ui) {
