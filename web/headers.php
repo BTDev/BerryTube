@@ -75,6 +75,8 @@
 	var ORIGIN = '<?= ORIGIN ?>';
 	var NODE_ORIGIN = '<?= NODE_ORIGIN ?>';
 	var CDN_ORIGIN = '<?= CDN_ORIGIN ?>';
+	var OLD_ORIGIN = '<?= OLD_ORIGIN ?>';
+	var OLD_ORIGIN_WWW = '<?= OLD_ORIGIN_WWW ?>';
 	var videoWidth = <?= $playerDims['w'] ?>;
 	var videoHeight = <?= $playerDims['h'] ?>;
 	var WINDOW_TITLE = '<?= $TITLE ?>';

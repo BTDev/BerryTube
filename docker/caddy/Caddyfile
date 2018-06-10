@@ -85,7 +85,6 @@ https://www.{$DOMAIN}:{$HTTPS_PORT} {
 https://{$DOMAIN}:{$HTTPS_PORT} {
     import main
 
-    header / Content-Security-Policy "upgrade-insecure-requests"
     header /api/migrate_frame.html -X-Frame-Options
 
     redir {
