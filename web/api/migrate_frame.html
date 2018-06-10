@@ -1,6 +1,6 @@
 <script>
 window.onmessage = function(event){
-    if (event.origin === 'http://' + location.hostname || event.origin === 'http://www.' + location.hostname) {
+    if (event.origin.startsWith('http://' + location.hostname) || event.origin.startsWith('http://www.' + location.hostname)) {
         for (const key of Object.keys(event.data)) {
             if (localStorage[key] === undefined)
                 localStorage[key] = event.data[key];
