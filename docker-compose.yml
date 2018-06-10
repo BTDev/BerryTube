@@ -50,6 +50,7 @@ services:
             - HTTP_PORT
             - HTTPS_PORT
             - LEGACY_SOCKET_PORT
+            - NO_CDN
         volumes:
             - ./web:/var/www/html/web:ro
             - ./berrymotes/data:/var/www/html/berrymotes/data:ro

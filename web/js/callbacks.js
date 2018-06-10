@@ -365,7 +365,7 @@ socket.on('reconnecting', function() {
 	// The socket disconnected and is trying to reconnect; display a message indicating it
 	if ($('.chatbuffer .reconnecting').length == 0) {
 		$('.chatbuffer').append($('<div/>').addClass('reconnecting').text('Connection lost. Attempting to reconnect...'));
-		$('#chatinput input').attr('disabled', 'disabled');
+		$('#chatinput input').prop('disabled', true);
 	}
 
 	// Also set this flag so that we don't get the ghost messages when we reconnect
@@ -374,7 +374,7 @@ socket.on('reconnecting', function() {
 socket.on('reconnect', function() {
 	// Reconnection was successful; if there's login data set, log the user back in
 	$('.chatbuffer .reconnecting').remove();
-	$('#chatinput input').removeAttr('disabled');
+	$('#chatinput input').prop('disabled', false);
 	var data = $('#headbar').data('loginData');
 	if (data != undefined) {
 		data.ghostBust = true;

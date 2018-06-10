@@ -479,7 +479,7 @@ function showConfigMenu(on){
 	var row = $('<div/>').appendTo(configOps);
 	$('<span/>').text("Sync video:").appendTo(row);
 	var syncOnOff = $('<input/>').attr('type','checkbox').appendTo(row);
-	if(getStorage('syncAtAll') == 1) syncOnOff.attr('checked','checked');
+	if(getStorage('syncAtAll') == 1) syncOnOff.prop('checked', true);
 	syncOnOff.change(function(){ //
 		if($(this).is(":checked")){
 			setStorage('syncAtAll',1);
@@ -499,7 +499,7 @@ function showConfigMenu(on){
 	var row = $('<div/>').appendTo(configOps);
 	$('<span/>').text("Enable notify sound:").appendTo(row);
 	var notifyMute = $('<input/>').attr('type','checkbox').appendTo(row);
-	if(getStorage('notifyMute') == 0) notifyMute.attr('checked','checked');
+	if(getStorage('notifyMute') == 0) notifyMute.prop('checked', true);
 	notifyMute.change(function(){ //
 		if($(this).is(":checked")){
 			setStorage('notifyMute',0)
@@ -511,7 +511,7 @@ function showConfigMenu(on){
 	var row = $('<div/>').appendTo(configOps);
 	$('<span/>').text("Enable drink sound:").appendTo(row);
 	var notifyDrink = $('<input/>').attr('type','checkbox').appendTo(row);
-	if(getStorage("drinkNotify") == 1) {	notifyDrink.attr('checked','checked'); }
+	if(getStorage("drinkNotify") == 1) {	notifyDrink.prop('checked', true); }
 	notifyDrink.change(function(){ //
 		if($(this).is(":checked")){
 			setStorage("drinkNotify",1);
@@ -523,7 +523,7 @@ function showConfigMenu(on){
 	var row = $('<div/>').appendTo(configOps);
 	$('<span/>').text("Use alternate video player:").appendTo(row);
 	var useLegacyPlayer = $('<input/>').attr('type','checkbox').appendTo(row);
-	if(getStorage("legacyPlayer") == 1) {useLegacyPlayer.attr('checked','checked'); }
+	if(getStorage("legacyPlayer") == 1) {useLegacyPlayer.prop('checked', true); }
 	useLegacyPlayer.change(function(){ //
 		if($(this).is(":checked")){
 			setStorage('legacyPlayer',1)
@@ -535,7 +535,7 @@ function showConfigMenu(on){
 	var row = $('<div/>').appendTo(configOps);
 	$('<span/>').text("Show timestamps in chat:").appendTo(row);
 	var showChatTimestamps = $('<input/>').attr('type','checkbox').appendTo(row);
-	if(getStorage("showTimestamps") == 1) {showChatTimestamps.attr('checked','checked'); }
+	if(getStorage("showTimestamps") == 1) {showChatTimestamps.prop('checked', true); }
 	showChatTimestamps.change(function(){ //
 		if($(this).is(":checked")){
 			$('body').addClass('showTimestamps');
@@ -549,7 +549,7 @@ function showConfigMenu(on){
 	var row = $('<div/>').appendTo(configOps);
 	$('<span/>').text("Show flair in chat:").appendTo(row);
 	var showChatFlair = $('<input/>').attr('type','checkbox').appendTo(row);
-	if(getStorage("showChatflair") == 1) {showChatFlair.attr('checked','checked'); }
+	if(getStorage("showChatflair") == 1) {showChatFlair.prop('checked', true); }
 	showChatFlair.change(function(){
 		if($(this).is(":checked")){
 			$('body').removeClass('hideChatFlair');
@@ -563,7 +563,7 @@ function showConfigMenu(on){
 	var row = $('<div/>').appendTo(configOps);
 	$('<span/>').text("Playlist follows active video:").appendTo(row);
 	var plFolAcVid = $('<input/>').attr('type','checkbox').appendTo(row);
-	if(getStorage("plFolAcVid") == 1) plFolAcVid.attr('checked','checked');
+	if(getStorage("plFolAcVid") == 1) plFolAcVid.prop('checked', true);
 	plFolAcVid.change(function(){ //
 		if($(this).is(":checked")){
 			setStorage('plFolAcVid',1)
@@ -593,12 +593,12 @@ function showConfigMenu(on){
 	for(var i=0;i<themes.length;i++){
 		var opt = $("<option/>").appendTo(themeSelect).data("css",themes[i].path).text(themes[i].name);
 		if( themes[i].path == getStorage("siteThemePath") ){
-			opt.attr('selected','selected');
+			opt.prop('selected',true);
 			found = true;
 		}
 	}
 	if(!found && typeof getStorage("siteThemePath") != "undefined"){
-		$("<option/>").appendTo(themeSelect).data("css",getStorage("siteThemePath")).text("3rd Party Theme").attr('selected','selected');
+		$("<option/>").appendTo(themeSelect).data("css",getStorage("siteThemePath")).text("3rd Party Theme").prop('selected', true);
 	}
 	themeSelect.change(function(){
 		var cssPath = themeSelect.find(":selected").data("css");
@@ -608,7 +608,7 @@ function showConfigMenu(on){
 	var row = $('<div/>').appendTo(configOps);
 	$('<span/>').text("Night mode (for select themes):").appendTo(row);
 	var nightMode = $('<input/>').attr('type','checkbox').appendTo(row);
-	if(getStorage("nightMode") == 1) nightMode.attr('checked','checked');
+	if(getStorage("nightMode") == 1) nightMode.prop('checked', true);
 	nightMode.change(function(){ //
 		if($(this).is(":checked")){
 			setStorage('nightMode',1);
@@ -650,7 +650,7 @@ function showConfigMenu(on){
 		var row = $('<div/>').appendTo(modOps);
 		$('<span/>').text("Show Shadowban Chatter:").appendTo(row);
 		var showShadowChatter = $('<input/>').attr('type','checkbox').appendTo(row);
-		if(getStorage("sbchatter") == 1) showShadowChatter.attr('checked','checked');
+		if(getStorage("sbchatter") == 1) showShadowChatter.prop('checked', true);
 		showShadowChatter.change(function(){ //
 			if($(this).is(":checked")){
 				$('body').addClass('showSBChatter');
@@ -669,7 +669,7 @@ function showConfigMenu(on){
 					$('<span/>').text("Toggle: "+TOGGLEABLES[i].label).appendTo(row);
 					var flutterYays = $('<input/>').attr('type','checkbox').addClass('tgl-'+i).appendTo(row);
 					if(TOGGLEABLES[i].state) {
-						flutterYays.attr('checked','checked');
+						flutterYays.prop('checked', true);
 					}
 					flutterYays.click(function(event){
 						event.stopPropagation();
@@ -1776,7 +1776,7 @@ function initPolls(under){
 			runoffThreshold.val('');
 			ops.parent().remove();
 			addPollOpt(optionContainer,2);
-			newPollObscure.removeAttr('checked');
+			newPollObscure.prop('checked', false);
 			newPollBtn.click();
 		}
 	});
@@ -1806,7 +1806,7 @@ function initPolls(under){
 				runoffThreshold.val('');
 				canvas.find('.option').parent().remove();
 				addPollOpt(optionContainer, 2);
-				newPollObscure.removeAttr('checked');
+				newPollObscure.prop('checked', false);
 				newPollBtn.click();
 			}
 		}

@@ -120,7 +120,7 @@ function showAdminFilterWindow(){
 		var enableDataCol = $('<td/>').appendTo(enableRow);
 		$('<span/>').text("Enable Rule:").appendTo(enableLabelCol);
 		var enable = $('<input/>').attr('type','checkbox').appendTo(enableDataCol);
-		if(myData.enable) enable.attr('checked','checked');
+		if(myData.enable) enable.prop('checked',true);
 		newRule.data('enable',enable);
 
 		var rules = mainOptWrap.data('rules');
@@ -479,7 +479,7 @@ function showPluginWindow() {
 		if (!node.exists) {
 			var checkbox = $('<input type="checkbox"/>').data('node', node);
 			if (node.enabled) {
-				checkbox.attr('checked', 'checked');
+				checkbox.prop('checked', true);
 			}
 			checkbox.change(function() {
 				var chk = $(this);
@@ -689,9 +689,9 @@ function setToggleable(name,state,label){
 	dbg(TOGGLEABLES);
 	dbg(opt);
 	if(state){
-		opt.attr('checked','checked');
+		opt.prop('checked', true);
 	} else {
-		opt.removeAttr('checked');
+		opt.prop('checked', false);
 	}
 }
 function getToggleable(name){
