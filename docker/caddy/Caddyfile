@@ -46,9 +46,15 @@
     }
 }
 
+(php) {
+    index index.php
+    fastcgi / php:9000 php
+}
+
 http://{$DOMAIN}:{$HTTP_PORT},
 http://www.{$DOMAIN}:{$HTTP_PORT} {
     import common
+    import php
 
     redir {
         if {path} not_starts_with /api/
@@ -81,6 +87,7 @@ https://www.{$DOMAIN}:{$HTTPS_PORT} {
 
 https://{$DOMAIN}:{$HTTPS_PORT} {
     import common
+    import php
 
     header /api/migrate_frame.html -X-Frame-Options
 
@@ -89,9 +96,6 @@ https://{$DOMAIN}:{$HTTPS_PORT} {
         if {path} not /api/migrate_frame.html
         / "http://{$DOMAIN}:{$HTTP_PORT}/api/migrate_page.html#{uri}"
     }
-
-    index index.php
-    fastcgi / php:9000 php
 }
 
 https://{$CDN_DOMAIN}:{$HTTPS_PORT} {
