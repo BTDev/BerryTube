@@ -24,7 +24,7 @@ var scriptNodes = [
     }*/,
     {
         title:'wutColors',
-        desc:'Gives each user a unique color to make chat easier to keep track of. <a href="https://btc.berrytube.tv/wut/wutColors/" target="_blank">Set your color here</a>',
+        desc:'Gives each user a unique color to make chat easier to keep track of. <a href="http://btc.berrytube.tv/wut/wutColors/" target="_blank">Set your color here</a>',
         authors:['wut'],
         settings:'scriptNodeWutColorsEnabled',
         css:['https://dl.dropboxusercontent.com/s/f5axkxk4wojatsf/style.css'],

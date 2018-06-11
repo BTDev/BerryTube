@@ -145,6 +145,7 @@ https://{$SOCKET_DOMAIN}:{$HTTPS_PORT} {
         Access-Control-Allow-Origin "*"
         Access-Control-Allow-Methods "OPTIONS, HEAD, GET"
         Access-Control-Max-Age "600"
+        -X-Frame-Options
     }
 
     proxy / http://node:8344 {
