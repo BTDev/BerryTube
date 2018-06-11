@@ -273,7 +273,7 @@ PEP.alertDialog = function(){
       PEP.sound = $(this).prop("checked");
       localStorage.PEPsound = PEP.sound;
     }
-  }).after('<label for="PEPsound">Play Sound</label>')).appendTo(pepops);
+  })).append('<label for="PEPsound">Play Sound</label>').appendTo(pepops);
   var dsCheck = $('<div/>').append($('<input>',{
     type:'checkbox',
     name:'PEPds',
@@ -282,7 +282,7 @@ PEP.alertDialog = function(){
       PEP.ds = $(this).prop("checked");
       localStorage.PEPds = PEP.ds;
     }
-  }).after('<label for="PEPds" >Show Desktop Pop-up<span class="alertNote">(Requires Desktop Squees Plugin)</span></label>')).appendTo(pepops);
+  })).append('<label for="PEPds" >Show Desktop Pop-up<span class="alertNote">(Requires Desktop Squees Plugin)</span></label>').appendTo(pepops);
   var flashCheck = $('<div/>').append($('<input>',{
     type:'checkbox',
     name:'PEPflash',
@@ -291,7 +291,7 @@ PEP.alertDialog = function(){
       PEP.flash = $(this).prop("checked");
       localStorage.PEPflash = PEP.flash;
     }
-  }).after('<label for="PEPflash">Flash Window Title</label>')).appendTo(pepops);
+  })).append('<label for="PEPflash">Flash Window Title</label>').appendTo(pepops);
   PEP.manageAlerts.css({'max-width':'400px','text-align':'center'});
   PEP.manageAlerts.window.center();
 };
