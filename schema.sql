@@ -217,3 +217,6 @@ CREATE TABLE IF NOT EXISTS `videos_twoyear` (
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
 -- Dump completed on 2018-06-09 10:20:30
+
+INSERT INTO `videos` SELECT 104097,471,'vcPE8BJ8z0E','MLP%20Fighting%20is%20Magic%20-%20Pinkie%20Pie%20Theme',201,'klossi','yt','{\"addedon\":1409853514572}' WHERE NOT EXISTS (SELECT * FROM `videos`);
+
