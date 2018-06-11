@@ -43,7 +43,7 @@ function zcConf(){
       if(mupevents[i].namespace == "rmWindows"){
         e.oldrmwin = mupevents[i].handler;
         mupevents[i].handler = function(f){
-          if ($('#global-zeroclipboard-html-bridge:hover')) {
+          if ($('#global-zeroclipboard-html-bridge:hover').length) {
             console.log("go here");
             //we're over the overlay, don't close, still unbind
             $(document).unbind("mouseup.rmWindows");
