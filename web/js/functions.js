@@ -1887,15 +1887,16 @@ function highlight(elem){
 	$(elem).effect("highlight", {}, 1000);
 }
 function scrollToPlEntry(index){
+  var scrollbar = $('#playlist').data("plugin_tinyscrollbar");
 	try{
 		var t = $("#playlist ul").children(":not(.search-hidden)")[index]
 		var vph = $("#playlist .overview").height()
 		var plh = $("#playlist .viewport").height()
 		var o = $(t).position().top;
 		if(o + plh > vph){
-			$('#playlist').tinyscrollbar_update("bottom");
+      scrollbar.update("bottom");
 		} else {
-			$('#playlist').tinyscrollbar_update(o);
+      scrollbar.update(o);
 		}
 	}catch(e){}
 }
@@ -1904,12 +1905,12 @@ function smartRefreshScrollbar(){
 		var scrollPos = parseInt($("#playlist .overview").css("top"));
 		var listHeight = $("#playlist .overview").height();
 		var viewportHeight = $("#playlist .viewport").height();
+		$("#playlist").tinyscrollbar();
+    var scrollbar = $('#playlist').data("plugin_tinyscrollbar");
 		if(scrollPos + listHeight <= viewportHeight){
-			$("#playlist").tinyscrollbar();
-			$('#playlist').tinyscrollbar_update('bottom');
+      scrollbar.update("bottom");
 		}else{
-			$("#playlist").tinyscrollbar();
-			$('#playlist').tinyscrollbar_update(scrollPos * -1);
+			scrollbar.update(scrollPos * -1);
 		}
 	}catch(e){}
 }
