@@ -11,6 +11,12 @@
 	}
 }
 
+(tls_existing) {
+	tls {
+		load "/existing-certs"
+	}
+}
+
 (tls_self_signed) {
 	tls self_signed
 }

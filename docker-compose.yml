@@ -25,6 +25,7 @@ services:
             - CLOUDFLARE_API_KEY
         volumes:
             - caddy:/root/.caddy
+            - ${EXISTING_CERT_DIR}:/existing-certs:ro
             - ./web:/var/www/html/web:ro
             - ./berrymotes/data:/var/www/html/berrymotes/data:ro
             - ./berrymotes/css:/var/www/html/berrymotes/css:ro
