@@ -12,9 +12,7 @@
 }
 
 (tls_self_signed) {
-	tls {
-		self_signed
-	}
+	tls self_signed
 }
 
 (common) {
