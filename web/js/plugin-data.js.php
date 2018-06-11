@@ -78,14 +78,14 @@ var scriptNodes = [
         setting:'scriptNodePEPEnabled',
         css:['<?= cdn('plugins/pep/pep.css') ?>','<?= cdn('plugins/pep/multipleselectbox.css') ?>'],
         js:['<?= cdn('plugins/pep/pep.js') ?>']
-    }/*,
+    },
     {
         title:'Video Blacklist',
         desc:'Adds right-click buttons for playlist entries allowing you to specify videos to not play.',
         authors:['Cades'],
         setting:'scriptNodeVideoBlacklistEnabled',
         css:[],
-        js:['http://cades.me/projects/BTVideoBlacklist/videoBlacklist.js']
-    }*/
+        js:['<?= cdn('plugins/videoBlacklist/videoBlacklist.js') ?>']
+    }
 ];
 
