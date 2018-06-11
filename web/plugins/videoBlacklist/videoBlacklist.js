@@ -5,8 +5,6 @@ new function(){
 
     ns.lsname = "cades.videoblacklist";
     ns.embedname = "cades.videoblacklistembed";
-    ns.metricsname = "cades.videoblacklistmetrics";
-    ns.metricsidname = "cades.videoblacklistmetricsid";
 
     ns.getStub = function(vidObj){
         if(vidObj && vidObj.videoid && vidObj.videotype) return {
@@ -28,46 +26,6 @@ new function(){
             }
             elem = elem.next;
         }while(elem != PLAYLIST.first)
-    }
-
-    ns.showMetricsMenu = function(){
-
-        var wrap = $("<div/>");
-        var inner = wrap.dialogWindow({
-            title:"Video Blacklist",
-            center:true,
-        });
-        inner.width(460);
-        var greeting = $("<div/>").html('<p>Hey! Thanks for trying my video blacklist plugin. This plugin has the ability to send me anonymous metrics on how its used, and what videos get blocked by people. Again, all data is anonymous and cannot be tied back to any particular user. The source code is freely available to view if there are any security concerns.</p><ul><li><a target="_blank" href="https://github.com/GreyMage/BTVideoBlacklist">BTVideoBlacklist</a></li><li><a  target="_blank" href="https://github.com/GreyMage/BTVideoBlacklistSrv">BTVideoBlacklistSrv</a></li></ul><p>Would you would like to participate?</p>');
-
-        var btnbar = $("<div/>");
-        var okbtn = $("<button/>").text("YES"); var okwrap = $("<div/>").append(okbtn).appendTo(btnbar).addClass("bl_optwrap");
-        var nobtn = $("<button/>").text("NO"); var nowrap = $("<div/>").append(nobtn).appendTo(btnbar).addClass("bl_optwrap");
-        greeting.appendTo(inner);
-        btnbar.appendTo(inner).append($("<div/>").css("clear","both"));
-        inner.window.center();
-
-        okbtn.click(function(){
-            ns.metrics.allow = true;
-            ns.save();
-            inner.window.close();
-        });
-
-        nobtn.click(function(){
-            ns.metrics.allow = false;
-            ns.save();
-            inner.window.close();
-        });
-
-    }
-
-    ns.getMetricsId = function(){
-        var mid = localStorage.getItem(ns.metricsidname);
-        if(!mid){
-          localStorage.setItem(ns.metricsidname,ns.uid(36));
-          return ns.getMetricsId();
-        }
-        return mid;
     }
 
     ns.uid = function(digits){
@@ -92,43 +50,6 @@ new function(){
             if(!ns.embed) throw "Bad Cache";
         } catch(e){
             ns.embed = '<div class="blacklistmessage">[ You have Blacklisted this Video ]</div>';
-        }
-
-        // Load Metrics
-        try{
-            ns.metrics = JSON.parse(localStorage.getItem(ns.metricsname));
-            if(!ns.metrics) throw "Bad Cache";
-        } catch(e){
-            ns.showMetricsMenu();
-            ns.metrics = {allow:false};
-        }
-
-        if(ns.metrics.allow){
-            // hang on to the original io.
-            window._cadesio = io;
-            window.io = null;
-            $.getScript("http://cades.me:8181/socket.io/socket.io.js");
-            ns.waitForIo(function(){
-                ns.io = window.io;
-                window.io = window._cadesio;
-                ns.socket = ns.io("http://cades.me:8181");
-                ns.socket.on('connect', function () {
-                    ns.socket.emit("identify",{mid:ns.getMetricsId()},function(success,msg){
-                        if(success){
-                            //ns.sendMetrics();
-                        }
-                    });
-                });
-            });
-        }
-
-    }
-
-    ns.sendMetrics = function(){
-        if(ns.socket){
-            ns.socket.emit("dump",{
-              blacklistVids:ns.videoBlacklist
-            })
         }
     }
 
@@ -160,12 +81,6 @@ new function(){
         localStorage.setItem(ns.lsname,JSON.stringify(finalsave));
         // Save Embed
         localStorage.setItem(ns.embedname,ns.embed);
-        // Save Metrics
-        localStorage.setItem(ns.metricsname,JSON.stringify(ns.metrics));
-
-        if(ns.metrics.allow){
-            ns.sendMetrics();
-        }
     }
 
     ns.isOk = function(vidObj){
@@ -242,10 +157,10 @@ new function(){
 
     ns.installCSS = function(){
         var styles = [
-            ' @font-face { font-family: "RemoteCR"; src: url("//cades.me/projects/BTVideoBlacklist/CelestiaMediumRedux1.55.ttf");',
+            ' @font-face { font-family: "RemoteCR"; src: url("' + CDN_ORIGIN + '/plugins/videoBlacklist/CelestiaMediumRedux1.55.ttf");',
             ' .blacklisted * { text-decoration: line-through;   font-style: italic; }',
             ' .blacklistmessage { text-shadow: 0 0 10px black; font-family: "Celestia Redux", "RemoteCR", "Arial"; bottom: 0; display: block; font-size: 2.2em; height: 70px; left: 0; line-height: 70px; margin: auto; position: absolute; right: 0; text-align: center; top: 0; width: 580px;}',
-            ' .blacklistwrap { background-color: black; background-position: center center; background-repeat: no-repeat; background-size: auto 70%; background-image: url("//cades.me/projects/BTVideoBlacklist/bp_cutiemark.svg"); height: 100%; width: 100%; } ',
+            ' .blacklistwrap { background-color: black; background-position: center center; background-repeat: no-repeat; background-size: auto 70%; background-image: url("' + CDN_ORIGIN + '/plugins/videoBlacklist/bp_cutiemark.svg"); height: 100%; width: 100%; } ',
             ' .blacklistprogress { background-color: red; bottom: 0; height: 10px; left: 0; position: absolute; } ',
             ' .bl_optwrap { float: left; width: 50%; }',
             ' .bl_optwrap button { width: 90%; display: block; height: 40px; margin: 0px auto 10px; }'
