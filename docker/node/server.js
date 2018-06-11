@@ -621,7 +621,7 @@ function getMisc(data, callback){
             try {
                 val = row.value;
                 if(data.encode){
-                    val = new Buffer(val, 'base64').toString('ascii');
+                    val = new Buffer(val, 'base64').toString('utf8');
                 }
             } catch(e) {
                 val = "";
@@ -730,7 +730,7 @@ function initAreas(){
 				var row = result[i];
 				var newArea = {
 					name:row.name,
-					html:(new Buffer(row.html, 'base64').toString('ascii'))
+					html:(new Buffer(row.html, 'base64').toString('utf8'))
 				}
 				SERVER.AREAS.push(newArea);
 			}
@@ -2910,7 +2910,7 @@ function userLogin(socket,data,truecallback,falsecallback){
                 var meta = {};
                 try {
                     if(result[0].meta)
-                        meta = JSON.parse(new Buffer(result[0].meta, 'base64').toString('ascii')) || {};
+                        meta = JSON.parse(new Buffer(result[0].meta, 'base64').toString('utf8')) || {};
                 } catch(e){
                     console.error("Failed to parse user meta: ", e);
                     meta = {};
@@ -3897,7 +3897,7 @@ io.sockets.on('connection', function (socket) {
                                 var meta = {};
                                 try {
                                     if(result[0].meta)
-                                        meta = JSON.parse(new Buffer(result[0].meta, 'base64').toString('ascii')) || {};
+                                        meta = JSON.parse(new Buffer(result[0].meta, 'base64').toString('utf8')) || {};
                                 } catch(e){
                                     console.error("Failed to parse user meta: ", e);
                                     meta = {};
