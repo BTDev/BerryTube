@@ -37,7 +37,6 @@ function zcConf(){
   //which, with zeroclipboard, is actually covered by a transparent
   //overlay, that isn't part of the context box.
   //if I'm derping and there's a better way, lemme know.
-  /*
   $(document).bind("mouseup.zeroclipNormWindows",function (e){
     var mupevents = jQuery._data( document, "events" ).mouseup;
     for(var i=0;i<mupevents.length;i++){
@@ -57,7 +56,6 @@ function zcConf(){
       }
     }
   });
-  */
 }
 PEP.unknown = '??:??';//displayed when times are incalculable due to an item of indeterminate length
 PEP.JAM = new Audio(PEP.rootDir+'JAM.wav');
