@@ -121,13 +121,13 @@ https://{$CDN_DOMAIN}:{$HTTPS_PORT} {
         Access-Control-Max-Age "600"
     }
 
-    # 1 hour, stale while revalidate 1 minute
-    header /berrymotes/data/ Cache-Control "public, max-age=3600, stale-while-revalidate=60"
-
     # 1 month, stale while revalidate 1 day
-    header /berrymotes/ Cache-Control "public, max-age=2592000, stale-while-revalidate=86400"
+#    header /berrymotes/ Cache-Control "public, max-age=2592000, stale-while-revalidate=86400"
     header /images/ Cache-Control "public, max-age=2592000, stale-while-revalidate=86400"
     header /sounds/ Cache-Control "public, max-age=2592000, stale-while-revalidate=86400"
+
+    # 1 hour, stale while revalidate 1 minute
+    header /berrymotes/data/ Cache-Control "public, max-age=3600, stale-while-revalidate=60"
 
     # 1 year, stale while revalidate 1 day, never changes
     header /sha1/ Cache-Control "public, max-age=31557600, stale-while-revalidate=86400, immutable"
