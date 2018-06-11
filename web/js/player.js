@@ -2,6 +2,10 @@
 function removeCurrentPlayer() {
 	if ( videojs.getPlayers()['vjs_player'] )
         videojs('vjs_player').dispose();
+    //clean up after youtube and vimeo
+    if (PLAYER && PLAYER.PLAYER && PLAYER.PLAYER.destroy) {
+      PLAYER.PLAYER.destroy();
+    }
     var currentEmbed = $("#ytapiplayer");
     var placeholder = $("<div/>").css({width:'100%', height:'100%', position:'relative'}).insertBefore(currentEmbed);
     currentEmbed.remove();
@@ -252,99 +256,149 @@ window.PLAYERS.yt = {
 };
 
 window.PLAYERS.vimeo = {
-    loadPlayer: function (id, at, volume) {
-        var self = this;
-
-        this.videoId = id;
-
-        this.loadSources(id, function (error, sources) {
-            if (error) {
-                console.log("Shit's fucked");
-                console.error(error);
-                return;
-            }
-
-            var player = $("<video/>")
-                    .addClass("video-js vjs-default-skin")
-                    .css({ width: "100%", height: "100%" })
-                    .attr({ id: "vjs_player" })
-                    .appendTo($("#ytapiplayer"));
-
-            sources.forEach(function (source) {
-                $("<source/>")
-                        .attr({
-                            src: source.link,
-                            type: source.contentType
-                        })
-                        .appendTo(player);
-            });
-
-            self.player = videojs(player[0], {
-                autoplay: true,
-                controls: true
-            });
-
-            self.player.ready(function onReady() {
-                console.log("lel");
-
-                self.player.on("error", function() {
-                    console.log("Shit's fucked");
-                    console.error(self.player.error());
-                });
-
-                self.player.volume(volume);
-
-                self.player.on("ended", function onEnded() {
-                    videoEnded();
-                });
-
-                self.player.on("play", function onPlay() {
-                    videoPlaying();
-                });
-
-                self.player.on("pause", function onPause() {
-                    videoPaused();
-                });
-            });
-        });
-    },
-    loadSources: function (id, cb) {
-        console.log("Asking proxy server for " + id);
-        $.getJSON("http://tirek.cyzon.us:9999/vimeodata?id=" + id)
-                .done(function (result) {
-                    if (result.error) {
-                        cb(new Error(result.error));
-                    } else {
-                        cb(null, result.sources);
-                    }
-                }).fail(function () {
-                    cb(new Error("Unable to contact Vimeo data proxy"));
-                });
-    },
-    playVideo: function (id, at) {
-        this.videoId = id;
-        removeCurrentPlayer();
-        this.loadPlayer(id, at);
-        return;
-    },
-    pause: function () {
-        this.player && this.player.readyState() > 0 && this.player.pause();
-    },
-    play: function () {
-        this.player && this.player.readyState() > 0 && this.player.play();
-    },
-    getVideoState: function () {
-        return 1;
-    },
-    seek: function (pos) {
-        this.player && this.player.readyState() > 0 && this.player.currentTime(pos);
-    },
-    getTime: function (callback) {
-        this.player && this.player.readyState() > 0 && callback(this.player.currentTime());
-    },
-    getVolume: function(callback) {
-        this.player && this.player.readyState() > 0 && callback(this.player.volume());
+  status: {
+    time: 0,
+    volume: VOLUME,//idk if anything even sets this anymore. seems to mostly be false
+    state: 3,
+    ready: false
+  },
+  loadPlayer: function(id, at, volume) {
+    this.preloadTime = Date.now();
+    if (volume === false) {
+      volume = VOLUME;
     }
+    var currentEmbed = $("#ytapiplayer");
+    var frame = $("<iframe src='https://player.vimeo.com/video/"+id+"' style='width:100%;height:100%' frameborder='0' allow='autoplay; encrypted-media; fullscreen' allowfullscreen />").appendTo(currentEmbed);
+    this.PLAYER = new Vimeo.Player(frame[0],{
+      id:id,
+      autoplay:false
+    });
+    //YoU dO nOt nEeD to WaIt FoR ReAdy tO trigger to begin adding event listeners or calling other methods.LIES
+    //no really, it fails to find setvolume sometimes
+    this.PLAYER.ready().then(()=>{
+      this.PLAYER.setVolume(volume);
+      this.status.ready = true;
+      this.status.oldVolume = volume;
+      //Idk how much the state is used much anymore, but whatever, covering the bases
+      //also using these for post-seek changes, to know what our state_should_ be,
+      //since seeking autostarts
+      var eventFunctions = {
+        'ended': ()=>{
+          this.status.state = 0;
+          videoEnded();
+        },
+        'play': ()=>{
+          this.status.state = 1;
+          videoPlaying();
+        },
+        'volumechange': (o)=>{
+          VOLUME = o.volume;
+        },
+        'pause': ()=>{
+          this.status.state = 2;
+          videoPaused();
+        },
+        'bufferstart': ()=>{
+          this.status.state = 3;
+        },
+        'seeked': (seekDetails)=>{
+          videoSeeked(seekDetails.seconds);
+        }
+      };
+      for (var p in eventFunctions) {
+        this.PLAYER.on(p, eventFunctions[p]);
+      }
+      //adjust the time for player getting ready
+      //doing this here once because maybe the player is already present when playVideo gets called
+      at += (Date.now() - this.preloadTime)/1000;
+      this.playVideo(id, at);
+    });
+  },
+  playVideo: function(id, at) {
+    this.preloadTime = Date.now();
+    //let's see if it'll just continue if given the same id..
+    //not sure if there might be a race for the player's initiallization, or the video load, we'll see I guess
+    this.status.ready = false;
+    this.PLAYER.loadVideo(id).then(()=>{
+      //this didn't seem to work earlier in the process, stayed blue
+      //complains about not enough contrast, looks fine to me.
+      this.PLAYER.setColor('C600AD').catch(()=>{});
+      this.status.ready = true;
+      //Loading takes a bit of time, adjust for this
+      //may want to use an eventlistener like bufferfinish or whatever
+      at += (Date.now() - this.preloadTime)/1000;
+      if (at < 0) {
+        var wait = (at * -1000);
+        setTimeout(()=>{
+          videoPlay();
+        }, wait);
+      } else {
+        videoSeekTo(at);
+        //current vimeo API starts playback as soon as seek happens
+        //Fine for us for now, but seems presumptuous
+      }
+    });
+
+  },
+  pause: function() {
+    this.status.state = 2;
+    if (this.status.ready) {
+      this.PLAYER.pause();
+    }
+  },
+  play: function() {
+    this.status.state = 1;
+    if (this.status.ready) {
+      this.PLAYER.play().catch((err)=>{
+        console.log("could not start playback", err);
+      });
+    }
+  },
+  seek: function(pos) {
+    if (this.status.ready) {
+      //may want to adjust this for load time too, 
+      this.PLAYER.setCurrentTime(pos).then(()=>{
+      }).catch((err)=>{
+        console.log("could not seek",err);
+        //if there's a seek error, it'll try and start at the beginning, stop that
+        videoPause();
+      });
+      //restore playback state since vimeo autoplays on seek...or tries
+      this.PLAYER.getPaused().then((paused)=>{
+        if (!paused && this.status.state == 2) {
+          videoPause();
+        } else if (paused && this.status.state != 2) {
+          videoPlay();
+        }
+      });
+    }
+  },
+  getVideoState: function() {
+    return this.status.state;
+  },
+  getTime: function(callback) {
+    if (callback) {
+      if (!this.status.ready) {
+        callback(0);
+      } else {
+        this.PLAYER.getCurrentTime()
+        .then((time)=>{
+          callback(time);
+        }).catch((err)=>{
+          console.log("Vimeo getTime error",err);
+        });
+      }
+    }
+  },
+  getVolume: function(callback) {
+    if (callback) {
+      this.PLAYER.getVolume()
+      .then(callback)
+      .catch((err)=>{
+        console.log("Vimeo getVolume error",err);
+      });
+    }
+  }
 };
 
 window.PLAYERS.ustream = {
@@ -443,7 +497,7 @@ window.PLAYERS.soundcloud = {
 
 		var placeHolderDiv = $('#ytapiplayer');
 		var background = $('<div id="scBackground"/>').appendTo(placeHolderDiv);
-		var player = $('<iframe id="scPlayer"/>').appendTo(placeHolderDiv);
+		var player = $('<iframe id="scPlayer" allow="autoplay; encrypted-media;"/>').appendTo(placeHolderDiv);
         player.attr("allow", "autoplay; encrypted-media");
 		var volumeSliderWrap = $('<div id="scVolumeSliderWrap"/>').appendTo(placeHolderDiv);
 		var volumeSlider = $('<div id="scVolumeSlider"/>').slider({orientation:'vertical', range:'min', value:volume * 100,
