@@ -5,6 +5,7 @@
     color: white;
     text-decoration: underline dashed;
     font-style: italic;
+    text-shadow: 0 0 3px black, 0 0 3px black;
 }
 
 #countdown-error {
