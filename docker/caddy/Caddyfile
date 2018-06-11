@@ -141,6 +141,12 @@ https://{$SOCKET_DOMAIN}:{$HTTPS_PORT} {
         alpn http/1.1
     }
 
+    header / {
+        Access-Control-Allow-Origin "*"
+        Access-Control-Allow-Methods "OPTIONS, HEAD, GET"
+        Access-Control-Max-Age "600"
+    }
+
     proxy / http://node:8344 {
         transparent
         websocket
