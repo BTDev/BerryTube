@@ -198,7 +198,7 @@ var POLL_OPTIONS = [];
 })();
 
 try{
-	window.socket = io.connect(NODE_ORIGIN, {
+	window.socket = io.connect(SOCKET_ORIGIN, {
 		'connect timeout': 5000,
 		'reconnect': true,
 		'reconnection delay': 500,

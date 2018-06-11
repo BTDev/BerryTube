@@ -5,7 +5,7 @@
 	define("DB_USER","berrytube");
 	define("DB_PASS","berrytube");
 	define('ORIGIN', 'https://' . getenv('DOMAIN') . ((getenv('HTTPS_PORT') === '443') ? '' : (':' . getenv('HTTPS_PORT'))));
-	define('NODE_ORIGIN', 'https://' . getenv('SOCKET_DOMAIN') . ((getenv('HTTPS_PORT') === '443') ? '' : (':' . getenv('HTTPS_PORT'))));
+	define('SOCKET_ORIGIN', 'https://' . getenv('SOCKET_DOMAIN') . ((getenv('HTTPS_PORT') === '443') ? '' : (':' . getenv('HTTPS_PORT'))));
 	define('CDN_ORIGIN', 'https://' . getenv('CDN_DOMAIN') . ((getenv('HTTPS_PORT') === '443') ? '' : (':' . getenv('HTTPS_PORT'))));
 	define('OLD_ORIGIN', 'http://' . getenv('DOMAIN') . ((getenv('HTTP_PORT') === '80') ? '' : (':' . getenv('HTTP_PORT'))));
 	define('OLD_ORIGIN_WWW', 'http://www.' . getenv('DOMAIN') . ((getenv('HTTP_PORT') === '80') ? '' : (':' . getenv('HTTP_PORT'))));

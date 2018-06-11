@@ -73,7 +73,7 @@
 	var socketIOTarget = "<?= getenv('SOCKET_DOMAIN') ?>:<?= getenv('LEGACY_SOCKET_PORT') ?>";
 
 	var ORIGIN = '<?= ORIGIN ?>';
-	var NODE_ORIGIN = '<?= NODE_ORIGIN ?>';
+	var SOCKET_ORIGIN = '<?= SOCKET_ORIGIN ?>';
 	var CDN_ORIGIN = '<?= CDN_ORIGIN ?>';
 	var OLD_ORIGIN = '<?= OLD_ORIGIN ?>';
 	var OLD_ORIGIN_WWW = '<?= OLD_ORIGIN_WWW ?>';
