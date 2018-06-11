@@ -240,7 +240,7 @@ window.PLAYERS.yt = {
         this.PLAYER.seekTo(pos);
     },
     getTime: function (callback) {
-        if(callback && this.PLAYER && this.PLAYER.getCurrentTime)callback(this.PLAYER.getCurrentTime());
+        if(callback)callback(this.PLAYER.getCurrentTime());
     },
 	getVolume: function(callback){
         var volume = this.PLAYER.getVolume() / 100;
