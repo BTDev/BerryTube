@@ -118,7 +118,8 @@
 			onClose: false,
 			center:false,
 			toolBox:false,
-			initialLoading:false
+			initialLoading:false,
+			scrollable:false
 		}
 		for(var i in data){
 			myData[i] = data[i];
@@ -146,6 +147,9 @@
 		// Create Window
 		var newWindow = $('<div/>').appendTo(parent);
 		newWindow.addClass("dialogWindow");
+		if (myData.scrollable) {
+			newWindow.addClass('scrollableDialog');
+		}
 		newWindow.data('uid',myData.uid);
 		newWindow.css('z-index','999');
 		newWindow.close = function(){

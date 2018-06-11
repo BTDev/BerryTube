@@ -1210,8 +1210,7 @@ function addNewMailMessage(nick, msg) {
 		newMsg.append(
 			$('<span/>').addClass('timestamp').text('<' + addZero(now.getHours()) + ":" + addZero(now.getMinutes()) + ":" + addZero(now.getSeconds()) + '>'),
 			$('<span/>').addClass('nick').text(nick + ':'),
-			// Abbreviated form of formatChatMsg(), since we only want the hyperlinking and not >greentext
-			$('<span/>').html(msg.replace(/(http[s]{0,1}:\/\/[^ ]*)/ig, '<a href="$&" target="_blank">$&</a>')),
+			$('<span/>').html(formatChatMsg(msg, false)),
 			$('<button/>').addClass('btn').css('width', '20px').text('X').click(function() {
 				$(this).parent().remove();
 				if ($('#mailMessageDiv').children().length == 0) {
@@ -1694,14 +1693,18 @@ function parseVideoURL(url,callback){
 	// ppshrug
 	callback(url,"yt");
 }
-function formatChatMsg(msg){
+function formatChatMsg(msg, greentext){
 
 	var regexp = new RegExp("(http[s]{0,1}://[^ ]*)", 'ig');
-	msg = msg.replace(regexp,'<a href="$&" target="_blank">$&</a>');
+	msg = msg.replace(regexp,'<a href="$&">$&</a>');
 
 	var h = $('<span/>').html(msg);
-    var re = RegExp("^>");
-	if(h.text().match(re)) h.addClass("green");
+	$('a', h).attr("target", "_blank").attr("rel", "noopener noreferrer");
+
+	if (greentext !== false) {
+	    var re = RegExp("^>");
+		if(h.text().match(re)) h.addClass("green");
+	}
 
 	return h;
 }

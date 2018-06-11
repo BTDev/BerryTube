@@ -467,7 +467,8 @@ function showConfigMenu(on){
 	var settWin = $("body").dialogWindow({
 		title:"BerryTube Settings",
 		uid:"configmenu",
-		center:true
+		center:true,
+		scrollable:true
 	});
 
 	var cmds = $("<div/>").attr('id','settingsGui').prependTo(settWin)
@@ -827,7 +828,7 @@ function showEditNote(nick) {
 
 	var mainOptWrap = $('<div/>').appendTo(parent).addClass('controlWindow');
 	$('<p>').appendTo(mainOptWrap).text("Editing note for " + nick + ":").css("width", "300px");
-	var input = $('<textarea>').appendTo(mainOptWrap).css("width", "300px").val($('#chatlist li.' + nick).data('note'));
+	var input = $('<textarea>').appendTo(mainOptWrap).css("width", "300px").attr('rows', 20).val($('#chatlist li.' + nick).data('note'));
 	var buttonDiv = $('<div/>').css("text-align", "center").appendTo(mainOptWrap);
 	var cancelBtn = $('<div/>').addClass('button').appendTo(buttonDiv);
 	$('<span/>').appendTo(cancelBtn).text("Cancel");
@@ -1373,7 +1374,21 @@ function initPlaylist(parent){
 }
 
 function keydownEventHandler(event) {
-	if (event.keyCode == 70 && event.ctrlKey) {
+	if (event.keyCode == 27) {
+		// Esc
+		// async in case the dialog is doing stuff on keydown
+        setTimeout(() => {
+            const wins = $(document.body).data('windows');
+            if ( !wins || wins.length === 0 ){
+                // MalTweaks header/motd/footer
+                $('.floatinner:visible').last().next('.mtclose').click();
+                return;
+            }
+
+            wins[wins.length-1].close();
+        }, 0);
+	}
+	else if (event.keyCode == 70 && event.ctrlKey && !event.shiftKey && !event.altKey) {
 		// Ctrl+F
 		$('.totalVideos').click();
 		event.preventDefault();

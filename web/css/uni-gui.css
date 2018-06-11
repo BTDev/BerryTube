@@ -18,6 +18,10 @@
 .dialogWindow .dialogContent{
 	padding:5px;
 }
+.dialogWindow.scrollableDialog .dialogContent{
+	max-height: 500px;
+	overflow-y: scroll;
+}
 .dialogWindow .dialogToolbar{
 	background:#DEDEDE;
 	padding:2px;
