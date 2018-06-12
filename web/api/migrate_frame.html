@@ -7,7 +7,7 @@ window.onmessage = function(event){
             if (localStorage[key] === undefined)
                 localStorage[key] = event.data[key];
         }
-        document.cookie = 'bt-migrated=1; path=/; domain=.' + location.hostname + '; max-age=2147483647';
+        document.cookie = 'bt-migrated=1; path=/; domain=.{{.Env.DOMAIN}}; max-age=2147483647';
         event.source.postMessage('done', '*');
     } else {
         alert("Event origin doesn't match!");

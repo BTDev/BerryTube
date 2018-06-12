@@ -7,6 +7,7 @@ window.onmessage = function(event){
     if (event.data === 'done') {
         if (document.cookie.indexOf('bt-migrated=1') === -1) {
             document.getElementById('title').textContent = 'Error copying settings to new system!';
+            document.getElementById('desc').textContent = "Cookie could not be found! Don't block the cookie.";
         } else {
             document.getElementById('title').textContent = 'Redirecting to new system...';
             document.getElementById('desc').textContent = '';
