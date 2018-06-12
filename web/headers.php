@@ -49,6 +49,8 @@
 <meta name="robots" content="noindex">
 <meta name="theme-color" content="#421C52">
 
+<link rel="shortcut icon" href="<?= cdn('images/favicon32.png') ?>"/>
+
 <link rel="stylesheet" href="<?= cdn('css/colors.css') ?>" id="mainTheme"/>
 <link rel="stylesheet" href="<?= cdn('css/layout-other.css') ?>"/>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/video.js/5.4.4/video-js.min.css" integrity="sha256-UeMWbsVFjXKSEQ5njaTwWasAFZJsen4UMOHfTHNZtBA=" crossorigin="anonymous" />
