@@ -493,7 +493,7 @@ window.PLAYERS.soundcloud = {
     volume *= 100;
 
 		if (volume === false) {
-            volume = 1;
+            volume = 50;
         }
 
 		var placeHolderDiv = $('#ytapiplayer');
@@ -505,8 +505,9 @@ window.PLAYERS.soundcloud = {
 			stop:function(event, ui) {
 				self.PLAYER.setVolume(ui.value);
 			}}).appendTo(volumeSliderWrap);
+    $( "#scVolumeSlider .ui-slider-range" ).css('background', '#C600AD');
 		player.attr('src', 'https://w.soundcloud.com/player/?url=https://api.soundcloud.com/tracks/' + id.substr(2) +
-			encodeURIComponent('?liking=false&sharing=false&show_comments=false&show_playcount=false'));
+			encodeURIComponent('?liking=false&sharing=false&show_comments=false&show_playcount=false&color=C600AD'));
 
 		this.PLAYER = SC.Widget(player[0]);
     this.PLAYER.bind(SC.Widget.Events.READY,()=>{
