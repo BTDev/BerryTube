@@ -367,8 +367,8 @@ function initToastThemes(data, textStatus, jqxhr) {
 	var container = $('<div id="toastThemesContainer"/>');
 
 	// Create the upper div (chevrons and other buttons)
-	var chevUpDiv = $('<div id="chevronUpDiv"/>').addClass('chevronDiv transparent').css('display', 'inline-block').html('<img src="plugins/toastthemes/chevup.png">').click(toggle);
-	var chevDownDiv = $('<div id="chevronDownDiv"/>').addClass('chevronDiv').css('display', 'none').html('<img src="plugins/toastthemes/chevdown.png">').click(toggle);
+	var chevUpDiv = $('<div id="chevronUpDiv"/>').addClass('chevronDiv transparent').css('display', 'inline-block').html('<img src="' + CDN_ORIGIN + '/plugins/toastthemes/chevup.png">').click(toggle);
+	var chevDownDiv = $('<div id="chevronDownDiv"/>').addClass('chevronDiv').css('display', 'none').html('<img src="' + CDN_ORIGIN + '/plugins/toastthemes/chevdown.png">').click(toggle);
 	var settingsButtonDiv = $('<div id="settingsButtonDiv"/>').addClass('settingsButtonDiv').css('display', 'none').text('Settings').click(toggleSettingsDiv);
 	var effectsButtonDiv = $('<div id="effectsButtonDiv"/>').addClass('settingsButtonDiv').css('display', 'none').text('Effects').click(function() { toggleThemeListDiv('effectsContainer'); });
 	var motdButtonDiv = $('<div id="motdButtonDiv"/>').addClass('settingsButtonDiv').css('display', 'none').text('MotD').click(toggleMotd);
@@ -442,13 +442,13 @@ function initToastThemes(data, textStatus, jqxhr) {
 	$body.append(effectsContainer);
 
 	// Create the HI! div
-	$body.append($('<div id="hiDiv"/>').html('<img src="plugins/toastthemes/hi.png"></img>'));
+	$body.append($('<div id="hiDiv"/>').html('<img src="' + CDN_ORIGIN + '/plugins/toastthemes/hi.png"></img>'));
 
 	// Create the grumpy div
-	$body.append($('<div id="grumpyDiv"/>').html('<img src="plugins/toastthemes/grumpy.png"></img>'));
+	$body.append($('<div id="grumpyDiv"/>').html('<img src="' + CDN_ORIGIN + '/plugins/toastthemes/grumpy.png"></img>'));
 
 	// Create the chainsaw div
-	$body.append($('<div id="chainsawDiv"/>').html('<img src="plugins/toastthemes/chainsaw.png"></img>'));
+	$body.append($('<div id="chainsawDiv"/>').html('<img src="' + CDN_ORIGIN + '/plugins/toastthemes/chainsaw.png"></img>'));
 
 	// Rig up the auto-theme method to the correct socket callback
 	socket.on('forceVideoChange', function(data) {
@@ -462,7 +462,7 @@ function initToastThemes(data, textStatus, jqxhr) {
 		}
 		if (data.video.videoid == '4e_Glj3_kGE') {
 			//And the Moon orbits Around the World...
-			$('#videowrap').css('position', 'relative').append($('<div id="crawlyBelle"/>').html('<img src="plugins/toastthemes/stare.png"></img>')
+			$('#videowrap').css('position', 'relative').append($('<div id="crawlyBelle"/>').html('<img src="' + CDN_ORIGIN + '/plugins/toastthemes/stare.png"></img>')
 				.attr('style', 'bottom: 100%; margin-bottom: -70px; right: 100%; margin-right: -70px; -webkit-transform: rotate(180deg); -moz-transform: rotate(180deg);'));
 			crawlId = setInterval(sweetieCrawl, 80);
 		}
