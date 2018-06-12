@@ -3,7 +3,7 @@
 	define("DB_HOST","mysql");
 	define("DB_NAME","berrytube");
 	define("DB_USER","berrytube");
-	define("DB_PASS","berrytube");
+	define("DB_PASS",getenv('MYSQL_PASSWORD'));
 	define('ORIGIN', 'https://' . getenv('DOMAIN') . ((getenv('HTTPS_PORT') === '443') ? '' : (':' . getenv('HTTPS_PORT'))));
 	define('SOCKET_ORIGIN', 'https://' . getenv('SOCKET_DOMAIN') . ((getenv('HTTPS_PORT') === '443') ? '' : (':' . getenv('HTTPS_PORT'))));
 	define('CDN_ORIGIN', 'https://' . getenv('CDN_DOMAIN') . ((getenv('HTTPS_PORT') === '443') ? '' : (':' . getenv('HTTPS_PORT'))));

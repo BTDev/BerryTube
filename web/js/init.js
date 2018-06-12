@@ -633,14 +633,14 @@ function showConfigMenu(on){
 	var migrateOps = $('<fieldset/>').appendTo($('<li/>').appendTo(optWrap));
 	$('<legend/>').appendTo(migrateOps).text("Copy settings from old server");
 	var row = $('<div/>').appendTo(migrateOps);
-	$('<span/>').appendTo(migrateOps).html("Settings from the old server should have<br/>been copied over automatically.<br />If they weren't, click a button:");
+	$('<span/>').appendTo(migrateOps).html("Settings from the old server should<br/>have been copied over automatically.<br />If they weren't, click a button:");
 	var row = $('<div/>').appendTo(migrateOps);
 	var migrateBtn = $('<div/>').appendTo(row).addClass('button');
-	var migrateBtn_label = $('<span/>').appendTo(migrateBtn).text("Copy from old " + location.hostname);
+	var migrateBtn_label = $('<span/>').appendTo(migrateBtn).html("Copy from old <b>" + location.hostname + "</b>");
 	migrateBtn.click(() => migrateFrom(OLD_ORIGIN));
 	var row = $('<div/>').appendTo(migrateOps);
 	var migrateWwwBtn = $('<div/>').appendTo(row).addClass('button');
-	var migrateWwwBtn_label = $('<span/>').appendTo(migrateWwwBtn).text("Copy from old www." + location.hostname);
+	var migrateWwwBtn_label = $('<span/>').appendTo(migrateWwwBtn).html("Copy from old <b>www." + location.hostname + "</b>");
 	migrateWwwBtn.click(() => migrateFrom(OLD_ORIGIN_WWW));
 	//----------------------------------------
 	if(TYPE >= 1){

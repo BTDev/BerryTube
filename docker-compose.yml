@@ -52,6 +52,7 @@ services:
             - HTTPS_PORT
             - LEGACY_SOCKET_PORT
             - NO_CDN
+            - MYSQL_PASSWORD
         volumes:
             - ./web:/var/www/html/web:ro
             - ./berrymotes/data:/var/www/html/berrymotes/data:ro
@@ -67,6 +68,8 @@ services:
     node:
         build: ./docker/node/
         restart: always
+        environment:
+            - MYSQL_PASSWORD
         expose:
             - '8344'
         networks:
@@ -79,10 +82,10 @@ services:
         command: --default-authentication-plugin=mysql_native_password
         restart: always
         environment:
-            MYSQL_RANDOM_ROOT_PASSWORD: 'yes'
-            MYSQL_DATABASE: berrytube
-            MYSQL_USER: berrytube
-            MYSQL_PASSWORD: berrytube
+            - MYSQL_RANDOM_ROOT_PASSWORD=yes
+            - MYSQL_DATABASE=berrytube
+            - MYSQL_USER=berrytube
+            - MYSQL_PASSWORD
         volumes:
             - mysql:/var/lib/mysql
             - ./schema.sql:/docker-entrypoint-initdb.d/berrytube.sql:ro
