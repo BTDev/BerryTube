@@ -490,6 +490,7 @@ window.PLAYERS.soundcloud = {
     },*/
     loadPlayer: function (id, at, volume, length) {
 		var self = this;
+    volume *= 100;
 
 		if (volume === false) {
             volume = 1;
@@ -497,21 +498,21 @@ window.PLAYERS.soundcloud = {
 
 		var placeHolderDiv = $('#ytapiplayer');
 		var background = $('<div id="scBackground"/>').appendTo(placeHolderDiv);
-		var player = $('<iframe id="scPlayer" allow="autoplay; encrypted-media;"/>').appendTo(placeHolderDiv);
+		var player = $('<iframe id="scPlayer"/>').appendTo(placeHolderDiv);
         player.attr("allow", "autoplay; encrypted-media");
 		var volumeSliderWrap = $('<div id="scVolumeSliderWrap"/>').appendTo(placeHolderDiv);
-		var volumeSlider = $('<div id="scVolumeSlider"/>').slider({orientation:'vertical', range:'min', value:volume * 100,
+		var volumeSlider = $('<div id="scVolumeSlider"/>').slider({orientation:'vertical', range:'min', value:volume,
 			stop:function(event, ui) {
-				self.PLAYER.setVolume(ui.value / 100.0);
+				self.PLAYER.setVolume(ui.value);
 			}}).appendTo(volumeSliderWrap);
-		player.attr('src', 'http://w.soundcloud.com/player/?url=http://api.soundcloud.com/tracks/' + id.substr(2) +
+		player.attr('src', 'https://w.soundcloud.com/player/?url=https://api.soundcloud.com/tracks/' + id.substr(2) +
 			encodeURIComponent('?liking=false&sharing=false&show_comments=false&show_playcount=false'));
 
 		this.PLAYER = SC.Widget(player[0]);
+    this.PLAYER.bind(SC.Widget.Events.READY,()=>{
+			this.PLAYER.setVolume(volume);
+    });
 		// If Soundbutt ever gets its shit together, this should fix our volume woes
-		self.getVolume(function(vol){
-            self.PLAYER.setVolume(vol);
-        });
 
 		if (at < 0) {
             var wait = (at * -1000);
@@ -519,9 +520,7 @@ window.PLAYERS.soundcloud = {
                 videoPlay();
                 self.PLAYER.bind(SC.Widget.Events.PLAY_PROGRESS, function(obj) {
                     if (obj.loadedProgress > 0) {
-		                self.getVolume(function(vol){
-                            self.PLAYER.setVolume(vol);
-                        });
+                        self.PLAYER.setVolume(volume);
                         self.PLAYER.unbind(SC.Widget.Events.PLAY_PROGRESS);
                     }
                 });
