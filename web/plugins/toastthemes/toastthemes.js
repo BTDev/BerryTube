@@ -13,7 +13,7 @@
  * - Chat Buffer Management, a feature intended to help prevent script-added elements from jumping.
  * - Auto-loading themes for some special videos (e.g. Tropical Octav3 loads Octav3Tub3). Themes loaded
  *	   this way will automatically revert after the video ends. This feature can be disabled in settings.
- * - Playlist and poll effects, including GAKIFICATION, wobniaR, rot13, and sehro-Vision™!
+ * - Playlist and poll effects, including GAKIFICATION, wobniaR, rot13, and sehro-Visionâ„¢!
  *
  * Special thanks to:
  * - wut, for his BerryButtons script, which I used as a starting point
