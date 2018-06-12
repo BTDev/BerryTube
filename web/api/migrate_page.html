@@ -1,24 +1,13 @@
 <body style="color:white;background-color:#421C52">
 <h2 id="title">Copying settings to new system...</h2>
-<p id="desc">If you are stuck on this page, you are probably blocking scripts and/or cookies from BerryTube.</p>
+<p id="desc">If you are stuck on this page, you are probably blocking scripts/cookies/frames/something from BerryTube.</p>
 <script>
 const origin = 'https://{{.Env.DOMAIN}}{{if ne .Env.HTTPS_PORT "443"}}:{{.Env.HTTPS_PORT}}{{end}}';
 window.onmessage = function(event){
     if (event.data === 'done') {
-        if (document.cookie.indexOf('bt-migrated=1') === -1) {
-            document.getElementById('title').textContent = 'Error copying settings to new system!';
-            if (document.cookie.indexOf('bt-migrated') === -1) {
-                document.getElementById('desc').textContent = "Cookie could not be found! Don't block the cookie.";
-            } else {
-                document.getElementById('desc').textContent = 'Your cookies are weird: ' + document.cookie;
-            }
-        } else {
-            document.getElementById('title').textContent = 'Redirecting to new system...';
-            document.getElementById('desc').textContent = '';
-            location.href = origin + location.hash.replace(/^#/, '');
-        }
-    } else if (event.data) {
-        document.getElementById('desc').textContent = event.data;
+        document.getElementById('title').textContent = 'Redirecting to new system...';
+        document.getElementById('desc').textContent = '';
+        location.href = origin + location.hash.replace(/^#/, '');
     }
 };
 const frame = document.createElement('iframe');

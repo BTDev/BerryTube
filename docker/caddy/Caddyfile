@@ -90,12 +90,6 @@ https://{$DOMAIN}:{$HTTPS_PORT} {
 
     header /api/migrate_frame.html -X-Frame-Options
     templates /api/migrate_frame.html
-
-    redir {
-        if {~bt-migrated} not 1
-        if {path} not /api/migrate_frame.html
-        / "http://{$DOMAIN}:{$HTTP_PORT}/api/migrate_page.html#{uri}"
-    }
 }
 
 https://{$CDN_DOMAIN}:{$HTTPS_PORT} {

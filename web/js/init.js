@@ -631,9 +631,9 @@ function showConfigMenu(on){
 	showSqueesBtn.click(showPluginWindow);
 	//----------------------------------------
 	var migrateOps = $('<fieldset/>').appendTo($('<li/>').appendTo(optWrap));
-	$('<legend/>').appendTo(migrateOps).text("Copy settings from old server");
+	$('<legend/>').appendTo(migrateOps).text("Import settings");
 	var row = $('<div/>').appendTo(migrateOps);
-	$('<span/>').appendTo(migrateOps).html("Settings from the old server should<br/>have been copied over automatically.<br />If they weren't, click a button:");
+	$('<span/>').appendTo(migrateOps).html("Click a button to copy (most of)<br />your settings onto the new server:");
 	var row = $('<div/>').appendTo(migrateOps);
 	var migrateBtn = $('<div/>').appendTo(row).addClass('button');
 	var migrateBtn_label = $('<span/>').appendTo(migrateBtn).html("Copy from old <b>" + location.hostname + "</b>");
