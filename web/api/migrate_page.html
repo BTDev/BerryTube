@@ -5,9 +5,13 @@
 const origin = 'https://{{.Env.DOMAIN}}{{if ne .Env.HTTPS_PORT "443"}}:{{.Env.HTTPS_PORT}}{{end}}';
 window.onmessage = function(event){
     if (event.data === 'done') {
-        document.getElementById('title').textContent = 'Redirecting to new system...';
-        document.getElementById('desc').textContent = '';
-        location.href = origin + location.hash.replace(/^#/, '');
+        if (document.cookie.indexOf('bt-migrated=1') === -1) {
+            document.getElementById('title').textContent = 'Error copying settings to new system!';
+        } else {
+            document.getElementById('title').textContent = 'Redirecting to new system...';
+            document.getElementById('desc').textContent = '';
+            location.href = origin + location.hash.replace(/^#/, '');
+        }
     }
 };
 const frame = document.createElement('iframe');

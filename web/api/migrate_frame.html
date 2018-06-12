@@ -1,12 +1,16 @@
 <script>
+const origin1 = 'http://{{.Env.DOMAIN}}{{if ne .Env.HTTP_PORT "80"}}:{{.Env.HTTP_PORT}}{{end}}';
+const origin2 = 'http://www.{{.Env.DOMAIN}}{{if ne .Env.HTTP_PORT "80"}}:{{.Env.HTTP_PORT}}{{end}}';
 window.onmessage = function(event){
-    if (event.origin.startsWith('http://' + location.hostname) || event.origin.startsWith('http://www.' + location.hostname)) {
+    if (event.origin == origin1 || event.origin == origin2) {
         for (const key of Object.keys(event.data)) {
             if (localStorage[key] === undefined)
                 localStorage[key] = event.data[key];
         }
         document.cookie = 'bt-migrated=1; path=/; domain=.' + location.hostname + '; max-age=2147483647';
+        event.source.postMessage('done', '*');
+    } else {
+        alert("Event origin doesn't match!");
     }
-    event.source.postMessage('done', '*');
 };
 </script>

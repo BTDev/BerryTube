@@ -67,7 +67,6 @@ http://www.{$DOMAIN}:{$HTTP_PORT} {
         to /api/migrate_page.html
     }
 
-    header /api/migrate_page.html +Link "https://{$DOMAIN}:{$HTTPS_PORT}/api/migrate_frame.html; rel=preload; as=document; nopush"
     templates /api/migrate_page.html
 }
 
@@ -90,6 +89,7 @@ https://{$DOMAIN}:{$HTTPS_PORT} {
     import php
 
     header /api/migrate_frame.html -X-Frame-Options
+    templates /api/migrate_frame.html
 
     redir {
         if {~bt-migrated} not 1
