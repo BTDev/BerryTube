@@ -17,6 +17,8 @@ window.onmessage = function(event){
             document.getElementById('desc').textContent = '';
             location.href = origin + location.hash.replace(/^#/, '');
         }
+    } else if (event.data) {
+        document.getElementById('desc').textContent = event.data;
     }
 };
 const frame = document.createElement('iframe');
