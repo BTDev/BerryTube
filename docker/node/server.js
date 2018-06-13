@@ -7,15 +7,15 @@ SERVER.dbcon = require('./bt_data/db_info.js');
 var io = require('socket.io').listen(SERVER.settings.core.nodeport);
 // Configure
 io.enable('browser client minification');  // send minified client
-//io.enable('browser client etag');        // apply etag caching logic based on SERVER.VERSION number
-io.enable('browser client gzip');          // gzip the file
-io.set('log level', 1);                    // reduce logging
-io.set('transports', [                     // enable all transports (optional if you want flashsocket)
-    'websocket'
-//  , 'flashsocket'
-  , 'htmlfile'
-  , 'xhr-polling'
-  , 'jsonp-polling'
+//io.enable('browser client etag');		   // apply etag caching logic based on SERVER.VERSION number
+io.enable('browser client gzip');		   // gzip the file
+io.set('log level', 1);					   // reduce logging
+io.set('transports', [					   // enable all transports (optional if you want flashsocket)
+	'websocket'
+//	, 'flashsocket'
+	, 'htmlfile'
+	, 'xhr-polling'
+	, 'jsonp-polling'
 ]);
 var http = require('http');
 var https = require('https');
@@ -47,13 +47,13 @@ process.stdin.on('data', function (chunk) {
 
 // Helper function to get address because sockets can get messed up
 function getAddress(socket){
-    try{
-        return socket.handshake.headers['x-forwarded-for'];
-    }
-    catch(e) {
-        console.log("Couldn't get IP from socket, so return false.");
-        return false;
-    }
+	try{
+		return socket.handshake.headers['x-forwarded-for'];
+	}
+	catch(e) {
+		console.log("Couldn't get IP from socket, so return false.");
+		return false;
+	}
 }
 
 /* New DB Init Code Begins Here */
@@ -204,9 +204,9 @@ Poll.prototype.closePoll = function(socket,callback){
 		p.getLog(function(log){
 			writeToLog("SERVER.POLL CLOSED",log, function(err) {
 				if(err) {
-                    console.err(err);
-                    return;
-                }
+					console.err(err);
+					return;
+				}
 				for(var i=0;i<cl.length;i++){
 					(function(i){
 						cl[i].set("myvote",-1,function(){
@@ -241,14 +241,14 @@ Poll.prototype.vote = function(option,socket,callback){
 	ifCanVoteOnPoll(socket,function(){
 		socket.get("myvote",function(err,myvote){
 			if(err) {
-                console.err(err);
-                return;
-            }
+				console.err(err);
+				return;
+			}
 			if(typeof myvote == 'undefined' || myvote == null || myvote == -1){
 				if(typeof p.options[option] != 'undefined'){
 					// So everything is good, EXCEPT, make sure only one vote per IP is recorded.
 					var ip = getAddress(socket);
-                    if(!ip) return false;
+					if(!ip) return false;
 					if(p.votedIPS.indexOf(ip) == -1){
 						socket.set("myvote",option,function(){
 							p.votedIPS.push(ip);
@@ -290,8 +290,8 @@ Poll.prototype.unVote = function(socket,callback){
 			if(typeof p.options[myvote] != 'undefined'){
 				socket.set("myvote",-1,function(){
 					// Okay, all good, now then just make sure they actually had a vote in.
-                    var ip = getAddress(socket);
-                    if(!ip) return false;
+					var ip = getAddress(socket);
+					if(!ip) return false;
 					if(p.votedIPS.indexOf(ip) != -1){
 						p.votedIPS.splice(p.votedIPS.indexOf(ip),1);
 						p.votes[myvote]--;
@@ -337,7 +337,7 @@ Poll.prototype.notify = function(socket, ghost, callback){ // This function got 
 								options:p.options,
 								votes:p.votes,
 								obscure:p.obscure,
-                                ghost:ghost
+								ghost:ghost
 							});
 						} else { // So hide em.
 							socket.emit("newPoll",{
@@ -347,7 +347,7 @@ Poll.prototype.notify = function(socket, ghost, callback){ // This function got 
 								votes:p.obscurehelp,
 								fuckYou:"Stop trying to cheat",
 								obscure:p.obscure,
-                                ghost:ghost
+								ghost:ghost
 							});
 						}
 					});
@@ -359,7 +359,7 @@ Poll.prototype.notify = function(socket, ghost, callback){ // This function got 
 					options:p.options,
 					votes:p.votes,
 					obscure:p.obscure,
-                    ghost:ghost
+					ghost:ghost
 				});
 			}
 		} else { // Single User
@@ -372,7 +372,7 @@ Poll.prototype.notify = function(socket, ghost, callback){ // This function got 
 							options:p.options,
 							votes:p.votes,
 							obscure:p.obscure,
-                            ghost:ghost
+							ghost:ghost
 						});
 					} else { // So hide em.
 						socket.emit("newPoll",{
@@ -382,7 +382,7 @@ Poll.prototype.notify = function(socket, ghost, callback){ // This function got 
 							votes:p.obscurehelp,
 							fuckYou:"Stop trying to cheat",
 							obscure:p.obscure,
-                            ghost:ghost
+							ghost:ghost
 						});
 					}
 				});
@@ -393,7 +393,7 @@ Poll.prototype.notify = function(socket, ghost, callback){ // This function got 
 					options:p.options,
 					votes:p.votes,
 					obscure:p.obscure,
-                    ghost:ghost
+					ghost:ghost
 				});
 			}
 		}
@@ -412,56 +412,56 @@ Poll.prototype.getLog = function(callback){
 // CREATE THE LINKED LIST DATATYPE
 function LinkedList() {}
 LinkedList.prototype = {
-  length: 0,
-  first: null,
-  last: null
+	length: 0,
+	first: null,
+	last: null
 };
 LinkedList.Circular = function() {};
 LinkedList.Circular.prototype = new LinkedList();
 LinkedList.Circular.prototype.append = function(node) {
-  if (this.first === null) {
-    node.prev = node;
-    node.next = node;
-    this.first = node;
-    this.last = node;
-  } else {
-    node.prev = this.last;
-    node.next = this.first;
-    this.first.prev = node;
-    this.last.next = node;
-    this.last = node;
-  }
-  this.length++;
+	if (this.first === null) {
+		node.prev = node;
+		node.next = node;
+		this.first = node;
+		this.last = node;
+	} else {
+		node.prev = this.last;
+		node.next = this.first;
+		this.first.prev = node;
+		this.last.next = node;
+		this.last = node;
+	}
+	this.length++;
 };
 LinkedList.Circular.prototype.insertAfter = function(node, newNode) {
-  newNode.prev = node;
-  newNode.next = node.next;
-  node.next.prev = newNode;
-  node.next = newNode;
-  if (newNode.prev == this.last) { this.last = newNode; }
-  this.length++;
+	newNode.prev = node;
+	newNode.next = node.next;
+	node.next.prev = newNode;
+	node.next = newNode;
+	if (newNode.prev == this.last) { this.last = newNode; }
+	this.length++;
 };
 LinkedList.Circular.prototype.insertBefore = function(node, newNode) {
-  newNode.prev = node.prev;
-  newNode.next = node;
-  node.prev.next = newNode;
-  node.prev = newNode;
-  if (newNode.next == this.first) { this.first = newNode; }
-  this.length++;
+	newNode.prev = node.prev;
+	newNode.next = node;
+	node.prev.next = newNode;
+	node.prev = newNode;
+	if (newNode.next == this.first) { this.first = newNode; }
+	this.length++;
 };
 LinkedList.Circular.prototype.remove = function(node) {
-  if (this.length > 1) {
-    node.prev.next = node.next;
-    node.next.prev = node.prev;
-    if (node == this.first) { this.first = node.next; }
-    if (node == this.last) { this.last = node.prev; }
-  } else {
-    this.first = null;
-    this.last = null;
-  }
-  node.prev = null;
-  node.next = null;
-  this.length--;
+	if (this.length > 1) {
+		node.prev.next = node.next;
+		node.next.prev = node.prev;
+		if (node == this.first) { this.first = node.next; }
+		if (node == this.last) { this.last = node.prev; }
+	} else {
+		this.first = null;
+		this.last = null;
+	}
+	node.prev = null;
+	node.next = null;
+	this.length--;
 };
 LinkedList.Circular.prototype.toArray = function(){
 	var elem = this.first
@@ -515,29 +515,29 @@ function debugLog(thing){
 	SERVER.DLOG.write(thing+"\n");
 }
 function _adminLog(data){
-    data.timestamp = new Date().toUTCString();
-    var channel = "adminLog";
-    if(!SERVER.OUTBUFFER[channel]) { SERVER.OUTBUFFER[channel] = [] }
-    SERVER.OUTBUFFER[channel].push(data);
-    if(SERVER.OUTBUFFER[channel].length > SERVER.settings.core.max_saved_buffer) SERVER.OUTBUFFER[channel].shift();
+	data.timestamp = new Date().toUTCString();
+	var channel = "adminLog";
+	if(!SERVER.OUTBUFFER[channel]) { SERVER.OUTBUFFER[channel] = [] }
+	SERVER.OUTBUFFER[channel].push(data);
+	if(SERVER.OUTBUFFER[channel].length > SERVER.settings.core.max_saved_buffer) SERVER.OUTBUFFER[channel].shift();
 	forModminSockets(function(sc){
 		sc.emit('adminLog', data);
 	});
-    //io.sockets.in('admin').emit('adminLog', data);
+	//io.sockets.in('admin').emit('adminLog', data);
 };
 function adminLog(socket, data) {
-    if(!socket){
-        data.nick = "Server";
-        _adminLog(data);
-    }
-    else {
-        socket.get('nick', function (err, nick) {
-            if(nick == null) nick = "?";
-            data.nick = nick;
-            data.berry = SERVER.LEADER == socket;
-            _adminLog(data);
-        });
-    }
+	if(!socket){
+		data.nick = "Server";
+		_adminLog(data);
+	}
+	else {
+		socket.get('nick', function (err, nick) {
+			if(nick == null) nick = "?";
+			data.nick = nick;
+			data.berry = SERVER.LEADER == socket;
+			_adminLog(data);
+		});
+	}
 }
 function eLog(string,callback){
 	try{
@@ -595,9 +595,9 @@ function upsertMisc(data, callback){
 		if (err) {
 			console.error(err);
 		}
-        if(data.encode){
-            data.value = new Buffer(data.value).toString('base64');
-        }
+		if(data.encode){
+			data.value = new Buffer(data.value).toString('base64');
+		}
 		var q = 'insert into misc (name,value) VALUES (?,?)'; debugLog(q);
 		mysql.query(q, [data.name, data.value], function(err, result, fields) {
 			if (err) {
@@ -608,28 +608,28 @@ function upsertMisc(data, callback){
 	});
 }
 function getMisc(data, callback){
-    var val = "";
-    var q = 'select * from misc where name = ?';
-    mysql.query(q, [data.name], function(err, result, fields) {
-        if (err) {
+	var val = "";
+	var q = 'select * from misc where name = ?';
+	mysql.query(q, [data.name], function(err, result, fields) {
+		if (err) {
 			//throw err;
 			console.error(err);
 			return;
 		}
-        if(result.length == 1){
-            var row = result[0];
-            try {
-                val = row.value;
-                if(data.encode){
-                    val = new Buffer(val, 'base64').toString('utf8');
-                }
-            } catch(e) {
-                val = "";
-                debugLog("Bad stored misc. Blah. " + data.name);
-            }
-        }
-        if(callback) callback(val);
-    });
+		if(result.length == 1){
+			var row = result[0];
+			try {
+				val = row.value;
+				if(data.encode){
+					val = new Buffer(val, 'base64').toString('utf8');
+				}
+			} catch(e) {
+				val = "";
+				debugLog("Bad stored misc. Blah. " + data.name);
+			}
+		}
+		if(callback) callback(val);
+	});
 }
 function initHardbant(callback){
 	getMisc({name:'hardbant_ips', encode:true}, function(ips){
@@ -641,29 +641,29 @@ function initHardbant(callback){
 	});
 }
 function initShadowbant(callback){
-    getMisc({name:'shadowbant_ips', encode:true}, function(ips){
-        if(ips){
-            var shadowbant = JSON.parse(ips) || [];
-            for(var i=0;i<shadowbant.length;++i){
-                var data = shadowbant[i];
-                SERVER.SHADOWBANT_IPS[data.ip] = {temp:data.temp};
-                if(data.temp){
-                    // Server restarted while temp sban was set, go ahead and set a new timer to unsban them.
-                    (function(ip){
-                        SERVER.SHADOWBANT_IPS[ip].timer = setTimeout(function(){
-                                unShadowBanIP(ip);
-                        },SERVER.settings.core.temp_ban_duration);
-                    })(data.ip);
-                }
-            }
-        }
-        console.log("Shadowbant ips Loaded");
-        if(callback) callback();
-    });
+	getMisc({name:'shadowbant_ips', encode:true}, function(ips){
+		if(ips){
+			var shadowbant = JSON.parse(ips) || [];
+			for(var i=0;i<shadowbant.length;++i){
+				var data = shadowbant[i];
+				SERVER.SHADOWBANT_IPS[data.ip] = {temp:data.temp};
+				if(data.temp){
+					// Server restarted while temp sban was set, go ahead and set a new timer to unsban them.
+					(function(ip){
+						SERVER.SHADOWBANT_IPS[ip].timer = setTimeout(function(){
+								unShadowBanIP(ip);
+						},SERVER.settings.core.temp_ban_duration);
+					})(data.ip);
+				}
+			}
+		}
+		console.log("Shadowbant ips Loaded");
+		if(callback) callback();
+	});
 }
 function initFilters(callback){
-    getMisc({name:'filters', encode:true}, function(filters){
-        if(filters){
+	getMisc({name:'filters', encode:true}, function(filters){
+		if(filters){
 			SERVER.FILTERS = [];
 			try {
 				SERVER.FILTERS = JSON.parse(filters) || [];
@@ -671,10 +671,10 @@ function initFilters(callback){
 				SERVER.FILTERS = [];
 			}
 
-        }
-        console.log("Filters Loaded");
-        if(callback) callback();
-    });
+		}
+		console.log("Filters Loaded");
+		if(callback) callback();
+	});
 }
 function initTimer(){
 	SERVER._TIME = new Date().getTime();
@@ -778,8 +778,8 @@ function sendStatus(name,target){
 	}
 }
 function doorStuck(socket) {
-    socket.emit("recvNewPlaylist",SERVER.PLAYLIST.toArray());
-    socket.emit('doorStuck');
+	socket.emit("recvNewPlaylist",SERVER.PLAYLIST.toArray());
+	socket.emit('doorStuck');
 }
 function sendPlaylist(socket,everyone){
 	socket.emit("updatePlaylist",SERVER.PLAYLIST.toArray());
@@ -898,7 +898,7 @@ function isUserBanned(o){
 
 		// Check all IP's
 		for(ip in o.ips){
-            if(!SERVER.BANS[bannedguy].ips) SERVER.BANS[bannedguy].ips = [];
+			if(!SERVER.BANS[bannedguy].ips) SERVER.BANS[bannedguy].ips = [];
 			if(SERVER.BANS[bannedguy].ips.indexOf(o.ips[ip]) >= 0){
 				augmentBan(SERVER.BANS[bannedguy],o);
 				//console.log("Totes bant.");
@@ -907,7 +907,7 @@ function isUserBanned(o){
 		}
 		// Check all Nicks
 		for(nick in o.nicks){
-            if(!SERVER.BANS[bannedguy].nicks) SERVER.BANS[bannedguy].nicks = [];
+			if(!SERVER.BANS[bannedguy].nicks) SERVER.BANS[bannedguy].nicks = [];
 			if(SERVER.BANS[bannedguy].nicks.indexOf(o.nicks[nick]) >= 0){
 				augmentBan(SERVER.BANS[bannedguy],o);
 				//console.log("Totes bant.");
@@ -924,8 +924,8 @@ function sendBanlist(socket){
 }
 function isUserShadowBanned(socket){
 	try{
-        var ip = getAddress(socket);
-        if(!ip) return false;
+		var ip = getAddress(socket);
+		if(!ip) return false;
 		if(ip in SERVER.SHADOWBANT_IPS)
 			return true;
 		return false;
@@ -935,8 +935,8 @@ function isUserShadowBanned(socket){
 }
 function shadowBanUser(socket,temp){
 	try{
-        var ip = getAddress(socket);
-        if(!ip) return false;
+		var ip = getAddress(socket);
+		if(!ip) return false;
 		return shadowBanIP(ip,temp);
 	}catch(e){
 		return false;
@@ -946,13 +946,13 @@ function shadowBanIP(ip,temp){
 	try{
 		console.log("Ban: "+ip);
 		if(ip in SERVER.SHADOWBANT_IPS){
-            if(SERVER.SHADOWBANT_IPS[ip].timer) {
-                clearTimeout(SERVER.SHADOWBANT_IPS[ip].timer);
-                SERVER.SHADOWBANT_IPS[ip].timer = null;
-            }
-        } else {
+			if(SERVER.SHADOWBANT_IPS[ip].timer) {
+				clearTimeout(SERVER.SHADOWBANT_IPS[ip].timer);
+				SERVER.SHADOWBANT_IPS[ip].timer = null;
+			}
+		} else {
 			SERVER.SHADOWBANT_IPS[ip] = { temp:temp };
-        }
+		}
 
 		forModminSockets(function(sc){
 			sendShadowBanStatus(sc, ip);
@@ -961,7 +961,7 @@ function shadowBanIP(ip,temp){
 
 		if(temp){
 			console.log("Temp Ban: "+ip);
-            SERVER.SHADOWBANT_IPS[ip].temp = true;
+			SERVER.SHADOWBANT_IPS[ip].temp = true;
 			SERVER.SHADOWBANT_IPS[ip].timer = setTimeout(function(){
 				unShadowBanIP(ip);
 			},SERVER.settings.core.temp_ban_duration);
@@ -972,9 +972,9 @@ function shadowBanIP(ip,temp){
 }
 function unShadowBanUser(socket){
 	try{
-        var ip = getAddress(socket);
-        if(!ip) return false;
-        return unShadowBanIP(ip);
+		var ip = getAddress(socket);
+		if(!ip) return false;
+		return unShadowBanIP(ip);
 	}catch(e){
 		return false;
 	}
@@ -984,55 +984,55 @@ function unShadowBanIP(ip){
 		console.log("unbanning: "+ip);
 		var sban = SERVER.SHADOWBANT_IPS[ip];
 		if(sban)
-            if(sban.timer) clearTimeout(sban.timer);
+			if(sban.timer) clearTimeout(sban.timer);
 			delete SERVER.SHADOWBANT_IPS[ip];
-        for(var i=0;i<SERVER.IPLIST.length;i++){
-            if(SERVER.IPLIST[i].ip == ip){
-                // This is our guy.
-                var theguy = SERVER.IPLIST[i];
-                // Backwards so splice doesn't mess the loop up
-                for(var j=theguy.sockets.length-1;j>=0;j--){
-                    if(theguy.sockets[j].disconnected){
-                        theguy.sockets.splice(j,1);
-                        continue;
-                    }
-                    theguy.sockets[j].get('nick', function(err, nick){
-                        if(nick){
+		for(var i=0;i<SERVER.IPLIST.length;i++){
+			if(SERVER.IPLIST[i].ip == ip){
+				// This is our guy.
+				var theguy = SERVER.IPLIST[i];
+				// Backwards so splice doesn't mess the loop up
+				for(var j=theguy.sockets.length-1;j>=0;j--){
+					if(theguy.sockets[j].disconnected){
+						theguy.sockets.splice(j,1);
+						continue;
+					}
+					theguy.sockets[j].get('nick', function(err, nick){
+						if(nick){
 							forModminSockets(function(sc){
 								sc.emit('unShadowBan', {'nick': nick});
 							});
 							//io.sockets.in('admin').emit('unShadowBan', {'nick': nick});
-                            debugLog('Sending unshadow ban on nick: ' + nick);
-                        }
-                    });
-                }
-            }
-        }
-        return true;
+							debugLog('Sending unshadow ban on nick: ' + nick);
+						}
+					});
+				}
+			}
+		}
+		return true;
    }catch(e){
 		return false;
 	}
 }
 function sendShadowBanStatus(target, ip){
-    for(var i=0;i<SERVER.IPLIST.length;i++){
-        if(SERVER.IPLIST[i].ip == ip){
-            // This is our guy.
-            var theguy = SERVER.IPLIST[i];
-            // Backwards so splice doesn't mess the loop up
-            for(var j=theguy.sockets.length-1;j>=0;j--){
-                if(theguy.sockets[j].disconnected){
-                    theguy.sockets.splice(j,1);
-                    continue;
-                }
-                theguy.sockets[j].get('nick', function(err, nick){
-                    if(nick){
-                        target.emit('shadowBan', {'nick': nick, temp: SERVER.SHADOWBANT_IPS[ip].temp});
-                        debugLog('Sending shadow ban on nick: ' + nick);
-                    }
-                });
-            }
-        }
-    }
+	for(var i=0;i<SERVER.IPLIST.length;i++){
+		if(SERVER.IPLIST[i].ip == ip){
+			// This is our guy.
+			var theguy = SERVER.IPLIST[i];
+			// Backwards so splice doesn't mess the loop up
+			for(var j=theguy.sockets.length-1;j>=0;j--){
+				if(theguy.sockets[j].disconnected){
+					theguy.sockets.splice(j,1);
+					continue;
+				}
+				theguy.sockets[j].get('nick', function(err, nick){
+					if(nick){
+						target.emit('shadowBan', {'nick': nick, temp: SERVER.SHADOWBANT_IPS[ip].temp});
+						debugLog('Sending shadow ban on nick: ' + nick);
+					}
+				});
+			}
+		}
+	}
 }
 function kickIfUnderLevel(socket,reason,level){
 	socket.get('type',function(err,type){
@@ -1095,20 +1095,20 @@ var commit = function(){
 		});
 	}
 
-    upsertMisc({name:'filters', value:JSON.stringify(SERVER.FILTERS), encode:true});
+	upsertMisc({name:'filters', value:JSON.stringify(SERVER.FILTERS), encode:true});
 
 	var shadowbant = [];
-    for(var i in SERVER.SHADOWBANT_IPS){
-        shadowbant.push({ip:i, temp:SERVER.SHADOWBANT_IPS[i].temp || false});
-    }
-    upsertMisc({name:'shadowbant_ips', value:JSON.stringify(shadowbant), encode:true});
+	for(var i in SERVER.SHADOWBANT_IPS){
+		shadowbant.push({ip:i, temp:SERVER.SHADOWBANT_IPS[i].temp || false});
+	}
+	upsertMisc({name:'shadowbant_ips', value:JSON.stringify(shadowbant), encode:true});
 
 	/*var hardbant = [];
-    for(var i in SERVER.SHADOWBANT_IPS){
-        hardbant.push({ip:i, temp:SERVER.SHADOWBANT_IPS[i].temp || false});
-    }*/
+	for(var i in SERVER.SHADOWBANT_IPS){
+		hardbant.push({ip:i, temp:SERVER.SHADOWBANT_IPS[i].temp || false});
+	}*/
 	// Dunno if this will be necessary, but leaving it in case
-    upsertMisc({name:'hardbant_ips', value:JSON.stringify(SERVER.BANS), encode:true});
+	upsertMisc({name:'hardbant_ips', value:JSON.stringify(SERVER.BANS), encode:true});
 
 };setInterval(commit,SERVER.settings.core.db_commit_delay);
 console.log(SERVER.settings.core.db_commit_delay);
@@ -1174,18 +1174,18 @@ function isGoldUser(name){
 }
 function addUserToChat(socket,data,callback){
 	rmUserFromChat(socket);
-    var ip = getAddress(socket);
-    if(!ip) return false;
+	var ip = getAddress(socket);
+	if(!ip) return false;
 
-    var ipMeta = SERVER.IP_METADATA[ip];
-    if(!ipMeta){
-        ipMeta = { "aliases": [], ip:ip };
-        SERVER.IP_METADATA[ip] = ipMeta;
-    }
-    ipMeta.timestamp = new Date();
-    if(ipMeta.aliases.indexOf(data.nick) == -1){
-        ipMeta.aliases.push(data.nick);
-    }
+	var ipMeta = SERVER.IP_METADATA[ip];
+	if(!ipMeta){
+		ipMeta = { "aliases": [], ip:ip };
+		SERVER.IP_METADATA[ip] = ipMeta;
+	}
+	ipMeta.timestamp = new Date();
+	if(ipMeta.aliases.indexOf(data.nick) == -1){
+		ipMeta.aliases.push(data.nick);
+	}
 	socket.set('nick', data.nick, function () {
 		socket.get('gold', function(err, gold){
 			socket.emit('setNick',data.nick);
@@ -1222,35 +1222,35 @@ function addUserToChat(socket,data,callback){
 
 }
 function _detailChatlist(){
-    for(var i=0;i<SERVER.CHATLIST.length;i++) {
-	    debugLog(SERVER.CHATLIST[i].socket.disconnected);
-    }
+	for(var i=0;i<SERVER.CHATLIST.length;i++) {
+		debugLog(SERVER.CHATLIST[i].socket.disconnected);
+	}
 }
 function mergeObjects(one, two){
-    var result = {};
-    for(var item in one) {
-        result[item] = one[item];
-    }
-    for(var item in two) {
-        result[item] = two[item];
-    }
-    return result;
+	var result = {};
+	for(var item in one) {
+		result[item] = one[item];
+	}
+	for(var item in two) {
+		result[item] = two[item];
+	}
+	return result;
 }
 function sendChatList(socket, type){
-    debugLog("SEND SERVER.CHATLIST");
+	debugLog("SEND SERVER.CHATLIST");
 	var out = [];
-    if(type >= 1){
-	    for(var i=0;i<SERVER.CHATLIST.length;i++) {
-            var ip = getAddress(SERVER.CHATLIST[i].socket);
-            if(!ip) continue;
+	if(type >= 1){
+		for(var i=0;i<SERVER.CHATLIST.length;i++) {
+			var ip = getAddress(SERVER.CHATLIST[i].socket);
+			if(!ip) continue;
 
-            // Merge user meta and ip meta into a single object for broadcasting.
-            var meta = mergeObjects(SERVER.IP_METADATA[ip], SERVER.CHATLIST[i].meta);
-		    var user = {
-			    nick:SERVER.CHATLIST[i].nick,
-			    type:SERVER.CHATLIST[i].type,
-                meta:meta
-		    };
+			// Merge user meta and ip meta into a single object for broadcasting.
+			var meta = mergeObjects(SERVER.IP_METADATA[ip], SERVER.CHATLIST[i].meta);
+			var user = {
+				nick:SERVER.CHATLIST[i].nick,
+				type:SERVER.CHATLIST[i].type,
+				meta:meta
+			};
 			// APRIL FOOLS
 			if(SERVER.CHATLIST[i].gold){
 				user.gold = SERVER.CHATLIST[i].gold;
@@ -1258,21 +1258,21 @@ function sendChatList(socket, type){
 			if(isGoldUser(SERVER.CHATLIST[i].nick)){
 				user.gold = SERVER.CHATLIST[i].gold;
 			}
-            if(ip in SERVER.SHADOWBANT_IPS){
-                if(SERVER.SHADOWBANT_IPS[ip].temp){
-                    user.tempshadowbanned = true;
-                }
-                user.shadowbanned = true;
-            }
-            //console.log(user); //MARK
+			if(ip in SERVER.SHADOWBANT_IPS){
+				if(SERVER.SHADOWBANT_IPS[ip].temp){
+					user.tempshadowbanned = true;
+				}
+				user.shadowbanned = true;
+			}
+			//console.log(user); //MARK
 			out.push(user);
-	    }
-    } else {
-	    for(var i=0;i<SERVER.CHATLIST.length;i++) {
-		    var user = {
-			    nick:SERVER.CHATLIST[i].nick,
-			    type:SERVER.CHATLIST[i].type
-		    };
+		}
+	} else {
+		for(var i=0;i<SERVER.CHATLIST.length;i++) {
+			var user = {
+				nick:SERVER.CHATLIST[i].nick,
+				type:SERVER.CHATLIST[i].type
+			};
 			// APRIL FOOLS
 			if(SERVER.CHATLIST[i].gold){
 				user.gold = SERVER.CHATLIST[i].gold;
@@ -1284,8 +1284,8 @@ function sendChatList(socket, type){
 			//console.log(SERVER.CHATLIST[i]); //MARK
 			//console.log(user); //MARK
 			out.push(user);
-	    }
-    }
+		}
+	}
 	socket.emit("newChatList",out);
 	if(SERVER.LEADER){
 		SERVER.LEADER.get('nick', function (err, nick) {
@@ -1297,7 +1297,7 @@ function sendChatList(socket, type){
 function sendUserJoin(user){
 	debugLog("SEND JOIN. user: " + user);
 	io.sockets.each(function(socket){
-        socket.get('type', function(err, type){
+		socket.get('type', function(err, type){
 			var data={nick:user.nick, type:user.type};
 			if(parseInt(type)>=1){
 				data.meta = user.meta;
@@ -1307,8 +1307,8 @@ function sendUserJoin(user){
 			if(user.gold) data.gold=true;
 			socket.emit('userJoin',data);
 
-        });
-    });
+		});
+	});
 }
 function sendUserPart(socket,callback){
 	socket.get('nick', function (err, nick) {
@@ -1352,7 +1352,7 @@ function handleNewVideoChange(){
 	resetDrinks();
 	resetTime();
 	// Is this a livestream? if so, stop ticking.
-    if(SERVER.ACTIVE.videolength == 0) {
+	if(SERVER.ACTIVE.videolength == 0) {
 		//console.log("Switching to live mode");
 		SERVER.LIVE_MODE = true;
 	} else {
@@ -1389,7 +1389,7 @@ function addDrink(amt,socket,callback){
 	if(callback)callback();
 }
 function randomPoni(){
-    return SERVER.ponts[Math.floor(Math.random()*SERVER.ponts.length)];
+	return SERVER.ponts[Math.floor(Math.random()*SERVER.ponts.length)];
 }
 function sendFilters(socket){
 	socket.emit("recvFilters",SERVER.FILTERS);
@@ -1455,13 +1455,13 @@ function applyPluginFilters(msg,socket){
 		} else {
 			msg = msg.replace(re,'$1<span class="flutter">yay</span>$2');
 		}
-    }
+	}
 
 	if(getToggleable("bestponi")){
 		//handle best pony.
 		re = new RegExp('^[a-zA-Z ]+is bes([st]) pon([tiye])(.*)','i');
 		msg = msg.replace(re,randomPoni()+' is bes$1 pon$2$3');
-    }
+	}
 
 	if(getToggleable("wobniar")){
 		//handle backwards text.
@@ -1470,7 +1470,7 @@ function applyPluginFilters(msg,socket){
 			words[i] = words[i].split("").reverse().join("");
 		}
 		msg = words.join(" ");
-    }
+	}
 
 	return msg;
 }
@@ -1489,8 +1489,8 @@ function setVideoVolatile(socket,pos,isVolat){
 		elem=elem.next;
 	}
 	elem.volat = isVolat;
-    var volatStr = isVolat ? "volatile" : "not volatile";
-    adminLog(socket, {msg: "Set "+decodeURIComponent(elem.videotitle)+" to "+volatStr, type: "playlist"});
+	var volatStr = isVolat ? "volatile" : "not volatile";
+	adminLog(socket, {msg: "Set "+decodeURIComponent(elem.videotitle)+" to "+volatStr, type: "playlist"});
 	io.sockets.emit("setVidVolatile",{
 		pos:pos,
 		volat:isVolat
@@ -1547,19 +1547,19 @@ function sendChat(nick,type,incoming,socket){
 	});
 }
 function _sendChat(nick,type,incoming,socket){
-    //Sanitize.
-    var msg = sanitize(incoming.msg);
-    if(typeof(msg) == "undefined"){
-        msg = "I'm a lazy hacker";
-    }
-    var metadata = incoming.metadata;
+	//Sanitize.
+	var msg = sanitize(incoming.msg);
+	if(typeof(msg) == "undefined"){
+		msg = "I'm a lazy hacker";
+	}
+	var metadata = incoming.metadata;
 
-    var data = false;
-    var timestamp = new Date().toUTCString();
+	var data = false;
+	var timestamp = new Date().toUTCString();
 
-    var target = io.sockets;
+	var target = io.sockets;
 	var sendToAdmins = false;
-    var channel = metadata.channel || 'main';
+	var channel = metadata.channel || 'main';
 
 	if(channel != 'main'){
 		// Someone trying to send a message to a channel they're not in?!
@@ -1571,10 +1571,10 @@ function _sendChat(nick,type,incoming,socket){
 		sendToAdmins = true;
 	}
 
-    if(isUserShadowBanned(socket)) { // handle major shadowbans
+	if(isUserShadowBanned(socket)) { // handle major shadowbans
 		sendToAdmins = true;
-        target = socket;
-    }
+		target = socket;
+	}
 
 	if(getToggleable("mutegray")){ // Mute grays?
 		if(type < 0){
@@ -1592,8 +1592,8 @@ function _sendChat(nick,type,incoming,socket){
 		}
 	}
 
-    // Apply any filters.
-    msg = applyFilters(nick,msg,socket);
+	// Apply any filters.
+	msg = applyFilters(nick,msg,socket);
 
 	// Set default data.
 	var sendMessage = true;
@@ -1636,10 +1636,10 @@ function _sendChat(nick,type,incoming,socket){
 				sendMessage = false;
 			}
 			if(channel == "main") {
-                addDrink(parsed.multi,socket,function(){
-                    sendDrinks(io.sockets);
-                });
-            }
+				addDrink(parsed.multi,socket,function(){
+					sendDrinks(io.sockets);
+				});
+			}
 		});
 	}
 
@@ -1698,22 +1698,22 @@ function handleSpamChecks(x){
 
 /* ================= */
 function setOverrideCss(path){
-    upsertMisc({name:"overrideCss", value:path}, function(){
+	upsertMisc({name:"overrideCss", value:path}, function(){
 			io.sockets.emit("overrideCss",path);
 	});
 }
 function sendCovertData(socket, type){
 	debugLog("Sending covert data");
-    sendChatList(socket, type);
+	sendChatList(socket, type);
 	sendToggleables(socket);
-    for(var i in SERVER.OUTBUFFER['admin'])	{
-        emitChat(socket,SERVER.OUTBUFFER['admin'][i],true);
-    }
-    for(var i in SERVER.OUTBUFFER['adminLog'])	{
-        var data = SERVER.OUTBUFFER['adminLog'][i];
-        data.ghost = true;
-        socket.emit('adminLog', data);
-    }
+	for(var i in SERVER.OUTBUFFER['admin'])	{
+		emitChat(socket,SERVER.OUTBUFFER['admin'][i],true);
+	}
+	for(var i in SERVER.OUTBUFFER['adminLog'])	{
+		var data = SERVER.OUTBUFFER['adminLog'][i];
+		data.ghost = true;
+		socket.emit('adminLog', data);
+	}
 }
 function setToggleable(socket, name,state,callback){
 	if(typeof SERVER.settings.toggles[name] == "undefined"){
@@ -1724,7 +1724,7 @@ function setToggleable(socket, name,state,callback){
 	   state = !SERVER.settings.toggles[name][0];
 	}
 	SERVER.settings.toggles[name][0] = state;
-    adminLog(socket, {msg: "Setting "+name+" to "+(state ? "on":"off"), type:"site"});
+	adminLog(socket, {msg: "Setting "+name+" to "+(state ? "on":"off"), type:"site"});
 	if(callback)callback({
 		name:name,
 		state:state
@@ -1738,7 +1738,7 @@ function getToggleable(name){
 	return SERVER.settings.toggles[name][0];
 }
 function sendToggleables(socket){
-    var data = {};
+	var data = {};
 	for(var key in SERVER.settings.toggles) {
 		if(SERVER.settings.toggles.hasOwnProperty(key)) {
 			data[key] = {};
@@ -1746,8 +1746,8 @@ function sendToggleables(socket){
 			data[key].state = SERVER.settings.toggles[key][0];
 			debugLog(key + " " +data[key]);
 		}
-    }
-    socket.emit("setToggleables",data);
+	}
+	socket.emit("setToggleables",data);
 }
 function getSocketOfNick(targetnick,truecallback,falsecallback){
 	cl = io.sockets.clients();
@@ -1771,26 +1771,26 @@ function delVideo(data, socket){
 	{
 		if(i == data.index)
 		{
-            if(data.sanityid && elem.videoid != data.sanityid) return doorStuck(socket);
+			if(data.sanityid && elem.videoid != data.sanityid) return doorStuck(socket);
 
 			if(elem.deleted) break;
 			if(elem == SERVER.ACTIVE) playNext();
 
 			try{
-                adminLog(socket, {msg:'Deleted ' + decodeURIComponent(elem.videotitle), type:'playlist'});
+				adminLog(socket, {msg:'Deleted ' + decodeURIComponent(elem.videotitle), type:'playlist'});
 				SERVER.PLAYLIST.remove(elem);
 				io.sockets.emit('delVideo',{
 					position:i,
-                    sanityid:elem.videoid
+					sanityid:elem.videoid
 				});
 				var q = 'delete from '+SERVER.dbcon.video_table+' where videoid = ? limit 1'; debugLog(q)
-                var historyQuery = "";
-                var historyQueryParams;
-                // Don't archive livestreams
+				var historyQuery = "";
+				var historyQueryParams;
+				// Don't archive livestreams
 
-                if(elem.videolength > 0) {
+				if(elem.videolength > 0) {
 					historyQuery = "insert into videos_history (videoid, videotitle, videolength, videotype, date_added, meta) values (?,?,?,?,NOW(),?)";
-                    historyQueryParams = [
+					historyQueryParams = [
 						elem.videoid,
 						elem.videotitle,
 						elem.videolength,
@@ -1798,22 +1798,22 @@ function delVideo(data, socket){
 						JSON.stringify(elem.meta || {})
 					];
 
-                }
+				}
 				mysql.query(q, [elem.videoid], function(err, result, fields) {
 					if (err) {
 						//throw err;
 						console.error(err);
 						return;
 					}
-                    if(historyQuery){
-                        mysql.query(historyQuery, historyQueryParams, function(err, result, fields) {
-                            if (err) {
+					if(historyQuery){
+						mysql.query(historyQuery, historyQueryParams, function(err, result, fields) {
+							if (err) {
 								//throw err;
 								console.error(err);
 								return;
 							}
-                        });
-                    }
+						});
+					}
 				});
 				elem.deleted = true;
 				break;
@@ -1838,9 +1838,9 @@ function delVideo(data, socket){
 function rawAddVideo(d,successCallback,failureCallback){
 
 	// Check for any existing metadata
-    var q = 'select meta from videos_history where videoid = ?';
+	var q = 'select meta from videos_history where videoid = ?';
 	mysql.query(q, [d.videoid], function(err, result, fields) {
-        if (err) { console.error(err);	return;	}
+		if (err) { console.error(err);	return;	}
 		if(result.length == 1){
 			try{
 				d.meta = JSON.parse(result[0].meta);
@@ -1857,14 +1857,14 @@ function rawAddVideo(d,successCallback,failureCallback){
 		if(!('meta' in d) || d.meta == null){d.meta = {};}
 		if(!('addedon' in d.meta)){d.meta.addedon = new Date().getTime();}
 		q = 'insert into '+SERVER.dbcon.video_table+' (position, videoid, videotitle, videolength, videotype, videovia, meta) VALUES (?,?,?,?,?,?,?)'; debugLog(q);
-        var qParams = [ d.pos,
-                        d.videoid,
-                        d.videotitle,
-                        d.videolength,
-                        d.videotype,
-                        d.who,
-                        JSON.stringify(d.meta || {})
-                      ];
+		var qParams = [ d.pos,
+						d.videoid,
+						d.videotitle,
+						d.videolength,
+						d.videotype,
+						d.who,
+						JSON.stringify(d.meta || {})
+					  ];
 		mysql.query(q, qParams, function(err, result, fields) {
 			if (err) {
 				if(failureCallback)failureCallback(err);
@@ -1892,7 +1892,7 @@ function rawAddVideo(d,successCallback,failureCallback){
 					io.sockets.emit('addVideo',{
 						queue:true,
 						video:o.pack(),
-                        sanityid:SERVER.ACTIVE.videoid
+						sanityid:SERVER.ACTIVE.videoid
 					});
 				}else{
 					if(SERVER.PLAYLIST.length == 0){
@@ -1904,7 +1904,7 @@ function rawAddVideo(d,successCallback,failureCallback){
 					io.sockets.emit('addVideo',{
 						queue:false,
 						video:o.pack(),
-                        sanityid:SERVER.ACTIVE.videoid
+						sanityid:SERVER.ACTIVE.videoid
 					});
 				}
 
@@ -1912,7 +1912,7 @@ function rawAddVideo(d,successCallback,failureCallback){
 			}
 		});
 
-    });
+	});
 
 }
 
@@ -1920,12 +1920,12 @@ function rawAddVideo(d,successCallback,failureCallback){
 function addLiveVideo(data,meta,successCallback,failureCallback){
 	data.videotitle = data.videotitle.replace(/[^0-9a-zA-Z_ \-~:]/g, "");
 	if(!data.videotype.match(/^[a-z]{1,10}$/)){
-        console.log(["Videotype wasn't lowercase alpha or was too long: ", data.videotype, "Queued by: ", meta.nick].join(''));
-        failureCallback();
-        return;
-    }
+		console.log(["Videotype wasn't lowercase alpha or was too long: ", data.videotype, "Queued by: ", meta.nick].join(''));
+		failureCallback();
+		return;
+	}
 
-    var pos = SERVER.PLAYLIST.length;
+	var pos = SERVER.PLAYLIST.length;
 	var videoid = data.videoid.trim();
 	var volat = true;
 	rawAddVideo({
@@ -1944,70 +1944,70 @@ function addLiveVideo(data,meta,successCallback,failureCallback){
 	})
 }
 function addVideoVimeo(socket,data,meta,successCallback,failureCallback){
-    var videoid = data.videoid.trim().replace('/', '');
-    var publicPath = '/api/v2/video/' + videoid.toString() + ".json";
-    var embedCallback = function(){
-        console.log("Didn't find video using public api, trying oembed.")
-        var embedPath = '/api/oembed.json?url=http%3A//vimeo.com/' + videoid.toString();
-        _addVideoVimeo(socket,data,meta,embedPath,successCallback,failureCallback);
-    };
-    _addVideoVimeo(socket,data,meta,publicPath,successCallback,embedCallback);
+	var videoid = data.videoid.trim().replace('/', '');
+	var publicPath = '/api/v2/video/' + videoid.toString() + ".json";
+	var embedCallback = function(){
+		console.log("Didn't find video using public api, trying oembed.")
+		var embedPath = '/api/oembed.json?url=http%3A//vimeo.com/' + videoid.toString();
+		_addVideoVimeo(socket,data,meta,embedPath,successCallback,failureCallback);
+	};
+	_addVideoVimeo(socket,data,meta,publicPath,successCallback,embedCallback);
 }
 function _addVideoVimeo(socket,data,meta,path,successCallback,failureCallback) {
-    var pos = SERVER.PLAYLIST.length;
+	var pos = SERVER.PLAYLIST.length;
 	var volat = data.volat;
-    var jdata;
+	var jdata;
 	if(meta.type <= 0) volat = true;
-    if(volat === undefined) volat = false;
+	if(volat === undefined) volat = false;
 
-    var options = {
-        host: 'vimeo.com',
-        port: 80,
-        method: 'GET',
-        path: path
-    };
-    var recievedBody = "";
-    console.log(options.host + "/" + options.path);
-    var req = http.request(options, function (res) {
-        res.setEncoding('utf8');
-        res.on('data', function (chunk) {
-            console.log(chunk);
-            recievedBody += chunk;
-        });
-        res.on('end', function () {
-            try {
-                jdata = JSON.parse(recievedBody);
-                if(util.isArray(jdata)) jdata = jdata[0];
-            }
-            catch (err) {
-                //json parse failure because the failure message from vimeo is a string. ex: 61966249 not found.
-                if (failureCallback)failureCallback(err);
-                return;
-            }
-            console.log(recievedBody);
-            console.log("done?");
-            adminLog(socket, {msg:"Added vimeo video "+jdata.title, type:"playlist"});
-            rawAddVideo({
-                pos: pos,
-                videoid: jdata.id || jdata.video_id,
-                videotitle: encodeURI(jdata.title),
-                videolength: jdata.duration,
-                videotype: "vimeo",
-                who: meta.nick,
-                queue: data.queue,
-                volat: volat
-            }, function () {
-                if (successCallback)successCallback();
-            }, function (err) {
-                if (failureCallback)failureCallback(err);
-            });
-        });
-    });
-    req.on('error', function (e) {
-        console.log(e);
-        if (failureCallback)failureCallback(e);
-    });
-    req.end();
+	var options = {
+		host: 'vimeo.com',
+		port: 80,
+		method: 'GET',
+		path: path
+	};
+	var recievedBody = "";
+	console.log(options.host + "/" + options.path);
+	var req = http.request(options, function (res) {
+		res.setEncoding('utf8');
+		res.on('data', function (chunk) {
+			console.log(chunk);
+			recievedBody += chunk;
+		});
+		res.on('end', function () {
+			try {
+				jdata = JSON.parse(recievedBody);
+				if(util.isArray(jdata)) jdata = jdata[0];
+			}
+			catch (err) {
+				//json parse failure because the failure message from vimeo is a string. ex: 61966249 not found.
+				if (failureCallback)failureCallback(err);
+				return;
+			}
+			console.log(recievedBody);
+			console.log("done?");
+			adminLog(socket, {msg:"Added vimeo video "+jdata.title, type:"playlist"});
+			rawAddVideo({
+				pos: pos,
+				videoid: jdata.id || jdata.video_id,
+				videotitle: encodeURI(jdata.title),
+				videolength: jdata.duration,
+				videotype: "vimeo",
+				who: meta.nick,
+				queue: data.queue,
+				volat: volat
+			}, function () {
+				if (successCallback)successCallback();
+			}, function (err) {
+				if (failureCallback)failureCallback(err);
+			});
+		});
+	});
+	req.on('error', function (e) {
+		console.log(e);
+		if (failureCallback)failureCallback(e);
+	});
+	req.end();
 }
 
 function __addVideoYT(socket,data,meta,successCallback,failureCallback){
@@ -2036,7 +2036,7 @@ function __addVideoYT(socket,data,meta,successCallback,failureCallback){
 		res.on('end', function(){ //7zLNB9z_AI4
 
 			var OK = true;
-            var restrictReasons = {};
+			var restrictReasons = {};
 
 
 			var formattedTitle = recievedBody.match(/<title.+>(.*?)<\/title>/);
@@ -2044,7 +2044,7 @@ function __addVideoYT(socket,data,meta,successCallback,failureCallback){
 				formattedTitle = formattedTitle[1];
 			}else{
 				OK = false;
-                restrictReasons.restricted = true;
+				restrictReasons.restricted = true;
 			}
 
 			var formattedTime = recievedBody.match(/<yt:duration seconds='([0-9]+?)'\/>/);
@@ -2052,58 +2052,58 @@ function __addVideoYT(socket,data,meta,successCallback,failureCallback){
 				formattedTime = formattedTime[1];
 			}else{
 				OK = false;
-                restrictReasons.restricted = true;
+				restrictReasons.restricted = true;
 			}
 
-            if(!data.force){
-                var countryRestriction = recievedBody.match(/<media:restriction type='country' relationship='deny'>([\w ]+)<\/media:restriction>/);
-                var countryAllow = recievedBody.match(/<media:restriction type='country' relationship='allow'>([\w ]+)<\/media:restriction>/);
-                var noembed = recievedBody.match(/<yt:noembed\/>/);
-                if(countryRestriction) {
-                    var r = countryRestriction[1].split(' ');
-                    var ignored = SERVER.settings.core.country_restriction_ignored;
-                    for(var i=0;i<ignored.length;++i){
-                        var idx = r.indexOf(ignored[i]);
-                        if(idx > -1) {
-                            r.splice(idx, 1);
-                        }
-                    }
-                    if(r.length > 0){
-                        restrictReasons.countries = countryRestriction[1];
-                        OK = false;
-                    }
-                }
-                if(countryAllow) {
-                    var r = countryAllow[1].split(' ');
-                    var required = SERVER.settings.core.country_allow_required || ['GB', 'CA', 'US'];
-                    var restricted = [];
-                    for(var i=0;i<required.length;++i) {
-                        if(r.indexOf(required[i]) <= -1) {
-                            restricted.push(required[i]);
-                        }
-                    }
-                    if(restricted.length > 0){
-                        restrictReasons.countries = restricted;
-                        OK = false;
-                    }
-                }
-                if(noembed) {
-                    restrictReasons.noembed = true;
-                    OK = false;
-                }
-            }
-            for(var hasProperties in restrictReasons) break;
-            if(hasProperties) {
-                socket.emit("videoRestriction", restrictReasons);
-            }
+			if(!data.force){
+				var countryRestriction = recievedBody.match(/<media:restriction type='country' relationship='deny'>([\w ]+)<\/media:restriction>/);
+				var countryAllow = recievedBody.match(/<media:restriction type='country' relationship='allow'>([\w ]+)<\/media:restriction>/);
+				var noembed = recievedBody.match(/<yt:noembed\/>/);
+				if(countryRestriction) {
+					var r = countryRestriction[1].split(' ');
+					var ignored = SERVER.settings.core.country_restriction_ignored;
+					for(var i=0;i<ignored.length;++i){
+						var idx = r.indexOf(ignored[i]);
+						if(idx > -1) {
+							r.splice(idx, 1);
+						}
+					}
+					if(r.length > 0){
+						restrictReasons.countries = countryRestriction[1];
+						OK = false;
+					}
+				}
+				if(countryAllow) {
+					var r = countryAllow[1].split(' ');
+					var required = SERVER.settings.core.country_allow_required || ['GB', 'CA', 'US'];
+					var restricted = [];
+					for(var i=0;i<required.length;++i) {
+						if(r.indexOf(required[i]) <= -1) {
+							restricted.push(required[i]);
+						}
+					}
+					if(restricted.length > 0){
+						restrictReasons.countries = restricted;
+						OK = false;
+					}
+				}
+				if(noembed) {
+					restrictReasons.noembed = true;
+					OK = false;
+				}
+			}
+			for(var hasProperties in restrictReasons) break;
+			if(hasProperties) {
+				socket.emit("videoRestriction", restrictReasons);
+			}
 
 			var pos = SERVER.PLAYLIST.length;
 
 			if(OK){
-                adminLog(socket, {msg: "Added youtube video "+formattedTitle, type: "playlist"});
+				adminLog(socket, {msg: "Added youtube video "+formattedTitle, type: "playlist"});
 				var volat = data.volat;
 				if(meta.type <= 0) volat = true;
-                if(volat === undefined) volat = false;
+				if(volat === undefined) volat = false;
 
 				rawAddVideo({
 					pos:pos,
@@ -2228,59 +2228,59 @@ function addVideoYT(socket,data,meta,successCallback,failureCallback){
 			console.log("vidObj.status.embeddable",vidObj.status.embeddable);
 
 			var OK = true;
-            var restrictReasons = {};
+			var restrictReasons = {};
 
 			if(!data.force &&
-                vidObj.contentDetails.regionRestriction &&
-                (vidObj.contentDetails.regionRestriction.allowed || vidObj.contentDetails.regionRestriction.blocked)){
+				vidObj.contentDetails.regionRestriction &&
+				(vidObj.contentDetails.regionRestriction.allowed || vidObj.contentDetails.regionRestriction.blocked)){
 				// Country restrctions
-                var countryRestriction = vidObj.contentDetails.regionRestriction.blocked;
-                var countryAllow = vidObj.contentDetails.regionRestriction.allowed;
+				var countryRestriction = vidObj.contentDetails.regionRestriction.blocked;
+				var countryAllow = vidObj.contentDetails.regionRestriction.allowed;
 
-                if(countryRestriction) {
-                    var ignored = SERVER.settings.core.country_restriction_ignored;
-                    for(var i=0;i<ignored.length;++i){
-                        var idx = countryRestriction.indexOf(ignored[i]);
-                        if(idx > -1) {
-                            countryRestriction.splice(idx, 1);
-                        }
-                    }
-                    if(countryRestriction.length > 0){
-                        restrictReasons.countries = countryRestriction[1];
-                        OK = false;
-                    }
-                }
-                if(countryAllow) {
-                    var required = SERVER.settings.core.country_allow_required || ['GB', 'CA', 'US'];
-                    for(var i=0;i<required.length;++i) {
-                        if(countryAllow.indexOf(required[i]) <= -1) {
-                            restricted.push(required[i]);
-                        }
-                    }
-                    if(restricted.length > 0){
-                        restrictReasons.countries = restricted;
-                        OK = false;
-                    }
-                }
+				if(countryRestriction) {
+					var ignored = SERVER.settings.core.country_restriction_ignored;
+					for(var i=0;i<ignored.length;++i){
+						var idx = countryRestriction.indexOf(ignored[i]);
+						if(idx > -1) {
+							countryRestriction.splice(idx, 1);
+						}
+					}
+					if(countryRestriction.length > 0){
+						restrictReasons.countries = countryRestriction[1];
+						OK = false;
+					}
+				}
+				if(countryAllow) {
+					var required = SERVER.settings.core.country_allow_required || ['GB', 'CA', 'US'];
+					for(var i=0;i<required.length;++i) {
+						if(countryAllow.indexOf(required[i]) <= -1) {
+							restricted.push(required[i]);
+						}
+					}
+					if(restricted.length > 0){
+						restrictReasons.countries = restricted;
+						OK = false;
+					}
+				}
 				if(!embeddable) {
-                    restrictReasons.noembed = true;
-                    OK = false;
-                }
+					restrictReasons.noembed = true;
+					OK = false;
+				}
 			}
 
-            for(var hasProperties in restrictReasons) break;
-            if(hasProperties) {
-                socket.emit("videoRestriction", restrictReasons);
-            }
+			for(var hasProperties in restrictReasons) break;
+			if(hasProperties) {
+				socket.emit("videoRestriction", restrictReasons);
+			}
 
 			var pos = SERVER.PLAYLIST.length;
 
 			if(OK){
 
-                adminLog(socket, {msg: "Added youtube video "+formattedTitle, type: "playlist"});
+				adminLog(socket, {msg: "Added youtube video "+formattedTitle, type: "playlist"});
 				var volat = data.volat;
 				if(meta.type <= 0) volat = true;
-                if(volat === undefined) volat = false;
+				if(volat === undefined) volat = false;
 
 				rawAddVideo({
 					pos:pos,
@@ -2359,15 +2359,15 @@ function addVideoDrive(socket,data,meta,successCallback,failureCallback){
 
 
 			var OK = true;
-            var restrictReasons = {};
+			var restrictReasons = {};
 
 			var pos = SERVER.PLAYLIST.length;
 
 			if(OK){
-                adminLog(socket, {msg: "Added youtube video "+formattedTitle, type: "playlist"});
+				adminLog(socket, {msg: "Added youtube video "+formattedTitle, type: "playlist"});
 				var volat = data.volat;
 				if(meta.type <= 0) volat = true;
-                if(volat === undefined) volat = false;
+				if(volat === undefined) volat = false;
 
 				rawAddVideo({
 					pos:pos,
@@ -2397,161 +2397,161 @@ function addVideoDrive(socket,data,meta,successCallback,failureCallback){
 }
 
 function followRedirect(options, successCallback,failureCallback){
-    http.get(options, function (res) {
-        // Detect a redirect
-        if ((res.statusCode == 301 || res.statusCode == 302) && res.headers.location) {
-            // The location for some (most) redirects will only contain the path,  not the hostname;
-            // detect this and add the host to the path.
-            var parsedUrl = url.parse(res.headers.location);
-            if (parsedUrl.hostname) {
-                  // Hostname included; make request to res.headers.location
-                  options.path = parsedUrl.path;
-            } else {
-                  // Hostname not included; get host from requested URL (url.parse()) and prepend to location.
-                  options.path = res.headers.location;
-            }
-            http.get(options, successCallback)
-            .on('error', function(e){
-                debugLog('Blew up requesting: ' + res.headers.location + " error: " + e);
-                if (failureCallback) failureCallback(e);
-            });
+	http.get(options, function (res) {
+		// Detect a redirect
+		if ((res.statusCode == 301 || res.statusCode == 302) && res.headers.location) {
+			// The location for some (most) redirects will only contain the path,  not the hostname;
+			// detect this and add the host to the path.
+			var parsedUrl = url.parse(res.headers.location);
+			if (parsedUrl.hostname) {
+				  // Hostname included; make request to res.headers.location
+				  options.path = parsedUrl.path;
+			} else {
+				  // Hostname not included; get host from requested URL (url.parse()) and prepend to location.
+				  options.path = res.headers.location;
+			}
+			http.get(options, successCallback)
+			.on('error', function(e){
+				debugLog('Blew up requesting: ' + res.headers.location + " error: " + e);
+				if (failureCallback) failureCallback(e);
+			});
 
-        // Otherwise no redirect; capture the response as normal
-        } else if(res.statusCode == 200) {
-            successCallback(res);
-        } else {
-            if(failureCallback) failureCallback();
-        }
-    }).on('error', function(e) {
-        debugLog('Blew up requesting: ' + options.path + " error: " + e);
-        if(failureCallback) failureCallback(e);
-    });
+		// Otherwise no redirect; capture the response as normal
+		} else if(res.statusCode == 200) {
+			successCallback(res);
+		} else {
+			if(failureCallback) failureCallback();
+		}
+	}).on('error', function(e) {
+		debugLog('Blew up requesting: ' + options.path + " error: " + e);
+		if(failureCallback) failureCallback(e);
+	});
 }
 
 function addVideoSoundCloud(socket,data,meta,successCallback,failureCallback){
 	var videoid = data.videoid.trim();
-    var path;
+	var path;
 	if(videoid.length==0)
 	{
 		if(failureCallback)failureCallback();
 		return;
 	}
 	//http://api.soundcloud.com/resolve.json?url=
-    // &client_id=98e8581d9fc8d2dbb59cb5a785201ffd
-    if(videoid.substring(0,2) == "SC") {
-        path = '/tracks/'+videoid.substring(2)+'.json?client_id=98e8581d9fc8d2dbb59cb5a785201ffd';
-    } else {
-        path = '/resolve.json?url='+videoid+'&client_id=98e8581d9fc8d2dbb59cb5a785201ffd';
-    }
+	// &client_id=98e8581d9fc8d2dbb59cb5a785201ffd
+	if(videoid.substring(0,2) == "SC") {
+		path = '/tracks/'+videoid.substring(2)+'.json?client_id=98e8581d9fc8d2dbb59cb5a785201ffd';
+	} else {
+		path = '/resolve.json?url='+videoid+'&client_id=98e8581d9fc8d2dbb59cb5a785201ffd';
+	}
 	var options = {
 		host: 'api.soundcloud.com',
 		port: 80,
 		method: 'GET',
 		path: path
 	};
-    debugLog("Calling soundcloud api: " + path);
-    var recievedBody = "";
-    followRedirect(options, function(res){
+	debugLog("Calling soundcloud api: " + path);
+	var recievedBody = "";
+	followRedirect(options, function(res){
 		res.setEncoding('utf8');
 		res.on('data', function (chunk) {
 			recievedBody += chunk;
 		});
 		res.on('end', function(){
-            try {
-                jdata = JSON.parse(recievedBody);
-            }
-            catch (err) {
-                if (failureCallback)failureCallback(err);
-                return;
-            }
-            debugLog("soundcloud API response: " + recievedBody);
-            adminLog(socket, {msg:"Added SoundCloud video "+jdata.title, type:"playlist"});
-		    var volat = data.volat;
-            if(meta.type <= 0) volat = true;
-            if(volat === undefined) volat = false;
-            rawAddVideo({
-                pos: SERVER.PLAYLIST.length,
-                // Don't collide with vimeo
-                videoid: 'SC'+jdata.id,
-                videotitle: encodeURI(jdata.user.username + " - " + jdata.title),
-                // soundcloud is millis
-                videolength: jdata.duration / 1000,
-                videotype: "soundcloud",
-                who: meta.nick,
-                queue: data.queue,
-                volat: volat,
-                meta: {
-                    permalink: jdata.permalink_url
-                }
-            }, function () {
-                if (successCallback)successCallback();
-            }, function (err) {
-                if (failureCallback)failureCallback(err);
-            });
+			try {
+				jdata = JSON.parse(recievedBody);
+			}
+			catch (err) {
+				if (failureCallback)failureCallback(err);
+				return;
+			}
+			debugLog("soundcloud API response: " + recievedBody);
+			adminLog(socket, {msg:"Added SoundCloud video "+jdata.title, type:"playlist"});
+			var volat = data.volat;
+			if(meta.type <= 0) volat = true;
+			if(volat === undefined) volat = false;
+			rawAddVideo({
+				pos: SERVER.PLAYLIST.length,
+				// Don't collide with vimeo
+				videoid: 'SC'+jdata.id,
+				videotitle: encodeURI(jdata.user.username + " - " + jdata.title),
+				// soundcloud is millis
+				videolength: jdata.duration / 1000,
+				videotype: "soundcloud",
+				who: meta.nick,
+				queue: data.queue,
+				volat: volat,
+				meta: {
+					permalink: jdata.permalink_url
+				}
+			}, function () {
+				if (successCallback)successCallback();
+			}, function (err) {
+				if (failureCallback)failureCallback(err);
+			});
 		});
 	});
 }
 
 function addVideoDM(socket,data,meta,successCallback,failureCallback){
 	var videoid = data.videoid.trim();
-    var path;
+	var path;
 	if(videoid.length==0)
 	{
 		if(failureCallback)failureCallback();
 		return;
 	}
-    //https://api.dailymotion.com/video/x7lni3_mario-kart-remi-gaillard_fun?fields=id,duration,title
-    if(videoid.substring(0,2) == "DM") videoid = videoid.substring(2);
-    path = '/video/'+videoid+'?fields=id,duration,title';
+	//https://api.dailymotion.com/video/x7lni3_mario-kart-remi-gaillard_fun?fields=id,duration,title
+	if(videoid.substring(0,2) == "DM") videoid = videoid.substring(2);
+	path = '/video/'+videoid+'?fields=id,duration,title';
 	var options = {
 		host: 'api.dailymotion.com',
 		port: 443,
 		method: 'GET',
 		path: path
 	};
-    debugLog("Calling dailymotion api: " + path);
-    var recievedBody = "";
+	debugLog("Calling dailymotion api: " + path);
+	var recievedBody = "";
 	var req = https.get(options, function(res) {
 		res.setEncoding('utf8');
 		res.on('data', function (chunk) {
 			recievedBody += chunk;
 		});
 		res.on('end', function(){
-            try {
-                jdata = JSON.parse(recievedBody);
-            }
-            catch (err) {
-                if (failureCallback)failureCallback(err);
-                return;
-            }
-            debugLog("Dailymotion API response: " + recievedBody);
-            adminLog(socket, {msg:"Added Dailymotion video "+jdata.title, type:"playlist"});
-		    var volat = data.volat;
-            if(meta.type <= 0) volat = true;
-            if(volat === undefined) volat = false;
-            rawAddVideo({
-                pos: SERVER.PLAYLIST.length,
-                // Don't collide with vimeo/sc
-                videoid: 'DM'+jdata.id,
-                videotitle: encodeURI(jdata.title),
-                // dm is seconds
-                videolength: jdata.duration,
-                videotype: "dm",
-                who: meta.nick,
-                queue: data.queue,
-                volat: volat,
-                meta: {}
-            }, function () {
-                if (successCallback)successCallback();
-            }, function (err) {
-                debugLog('Error calling dailymotion api: ' + err);
-                if (failureCallback)failureCallback(err);
-            });
+			try {
+				jdata = JSON.parse(recievedBody);
+			}
+			catch (err) {
+				if (failureCallback)failureCallback(err);
+				return;
+			}
+			debugLog("Dailymotion API response: " + recievedBody);
+			adminLog(socket, {msg:"Added Dailymotion video "+jdata.title, type:"playlist"});
+			var volat = data.volat;
+			if(meta.type <= 0) volat = true;
+			if(volat === undefined) volat = false;
+			rawAddVideo({
+				pos: SERVER.PLAYLIST.length,
+				// Don't collide with vimeo/sc
+				videoid: 'DM'+jdata.id,
+				videotitle: encodeURI(jdata.title),
+				// dm is seconds
+				videolength: jdata.duration,
+				videotype: "dm",
+				who: meta.nick,
+				queue: data.queue,
+				volat: volat,
+				meta: {}
+			}, function () {
+				if (successCallback)successCallback();
+			}, function (err) {
+				debugLog('Error calling dailymotion api: ' + err);
+				if (failureCallback)failureCallback(err);
+			});
 		});
 	}).on('error', function(e) {
-        debugLog('Blew up requesting: ' + options.path + " error: " + e);
-        if(failureCallback) failureCallback(e);
-    });
+		debugLog('Blew up requesting: ' + options.path + " error: " + e);
+		if(failureCallback) failureCallback(e);
+	});
 }
 
 
@@ -2852,15 +2852,15 @@ function ifCanSetToggleables(socket,truecallback,falsecallback){
 	});
 }
 function userLogin(socket,data,truecallback,falsecallback){
-    if(!ifCanLogin(socket)) {
-        var ip = getAddress(socket);
-        writeToLog("LOGIN FAIL LIMIT", "Too many failed logins for ip: "+ip+" attempted nick: "+data.nick);
-        if(falsecallback) falsecallback();
-        socket.emit("loginError", {message:"Too many failed login attempts. Try again later."});
-        return;
-    }
+	if(!ifCanLogin(socket)) {
+		var ip = getAddress(socket);
+		writeToLog("LOGIN FAIL LIMIT", "Too many failed logins for ip: "+ip+" attempted nick: "+data.nick);
+		if(falsecallback) falsecallback();
+		socket.emit("loginError", {message:"Too many failed login attempts. Try again later."});
+		return;
+	}
 	var qnick = data.nick;
-    var qpass = data.pass ? crypto.createHash('md5').update(data.pass).digest("hex") : null;
+	var qpass = data.pass ? crypto.createHash('md5').update(data.pass).digest("hex") : null;
 	if(typeof(qnick) == "undefined"){ return; }
 
 	// do a cursory bancheck
@@ -2885,15 +2885,15 @@ function userLogin(socket,data,truecallback,falsecallback){
 				console.error(err);
 				return;
 			}
-            var ip = getAddress(socket);
-            if(!ip){
-                if(falsecallback) falsecallback();
-                return false;
-            }
+			var ip = getAddress(socket);
+			if(!ip){
+				if(falsecallback) falsecallback();
+				return false;
+			}
 
 			// If nobody has already registered the name...
 			if(result.length == 0) {
-  				writeToLog("NAME TAKE",ip+" Claimed Name "+qnick);
+				writeToLog("NAME TAKE",ip+" Claimed Name "+qnick);
 				addUserToChat(socket, {nick:qnick,type:-1, meta:{}},truecallback);
 			} else if(result.length == 1 && result[0].pass == qpass) {
 				// Fix case
@@ -2907,22 +2907,22 @@ function userLogin(socket,data,truecallback,falsecallback){
 					sendToggleables(io.sockets);
 					sendCovertData(socket, result[0].type);
 				}
-                var meta = {};
-                try {
-                    if(result[0].meta)
-                        meta = JSON.parse(new Buffer(result[0].meta, 'base64').toString('utf8')) || {};
-                } catch(e){
-                    console.error("Failed to parse user meta: ", e);
-                    meta = {};
-                }
+				var meta = {};
+				try {
+					if(result[0].meta)
+						meta = JSON.parse(new Buffer(result[0].meta, 'base64').toString('utf8')) || {};
+				} catch(e){
+					console.error("Failed to parse user meta: ", e);
+					meta = {};
+				}
 				addUserToChat(socket, {
-                                        nick:qnick,
-                                        type:result[0].type,
-                                        meta:meta
-                                      },truecallback);
+										nick:qnick,
+										type:result[0].type,
+										meta:meta
+									  },truecallback);
 			}else{
-                // Don't allow people to spam login attempts
-                handleLoginFail(socket);
+				// Don't allow people to spam login attempts
+				handleLoginFail(socket);
 				debugLog("PW INCORRECT");
 				if(falsecallback) falsecallback();
 			}
@@ -2934,44 +2934,44 @@ function userLogin(socket,data,truecallback,falsecallback){
 	}
 }
 function ifCanLogin(socket){
-    var ip = getAddress(socket);
-    if(!ip) return false;
-    var now = new Date();
-    var i = SERVER.FAILED_LOGINS.length;
-    // Backwards so we can splice on the go
-    while(--i >= 0) {
-        if(now - SERVER.FAILED_LOGINS[i].time > SERVER.settings.core.login_fail_duration){
-            SERVER.FAILED_LOGINS.splice(i, 1);
-        }
-        else if(SERVER.FAILED_LOGINS[i].ip == ip) {
-            fail = SERVER.FAILED_LOGINS[i];
-            if(fail.count > SERVER.settings.core.max_failed_logins) {
-                return false;
-            }
-            return true;
-        }
-    }
-    return true;
+	var ip = getAddress(socket);
+	if(!ip) return false;
+	var now = new Date();
+	var i = SERVER.FAILED_LOGINS.length;
+	// Backwards so we can splice on the go
+	while(--i >= 0) {
+		if(now - SERVER.FAILED_LOGINS[i].time > SERVER.settings.core.login_fail_duration){
+			SERVER.FAILED_LOGINS.splice(i, 1);
+		}
+		else if(SERVER.FAILED_LOGINS[i].ip == ip) {
+			fail = SERVER.FAILED_LOGINS[i];
+			if(fail.count > SERVER.settings.core.max_failed_logins) {
+				return false;
+			}
+			return true;
+		}
+	}
+	return true;
 }
 function handleLoginFail(socket){
-    var ip = getAddress(socket);
-    if(!ip) return false;
-    var fail;
-    for(var i = 0; i < SERVER.FAILED_LOGINS.length; ++i) {
-        if(SERVER.FAILED_LOGINS[i].ip == ip) {
-            fail = SERVER.FAILED_LOGINS[i];
-            fail.count++;
-            fail.time = new Date();
-        }
-    }
-    if(!fail){
-        fail = {
-            count: 1,
-            ip: ip,
-            time: new Date()
-        };
-        SERVER.FAILED_LOGINS.push(fail);
-    }
+	var ip = getAddress(socket);
+	if(!ip) return false;
+	var fail;
+	for(var i = 0; i < SERVER.FAILED_LOGINS.length; ++i) {
+		if(SERVER.FAILED_LOGINS[i].ip == ip) {
+			fail = SERVER.FAILED_LOGINS[i];
+			fail.count++;
+			fail.time = new Date();
+		}
+	}
+	if(!fail){
+		fail = {
+			count: 1,
+			ip: ip,
+			time: new Date()
+		};
+		SERVER.FAILED_LOGINS.push(fail);
+	}
 }
 function isLeader(socket){
 	return (SERVER.LEADER==socket);
@@ -2982,66 +2982,66 @@ function isTrackingTime(){
 	return true;
 }
 function ghostBustUser(socket, data, successCallback){
-    if(!data.ghostBust) {
-        successCallback();
-        return;
-    }
-    var ip = getAddress(socket);
-    if(!ip) {
-        successCallback();
-        return;
-    }
-    getSocketOfNickAndIP(data.nick, ip,
-                            function(socket){
-                                debugLog("Ghost busted user: " + data.nick);
-                                kickUser(socket, "Ghosted");
-                                successCallback();
-                            },
-                            function(){
-                                successCallback();
-                            });
+	if(!data.ghostBust) {
+		successCallback();
+		return;
+	}
+	var ip = getAddress(socket);
+	if(!ip) {
+		successCallback();
+		return;
+	}
+	getSocketOfNickAndIP(data.nick, ip,
+							function(socket){
+								debugLog("Ghost busted user: " + data.nick);
+								kickUser(socket, "Ghosted");
+								successCallback();
+							},
+							function(){
+								successCallback();
+							});
 }
 function getSocketOfNickAndIP(targetnick,targetip,truecallback,falsecallback){
-    var found = false;
-    for(var i=0;i<SERVER.IPLIST.length;i++){
-        if(SERVER.IPLIST[i].ip == targetip){
-            var theguy = SERVER.IPLIST[i];
-            var left = theguy.sockets.length;
-            for(var j=theguy.sockets.length-1;j>=0;j--){
-                if(theguy.sockets[j].disconnected){
-                    theguy.sockets.splice(j,1);
-                    continue;
-                }
-                (function(j){
-                    theguy.sockets[j].get("nick",function(err,nick){
-                        left--;
-                        if(nick == targetnick){
-                            found = true;
-                            if(truecallback)truecallback(theguy.sockets[j]);
-                        }
-                        else if(left == 0 && found == false){
-                            if(falsecallback)falsecallback();
-                        }
-                    });
-                })(j);
-            }
-        }
-    }
+	var found = false;
+	for(var i=0;i<SERVER.IPLIST.length;i++){
+		if(SERVER.IPLIST[i].ip == targetip){
+			var theguy = SERVER.IPLIST[i];
+			var left = theguy.sockets.length;
+			for(var j=theguy.sockets.length-1;j>=0;j--){
+				if(theguy.sockets[j].disconnected){
+					theguy.sockets.splice(j,1);
+					continue;
+				}
+				(function(j){
+					theguy.sockets[j].get("nick",function(err,nick){
+						left--;
+						if(nick == targetnick){
+							found = true;
+							if(truecallback)truecallback(theguy.sockets[j]);
+						}
+						else if(left == 0 && found == false){
+							if(falsecallback)falsecallback();
+						}
+					});
+				})(j);
+			}
+		}
+	}
 }
 
 function numConnectionsByIP(socket,over,overcallback,elsecallback){
-    var ip = getAddress(socket);
-    if(!ip){
-        if(overcallback) overcallback();
-        return false;
-    }
+	var ip = getAddress(socket);
+	if(!ip){
+		if(overcallback) overcallback();
+		return false;
+	}
 	var concount = 1;
 	var theguy = false;
 	for(var i=0;i<SERVER.IPLIST.length;i++){
 		if(SERVER.IPLIST[i].ip == ip){
 			// This is our guy.
 			theguy = SERVER.IPLIST[i];
-            // Backwards so splice doesn't mess the loop up
+			// Backwards so splice doesn't mess the loop up
 			for(var j=theguy.sockets.length-1;j>=0;j--){
 				if(theguy.sockets[j].disconnected){
 					theguy.sockets.splice(j,1);
@@ -3098,9 +3098,9 @@ io.sockets.on('connection', function (socket) {
 	},function(){
 		socket.set('mode',MODE_VIDEOCHAT);
 		sendConnectedUsers();
-        var ip = getAddress(socket);
-        if(!ip) return false;
-        writeToLog("USER JOIN",ip+" Has Joined. ["+io.sockets.clients().length+"]");
+		var ip = getAddress(socket);
+		if(!ip) return false;
+		writeToLog("USER JOIN",ip+" Has Joined. ["+io.sockets.clients().length+"]");
 		// Send the SERVER.PLAYLIST, and then the position.
 		sendToggleables(socket);
 		socket.emit("recvPlaylist",SERVER.PLAYLIST.toArray());
@@ -3137,7 +3137,7 @@ io.sockets.on('connection', function (socket) {
 
 	socket.on("setOverrideCss",function(data){
 		ifCanSetOverrideCss(socket,function(){
-            adminLog(socket, {msg:"Set CSS override to "+data, type:"site"});
+			adminLog(socket, {msg:"Set CSS override to "+data, type:"site"});
 			setOverrideCss(data);
 		},function(){
 			kickForIllegalActivity(socket,"You cannot set the CSS");
@@ -3145,54 +3145,54 @@ io.sockets.on('connection', function (socket) {
 	});
 	socket.on("setFilters",function(data){
 		ifCanSetFilters(socket,function(){
-            adminLog(socket, {msg:'Edited filters', type:"site"});
+			adminLog(socket, {msg:'Edited filters', type:"site"});
 			SERVER.FILTERS = data;
 		},function(){
 			kickForIllegalActivity(socket,"You cannot set the Filters");
 		});
 	});
-    socket.on("searchHistory", function(data){
-        ifCanSearchHistory(socket, function(){
-            var q = "select * from videos_history where videotitle like ? order by date_added desc limit 50";
-            mysql.query(q, ['%'+encodeURI(data.search).replace('%', '\\%')+'%'], function(err, result, fields){
-                if (err) {
+	socket.on("searchHistory", function(data){
+		ifCanSearchHistory(socket, function(){
+			var q = "select * from videos_history where videotitle like ? order by date_added desc limit 50";
+			mysql.query(q, ['%'+encodeURI(data.search).replace('%', '\\%')+'%'], function(err, result, fields){
+				if (err) {
 					//throw err;
 					console.error(err);
 					return;
 				}
-                for(var i=0;i<result.length;++i) {
-                    var o = result[i];
-                    try {
-                        o.meta = JSON.parse(o.meta);
-                        if(typeof o.meta != "object"){
-                            o.meta = {};
-                        }
-                    } catch(e) { o.meta={}; }
-                }
-                socket.emit('searchHistoryResults', result);
-            });
-        }, function(){
-            socket.emit('searchHistoryResults', []);
-        });
-    });
-    socket.on("delVideoHistory", function(data){
-        if(!data.videoid.match(/^[a-zA-Z0-9_ \-#]{3,50}$/)){
-            console.error('Tried to delete an invalid history id: ' + data.videoid);
-            return;
-        }
-        var q = 'delete from videos_history where videoid = ? limit 1';
-        mysql.query(q, [data.videoid], function(err, results, fields){
-            if (err) {
+				for(var i=0;i<result.length;++i) {
+					var o = result[i];
+					try {
+						o.meta = JSON.parse(o.meta);
+						if(typeof o.meta != "object"){
+							o.meta = {};
+						}
+					} catch(e) { o.meta={}; }
+				}
+				socket.emit('searchHistoryResults', result);
+			});
+		}, function(){
+			socket.emit('searchHistoryResults', []);
+		});
+	});
+	socket.on("delVideoHistory", function(data){
+		if(!data.videoid.match(/^[a-zA-Z0-9_ \-#]{3,50}$/)){
+			console.error('Tried to delete an invalid history id: ' + data.videoid);
+			return;
+		}
+		var q = 'delete from videos_history where videoid = ? limit 1';
+		mysql.query(q, [data.videoid], function(err, results, fields){
+			if (err) {
 				//throw err;
 				console.error(err);
 				return;
 			}
-        });
-    });
+		});
+	});
 	socket.on("randomizeList",function(data){
 		ifCanRandomizeList(socket,function(meta){
-            adminLog(socket, {msg:'Randomized playlist', type: "playlist"})
-            var newSz = SERVER.PLAYLIST.length;
+			adminLog(socket, {msg:'Randomized playlist', type: "playlist"})
+			var newSz = SERVER.PLAYLIST.length;
 			var tmp = [];
 			var elem = SERVER.PLAYLIST.first;
 			for(var i=0;i<newSz;i++){
@@ -3237,7 +3237,7 @@ io.sockets.on('connection', function (socket) {
 	socket.on('newPoll',function(data){
 		ifCanCreatePoll(socket,function(){
 			//debugLog("trying to create");
-            adminLog(socket, {msg:"Created poll '" + data.title + "'", type:"site"});
+			adminLog(socket, {msg:"Created poll '" + data.title + "'", type:"site"});
 			var title = data.title;
 			var ops = data.ops;
 			var obscure = data.obscure;
@@ -3251,10 +3251,10 @@ io.sockets.on('connection', function (socket) {
 	});
 	socket.on('closePoll',function(data){
 		ifCanClosePoll(socket,function(){
-            adminLog(socket, {msg: 'Closed poll', type:"site"});
-            debugLog("trying to close");
+			adminLog(socket, {msg: 'Closed poll', type:"site"});
+			debugLog("trying to close");
 			SERVER.POLL.closePoll(socket,function(){
-	        debugLog("Closed Poll.");
+			debugLog("Closed Poll.");
 			});
 		},function(){
 			debugLog("cannot close")
@@ -3284,16 +3284,16 @@ io.sockets.on('connection', function (socket) {
 		debugLog("Sending Video Refresh");
 		sendStatus("forceVideoChange",socket);
 	});
-    socket.on("refreshMyPlaylist", function(){
-        socket.emit("recvNewPlaylist",SERVER.PLAYLIST.toArray());
-    });
+	socket.on("refreshMyPlaylist", function(){
+		socket.emit("recvNewPlaylist",SERVER.PLAYLIST.toArray());
+	});
 	socket.on("chat",function(data){
 		ifCanChat(socket,function(meta){ // Permissions check
 			ifChatMsgIsOk(socket,data,function(){ // check length, et al
 
-                var ip = getAddress(socket);
-                if(!ip) return false;
-    			writeToLog("CHAT",ip+":"+meta.nick+":"+data.msg);
+				var ip = getAddress(socket);
+				if(!ip) return false;
+				writeToLog("CHAT",ip+":"+meta.nick+":"+data.msg);
 				sendChat(meta.nick,meta.type,data,socket);
 
 			},function(){
@@ -3303,96 +3303,96 @@ io.sockets.on('connection', function (socket) {
 			debugLog("Chat Failure");
 		});
 	});
-    socket.on("registerNick", function(data){
-        var i = SERVER.RECENTLY_REGISTERED.length;
-        var ip = getAddress(socket);
-        if(!ip) return false;
-        var now = new Date();
-        // Backwards to splice on the go
-        while(--i >= 0){
-            if(now - SERVER.RECENTLY_REGISTERED[i].time > SERVER.settings.core.register_cooldown){
-                SERVER.RECENTLY_REGISTERED.splice(i, 1);
-            }
-            else if(SERVER.RECENTLY_REGISTERED[i].ip == ip) {
-                socket.emit("loginError", {message:"You are registering too many usernames, try again later."});
-                return;
-            }
-        }
-        if(!data.pass || data.pass.length <= 5){
-            socket.emit("loginError", {message:"Invalid password. Must be at least 6 characters long."});
-            return;
-        }
-        if(data.pass!=data.pass2){
-            socket.emit("loginError", {message:"Passwords do not match."});
-            return;
-        }
-        if(!data.nick || data.nick.length <= 0 || data.nick.length > 15){
-            socket.emit("loginError", {message:"Username must be under 15 characters."});
-            return;
-        }
-        if(!data.nick.match(/^[0-9a-zA-Z_]+$/ig) ){
-            socket.emit("loginError", {message:"Username must contain only letters, numbers and underscores."});
-            return;
-        }
-        if(!getToggleable("allowreg")){
-            socket.emit("loginError", {message:"Registrations are currently Closed. Sorry for the inconvenience!"});
-            return;
-        }
-        var q = 'select * from users where name like ?'; debugLog(q);
-        mysql.query(q, [data.nick], function(err, result, fields) {
-            if (err) {
+	socket.on("registerNick", function(data){
+		var i = SERVER.RECENTLY_REGISTERED.length;
+		var ip = getAddress(socket);
+		if(!ip) return false;
+		var now = new Date();
+		// Backwards to splice on the go
+		while(--i >= 0){
+			if(now - SERVER.RECENTLY_REGISTERED[i].time > SERVER.settings.core.register_cooldown){
+				SERVER.RECENTLY_REGISTERED.splice(i, 1);
+			}
+			else if(SERVER.RECENTLY_REGISTERED[i].ip == ip) {
+				socket.emit("loginError", {message:"You are registering too many usernames, try again later."});
+				return;
+			}
+		}
+		if(!data.pass || data.pass.length <= 5){
+			socket.emit("loginError", {message:"Invalid password. Must be at least 6 characters long."});
+			return;
+		}
+		if(data.pass!=data.pass2){
+			socket.emit("loginError", {message:"Passwords do not match."});
+			return;
+		}
+		if(!data.nick || data.nick.length <= 0 || data.nick.length > 15){
+			socket.emit("loginError", {message:"Username must be under 15 characters."});
+			return;
+		}
+		if(!data.nick.match(/^[0-9a-zA-Z_]+$/ig) ){
+			socket.emit("loginError", {message:"Username must contain only letters, numbers and underscores."});
+			return;
+		}
+		if(!getToggleable("allowreg")){
+			socket.emit("loginError", {message:"Registrations are currently Closed. Sorry for the inconvenience!"});
+			return;
+		}
+		var q = 'select * from users where name like ?'; debugLog(q);
+		mysql.query(q, [data.nick], function(err, result, fields) {
+			if (err) {
 				console.error(err);
 				return;
 			}
-            if(result.length >= 1){
-                // Already registered, try logging in using the password we have.
-                userLogin(socket, data, function(){
-                    debugLog("Nick Set = "+data.nick);
-                },function(){
-                    socket.emit("loginError", {message:"Username is already taken!"});
-                    debugLog("loginError nick already taken.");
-                });
-            }
-            else{
-                var pass = crypto.createHash('md5').update(data.pass).digest("hex");
-                var q = 'INSERT INTO users (name, pass, type) VALUES (?,?,?)'; debugLog(q);
-                mysql.query(q,  [data.nick, pass, 0] , function(err, result, fields){
-                    if (err) {
+			if(result.length >= 1){
+				// Already registered, try logging in using the password we have.
+				userLogin(socket, data, function(){
+					debugLog("Nick Set = "+data.nick);
+				},function(){
+					socket.emit("loginError", {message:"Username is already taken!"});
+					debugLog("loginError nick already taken.");
+				});
+			}
+			else{
+				var pass = crypto.createHash('md5').update(data.pass).digest("hex");
+				var q = 'INSERT INTO users (name, pass, type) VALUES (?,?,?)'; debugLog(q);
+				mysql.query(q,	[data.nick, pass, 0] , function(err, result, fields){
+					if (err) {
 						//throw err;
 						console.error(err);
 						return;
 					}
-                    // Registered, log em in.
-                    userLogin(socket, data, function(){
-                        debugLog("Nick Set = "+data.nick);
-                        SERVER.RECENTLY_REGISTERED.push({ip: ip, time: new Date()});
-                    },function(){
-                        debugLog("Error logging in.");
-                    });
-                });
-            }
+					// Registered, log em in.
+					userLogin(socket, data, function(){
+						debugLog("Nick Set = "+data.nick);
+						SERVER.RECENTLY_REGISTERED.push({ip: ip, time: new Date()});
+					},function(){
+						debugLog("Error logging in.");
+					});
+				});
+			}
 
-        });
-    });
+		});
+	});
 	socket.on("setNick",function(data){
-        ghostBustUser(socket, data, function(){
-		    ifNickFree(data.nick,function(meta){
-			    userLogin(socket,data,function(){
-				    debugLog("Nick Set = "+data.nick);
-			    },function(){
-                    socket.emit("loginError", {message: "Invalid Login."});
-				    debugLog("Invalid Login.");
-			    });
-		    },function(){
-                socket.emit("loginError", {message: "Nick already taken."});
-			    debugLog("Nick Taken.");
-		    });
-        });
+		ghostBustUser(socket, data, function(){
+			ifNickFree(data.nick,function(meta){
+				userLogin(socket,data,function(){
+					debugLog("Nick Set = "+data.nick);
+				},function(){
+					socket.emit("loginError", {message: "Invalid Login."});
+					debugLog("Invalid Login.");
+				});
+			},function(){
+				socket.emit("loginError", {message: "Nick already taken."});
+				debugLog("Nick Taken.");
+			});
+		});
 	});
 	socket.on("playNext",function(data){
 		ifCanControlPlaylist(socket,function(){
-            adminLog(socket,{msg:'Skipped Video', type:"playlist"});
-            playNext();
+			adminLog(socket,{msg:'Skipped Video', type:"playlist"});
+			playNext();
 		},function(){
 			kickForIllegalActivity(socket);
 		});
@@ -3409,11 +3409,11 @@ io.sockets.on('connection', function (socket) {
 				{
 					fromelem = elem;
 					break;
-                }
+				}
 				elem=elem.next;
 			}
-	        if(data.sanityid && elem.videoid != data.sanityid) return doorStuck(socket);
-	    	elem = SERVER.PLAYLIST.first;
+			if(data.sanityid && elem.videoid != data.sanityid) return doorStuck(socket);
+			elem = SERVER.PLAYLIST.first;
 			for(var i=0;i<SERVER.PLAYLIST.length;i++)
 			{
 				if(i == data.to)
@@ -3423,16 +3423,16 @@ io.sockets.on('connection', function (socket) {
 				}
 				elem=elem.next;
 			}
-            SERVER.PLAYLIST.remove(fromelem);
+			SERVER.PLAYLIST.remove(fromelem);
 			if(data.to > data.from)
 				SERVER.PLAYLIST.insertAfter(toelem,fromelem);
 			else
 				SERVER.PLAYLIST.insertBefore(toelem,fromelem);
 
-            io.sockets.emit("sortPlaylist",data);
-            adminLog(socket, {msg:'Moved ' + decodeURIComponent(fromelem.videotitle), type:"playlist"});
+			io.sockets.emit("sortPlaylist",data);
+			adminLog(socket, {msg:'Moved ' + decodeURIComponent(fromelem.videotitle), type:"playlist"});
 
-        },function(){
+		},function(){
 			kickForIllegalActivity(socket);
 		});
 	});
@@ -3450,23 +3450,23 @@ io.sockets.on('connection', function (socket) {
 				}
 			}
 
-            if("colorTagVolat" in SERVER.ACTIVE.meta){
-			    var elem = SERVER.PLAYLIST.first;
-			    for(var i=0;i<SERVER.PLAYLIST.length;i++){
-				    if(elem == SERVER.ACTIVE){
-					    setVideoColorTag(i,false,false);
-					    break;
-				    }
-				    elem = elem.next;
-			    }
-            }
+			if("colorTagVolat" in SERVER.ACTIVE.meta){
+				var elem = SERVER.PLAYLIST.first;
+				for(var i=0;i<SERVER.PLAYLIST.length;i++){
+					if(elem == SERVER.ACTIVE){
+						setVideoColorTag(i,false,false);
+						break;
+					}
+					elem = elem.next;
+				}
+			}
 
 			elem = SERVER.PLAYLIST.first;
 			for(var i=0;i<SERVER.PLAYLIST.length;i++)
 			{
 				if(i == data.index)
-                {
-                    if(data.sanityid && elem.videoid != data.sanityid) return doorStuck(socket);
+				{
+					if(data.sanityid && elem.videoid != data.sanityid) return doorStuck(socket);
 					SERVER.ACTIVE = elem;
 					SERVER.ACTIVE.position = i;
 					break;
@@ -3474,7 +3474,7 @@ io.sockets.on('connection', function (socket) {
 				elem=elem.next;
 			}
 
-            adminLog(socket, {msg:'Forced video change', type:"playlist"});
+			adminLog(socket, {msg:'Forced video change', type:"playlist"});
 			handleNewVideoChange();
 			debugLog("Relaying Video Change");
 			sendStatus("forceVideoChange",io.sockets);
@@ -3522,26 +3522,26 @@ io.sockets.on('connection', function (socket) {
 					socket.emit("dupeAdd");
 				})
 			}
-            else if(data.videotype == "soundcloud"){
-                addVideoSoundCloud(socket,data,meta,function(){
-                    debugLog("Video Added");
-                },function(err){
+			else if(data.videotype == "soundcloud"){
+				addVideoSoundCloud(socket,data,meta,function(){
+					debugLog("Video Added");
+				},function(err){
 					debugLog(err);
 					socket.emit("dupeAdd");
-                });
-            }
-            else if(data.videotype == "dm"){
-                addVideoDM(socket,data,meta,function(){
-                    debugLog("Video Added");
-                },function(err){
+				});
+			}
+			else if(data.videotype == "dm"){
+				addVideoDM(socket,data,meta,function(){
+					debugLog("Video Added");
+				},function(err){
 					debugLog(err);
 					socket.emit("dupeAdd");
-                });
-            } else {
-                // Okay, so, it wasn't vimeo and it wasn't youtube, assume it's a livestream and just queue it.
-                // This requires a videotitle and a videotype that the client understands.
+				});
+			} else {
+				// Okay, so, it wasn't vimeo and it wasn't youtube, assume it's a livestream and just queue it.
+				// This requires a videotitle and a videotype that the client understands.
 
-                adminLog(socket, {msg:'Added livestream ' + data.videotitle, type:"playlist"});
+				adminLog(socket, {msg:'Added livestream ' + data.videotitle, type:"playlist"});
 				addLiveVideo(data,meta,function(){
 					debugLog("Video Added");
 				},function(err){
@@ -3668,7 +3668,7 @@ io.sockets.on('connection', function (socket) {
 
 												var pos = SERVER.PLAYLIST.length + i;
 												var q = 'insert into '+SERVER.dbcon.video_table+' (position, videoid, videotitle, videolength, videovia) VALUES (?,?,?,?,?)'; debugLog(q);
-											    var qParams = [pos, MEDIAS[i].videoid, MEDIAS[i].videotitle, MEDIAS[i].videolength, name];
+												var qParams = [pos, MEDIAS[i].videoid, MEDIAS[i].videotitle, MEDIAS[i].videolength, name];
 												mysql.query(q, qParams, function(err, result, fields) {
 													if (err) {
 														debugLog(err);
@@ -3740,9 +3740,9 @@ io.sockets.on('connection', function (socket) {
 	});
 	socket.on("moveLeader",function(data){
 		ifCanMoveBerry(socket,function(freeMove){
-            var targetnick = data || "Server";
-            adminLog(socket, {msg:'Gave berry to ' + targetnick, type:"user"});
-            if(targetnick == "Server"){
+			var targetnick = data || "Server";
+			adminLog(socket, {msg:'Gave berry to ' + targetnick, type:"user"});
+			if(targetnick == "Server"){
 				setBpAsLeader();
 			} else if(freeMove) {
 				cl = io.sockets.clients();
@@ -3762,7 +3762,7 @@ io.sockets.on('connection', function (socket) {
 	});
 	socket.on("kickUser",function(data){
 		ifCanKickUser(socket,function(){
-            adminLog(socket, {msg:'Kicked ' + data.nick, type:"user"});
+			adminLog(socket, {msg:'Kicked ' + data.nick, type:"user"});
 			getSocketOfNick(data.nick,function(s){
 				kickUser(s, data.reason);
 			},function(){
@@ -3778,51 +3778,51 @@ io.sockets.on('connection', function (socket) {
 			var isbanning = data.sban;
 			var temp = data.temp;
 			if(forcetemp){temp = forcetemp;}
-            var message = "";
-            if (isbanning) {
-                if (temp) {
-                    message = "Temporarily shadow banned " + targetNick;
+			var message = "";
+			if (isbanning) {
+				if (temp) {
+					message = "Temporarily shadow banned " + targetNick;
 					socket.get('nick', function(err, nick){
 						writeToLog("SHADOWBAN TEMP",nick+" sbanned "+targetNick);
 					});
-                }
-                else {
-                    message = "Shadow banned " + targetNick;
+				}
+				else {
+					message = "Shadow banned " + targetNick;
 					socket.get('nick', function(err, nick){
 						writeToLog("SHADOWBAN PERM",nick+" sbanned "+targetNick);
 					});
-                }
-            }
-            else {
-                message = "Un-shadow banned " + targetNick;
+				}
+			}
+			else {
+				message = "Un-shadow banned " + targetNick;
 				socket.get('nick', function(err, nick){
 					writeToLog("SHADOWBAN FORGIVE",nick+" un-sbanned "+targetNick);
 				});
-            }
-            adminLog(socket, {msg:message, type:"user"});
-            socket.get('nick', function(err, nick){
-                if(isbanning) {
-                    var banEmotes = ['[](/ihavenomouthandimustscream)'
-                                    ,'[](/bant)'
-                                    ,'[](/mmmbananas)'
-                                    ,'[](/celbanned)'
-                                    ,'[](/seriouslybanned)'
-                                    ,'[](/konahappy)'
-                                    ,'[](/ppshutup)'
-                                    ,'[](/bpstfu)'
-                                    ,'[](/eatadick)'
-                                    ,'[](/suggestionbox)'
-                                    ,'[](/rargtfo)'
-                                    ,'[](/fuckyoudobby)'
-                                    ,'[](/cleese)'
-                                    ,'[](/wingflipoff)'
-                                    ,'[](/pokemonkilledmyparents)'
-                                    ,'[](/fuckyourshit)'];
-                    message = banEmotes[Math.floor(Math.random()*banEmotes.length)] + ' ' + message;
-                }
-                message = '/me ' + message;
-                _sendChat(nick, 3, {msg: message, metadata: {channel: 'admin'}}, socket);
-            });
+			}
+			adminLog(socket, {msg:message, type:"user"});
+			socket.get('nick', function(err, nick){
+				if(isbanning) {
+					var banEmotes = ['[](/ihavenomouthandimustscream)'
+									,'[](/bant)'
+									,'[](/mmmbananas)'
+									,'[](/celbanned)'
+									,'[](/seriouslybanned)'
+									,'[](/konahappy)'
+									,'[](/ppshutup)'
+									,'[](/bpstfu)'
+									,'[](/eatadick)'
+									,'[](/suggestionbox)'
+									,'[](/rargtfo)'
+									,'[](/fuckyoudobby)'
+									,'[](/cleese)'
+									,'[](/wingflipoff)'
+									,'[](/pokemonkilledmyparents)'
+									,'[](/fuckyourshit)'];
+					message = banEmotes[Math.floor(Math.random()*banEmotes.length)] + ' ' + message;
+				}
+				message = '/me ' + message;
+				_sendChat(nick, 3, {msg: message, metadata: {channel: 'admin'}}, socket);
+			});
 			getSocketOfNick(targetNick,function(s){
 				if(isbanning){
 					shadowBanUser(s,temp);
@@ -3840,20 +3840,20 @@ io.sockets.on('connection', function (socket) {
 	socket.on("setAreas",function(data){
 		ifCanSetAreas(socket,function(){
 			areaname = data.areaname;
-            content = data.content;
-            adminLog(socket, {msg:"Edited "+areaname, type:"site"});
-            setAreas(areaname,content);
+			content = data.content;
+			adminLog(socket, {msg:"Edited "+areaname, type:"site"});
+			setAreas(areaname,content);
 		},function(){
 			kickForIllegalActivity(socket);
 		})
 	});
 	socket.on("fondleVideo",function(data){
 		// New abstraction for messing with video details
-        var elem = SERVER.PLAYLIST.first;
-        for(var i=0;i<data.info.pos;i++){
-             elem=elem.next;
-        }
-        if(data.sanityid && elem.videoid != data.sanityid) return doorStuck(socket);
+		var elem = SERVER.PLAYLIST.first;
+		for(var i=0;i<data.info.pos;i++){
+			 elem=elem.next;
+		}
+		if(data.sanityid && elem.videoid != data.sanityid) return doorStuck(socket);
 
 		if("action" in data){
 			if(data.action == "setVolatile"){ data = data.info; // Drop action name.
@@ -3870,68 +3870,68 @@ io.sockets.on('connection', function (socket) {
 					pos = ("pos" in data ? data.pos : 0);
 					tag = ("tag" in data ? data.tag : false);
 					volat = ("volat" in data ? data.volat : false);
-                   setVideoColorTag(pos,tag,volat)
+				   setVideoColorTag(pos,tag,volat)
 				},function(){
 					kickForIllegalActivity(socket,"You cannot modify color tags");
 				});
 			}
 		}
 	});
-    socket.on("fondleUser", function(data){
+	socket.on("fondleUser", function(data){
 		if("action" in data){
 			if(data.action == "setUserNote"){ var d = data.info; // Drop action name.
 				ifCanSetUserNote(socket,function(){
-                    // She wants the d.nick :3
-                    if(d.nick.match(/^[0-9a-zA-Z_]+$/) != null &&
-                       d.nick.length >= 1  &&
-                       d.nick.length <= 20
-                    ){
-                        var q = "select meta from users where name = ?";
-                        mysql.query(q, [d.nick], function(err, result, fields) {
+					// She wants the d.nick :3
+					if(d.nick.match(/^[0-9a-zA-Z_]+$/) != null &&
+					   d.nick.length >= 1  &&
+					   d.nick.length <= 20
+					){
+						var q = "select meta from users where name = ?";
+						mysql.query(q, [d.nick], function(err, result, fields) {
 							if (err) {
 								//throw err;
 								console.error(err);
 								return;
 							}
-                            if(result.length == 1) {
-                                var meta = {};
-                                try {
-                                    if(result[0].meta)
-                                        meta = JSON.parse(new Buffer(result[0].meta, 'base64').toString('utf8')) || {};
-                                } catch(e){
-                                    console.error("Failed to parse user meta: ", e);
-                                    meta = {};
-                                }
-                                meta.note = d.note;
-                                q = "update users set meta = ? where name = ?";
-                                mysql.query(q, [new Buffer(JSON.stringify(meta)).toString('base64'), d.nick], function(err, result, fields) {
-                                    if (err) {
+							if(result.length == 1) {
+								var meta = {};
+								try {
+									if(result[0].meta)
+										meta = JSON.parse(new Buffer(result[0].meta, 'base64').toString('utf8')) || {};
+								} catch(e){
+									console.error("Failed to parse user meta: ", e);
+									meta = {};
+								}
+								meta.note = d.note;
+								q = "update users set meta = ? where name = ?";
+								mysql.query(q, [new Buffer(JSON.stringify(meta)).toString('base64'), d.nick], function(err, result, fields) {
+									if (err) {
 										//throw err;
 										console.error(err);
 										return;
 									}
-                                    for(var i=0;i<SERVER.CHATLIST.length;i++) {
-                                        if(SERVER.CHATLIST[i].nick == d.nick){
-                                            SERVER.CHATLIST[i].meta = meta;
-                                            break;
-                                        }
-                                    }
-                                    adminLog(socket, {msg: "Set "+d.nick+"'s note to '"+d.note+"'", type:"user"});
+									for(var i=0;i<SERVER.CHATLIST.length;i++) {
+										if(SERVER.CHATLIST[i].nick == d.nick){
+											SERVER.CHATLIST[i].meta = meta;
+											break;
+										}
+									}
+									adminLog(socket, {msg: "Set "+d.nick+"'s note to '"+d.note+"'", type:"user"});
 									forModminSockets(function(sc){
 										sc.emit('fondleUser', data);
 									});
-                                    //io.sockets.in('admin').emit('fondleUser', data);
-                                });
-                            }
-                        });
-                    }
+									//io.sockets.in('admin').emit('fondleUser', data);
+								});
+							}
+						});
+					}
 				},function(){
 					kickForIllegalActivity(socket,"You cannot do that");
 				});
-            }
-        }
-    });
-    if (new Date() < new Date("Wed, 2 Apr 2014 00:00:00 EDT")) { // Don't Register Socket event after April Fools 2014
+			}
+		}
+	});
+	if (new Date() < new Date("Wed, 2 Apr 2014 00:00:00 EDT")) { // Don't Register Socket event after April Fools 2014
 		socket.on("activateGold",function(){
 			if (new Date() < new Date("Wed, 2 Apr 2014 00:00:00 EDT")) { // Even registered, Don't do anything.
 				//console.log("wat");
