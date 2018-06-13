@@ -1,4 +1,4 @@
-version: '2'
+version: '2.2'
 
 networks:
     net:
@@ -68,6 +68,7 @@ services:
     node:
         build: ./docker/node/
         restart: always
+        init: true
         environment:
             - MYSQL_PASSWORD
         expose:
