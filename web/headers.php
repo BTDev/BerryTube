@@ -64,6 +64,25 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.12.4/jquery.min.js" integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ=" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js" integrity="sha256-xNjb53/rY+WmG+4L6tTl9m6PpqknWZvRt0rO1SRnJzw=" crossorigin="anonymous"></script>
 
+<?php
+	// Load any other headers, like from the theme cookie.
+	if(isset($_SESSION['overrideCss']) && !empty($_SESSION['overrideCss'])){
+		$forceTheme = $_SESSION['overrideCss'];
+	}
+
+	//$forceTheme = ""; // Used for like, holiday shit. Neat effect: Does not need to be an actual selectable theme!
+
+	if(!empty($forceTheme)){
+		//setcookie("siteThemePath", $forceTheme, time()+(60*60*24*30));
+		$_COOKIE['siteThemePath'] = $forceTheme;
+		print('<script> $(function(){ $("body").data("cssOverride","'.$forceTheme.'"); } );</script>');
+	}
+
+	if(isset($_COOKIE['siteThemePath']) && !empty($_COOKIE['siteThemePath'])){
+		print('<link rel="stylesheet" href="'.$_COOKIE['siteThemePath'].'" id="themeCss"/>');
+	}
+?>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/tinyscrollbar/2.4.2/jquery.tinyscrollbar.min.js" integrity="sha256-gENsdwXJl1qiwOqS0DF+kfqTP5Dy+0gDTtxpRcWVhrU=" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/swfobject/2.2/swfobject.min.js" integrity="sha256-oYy9uw+7cz1/TLpdKv1rJwbj8UHHQ/SRBX5YADaM2OU=" crossorigin="anonymous"></script>
 <script src="https://w.soundcloud.com/player/api.js"></script>
@@ -105,25 +124,6 @@
 </script>
 <script src="<?= cdn('berrymotes/js/berrymotes.berrytube.js') ?>" defer></script>
 <script src="<?= cdn('berrymotes/js/berrymotes.core.js') ?>" defer></script>
-
-<?php
-	// Load any other headers, like from the theme cookie.
-	if(isset($_SESSION['overrideCss']) && !empty($_SESSION['overrideCss'])){
-		$forceTheme = $_SESSION['overrideCss'];
-	}
-
-	//$forceTheme = ""; // Used for like, holiday shit. Neat effect: Does not need to be an actual selectable theme!
-
-	if(!empty($forceTheme)){
-		//setcookie("siteThemePath", $forceTheme, time()+(60*60*24*30));
-		$_COOKIE['siteThemePath'] = $forceTheme;
-		print('<script> $(function(){ $("body").data("cssOverride","'.$forceTheme.'"); } );</script>');
-	}
-
-	if(isset($_COOKIE['siteThemePath']) && !empty($_COOKIE['siteThemePath'])){
-		print('<link rel="stylesheet" href="'.$_COOKIE['siteThemePath'].'" id="themeCss"/>');
-	}
-?>
 
 <template id="countdown-future-row">
     <tr>
