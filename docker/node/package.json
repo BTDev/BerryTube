@@ -4,11 +4,8 @@
   "description": "BerryTube",
   "main": "server.js",
   "dependencies": {
-    "elementtree": "^0.1.2",
-    "npm": "^1.1.59",
-    "ircd": "^0.1.0",
-    "supervisor": "^0.4.1",
-    "mysql": "^0.9.6",
+    "elementtree": "^0.1.7",
+    "mysql": "^2.15.0",
     "socket.io": "^0.9.10"
   },
   "devDependencies": {},

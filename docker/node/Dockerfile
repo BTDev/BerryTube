@@ -1,13 +1,13 @@
-FROM node:argon
+FROM node:10-alpine
 
 WORKDIR /app/
 
 ENTRYPOINT ["/app/entrypoint.sh"]
 CMD ["node", "server.js"]
 
-RUN apt-get -y update && \
-    apt-get -y install mysql-client && \
-    rm -rf /var/lib/apt/lists/*
+RUN echo 'http://dl-cdn.alpinelinux.org/alpine/v3.7/community/' >> /etc/apk/repositories && \
+    apk update && \
+    apk add mariadb-client
 
 COPY package.json ./
 RUN npm install

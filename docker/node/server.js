@@ -73,7 +73,7 @@ function dbInit(){
 		user: SERVER.dbcon.mysql_user,
 		password: SERVER.dbcon.mysql_pass
 	};
-	mysql = _mysql.createClient(config);
+	mysql = _mysql.createConnection(config);
 	handleDisconnect(mysql); // Yes this needs to be here.
 	mysql.query('use ' + SERVER.dbcon.database);
 }
