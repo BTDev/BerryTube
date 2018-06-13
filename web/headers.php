@@ -106,13 +106,13 @@
 
 	// for EU cookie law popup
 	var MY_COUNTRY = '<?php
-		if (strpos($_SERVER['REMOTE_ADDR'], ':') === false) {
-		    $ip = exec('geoiplookup -- ' . escapeshellarg($_SERVER['REMOTE_ADDR']));
+		if (strpos(CLIENT_IP, ':') === false) {
+		    $geo = exec('geoiplookup -- ' . escapeshellarg(CLIENT_IP));
 		} else {
-		    $ip = exec('geoiplookup6 -- ' . escapeshellarg($_SERVER['REMOTE_ADDR']));
+		    $geo = exec('geoiplookup6 -- ' . escapeshellarg(CLIENT_IP));
 		}
 		// skip "GeoIP Country Edition: ", take only code
-		echo substr($ip, 23, 2);
+		echo substr($geo, 23, 2);
 		?>';
 </script>
 

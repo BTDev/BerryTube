@@ -9,7 +9,7 @@ class ipSession{
 		$this->session = new stdClass();
 		// Load IP Session
 		$this->mysqli = $mysqli;
-		$q = 'select `session` from `api` where `ip` = "'.$_SERVER['REMOTE_ADDR'].'"';
+		$q = 'select `session` from `api` where `ip` = "'.CLIENT_IP.'"';
 		$result = $this->mysqli->query($q);
 
 		// Handle No Table
@@ -30,7 +30,7 @@ class ipSession{
 		// Handle New IP.
 		if($result->num_rows == 0){
 			// Create inital.
-			$q = 'insert into `api` (`ip`,`session`) VALUES ("'.$_SERVER['REMOTE_ADDR'].'","'.(base64_encode(json_encode(array()))).'");';
+			$q = 'insert into `api` (`ip`,`session`) VALUES ("'.CLIENT_IP.'","'.(base64_encode(json_encode(array()))).'");';
 			$this->mysqli->query($q);
 		}
 
@@ -42,7 +42,7 @@ class ipSession{
 	}
 
 	function save(){
-		$q = 'update `api` set `session` = "'.(base64_encode(json_encode($this->session))).'" where `ip` = "'.$_SERVER['REMOTE_ADDR'].'"';
+		$q = 'update `api` set `session` = "'.(base64_encode(json_encode($this->session))).'" where `ip` = "'.CLIENT_IP.'"';
 		//print $q;
 		$this->mysqli->query($q);
 	}
