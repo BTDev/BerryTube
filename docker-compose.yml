@@ -44,6 +44,7 @@ services:
     php:
         build: ./docker/php/
         restart: always
+        init: true
         environment:
             - DOMAIN
             - CDN_DOMAIN

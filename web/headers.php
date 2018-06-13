@@ -59,6 +59,7 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.4/themes/ui-lightness/jquery-ui.min.css" integrity="sha256-VQzrlVm7QjdSeQn/IecZgE9rnfM390H3VoIcDJljOSs=" crossorigin="anonymous" />
 <link rel="stylesheet" href="<?= cdn('css/countdown.css') ?>" />
 <link rel="stylesheet" href="<?= cdn('berrymotes/css/berryemotecore.css') ?>" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cookieconsent2/3.0.6/cookieconsent.min.css" integrity="sha256-00kGHOz9RdKF3UMt7O3Ookbg/gzvO40T0znI4awon7A=" crossorigin="anonymous" />
 
 <!-- Don't update jQuery UI; it breaks sortable performance -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.12.4/jquery.min.js" integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ=" crossorigin="anonymous"></script>
@@ -102,6 +103,17 @@
 	var videoWidth = <?= $playerDims['w'] ?>;
 	var videoHeight = <?= $playerDims['h'] ?>;
 	var WINDOW_TITLE = '<?= $TITLE ?>';
+
+	// for EU cookie law popup
+	var MY_COUNTRY = '<?php
+		if (strpos($_SERVER['REMOTE_ADDR'], ':') === false) {
+		    $ip = exec('geoiplookup -- ' . escapeshellarg($_SERVER['REMOTE_ADDR']));
+		} else {
+		    $ip = exec('geoiplookup6 -- ' . escapeshellarg($_SERVER['REMOTE_ADDR']));
+		}
+		// skip "GeoIP Country Edition: ", take only code
+		echo substr($ip, 23, 2);
+		?>';
 </script>
 
 <script src="js/plugin-data.js.php"></script>
@@ -110,6 +122,9 @@
 <script src="<?= cdn('js/functions.js') ?>"></script>
 <script src="<?= cdn('js/callbacks.js') ?>"></script>
 <script src="<?= cdn('js/player.js') ?>"></script>
+
+<!-- START DEFERRED SCRIPTS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cookieconsent2/3.0.6/cookieconsent.min.js" integrity="sha256-bPOd70Y8ohKatGmjL6tszdveppYZCunsUfLOq7v8JBw=" crossorigin="anonymous" defer></script>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.19.1/moment.min.js" integrity="sha256-zG8v+NWiZxmjNi+CvUYnZwKtHzFtdO8cAKUIdB8+U9I=" crossorigin="anonymous" defer></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/moment-duration-format/1.3.0/moment-duration-format.min.js" integrity="sha256-SjPDuWPRLxUNqTwhiAcTNcIwQLbf5khquJsz5fekYms=" crossorigin="anonymous" defer></script>
@@ -124,6 +139,7 @@
 </script>
 <script src="<?= cdn('berrymotes/js/berrymotes.berrytube.js') ?>" defer></script>
 <script src="<?= cdn('berrymotes/js/berrymotes.core.js') ?>" defer></script>
+<!-- END DEFERRED SCRIPTS -->
 
 <template id="countdown-future-row">
     <tr>

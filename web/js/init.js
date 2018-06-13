@@ -1883,6 +1883,27 @@ $(function(){
 		if(event.keyCode == 27){ event.preventDefault(); } // Stop escape killing connection in firefox.
 	});
 
+	if (MY_COUNTRY) {
+		window.cookieconsent.hasTransition = false;
+		window.cookieconsent.initialise({
+		    palette: {
+				popup: {
+					background: "#64386b",
+					text: "#ffcdfd"
+				},
+				button: {
+					background: "#f8a8ff",
+					text: "#3f0045"
+				}
+		    },
+		    theme: "classic",
+		    position: "bottom-left",
+		    law: {
+		    	countryCode: MY_COUNTRY
+		    }
+		});
+	}
+
     whenExists('#headbar', function(){
         initLoginForm($('#headbar'));
     });
