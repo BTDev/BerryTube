@@ -397,7 +397,7 @@ window.PLAYERS.soundcloud = {
     }
 };
 
-window.PLAYERS.videojs = {
+window.PLAYERS.file = {
     loadPlayer: function (src, to, volume) {
         if (volume === false){
             volume = 1;

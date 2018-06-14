@@ -25,6 +25,7 @@ var _mysql = require('mysql');
 var util = require('util');
 var crypto = require('crypto');
 var url = require('url');
+const getDuration = require('get-video-duration');
 var mysql = null;
 
 if(false){
@@ -2309,93 +2310,6 @@ function addVideoYT(socket,data,meta,successCallback,failureCallback){
 	req.end();
 }
 
-function addVideoDrive(socket,data,meta,successCallback,failureCallback){
-	var videoid = data.videoid.trim();
-	if(videoid.length==0)
-	{
-		if(failureCallback)failureCallback();
-		return;
-	}
-	//https://www.googleapis.com/drive/v2/files/0B1QyHWF0Bf_DOV8wMnViVFIzVVU?key=AIzaSyBBM2fo32Pzrcf0GHO5LnEHxjYd1T1li-Q
-	var options = {
-		host: 'www.googleapis.com',
-		port: 443,
-		method: 'GET',
-		path: '/drive/v2/files/'+(videoid.toString())+'?key=AIzaSyBBM2fo32Pzrcf0GHO5LnEHxjYd1T1li-Q'
-	};
-	var recievedBody = "";
-	var req = https.request(options, function(res) {
-		res.setEncoding('utf8');
-		res.on('data', function (chunk) {
-			console.log("got data");
-			recievedBody += chunk;
-		});
-
-		res.on('end', function(){ //7zLNB9z_AI4
-			try {
-				var vidObj = JSON.parse(recievedBody);
-			} catch (e) {
-				OK = false;
-				console.log("bad json response, printing raw");
-				console.log(recievedBody);
-				return;
-			}
-
-			var formattedTitle = "Cades fucked it up";
-			var formattedTime = "fucked";
-			var restricted = [];
-			var embeddable = true;
-
-			if(
-				vidObj &&
-				vidObj.title
-			) formattedTitle = vidObj.title;
-
-			if(
-				vidObj &&
-				vidObj.videoMediaMetadata &&
-				vidObj.videoMediaMetadata.durationMillis
-			) formattedTime = vidObj.videoMediaMetadata.durationMillis / 1000;
-
-
-			var OK = true;
-			var restrictReasons = {};
-
-			var pos = SERVER.PLAYLIST.length;
-
-			if(OK){
-				adminLog(socket, {msg: "Added youtube video "+formattedTitle, type: "playlist"});
-				var volat = data.volat;
-				if(meta.type <= 0) volat = true;
-				if(volat === undefined) volat = false;
-
-				rawAddVideo({
-					pos:pos,
-					videoid:videoid,
-					videotitle:encodeURI(formattedTitle),
-					videolength:formattedTime,
-					videotype:"drive",
-					who:meta.nick,
-					queue:data.queue,
-					volat:volat
-				},function(){
-					if(successCallback)successCallback();
-				},function(err){
-					if(failureCallback)failureCallback(err);
-				})
-			}else{
-				if(failureCallback)failureCallback();
-			}
-		});
-	});
-
-	req.on('error', function(e) {
-		if(failureCallback)failureCallback(e);
-	});
-
-	req.end();
-}
-
 function followRedirect(options, successCallback,failureCallback){
 	http.get(options, function (res) {
 		// Detect a redirect
@@ -2492,69 +2406,48 @@ function addVideoSoundCloud(socket,data,meta,successCallback,failureCallback){
 	});
 }
 
-function addVideoDM(socket,data,meta,successCallback,failureCallback){
+function addVideoFile(socket,data,meta,successCallback,failureCallback){
+	if (!failureCallback){
+		failureCallback = function(){};
+	}
+
 	var videoid = data.videoid.trim();
-	var path;
 	if(videoid.length==0)
 	{
-		if(failureCallback)failureCallback();
+		failureCallback();
 		return;
 	}
-	//https://api.dailymotion.com/video/x7lni3_mario-kart-remi-gaillard_fun?fields=id,duration,title
-	if(videoid.substring(0,2) == "DM") videoid = videoid.substring(2);
-	path = '/video/'+videoid+'?fields=id,duration,title';
-	var options = {
-		host: 'api.dailymotion.com',
-		port: 443,
-		method: 'GET',
-		path: path
-	};
-	debugLog("Calling dailymotion api: " + path);
-	var recievedBody = "";
-	var req = https.get(options, function(res) {
-		res.setEncoding('utf8');
-		res.on('data', function (chunk) {
-			recievedBody += chunk;
+	getDuration(videoid).then(duration => {
+		duration = Math.ceil(duration || 0);
+		if (duration <= 0) {
+			failureCallback('no duration');
+			return;
+		}
+		adminLog(socket, {msg:"Added file video "+videoid, type:"playlist"});
+		var volat = data.volat;
+		if(meta.type <= 0) volat = true;
+		if(volat === undefined) volat = false;
+		const parts = videoid.split('/');
+		rawAddVideo({
+			pos: SERVER.PLAYLIST.length,
+			// Don't collide with vimeo
+			videoid: videoid,
+			videotitle: encodeURI(parts[parts.length-1]),
+			videolength: duration,
+			videotype: "file",
+			who: meta.nick,
+			queue: data.queue,
+			volat: volat
+		}, function () {
+			if (successCallback)successCallback();
+		}, function (err) {
+			if (failureCallback)failureCallback(err);
 		});
-		res.on('end', function(){
-			try {
-				jdata = JSON.parse(recievedBody);
-			}
-			catch (err) {
-				if (failureCallback)failureCallback(err);
-				return;
-			}
-			debugLog("Dailymotion API response: " + recievedBody);
-			adminLog(socket, {msg:"Added Dailymotion video "+jdata.title, type:"playlist"});
-			var volat = data.volat;
-			if(meta.type <= 0) volat = true;
-			if(volat === undefined) volat = false;
-			rawAddVideo({
-				pos: SERVER.PLAYLIST.length,
-				// Don't collide with vimeo/sc
-				videoid: 'DM'+jdata.id,
-				videotitle: encodeURI(jdata.title),
-				// dm is seconds
-				videolength: jdata.duration,
-				videotype: "dm",
-				who: meta.nick,
-				queue: data.queue,
-				volat: volat,
-				meta: {}
-			}, function () {
-				if (successCallback)successCallback();
-			}, function (err) {
-				debugLog('Error calling dailymotion api: ' + err);
-				if (failureCallback)failureCallback(err);
-			});
-		});
-	}).on('error', function(e) {
-		debugLog('Blew up requesting: ' + options.path + " error: " + e);
-		if(failureCallback) failureCallback(e);
+	}).catch(err => {
+		console.log('duration error', err);
+		failureCallback(err);
 	});
 }
-
-
 
 /* Permission Abstractions */
 function ifShouldSendVideoData(socket,truecallback,falsecallback){
@@ -3497,16 +3390,7 @@ io.sockets.on('connection', function (socket) {
 	socket.on("addVideo",function(data){
 		ifCanControlPlaylist(socket,function(meta){
 			console.log(data);
-			if(data.videotype == "drive"){
-				console.log('calling addVideoDrive');
-				addVideoDrive(socket,data,meta,function(){
-					debugLog("Video Added");
-				},function(err){
-					debugLog(err);
-					socket.emit("dupeAdd");
-				})
-			}
-			else if(data.videotype == "yt"){
+			if(data.videotype == "yt"){
 				addVideoYT(socket,data,meta,function(){
 					debugLog("Video Added");
 				},function(err){
@@ -3530,14 +3414,15 @@ io.sockets.on('connection', function (socket) {
 					socket.emit("dupeAdd");
 				});
 			}
-			else if(data.videotype == "dm"){
-				addVideoDM(socket,data,meta,function(){
+			else if(data.videotype == "file"){
+				addVideoFile(socket,data,meta,function(){
 					debugLog("Video Added");
 				},function(err){
 					debugLog(err);
 					socket.emit("dupeAdd");
 				});
-			} else {
+			}
+			else {
 				// Okay, so, it wasn't vimeo and it wasn't youtube, assume it's a livestream and just queue it.
 				// This requires a videotitle and a videotype that the client understands.
 
