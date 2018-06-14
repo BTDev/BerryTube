@@ -1883,7 +1883,7 @@ $(function(){
 		if(event.keyCode == 27){ event.preventDefault(); } // Stop escape killing connection in firefox.
 	});
 
-	if (MY_COUNTRY) {
+	if (MY_COUNTRY && window.cookieconsent) {
 		window.cookieconsent.hasTransition = false;
 		window.cookieconsent.initialise({
 		    palette: {
