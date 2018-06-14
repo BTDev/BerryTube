@@ -1900,6 +1900,19 @@ $(function(){
 		    position: "bottom-left",
 		    law: {
 		    	countryCode: MY_COUNTRY
+		    },
+		    content: {
+		    	message: 'Like every other website on the planet, we use cookies.',
+		    	link: 'Would you like to know more?',
+		    	href: 'https://cookiesandyou.com'
+		    },
+		    elements: {
+		    	messagelink:
+		    		'<span id="cookieconsent:desc" class="cc-message">' +
+		    		'<img style="float:right;margin-left:1em" src="'+CDN_ORIGIN+'/images/cookies/'+Math.floor(Math.random()*5)+'.png">' +
+		    		'{{message}} ' +
+		    		'<a aria-label="learn more about cookies" tabindex="0" class="cc-link" href="{{href}}" target="_blank">{{link}}</a>' +
+		    		'</span>'
 		    }
 		});
 	}
