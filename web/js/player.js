@@ -396,3 +396,51 @@ window.PLAYERS.soundcloud = {
 		if(callback)callback($('#scVolumeSlider').slider('value') / 100.0);
     }
 };
+
+window.PLAYERS.videojs = {
+    loadPlayer: function (src, to, volume) {
+        if (volume === false){
+            volume = 1;
+        }
+        var player = $("<video>", {
+            "style" : "width:100%;height:100%",
+            "id" : "vjs_player",
+            "data-setup" : '{ "autoplay": true, "controls": true }',
+            "class" : "video-js vjs-default-skin"
+        });
+
+        const parts = src.split('.');
+        var source = $("<source>", {
+            "src" : src,
+            "type" : "video/" + parts[parts.length - 1]
+        });
+
+        player.append(source);
+
+        $("#ytapiplayer").append(player);
+        videojs("vjs_player").ready(function(){
+            this.volume(volume);
+            this.on('volumechange',function(){
+                VOLUME = this.volume();
+            });
+        });
+    },
+    pause: function () {
+        videojs('vjs_player').pause();
+    },
+    play: function () {
+        videojs('vjs_player').play();
+    },
+    seek: function (pos) {
+        videojs('vjs_player').currentTime(pos);
+    },
+    getVideoState: function () {
+        return 1;
+    },
+    getTime: function (callback) {
+        if(callback) callback(videojs('vjs_player').currentTime());
+    },
+    getVolume: function(callback){
+        if (callback) callback(videojs('vjs_player').volume());
+    }
+};

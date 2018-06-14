@@ -53,7 +53,7 @@
 
 <link rel="stylesheet" href="<?= cdn('css/colors.css') ?>" id="mainTheme"/>
 <link rel="stylesheet" href="<?= cdn('css/layout-other.css') ?>"/>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/video.js/5.4.4/video-js.min.css" integrity="sha256-UeMWbsVFjXKSEQ5njaTwWasAFZJsen4UMOHfTHNZtBA=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/video.js/7.0.5/video-js.min.css" integrity="sha256-V6DHTwYvoVIEckEnXnIHN9DWMJYSs8SBzO5vIJQrVXY=" crossorigin="anonymous" />
 <link rel="stylesheet" href="<?= cdn('css/uni-gui.css') ?>" />
 <!-- Don't update jQuery UI; it breaks sortable performance -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.4/themes/ui-lightness/jquery-ui.min.css" integrity="sha256-VQzrlVm7QjdSeQn/IecZgE9rnfM390H3VoIcDJljOSs=" crossorigin="anonymous" />
@@ -88,7 +88,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/swfobject/2.2/swfobject.min.js" integrity="sha256-oYy9uw+7cz1/TLpdKv1rJwbj8UHHQ/SRBX5YADaM2OU=" crossorigin="anonymous"></script>
 <script src="https://w.soundcloud.com/player/api.js"></script>
 <script src="https://player.vimeo.com/api/player.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/video.js/5.4.4/video.min.js" integrity="sha256-G7x2zGxKAoYkH+OZEozBSzZ5K7Dh+5T+k9FBQ0GGTcw=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/video.js/7.0.5/video.min.js" integrity="sha256-m/9LXrATPmrFPoi/sfeUpug10+/7X6a1K/sZiclo6/w=" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/0.9.16/socket.io.min.js" integrity="sha256-bFYtqOZj1MLDlOrOlxCU9aruDP2zxiIKvmoo+dHsy4w=" crossorigin="anonymous"></script>
 
 <script>
