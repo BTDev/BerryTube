@@ -1679,17 +1679,12 @@ function videoPause(){
 /* Utilities */
 function parseVideoURL(url,callback){
 	console.log(url);
-	var m = url.match(new RegExp("drive.google.com\/file\/d\/([^\/]+)")); if(m){	callback(m[1],"drive"); return;}
 	var m = url.match(new RegExp("youtube\\.com/watch.*?[&?]v=([a-zA-Z0-9_-]{11})")); if(m){	callback(m[1],"yt"); return;}
 	var m = url.match(new RegExp("youtu\\.be/([a-zA-Z0-9_-]{11})")); if(m){ callback(m[1],"yt"); return;}
 	var m = url.match(new RegExp("^rtmp://")); if(m){ callback(url,"osmf", "~ Raw Livestream ~"); return;}
 	var m = url.match(new RegExp("\\.f4m$")); if(m){ callback(url,"osmf", "~ Raw Livestream ~"); return;}
 	var m = url.match(new RegExp("vimeo.com/([^&]+)")); if(m){ callback(m[1],"vimeo"); return;}
-	var m = url.match(new RegExp("livestream.com/([^&]+)")); if(m){ callback(m[1],"livest", "Livestream.com: " + m[1]); return;}
-	var m = url.match(new RegExp("twitch.tv/([^&]+)")); if(m){ callback(m[1],"twitch", "twitch.tv: " + m[1]); return;}
-	var m = url.match(new RegExp("justin.tv/([^&]+)")); if(m){ callback(m[1],"twitch", "justin.tv: " + m[1]); return;}
 	var m = url.match(new RegExp("(https?://soundcloud.com/[^/]+/[^/?]+)")); if(m){ callback(m[1],"soundcloud"); return;}
-	var m = url.match(new RegExp("https?://www.dailymotion.com/video/([^_]+)")); if(m){ callback(m[1], "dm"); return;}
 	// ppshrug
 	callback(url,"yt");
 }
