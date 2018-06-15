@@ -55,16 +55,13 @@
 <link rel="stylesheet" href="<?= cdn('css/layout-other.css') ?>"/>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/video.js/7.0.5/video-js.min.css" integrity="sha256-V6DHTwYvoVIEckEnXnIHN9DWMJYSs8SBzO5vIJQrVXY=" crossorigin="anonymous" />
 <link rel="stylesheet" href="<?= cdn('css/uni-gui.css') ?>" />
-<!-- Don't update jQuery UI; it breaks sortable performance -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.4/themes/ui-lightness/jquery-ui.min.css" integrity="sha256-VQzrlVm7QjdSeQn/IecZgE9rnfM390H3VoIcDJljOSs=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/themes/ui-lightness/jquery-ui.min.css" integrity="sha256-N7K28w/GcZ69NlFwqiKb1d5YXy37TSfgduj5gQ6x8m0=" crossorigin="anonymous" />
 <link rel="stylesheet" href="<?= cdn('css/countdown.css') ?>" />
 <link rel="stylesheet" href="<?= cdn('berrymotes/css/berryemotecore.css') ?>" />
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cookieconsent2/3.0.6/cookieconsent.min.css" integrity="sha256-00kGHOz9RdKF3UMt7O3Ookbg/gzvO40T0znI4awon7A=" crossorigin="anonymous" />
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-migrate/3.0.1/jquery-migrate.min.js" integrity="sha256-F0O1TmEa4I8N24nY0bya59eP6svWcshqX1uzwaWC4F4=" crossorigin="anonymous"></script>
-<!-- Don't update jQuery UI; it breaks sortable performance -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js" integrity="sha256-xNjb53/rY+WmG+4L6tTl9m6PpqknWZvRt0rO1SRnJzw=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js" integrity="sha256-KM512VNnjElC30ehFwehXjx1YCHPiQkOPmqnrWtpccM=" crossorigin="anonymous"></script>
 
 <?php
 	// Load any other headers, like from the theme cookie.
