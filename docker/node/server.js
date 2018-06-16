@@ -1073,7 +1073,7 @@ var commit = function(){
 	for(var i=0;i<SERVER.PLAYLIST.length;i++)
 	{
 		var q = 'update '+SERVER.dbcon.video_table+' set position = ? where videoid = ?'; debugLog(q);
-		mysql.query(q, [i, elem.videoid], function(err, result, fields) {
+		mysql.query(q, [i, '' + elem.videoid], function(err, result, fields) {
 			if (err) {
 			//throw err;
 				console.error(err);
@@ -1518,7 +1518,7 @@ function _setVideoColorTag(elem,pos,tag,volat){
 	}
 
 	var q = 'update '+SERVER.dbcon.video_table+' set meta = ? where videoid = ?'; debugLog(q);
-	mysql.query(q, [JSON.stringify(elem.meta), elem.videoid], function(err, result, fields) {
+	mysql.query(q, [JSON.stringify(elem.meta), '' + elem.videoid], function(err, result, fields) {
 		if (err) {
 			//throw err;
 			console.error(err);
@@ -1791,7 +1791,7 @@ function delVideo(data, socket){
 				if(elem.videolength > 0) {
 					historyQuery = "insert into videos_history (videoid, videotitle, videolength, videotype, date_added, meta) values (?,?,?,?,NOW(),?)";
 					historyQueryParams = [
-						elem.videoid,
+						'' + elem.videoid,
 						elem.videotitle,
 						elem.videolength,
 						elem.videotype,
@@ -1799,7 +1799,7 @@ function delVideo(data, socket){
 					];
 
 				}
-				mysql.query(q, [elem.videoid], function(err, result, fields) {
+				mysql.query(q, ['' + elem.videoid], function(err, result, fields) {
 					if (err) {
 						//throw err;
 						console.error(err);
@@ -1839,7 +1839,7 @@ function rawAddVideo(d,successCallback,failureCallback){
 
 	// Check for any existing metadata
 	var q = 'select meta from videos_history where videoid = ?';
-	mysql.query(q, [d.videoid], function(err, result, fields) {
+	mysql.query(q, ['' + d.videoid], function(err, result, fields) {
 		if (err) { console.error(err);	return;	}
 		if(result.length == 1){
 			try{
@@ -1847,7 +1847,7 @@ function rawAddVideo(d,successCallback,failureCallback){
 			}catch(e){}
 		}
 		var q = 'delete from videos_history where videoid = ?';
-		mysql.query(q, [d.videoid], function(err, result, fields) {
+		mysql.query(q, ['' + d.videoid], function(err, result, fields) {
 			if (err) {
 				//throw err;
 				console.error(err);
@@ -1858,7 +1858,7 @@ function rawAddVideo(d,successCallback,failureCallback){
 		if(!('addedon' in d.meta)){d.meta.addedon = new Date().getTime();}
 		q = 'insert into '+SERVER.dbcon.video_table+' (position, videoid, videotitle, videolength, videotype, videovia, meta) VALUES (?,?,?,?,?,?,?)'; debugLog(q);
 		var qParams = [ d.pos,
-						d.videoid,
+						'' + d.videoid,
 						d.videotitle,
 						d.videolength,
 						d.videotype,
@@ -3668,7 +3668,7 @@ io.sockets.on('connection', function (socket) {
 
 												var pos = SERVER.PLAYLIST.length + i;
 												var q = 'insert into '+SERVER.dbcon.video_table+' (position, videoid, videotitle, videolength, videovia) VALUES (?,?,?,?,?)'; debugLog(q);
-												var qParams = [pos, MEDIAS[i].videoid, MEDIAS[i].videotitle, MEDIAS[i].videolength, name];
+												var qParams = [pos, '' + MEDIAS[i].videoid, MEDIAS[i].videotitle, MEDIAS[i].videolength, name];
 												mysql.query(q, qParams, function(err, result, fields) {
 													if (err) {
 														debugLog(err);
