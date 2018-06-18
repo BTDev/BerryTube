@@ -597,7 +597,7 @@ function upsertMisc(data, callback){
 			console.error(err);
 		}
 		if(data.encode){
-			data.value = new Buffer(data.value).toString('base64');
+			data.value = Buffer.from(data.value).toString('base64');
 		}
 		var q = 'insert into misc (name,value) VALUES (?,?)'; debugLog(q);
 		mysql.query(q, [data.name, data.value], function(err, result, fields) {
@@ -622,7 +622,7 @@ function getMisc(data, callback){
 			try {
 				val = row.value;
 				if(data.encode){
-					val = new Buffer(val, 'base64').toString('utf8');
+					val = Buffer.from(val, 'base64').toString();
 				}
 			} catch(e) {
 				val = "";
@@ -731,8 +731,14 @@ function initAreas(){
 				var row = result[i];
 				var newArea = {
 					name:row.name,
-					html:(new Buffer(row.html, 'base64').toString('utf8'))
+					html:Buffer.from(row.html, 'base64').toString()
+				};
+				let decodes = 1;
+				while (decodes < 10 && newArea.html.length % 4 === 0 && /^[A-Za-z0-9+/]+=*$/.test(newArea.html)) {
+					newArea.html = Buffer.from(newArea.html, 'base64').toString();
+					decodes += 1;
 				}
+				console.log('area decodes', row.name, decodes);
 				SERVER.AREAS.push(newArea);
 			}
 		}
@@ -1087,7 +1093,7 @@ var commit = function(){
 	for(var i=0;i<SERVER.AREAS.length;i++)
 	{
 		var q = 'update areas set html = ? where name = ?'; debugLog(q);
-		mysql.query(q, [(new Buffer(SERVER.AREAS[i].html).toString('base64')).toString(), SERVER.AREAS[i].name], function(err, result, fields) {
+		mysql.query(q, [Buffer.from(SERVER.AREAS[i].html).toString('base64'), SERVER.AREAS[i].name], function(err, result, fields) {
 			if (err) {
 				//throw err;
 				console.error(err);
@@ -2803,7 +2809,7 @@ function userLogin(socket,data,truecallback,falsecallback){
 				var meta = {};
 				try {
 					if(result[0].meta)
-						meta = JSON.parse(new Buffer(result[0].meta, 'base64').toString('utf8')) || {};
+						meta = JSON.parse(Buffer.from(result[0].meta, 'base64').toString()) || {};
 				} catch(e){
 					console.error("Failed to parse user meta: ", e);
 					meta = {};
@@ -3782,14 +3788,14 @@ io.sockets.on('connection', function (socket) {
 								var meta = {};
 								try {
 									if(result[0].meta)
-										meta = JSON.parse(new Buffer(result[0].meta, 'base64').toString('utf8')) || {};
+										meta = JSON.parse(Buffer.from(result[0].meta, 'base64').toString()) || {};
 								} catch(e){
 									console.error("Failed to parse user meta: ", e);
 									meta = {};
 								}
 								meta.note = d.note;
 								q = "update users set meta = ? where name = ?";
-								mysql.query(q, [new Buffer(JSON.stringify(meta)).toString('base64'), d.nick], function(err, result, fields) {
+								mysql.query(q, [Buffer.from(JSON.stringify(meta)).toString('base64'), d.nick], function(err, result, fields) {
 									if (err) {
 										//throw err;
 										console.error(err);
