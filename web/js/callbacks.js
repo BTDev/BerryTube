@@ -301,6 +301,9 @@ socket.on("kicked",function(reason){
 	}
 	$('<div/>').addClass("kicked").text(msg).appendTo($('.chatbuffer'));
 });
+socket.on('serverRestart', function(){
+	onSocketReconnecting('serverRestart');
+});
 /* Poll Stuff */
 socket.on("newPoll",function(data){
 	newPoll(data);
@@ -361,16 +364,24 @@ socket.on("loginError",function(data){
 socket.on("debug",function(data){
 	dbg(data);
 });
-socket.on('reconnecting', function() {
+
+socket.on('reconnecting', () => { onSocketReconnecting('reconnecting'); });
+function onSocketReconnecting(from) {
 	// The socket disconnected and is trying to reconnect; display a message indicating it
 	if ($('.chatbuffer .reconnecting').length == 0) {
-		$('.chatbuffer').append($('<div/>').addClass('reconnecting').text('Connection lost. Attempting to reconnect...'));
+		let msg = 'Connection lost. Attempting to reconnect...';
+		if (from === 'serverRestart') {
+			msg = 'Server has restarted! Reconnecting...';
+		}
+
+		$('.chatbuffer').append($('<div/>').addClass('reconnecting').text(msg));
 		$('#chatinput input').prop('disabled', true);
 	}
 
 	// Also set this flag so that we don't get the ghost messages when we reconnect
 	IGNORE_GHOST_MESSAGES = true;
-});
+}
+
 socket.on('reconnect', function() {
 	// Reconnection was successful; if there's login data set, log the user back in
 	$('.chatbuffer .reconnecting').remove();

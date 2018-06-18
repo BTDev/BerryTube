@@ -199,10 +199,10 @@ var POLL_OPTIONS = [];
 
 try{
 	window.socket = io.connect(SOCKET_ORIGIN, {
-		'connect timeout': 5000,
+		'connect timeout': 4500 + Math.random() * 1000,
 		'reconnect': true,
-		'reconnection delay': 500,
-		'reopen delay': 500,
+		'reconnection delay': 500 + Math.random() * 1000,
+		'reopen delay': 500 + Math.random() * 1000,
 		'max reconnection attempts': 10
 	});
 

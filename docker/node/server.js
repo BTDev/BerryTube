@@ -1145,6 +1145,7 @@ console.log('commit delay', SERVER.settings.core.db_commit_delay);
 process.on('SIGTERM', function(signal){
 	console.log('Running commit before exit...');
 	clearInterval(commitInterval);
+	io.sockets.emit('serverRestart');
 	commit();
 	setTimeout(function(){
 		process.exit(128 + signal);
