@@ -590,6 +590,25 @@ function initPlaylist(callback){
 		console.log("SERVER.PLAYLIST loaded");
 	});
 }
+function initResumePosition(callback){
+	getMisc({name: 'server_active_videoid'}, function(old_videoid){
+		var elem = SERVER.PLAYLIST.first;
+		for(var i=0;i<SERVER.PLAYLIST.length;i++){
+			if(elem.videoid == old_videoid){
+				SERVER.ACTIVE = elem;
+				getMisc({name: 'server_time'}, function(old_time){
+					if (+old_time) {
+						SERVER.TIME = +old_time + 1;
+					}
+					if(callback)callback();
+				});
+				return;
+			}
+			elem = elem.next;
+		}
+		if(callback)callback();
+	});
+}
 function upsertMisc(data, callback){
 	var q = 'delete from misc where name = ?'; debugLog(q);
 	mysql.query(q, [data.name], function(err, result, fields) {
@@ -1075,7 +1094,6 @@ function cleanUsers(){
 */
 }
 var commit = function(){
-	console.log("commit");
 	var elem = SERVER.PLAYLIST.first;
 	for(var i=0;i<SERVER.PLAYLIST.length;i++)
 	{
@@ -1117,9 +1135,22 @@ var commit = function(){
 	// Dunno if this will be necessary, but leaving it in case
 	upsertMisc({name:'hardbant_ips', value:JSON.stringify(SERVER.BANS), encode:true});
 
-};setInterval(commit,SERVER.settings.core.db_commit_delay);
-console.log(SERVER.settings.core.db_commit_delay);
-//};setInterval(commit,1000);
+	upsertMisc({name:'server_time', value:''+Math.ceil(SERVER.TIME)});
+	upsertMisc({name:'server_active_videoid', value:''+SERVER.ACTIVE.videoid});
+};
+
+const commitInterval = setInterval(commit,SERVER.settings.core.db_commit_delay);
+console.log('commit delay', SERVER.settings.core.db_commit_delay);
+
+process.on('SIGTERM', function(signal){
+	console.log('Running commit before exit...');
+	clearInterval(commitInterval);
+	commit();
+	setTimeout(function(){
+		process.exit(128 + signal);
+	}, 1000);
+});
+
 function hotPotatoLeader(departing){
 	SERVER.LEADER=false;
 	var clients = io.sockets.clients();
@@ -2966,7 +2997,9 @@ function numConnectionsByIP(socket,over,overcallback,elsecallback){
 }
 /* RUN ONCE INIT */
 initPlaylist(function(){
-	initTimer();
+	initResumePosition(function(){
+		initTimer();
+	});
 });
 initShadowbant();
 initHardbant();
