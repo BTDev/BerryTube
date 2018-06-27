@@ -615,9 +615,6 @@ function upsertMisc(data, callback){
 		if (err) {
 			console.error(err);
 		}
-		if(data.encode){
-			data.value = Buffer.from(data.value).toString('base64');
-		}
 		var q = 'insert into misc (name,value) VALUES (?,?)'; debugLog(q);
 		mysql.query(q, [data.name, data.value], function(err, result, fields) {
 			if (err) {
@@ -640,9 +637,6 @@ function getMisc(data, callback){
 			var row = result[0];
 			try {
 				val = row.value;
-				if(data.encode){
-					val = Buffer.from(val, 'base64').toString();
-				}
 			} catch(e) {
 				val = "";
 				debugLog("Bad stored misc. Blah. " + data.name);
@@ -652,7 +646,7 @@ function getMisc(data, callback){
 	});
 }
 function initHardbant(callback){
-	getMisc({name:'hardbant_ips', encode:true}, function(ips){
+	getMisc({name:'hardbant_ips'}, function(ips){
 		if (ips) {
 			SERVER.BANS = JSON.parse(ips) || [];
 		}
@@ -661,7 +655,7 @@ function initHardbant(callback){
 	});
 }
 function initShadowbant(callback){
-	getMisc({name:'shadowbant_ips', encode:true}, function(ips){
+	getMisc({name:'shadowbant_ips'}, function(ips){
 		if(ips){
 			var shadowbant = JSON.parse(ips) || [];
 			for(var i=0;i<shadowbant.length;++i){
@@ -682,7 +676,7 @@ function initShadowbant(callback){
 	});
 }
 function initFilters(callback){
-	getMisc({name:'filters', encode:true}, function(filters){
+	getMisc({name:'filters'}, function(filters){
 		if(filters){
 			SERVER.FILTERS = [];
 			try {
@@ -750,14 +744,8 @@ function initAreas(){
 				var row = result[i];
 				var newArea = {
 					name:row.name,
-					html:Buffer.from(row.html, 'base64').toString()
+					html:row.html
 				};
-				let decodes = 1;
-				while (decodes < 10 && newArea.html.length % 4 === 0 && /^[A-Za-z0-9+/]+=*$/.test(newArea.html)) {
-					newArea.html = Buffer.from(newArea.html, 'base64').toString();
-					decodes += 1;
-				}
-				console.log('area decodes', row.name, decodes);
 				SERVER.AREAS.push(newArea);
 			}
 		}
@@ -1111,7 +1099,7 @@ var commit = function(){
 	for(var i=0;i<SERVER.AREAS.length;i++)
 	{
 		var q = 'update areas set html = ? where name = ?'; debugLog(q);
-		mysql.query(q, [Buffer.from(SERVER.AREAS[i].html).toString('base64'), SERVER.AREAS[i].name], function(err, result, fields) {
+		mysql.query(q, [SERVER.AREAS[i].html, SERVER.AREAS[i].name], function(err, result, fields) {
 			if (err) {
 				//throw err;
 				console.error(err);
@@ -1120,20 +1108,20 @@ var commit = function(){
 		});
 	}
 
-	upsertMisc({name:'filters', value:JSON.stringify(SERVER.FILTERS), encode:true});
+	upsertMisc({name:'filters', value:JSON.stringify(SERVER.FILTERS)});
 
 	var shadowbant = [];
 	for(var i in SERVER.SHADOWBANT_IPS){
 		shadowbant.push({ip:i, temp:SERVER.SHADOWBANT_IPS[i].temp || false});
 	}
-	upsertMisc({name:'shadowbant_ips', value:JSON.stringify(shadowbant), encode:true});
+	upsertMisc({name:'shadowbant_ips', value:JSON.stringify(shadowbant)});
 
 	/*var hardbant = [];
 	for(var i in SERVER.SHADOWBANT_IPS){
 		hardbant.push({ip:i, temp:SERVER.SHADOWBANT_IPS[i].temp || false});
 	}*/
 	// Dunno if this will be necessary, but leaving it in case
-	upsertMisc({name:'hardbant_ips', value:JSON.stringify(SERVER.BANS), encode:true});
+	upsertMisc({name:'hardbant_ips', value:JSON.stringify(SERVER.BANS)});
 
 	upsertMisc({name:'server_time', value:''+Math.ceil(SERVER.TIME)});
 	upsertMisc({name:'server_active_videoid', value:''+SERVER.ACTIVE.videoid});
@@ -2841,7 +2829,7 @@ function userLogin(socket,data,truecallback,falsecallback){
 				var meta = {};
 				try {
 					if(result[0].meta)
-						meta = JSON.parse(Buffer.from(result[0].meta, 'base64').toString()) || {};
+						meta = JSON.parse(result[0].meta) || {};
 				} catch(e){
 					console.error("Failed to parse user meta: ", e);
 					meta = {};
@@ -3822,14 +3810,14 @@ io.sockets.on('connection', function (socket) {
 								var meta = {};
 								try {
 									if(result[0].meta)
-										meta = JSON.parse(Buffer.from(result[0].meta, 'base64').toString()) || {};
+										meta = JSON.parse(result[0].meta) || {};
 								} catch(e){
 									console.error("Failed to parse user meta: ", e);
 									meta = {};
 								}
 								meta.note = d.note;
 								q = "update users set meta = ? where name = ?";
-								mysql.query(q, [Buffer.from(JSON.stringify(meta)).toString('base64'), d.nick], function(err, result, fields) {
+								mysql.query(q, [JSON.stringify(meta), d.nick], function(err, result, fields) {
 									if (err) {
 										//throw err;
 										console.error(err);

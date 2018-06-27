@@ -29,11 +29,11 @@
 				//die($mysqli->error);
 				$create = '
 					CREATE TABLE IF NOT EXISTS `api` (
-					  `id` int(10) unsigned NOT NULL auto_increment,
+					  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
 					  `ip` varchar(20) NOT NULL,
-					  `session` blob NOT NULL,
-					  PRIMARY KEY  (`id`)
-					) ENGINE=MyISAM DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+				      `session` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci`,
+					  PRIMARY KEY (`id`)
+					) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 				';
 				$this->mysqli->query($create);
 				$result = $this->mysqli->query($q);
@@ -42,19 +42,19 @@
 			// Handle New IP.
 			if($result->num_rows == 0){
 				// Create inital.
-				$q = 'insert into `api` (`ip`,`session`) VALUES ("'.CLIENT_IP.'","'.(base64_encode(json_encode(array()))).'");';
+				$q = 'insert into `api` (`ip`,`session`) VALUES ("'.CLIENT_IP.'","'.($this->mysqli->real_escape_string(json_encode(array()))).'");';
 				$this->mysqli->query($q);
 			}
 
 			while($row = $result->fetch_array(MYSQLI_ASSOC)){
-				$this->session = json_decode(base64_decode($row['session']));
+				$this->session = (object)json_decode($row['session']);
 			}
 			/* free result set */
 			$result->close();
 		}
 
 		function save(){
-			$q = 'update `api` set `session` = "'.(base64_encode(json_encode($this->session))).'" where `ip` = "'.CLIENT_IP.'"';
+			$q = 'update `api` set `session` = "'.($this->mysqli->real_escape_string(json_encode($this->session))).'" where `ip` = "'.CLIENT_IP.'"';
 			//print $q;
 			$this->mysqli->query($q);
 		}

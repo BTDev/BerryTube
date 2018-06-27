@@ -90,7 +90,7 @@ services:
             - MYSQL_PASSWORD
         volumes:
             - mysql:/var/lib/mysql
-            - ./schema.sql:/docker-entrypoint-initdb.d/berrytube.sql:ro
+            - ./initdb.d:/docker-entrypoint-initdb.d:ro
         expose:
             - '3306'
         networks:
