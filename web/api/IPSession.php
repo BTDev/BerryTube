@@ -12,21 +12,6 @@ class ipSession{
 		$q = 'select `session` from `api` where `ip` = "'.CLIENT_IP.'"';
 		$result = $this->mysqli->query($q);
 
-		// Handle No Table
-		if(!$result){
-			//die($mysqli->error);
-			$create = '
-				CREATE TABLE IF NOT EXISTS `api` (
-				  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-				  `ip` varchar(20) NOT NULL,
-				  `session` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci`,
-				  PRIMARY KEY (`id`)
-				) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-			';
-			$this->mysqli->query($create);
-			$result = $this->mysqli->query($q);
-		}
-
 		// Handle New IP.
 		if($result->num_rows == 0){
 			// Create inital.
@@ -46,14 +31,4 @@ class ipSession{
 		//print $q;
 		$this->mysqli->query($q);
 	}
-	/*
-
-CREATE TABLE IF NOT EXISTS `api` (
-`id` int(10) unsigned NOT NULL auto_increment,
-`ip` varchar(20) NOT NULL,
-`session` blob NOT NULL,
-PRIMARY KEY  (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
-
-*/
 }
