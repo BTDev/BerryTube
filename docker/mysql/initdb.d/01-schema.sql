@@ -32,20 +32,6 @@ CREATE TABLE `areas` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
--- Table structure for table `ban_list`
---
-
- SET character_set_client = utf8mb4 ;
-CREATE TABLE `ban_list` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `username` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci,
-  `ip` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci,
-  `expires` datetime NOT NULL,
-  `meta` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
---
 -- Table structure for table `misc`
 --
 
