@@ -14,6 +14,8 @@ function removeCurrentPlayer() {
 	setVal("DMPLAYERREADY", false);
 }
 
+window.PLAYERS.dm = {};
+
 window.PLAYERS.yt = {
     playVideo: function (id, at) {
         var self = this;
