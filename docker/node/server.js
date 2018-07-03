@@ -1845,11 +1845,11 @@ function delVideo(data, socket){
 				elem.deleted = true;
 				break;
 			} catch(e) {
+				console.error(e);
 				console.error("Error deleting video. Proceeding.");
 			}
 		}
 		try{
-			//console.log(elem);
 			if(typeof elem != "undefined" && elem != null){
 				elem=elem.next;
 			} else {

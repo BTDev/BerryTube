@@ -197,12 +197,10 @@ socket.on("delVideo",function(data){
         socket.emit("refreshMyPlaylist");
     }
     else {
-        elem.domobj.hide("blind",function(){
-            $(this).remove();
-            PLAYLIST.remove(elem);
-            smartRefreshScrollbar();
-            recalcStats();
-        });
+        elem.domobj.remove();
+        PLAYLIST.remove(elem);
+        smartRefreshScrollbar();
+        recalcStats();
     }
 });
 socket.on("setLeader",function(data){
