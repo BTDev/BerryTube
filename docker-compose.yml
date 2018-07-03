@@ -80,17 +80,17 @@ services:
             - mysql
 
     mysql:
-        image: mysql:8.0
+        build: ./docker/mysql/
         command: --default-authentication-plugin=mysql_native_password
         restart: always
         environment:
             - MYSQL_RANDOM_ROOT_PASSWORD=yes
+            - MYSQL_ONETIME_PASSWORD=yes
             - MYSQL_DATABASE=berrytube
             - MYSQL_USER=berrytube
             - MYSQL_PASSWORD
         volumes:
             - mysql:/var/lib/mysql
-            - ./schema.sql:/docker-entrypoint-initdb.d/berrytube.sql:ro
         expose:
             - '3306'
         networks:

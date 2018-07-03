@@ -25,6 +25,7 @@ var _mysql = require('mysql');
 var util = require('util');
 var crypto = require('crypto');
 var url = require('url');
+const getDuration = require('get-video-duration');
 var mysql = null;
 
 if(false){
@@ -73,7 +74,7 @@ function dbInit(){
 		user: SERVER.dbcon.mysql_user,
 		password: SERVER.dbcon.mysql_pass
 	};
-	mysql = _mysql.createClient(config);
+	mysql = _mysql.createConnection(config);
 	handleDisconnect(mysql); // Yes this needs to be here.
 	mysql.query('use ' + SERVER.dbcon.database);
 }
@@ -589,14 +590,30 @@ function initPlaylist(callback){
 		console.log("SERVER.PLAYLIST loaded");
 	});
 }
+function initResumePosition(callback){
+	getMisc({name: 'server_active_videoid'}, function(old_videoid){
+		var elem = SERVER.PLAYLIST.first;
+		for(var i=0;i<SERVER.PLAYLIST.length;i++){
+			if(elem.videoid == old_videoid){
+				SERVER.ACTIVE = elem;
+				getMisc({name: 'server_time'}, function(old_time){
+					if (+old_time) {
+						SERVER.TIME = +old_time + 1;
+					}
+					if(callback)callback();
+				});
+				return;
+			}
+			elem = elem.next;
+		}
+		if(callback)callback();
+	});
+}
 function upsertMisc(data, callback){
 	var q = 'delete from misc where name = ?'; debugLog(q);
 	mysql.query(q, [data.name], function(err, result, fields) {
 		if (err) {
 			console.error(err);
-		}
-		if(data.encode){
-			data.value = new Buffer(data.value).toString('base64');
 		}
 		var q = 'insert into misc (name,value) VALUES (?,?)'; debugLog(q);
 		mysql.query(q, [data.name, data.value], function(err, result, fields) {
@@ -620,9 +637,6 @@ function getMisc(data, callback){
 			var row = result[0];
 			try {
 				val = row.value;
-				if(data.encode){
-					val = new Buffer(val, 'base64').toString('utf8');
-				}
 			} catch(e) {
 				val = "";
 				debugLog("Bad stored misc. Blah. " + data.name);
@@ -632,7 +646,7 @@ function getMisc(data, callback){
 	});
 }
 function initHardbant(callback){
-	getMisc({name:'hardbant_ips', encode:true}, function(ips){
+	getMisc({name:'hardbant_ips'}, function(ips){
 		if (ips) {
 			SERVER.BANS = JSON.parse(ips) || [];
 		}
@@ -641,7 +655,7 @@ function initHardbant(callback){
 	});
 }
 function initShadowbant(callback){
-	getMisc({name:'shadowbant_ips', encode:true}, function(ips){
+	getMisc({name:'shadowbant_ips'}, function(ips){
 		if(ips){
 			var shadowbant = JSON.parse(ips) || [];
 			for(var i=0;i<shadowbant.length;++i){
@@ -662,7 +676,7 @@ function initShadowbant(callback){
 	});
 }
 function initFilters(callback){
-	getMisc({name:'filters', encode:true}, function(filters){
+	getMisc({name:'filters'}, function(filters){
 		if(filters){
 			SERVER.FILTERS = [];
 			try {
@@ -730,8 +744,8 @@ function initAreas(){
 				var row = result[i];
 				var newArea = {
 					name:row.name,
-					html:(new Buffer(row.html, 'base64').toString('utf8'))
-				}
+					html:row.html
+				};
 				SERVER.AREAS.push(newArea);
 			}
 		}
@@ -1068,7 +1082,6 @@ function cleanUsers(){
 */
 }
 var commit = function(){
-	console.log("commit");
 	var elem = SERVER.PLAYLIST.first;
 	for(var i=0;i<SERVER.PLAYLIST.length;i++)
 	{
@@ -1086,7 +1099,7 @@ var commit = function(){
 	for(var i=0;i<SERVER.AREAS.length;i++)
 	{
 		var q = 'update areas set html = ? where name = ?'; debugLog(q);
-		mysql.query(q, [(new Buffer(SERVER.AREAS[i].html).toString('base64')).toString(), SERVER.AREAS[i].name], function(err, result, fields) {
+		mysql.query(q, [SERVER.AREAS[i].html, SERVER.AREAS[i].name], function(err, result, fields) {
 			if (err) {
 				//throw err;
 				console.error(err);
@@ -1095,24 +1108,38 @@ var commit = function(){
 		});
 	}
 
-	upsertMisc({name:'filters', value:JSON.stringify(SERVER.FILTERS), encode:true});
+	upsertMisc({name:'filters', value:JSON.stringify(SERVER.FILTERS)});
 
 	var shadowbant = [];
 	for(var i in SERVER.SHADOWBANT_IPS){
 		shadowbant.push({ip:i, temp:SERVER.SHADOWBANT_IPS[i].temp || false});
 	}
-	upsertMisc({name:'shadowbant_ips', value:JSON.stringify(shadowbant), encode:true});
+	upsertMisc({name:'shadowbant_ips', value:JSON.stringify(shadowbant)});
 
 	/*var hardbant = [];
 	for(var i in SERVER.SHADOWBANT_IPS){
 		hardbant.push({ip:i, temp:SERVER.SHADOWBANT_IPS[i].temp || false});
 	}*/
 	// Dunno if this will be necessary, but leaving it in case
-	upsertMisc({name:'hardbant_ips', value:JSON.stringify(SERVER.BANS), encode:true});
+	upsertMisc({name:'hardbant_ips', value:JSON.stringify(SERVER.BANS)});
 
-};setInterval(commit,SERVER.settings.core.db_commit_delay);
-console.log(SERVER.settings.core.db_commit_delay);
-//};setInterval(commit,1000);
+	upsertMisc({name:'server_time', value:''+Math.ceil(SERVER.TIME)});
+	upsertMisc({name:'server_active_videoid', value:''+SERVER.ACTIVE.videoid});
+};
+
+const commitInterval = setInterval(commit,SERVER.settings.core.db_commit_delay);
+console.log('commit delay', SERVER.settings.core.db_commit_delay);
+
+process.on('SIGTERM', function(signal){
+	console.log('Running commit before exit...');
+	clearInterval(commitInterval);
+	io.sockets.emit('serverRestart');
+	commit();
+	setTimeout(function(){
+		process.exit(128 + signal);
+	}, 1000);
+});
+
 function hotPotatoLeader(departing){
 	SERVER.LEADER=false;
 	var clients = io.sockets.clients();
@@ -2309,93 +2336,6 @@ function addVideoYT(socket,data,meta,successCallback,failureCallback){
 	req.end();
 }
 
-function addVideoDrive(socket,data,meta,successCallback,failureCallback){
-	var videoid = data.videoid.trim();
-	if(videoid.length==0)
-	{
-		if(failureCallback)failureCallback();
-		return;
-	}
-	//https://www.googleapis.com/drive/v2/files/0B1QyHWF0Bf_DOV8wMnViVFIzVVU?key=AIzaSyBBM2fo32Pzrcf0GHO5LnEHxjYd1T1li-Q
-	var options = {
-		host: 'www.googleapis.com',
-		port: 443,
-		method: 'GET',
-		path: '/drive/v2/files/'+(videoid.toString())+'?key=AIzaSyBBM2fo32Pzrcf0GHO5LnEHxjYd1T1li-Q'
-	};
-	var recievedBody = "";
-	var req = https.request(options, function(res) {
-		res.setEncoding('utf8');
-		res.on('data', function (chunk) {
-			console.log("got data");
-			recievedBody += chunk;
-		});
-
-		res.on('end', function(){ //7zLNB9z_AI4
-			try {
-				var vidObj = JSON.parse(recievedBody);
-			} catch (e) {
-				OK = false;
-				console.log("bad json response, printing raw");
-				console.log(recievedBody);
-				return;
-			}
-
-			var formattedTitle = "Cades fucked it up";
-			var formattedTime = "fucked";
-			var restricted = [];
-			var embeddable = true;
-
-			if(
-				vidObj &&
-				vidObj.title
-			) formattedTitle = vidObj.title;
-
-			if(
-				vidObj &&
-				vidObj.videoMediaMetadata &&
-				vidObj.videoMediaMetadata.durationMillis
-			) formattedTime = vidObj.videoMediaMetadata.durationMillis / 1000;
-
-
-			var OK = true;
-			var restrictReasons = {};
-
-			var pos = SERVER.PLAYLIST.length;
-
-			if(OK){
-				adminLog(socket, {msg: "Added youtube video "+formattedTitle, type: "playlist"});
-				var volat = data.volat;
-				if(meta.type <= 0) volat = true;
-				if(volat === undefined) volat = false;
-
-				rawAddVideo({
-					pos:pos,
-					videoid:videoid,
-					videotitle:encodeURI(formattedTitle),
-					videolength:formattedTime,
-					videotype:"drive",
-					who:meta.nick,
-					queue:data.queue,
-					volat:volat
-				},function(){
-					if(successCallback)successCallback();
-				},function(err){
-					if(failureCallback)failureCallback(err);
-				})
-			}else{
-				if(failureCallback)failureCallback();
-			}
-		});
-	});
-
-	req.on('error', function(e) {
-		if(failureCallback)failureCallback(e);
-	});
-
-	req.end();
-}
-
 function followRedirect(options, successCallback,failureCallback){
 	http.get(options, function (res) {
 		// Detect a redirect
@@ -2492,69 +2432,48 @@ function addVideoSoundCloud(socket,data,meta,successCallback,failureCallback){
 	});
 }
 
-function addVideoDM(socket,data,meta,successCallback,failureCallback){
+function addVideoFile(socket,data,meta,successCallback,failureCallback){
+	if (!failureCallback){
+		failureCallback = function(){};
+	}
+
 	var videoid = data.videoid.trim();
-	var path;
 	if(videoid.length==0)
 	{
-		if(failureCallback)failureCallback();
+		failureCallback();
 		return;
 	}
-	//https://api.dailymotion.com/video/x7lni3_mario-kart-remi-gaillard_fun?fields=id,duration,title
-	if(videoid.substring(0,2) == "DM") videoid = videoid.substring(2);
-	path = '/video/'+videoid+'?fields=id,duration,title';
-	var options = {
-		host: 'api.dailymotion.com',
-		port: 443,
-		method: 'GET',
-		path: path
-	};
-	debugLog("Calling dailymotion api: " + path);
-	var recievedBody = "";
-	var req = https.get(options, function(res) {
-		res.setEncoding('utf8');
-		res.on('data', function (chunk) {
-			recievedBody += chunk;
+	getDuration(videoid).then(duration => {
+		duration = Math.ceil(duration || 0);
+		if (duration <= 0) {
+			failureCallback('no duration');
+			return;
+		}
+		adminLog(socket, {msg:"Added file video "+videoid, type:"playlist"});
+		var volat = data.volat;
+		if(meta.type <= 0) volat = true;
+		if(volat === undefined) volat = false;
+		const parts = videoid.split('/');
+		rawAddVideo({
+			pos: SERVER.PLAYLIST.length,
+			// Don't collide with vimeo
+			videoid: videoid,
+			videotitle: encodeURI(parts[parts.length-1]),
+			videolength: duration,
+			videotype: "file",
+			who: meta.nick,
+			queue: data.queue,
+			volat: volat
+		}, function () {
+			if (successCallback)successCallback();
+		}, function (err) {
+			if (failureCallback)failureCallback(err);
 		});
-		res.on('end', function(){
-			try {
-				jdata = JSON.parse(recievedBody);
-			}
-			catch (err) {
-				if (failureCallback)failureCallback(err);
-				return;
-			}
-			debugLog("Dailymotion API response: " + recievedBody);
-			adminLog(socket, {msg:"Added Dailymotion video "+jdata.title, type:"playlist"});
-			var volat = data.volat;
-			if(meta.type <= 0) volat = true;
-			if(volat === undefined) volat = false;
-			rawAddVideo({
-				pos: SERVER.PLAYLIST.length,
-				// Don't collide with vimeo/sc
-				videoid: 'DM'+jdata.id,
-				videotitle: encodeURI(jdata.title),
-				// dm is seconds
-				videolength: jdata.duration,
-				videotype: "dm",
-				who: meta.nick,
-				queue: data.queue,
-				volat: volat,
-				meta: {}
-			}, function () {
-				if (successCallback)successCallback();
-			}, function (err) {
-				debugLog('Error calling dailymotion api: ' + err);
-				if (failureCallback)failureCallback(err);
-			});
-		});
-	}).on('error', function(e) {
-		debugLog('Blew up requesting: ' + options.path + " error: " + e);
-		if(failureCallback) failureCallback(e);
+	}).catch(err => {
+		console.log('duration error', err);
+		failureCallback(err);
 	});
 }
-
-
 
 /* Permission Abstractions */
 function ifShouldSendVideoData(socket,truecallback,falsecallback){
@@ -2910,7 +2829,7 @@ function userLogin(socket,data,truecallback,falsecallback){
 				var meta = {};
 				try {
 					if(result[0].meta)
-						meta = JSON.parse(new Buffer(result[0].meta, 'base64').toString('utf8')) || {};
+						meta = JSON.parse(result[0].meta) || {};
 				} catch(e){
 					console.error("Failed to parse user meta: ", e);
 					meta = {};
@@ -3067,7 +2986,9 @@ function numConnectionsByIP(socket,over,overcallback,elsecallback){
 }
 /* RUN ONCE INIT */
 initPlaylist(function(){
-	initTimer();
+	initResumePosition(function(){
+		initTimer();
+	});
 });
 initShadowbant();
 initHardbant();
@@ -3497,16 +3418,7 @@ io.sockets.on('connection', function (socket) {
 	socket.on("addVideo",function(data){
 		ifCanControlPlaylist(socket,function(meta){
 			console.log(data);
-			if(data.videotype == "drive"){
-				console.log('calling addVideoDrive');
-				addVideoDrive(socket,data,meta,function(){
-					debugLog("Video Added");
-				},function(err){
-					debugLog(err);
-					socket.emit("dupeAdd");
-				})
-			}
-			else if(data.videotype == "yt"){
+			if(data.videotype == "yt"){
 				addVideoYT(socket,data,meta,function(){
 					debugLog("Video Added");
 				},function(err){
@@ -3530,14 +3442,15 @@ io.sockets.on('connection', function (socket) {
 					socket.emit("dupeAdd");
 				});
 			}
-			else if(data.videotype == "dm"){
-				addVideoDM(socket,data,meta,function(){
+			else if(data.videotype == "file"){
+				addVideoFile(socket,data,meta,function(){
 					debugLog("Video Added");
 				},function(err){
 					debugLog(err);
 					socket.emit("dupeAdd");
 				});
-			} else {
+			}
+			else {
 				// Okay, so, it wasn't vimeo and it wasn't youtube, assume it's a livestream and just queue it.
 				// This requires a videotitle and a videotype that the client understands.
 
@@ -3897,14 +3810,14 @@ io.sockets.on('connection', function (socket) {
 								var meta = {};
 								try {
 									if(result[0].meta)
-										meta = JSON.parse(new Buffer(result[0].meta, 'base64').toString('utf8')) || {};
+										meta = JSON.parse(result[0].meta) || {};
 								} catch(e){
 									console.error("Failed to parse user meta: ", e);
 									meta = {};
 								}
 								meta.note = d.note;
 								q = "update users set meta = ? where name = ?";
-								mysql.query(q, [new Buffer(JSON.stringify(meta)).toString('base64'), d.nick], function(err, result, fields) {
+								mysql.query(q, [JSON.stringify(meta), d.nick], function(err, result, fields) {
 									if (err) {
 										//throw err;
 										console.error(err);

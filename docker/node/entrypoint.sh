@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 set -eu
 
 # wait for MySQL to be up, otherwise the server gets confused

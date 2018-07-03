@@ -1,3 +1,16 @@
+// fix performance issue in new jQuery UI
+(function($){
+	$.ui.sortable.prototype._setHandleClassName = function(){
+		this.element.find( ".ui-sortable-handle" ).removeClass( "ui-sortable-handle" );
+		$.each( this.items, function() {
+                (this.instance.options.handle
+                 ? this.item.find( this.instance.options.handle )
+                 : this.item
+                ).addClass('ui-sortable-handle');
+        });
+	};
+})(jQuery);
+
 (function($){
 	$.fn.timeOut = function(duration,callback) {
 		return this.each(function() {

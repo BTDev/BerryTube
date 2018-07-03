@@ -14,138 +14,6 @@ function removeCurrentPlayer() {
 	setVal("DMPLAYERREADY", false);
 }
 
-window.PLAYERS.drive = {
-    playVideo: function (id, at) {
-        var self = this;
-        waitForFlag("YTAPREADY", function () {
-            self.PLAYER.loadVideoById(id);
-            if (at < 0) {
-                videoPlay();
-                videoPause();
-                var wait = (at * -1000);
-                setTimeout(function () {
-                    videoPlay();
-                }, wait);
-            } else {
-                videoSeekTo(at);
-                videoPlay();
-            }
-        });
-    },
-    loadPlayer: function (id, at, volume) {
-        var self = this;
-        waitForFlag("YTAPREADY", function () {
-
-			function getEncodeObject(base,params){
-				var htmlparams = [];
-				for(i in params){ htmlparams.push(i+"="+params[i]); }
-				return (base+htmlparams.join("&"));
-			}
-
-
-			self.PLAYER = (function(id){
-
-				var embed = document.createElement('embed');
-				embed.width = "100%";
-				embed.height = "100%";
-				embed.type = "application/x-shockwave-flash";
-				embed.setAttribute("allowscriptaccess",'always');
-				embed.setAttribute("wmode",'opaque');
-
-				embed.src = (function(id){
-
-					var params = {
-						docid: id,
-						ps: 'docs',
-						partnerid: 30,
-						enablejsapi: 1,
-						cc_load_policy: 1,
-						auth_timeout: 86400000000
-					};
-
-					var str = 'https://www.youtube.com/get_player?';
-					return getEncodeObject(str,params);
-
-				})(id);
-
-				return embed;
-
-			})(id);
-
-			window.onYouTubePlayerReady = function () {
-				if (volume !== false) {
-					self.PLAYER.setVolume(volume*100);
-					self.PLAYER.unMute();
-				}
-				if (at < 0) {
-					videoPlay();
-					videoPause();
-					var wait = (at * -1000);
-					setTimeout(function () {
-						videoPlay();
-					}, wait);
-				} else {
-					videoSeekTo(at);
-					videoPlay();
-				}
-			}
-
-			$("#ytapiplayer").append(self.PLAYER);
-
-        });
-    },
-    onPlayerStateChange: function (event) {
-        var newState = event.data;
-        //Possible values are unstarted (-1), ended (0), playing (1), paused (2), buffering (3), video cued (5).
-        switch (newState) {
-            case -1:
-                //videoUnstarted();
-                break;
-            case 0:
-                videoEnded();
-                break;
-            case 1:
-                videoPlaying();
-                break;
-            case 2:
-                videoPaused();
-                break;
-            case 3:
-                //videoBuffering();
-                break;
-            case 5:
-                break;
-        }
-        dbg("Player's new state: " + newState);
-    },
-    pause: function () {
-        this.PLAYER.pauseVideo();
-    },
-    play: function () {
-        //if (this.getVideoState() != 3)
-            this.PLAYER.playVideo();
-    },
-    getVideoState: function () {
-        return this.PLAYER.getPlayerState();
-    },
-    seek: function (pos) {
-        this.PLAYER.seekTo(pos);
-    },
-    getTime: function (callback) {
-        if(callback)callback(this.PLAYER.getCurrentTime());
-    },
-	getVolume: function(callback){
-		var volume=null;
-		if(this.PLAYER.getVolume){
-			var volume = this.PLAYER.getVolume() / 100;
-			if(this.PLAYER.isMuted()){
-				volume = 0;
-			}
-		}
-		if(callback)callback(volume);
-	}
-};
-
 window.PLAYERS.yt = {
     playVideo: function (id, at) {
         var self = this;
@@ -356,7 +224,7 @@ window.PLAYERS.vimeo = {
   },
   seek: function(pos) {
     if (this.status.ready) {
-      //may want to adjust this for load time too, 
+      //may want to adjust this for load time too,
       this.PLAYER.setCurrentTime(pos).then(()=>{
       }).catch((err)=>{
         console.log("could not seek",err);
@@ -399,48 +267,6 @@ window.PLAYERS.vimeo = {
       });
     }
   }
-};
-
-window.PLAYERS.ustream = {
-    loadPlayer: function (id) {
-        var currentEmbed = $("#ytapiplayer");
-        var ustream = $("<iframe/>").appendTo(currentEmbed);
-        ustream.attr("width", videoWidth);
-        ustream.attr("height", videoHeight);
-        ustream.attr("src", "http://www.ustream.tv/embed/" + id + "?v=3&amp;wmode=direct");
-        ustream.attr("scrolling", "no");
-        ustream.attr("frameborder", "0");
-        ustream.attr("allow", "autoplay; encrypted-media");
-        ustream.css("border", "0");
-    }
-};
-
-window.PLAYERS.livest = {
-    loadPlayer: function (id) {
-        var currentEmbed = $("#ytapiplayer");
-        var livestream = $("<iframe/>").appendTo(currentEmbed);
-        livestream.attr("width", videoWidth);
-        livestream.attr("height", videoHeight);
-        livestream.attr("src", "http://cdn.livestream.com/embed/" + id + "?layout=4&amp;height=" + videoHeight + "&amp;width=" + videoWidth + "&amp;autoplay=true");
-        livestream.attr("scrolling", "no");
-        livestream.attr("frameborder", "0");
-        livestream.attr("allow", "autoplay; encrypted-media");
-        livestream.css("border", "0");
-    }
-};
-
-window.PLAYERS.twitch = {
-    loadPlayer: function (channel, time, volume) {
-        var url = "http://www.justin.tv/widgets/live_embed_player.swf?channel=" + channel;
-        var params = {
-            allowFullScreen: "true",
-            allowScriptAccess: "always",
-            allowNetworking: "all",
-            movie: "http://www.justin.tv/widgets/live_embed_player.swf",
-            flashvars: "hostname=www.justin.tv&channel=" + channel + "&auto_play=true&start_volume=" + (volume !== false ? volume : 1)
-        };
-        swfobject.embedSWF(url, "ytapiplayer", videoWidth, videoHeight, "8", null, null, params, {});
-    }
 };
 
 function osmfEventHandler(playerId, event, data) {
@@ -571,65 +397,50 @@ window.PLAYERS.soundcloud = {
     }
 };
 
-window.PLAYERS.dm = {
-	loadPlayer: function (id, at, volume) {
-		if (volume === false) {
+window.PLAYERS.file = {
+    loadPlayer: function (src, to, volume) {
+        if (volume === false){
             volume = 1;
         }
+        var player = $("<video>", {
+            "style" : "width:100%;height:100%",
+            "id" : "vjs_player",
+            "data-setup" : '{ "autoplay": true, "controls": true }',
+            "class" : "video-js vjs-default-skin"
+        });
 
-		$('#ytapiplayer').append('<div id="dmplayer"/>');
-		var url = 'http://www.dailymotion.com/swf/' + id.substr(2) + '&enableApi=1&playerapiid=dmplayer';
-		var params = { allowScriptAccess:'always' };
-		var attrs = { id:'dmapiplayer' };
-		var swf = swfobject.embedSWF(url, 'dmplayer', videoWidth, videoHeight, '9', null, null, params, attrs);
-		var self = this;
-		waitForFlag('DMPLAYERREADY', function () {
-			self.PLAYER = document.getElementById('dmapiplayer');
-			self.PLAYER.setVolume(volume * 100);
-			if (at < 0) {
-				var wait = (at * -1000);
-				videoPlay();
-				videoPause();
-				setTimeout(function () {
-					videoPlay();
-				}, wait);
-			} else {
-                videoSeekTo(at);
-                videoPlay();
-			}
-		});
-	},
-	playVideo: function (id, at) {
-		this.PLAYER.cueVideoById(id.substr(2));
-		if (at < 0) {
-			var wait = (at * -1000);
-			videoPlay();
-			videoPause();
-			setTimeout(function () {
-				videoPlay();
-			}, wait);
-		} else {
-			videoSeekTo(at);
-			videoPlay();
-		}
-	},
-	pause: function () {
-        this.PLAYER.pauseVideo();
+        const parts = src.split('.');
+        var source = $("<source>", {
+            "src" : src,
+            "type" : "video/" + parts[parts.length - 1]
+        });
+
+        player.append(source);
+
+        $("#ytapiplayer").append(player);
+        videojs("vjs_player").ready(function(){
+            this.volume(volume);
+            this.on('volumechange',function(){
+                VOLUME = this.volume();
+            });
+        });
+    },
+    pause: function () {
+        videojs('vjs_player').pause();
     },
     play: function () {
-        this.PLAYER.playVideo();
+        videojs('vjs_player').play();
     },
     seek: function (pos) {
-        this.PLAYER.seekTo(pos);
+        videojs('vjs_player').currentTime(pos);
     },
     getVideoState: function () {
         return 1;
     },
     getTime: function (callback) {
-		if(callback)callback(this.PLAYER.getCurrentTime());
+        if(callback) callback(videojs('vjs_player').currentTime());
     },
-	getVolume: function(callback){
-		if(callback)callback(this.PLAYER.getVolume() / 100.0);
+    getVolume: function(callback){
+        if (callback) callback(videojs('vjs_player').volume());
     }
 };
-
