@@ -450,7 +450,7 @@ function migrateFrom(url) {
             localStorage.removeItem(key);
     }
 	document.cookie = 'bt-migrated=0; path=/; domain=.' + location.hostname + '; max-age=2147483647';
-	window.location = url;
+	window.location = url + '/api/migrate_page.html';
 }
 
 function showConfigMenu(on){

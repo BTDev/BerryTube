@@ -14,9 +14,9 @@
 		}
 	}
 
-	$mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+	$mysqli = @new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
 	if (mysqli_connect_error()) {
-		die('Connect Error (' . mysqli_connect_errno() . ') '. mysqli_connect_error(). " " . DB_HOST);
+		die('Server is still restarting, please refresh again in a bit.');
 	}
 
 	session_start();

@@ -60,13 +60,7 @@ http://www.{$DOMAIN}:{$HTTP_PORT} {
 
     redir {
         if {path} not_starts_with /api/
-        if {~bt-migrated} is 1
         / https://{$DOMAIN}:{$HTTPS_PORT}{uri}
-    }
-
-    rewrite / {
-        if {path} not_starts_with /api/
-        to /api/migrate_page.html
     }
 
     templates /api/migrate_page.html
@@ -75,15 +69,7 @@ http://www.{$DOMAIN}:{$HTTP_PORT} {
 https://www.{$DOMAIN}:{$HTTPS_PORT} {
 	import common
 
-    redir {
-        if {~bt-migrated} is 1
-        / https://{$DOMAIN}:{$HTTPS_PORT}{uri}
-    }
-
-    redir {
-        if {~bt-migrated} not 1
-        / "http://www.{$DOMAIN}:{$HTTP_PORT}/api/migrate_page.html#{uri}"
-    }
+    redir / https://{$DOMAIN}:{$HTTPS_PORT}{uri}
 }
 
 https://{$DOMAIN}:{$HTTPS_PORT} {
