@@ -914,6 +914,12 @@ function addLogMsg(data, to){
 			newmsg.addClass('Berry');
 		}
         newmsg.prependTo(to);
+
+        const filterDropdown = $('#logNickFilter');
+        if ($('option:contains('+data.nick+')', filterDropdown).length === 0) {
+        	$('<option/>').text(data.nick).appendTo(filterDropdown);
+        }
+
 		filterAdminLog();
 }
 

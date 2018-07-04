@@ -407,18 +407,6 @@ function showLogMenu(on){
 
 	var nickFilter = $('<select id="logNickFilter"/>').appendTo(filters);
 	$('<option/>').text('All modmins').appendTo(nickFilter);
-	$('<option/>').text('BATMAN').appendTo(nickFilter);
-	$('<option/>').text('Blueshift').appendTo(nickFilter);
-	$('<option/>').text('Cades').appendTo(nickFilter);
-	$('<option/>').text('Lavender').appendTo(nickFilter);
-	$('<option/>').text('omnomtom').appendTo(nickFilter);
-	$('<option/>').text('Ataris').appendTo(nickFilter);
-	$('<option/>').text('Salculd').appendTo(nickFilter);
-	$('<option/>').text('Jerick').appendTo(nickFilter);
-	$('<option/>').text('Littlecolt').appendTo(nickFilter);
-	$('<option/>').text('Marminator').appendTo(nickFilter);
-	$('<option/>').text('Q0').appendTo(nickFilter);
-	$('<option/>').text('Toastdeib').appendTo(nickFilter);
 	$('<option/>').text('Berry').appendTo(nickFilter);
 	$('<option/>').text('Server').appendTo(nickFilter);
 	nickFilter.change(function() {
