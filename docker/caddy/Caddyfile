@@ -105,6 +105,7 @@ https://{$CDN_DOMAIN}:{$HTTPS_PORT} {
 
     # 1 month, stale while revalidate 1 day
     header /plugins/toastthemes/ Cache-Control "public, max-age=2592000, stale-while-revalidate=86400"
+    header /plugins/desktopSquees/bpcm.png Cache-Control "public, max-age=2592000, stale-while-revalidate=86400"
     header /berrymotes/ Cache-Control "public, max-age=2592000, stale-while-revalidate=86400"
     header /images/ Cache-Control "public, max-age=2592000, stale-while-revalidate=86400"
     header /sounds/ Cache-Control "public, max-age=2592000, stale-while-revalidate=86400"
