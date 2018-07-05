@@ -1065,8 +1065,8 @@ function populatePlEntry(entry,elem){
 			title:"Video Options",
 			uid:"videomenu",
 			offset:{
-				top:e.pageY,
-				left:e.pageX
+				top:e.pageY - 5,
+				left:e.pageX - 5
 			},
 			toolBox:true
 		});
