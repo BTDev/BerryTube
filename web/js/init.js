@@ -618,7 +618,7 @@ function showConfigMenu(on){
 	var showSqueesBtn_label = $('<span/>').appendTo(showSqueesBtn).text("Manage 3rd-party plugins");
 	showSqueesBtn.click(showPluginWindow);
 	//----------------------------------------
-	var migrateOps = $('<fieldset/>').appendTo($('<li/>').appendTo(optWrap));
+	/*var migrateOps = $('<fieldset/>').appendTo($('<li/>').appendTo(optWrap));
 	$('<legend/>').appendTo(migrateOps).text("Import settings");
 	var row = $('<div/>').appendTo(migrateOps);
 	$('<span/>').appendTo(migrateOps).html("Click a button to copy (most of)<br />your settings onto the new server:");
@@ -629,7 +629,7 @@ function showConfigMenu(on){
 	var row = $('<div/>').appendTo(migrateOps);
 	var migrateWwwBtn = $('<div/>').appendTo(row).addClass('button');
 	var migrateWwwBtn_label = $('<span/>').appendTo(migrateWwwBtn).html("Copy from old <b>www." + location.hostname + "</b>");
-	migrateWwwBtn.click(() => migrateFrom(OLD_ORIGIN_WWW));
+	migrateWwwBtn.click(() => migrateFrom(OLD_ORIGIN_WWW));*/
 	//----------------------------------------
 	if(TYPE >= 1){
 		var modOps = $('<fieldset/>').appendTo($('<li/>').appendTo(optWrap));
