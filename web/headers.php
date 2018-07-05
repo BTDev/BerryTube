@@ -49,7 +49,8 @@
 <meta name="robots" content="noindex">
 <meta name="theme-color" content="#421C52">
 
-<link rel="shortcut icon" href="<?= cdn('images/favicon32.png') ?>"/>
+<link rel="shortcut icon" href="<?= cdn('favicon.ico') ?>"/>
+<link rel="icon" type="image/png" sizes="32x32" href="<?= cdn('images/favicon32.png') ?>"/>
 
 <link rel="stylesheet" href="<?= cdn('css/colors.css') ?>" id="mainTheme"/>
 <link rel="stylesheet" href="<?= cdn('css/layout-other.css') ?>"/>
