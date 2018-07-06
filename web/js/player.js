@@ -286,7 +286,7 @@ window.PLAYERS.osmf = {
         var player = $("<video>", {
             "style" : "width:100%;height:100%",
             "id" : "vjs_player",
-            "data-setup" : '{ "autoplay": true, "controls": true , "bigPlayButton" : false }',
+            "data-setup" : '{ "autoplay": true, "controls": true, "bigPlayButton": false, "techorder": ["flash","html5"] }',
             "class" : "video-js vjs-default-skin"
         });
 
@@ -446,3 +446,37 @@ window.PLAYERS.file = {
         if (callback) callback(videojs('vjs_player').volume());
     }
 };
+
+window.PLAYERS.hls = {
+    loadPlayer: function (src, to, volume) {
+        if (volume === false){
+            volume = 1;
+        }
+        var player = $("<video>", {
+            "style" : "width:100%;height:100%",
+            "id" : "vjs_player",
+            "data-setup" : '{ "autoplay": true, "controls": true }',
+            "class" : "video-js vjs-default-skin"
+        });
+
+        const parts = src.split('.');
+        var source = $("<source>", {
+            "src" : src,
+            "type" : "application/x-mpegURL"
+        });
+
+        player.append(source);
+
+        $("#ytapiplayer").append(player);
+        videojs("vjs_player").ready(function(){
+            this.volume(volume);
+            this.on('volumechange',function(){
+                VOLUME = this.volume();
+            });
+        });
+    },
+    getVolume: function(callback){
+        if (callback) callback(videojs('vjs_player').volume());
+    }
+};
+

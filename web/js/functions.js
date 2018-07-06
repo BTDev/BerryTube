@@ -1691,7 +1691,8 @@ function parseVideoURL(url,callback){
 	var m = url.match(new RegExp("\\.f4m$")); if(m){ callback(url,"osmf", "~ Raw Livestream ~"); return;}
 	var m = url.match(new RegExp("vimeo.com/([^&]+)")); if(m){ callback(m[1],"vimeo"); return;}
 	var m = url.match(new RegExp("(https?://soundcloud.com/[^/]+/[^/?]+)")); if(m){ callback(m[1],"soundcloud"); return;}
-	var m = url.match(new RegExp("/([^/]+)\\.(?:mp4|webm)$")); if(m){ callback(url,"file"); return;}
+	var m = url.match(new RegExp("\\.m3u8$")); if(m){ callback(url,"hls", "~ Raw Livestream ~"); return;}
+	var m = url.match(new RegExp("\\.(?:mp4|webm)$")); if(m){ callback(url,"file"); return;}
 	// ppshrug
 	callback(url,"yt");
 }
