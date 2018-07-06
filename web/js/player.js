@@ -480,3 +480,47 @@ window.PLAYERS.hls = {
     }
 };
 
+function getCloudflarePlayer() {
+    return $('#ytapiplayer > stream')[0];
+}
+
+window.PLAYERS.cloudflare = {
+    loadPlayer: function (src, to, volume) {
+        if (volume === false){
+            volume = 1;
+        }
+        var player = $("<stream>", {
+            "style" : "width:100%;height:100%",
+            "src" : src,
+            "controls": true,
+            "preload": "metadata"
+        });
+
+        var script = $("<script>", {
+            "src" : "https://embed.cloudflarestream.com/embed/r4xu.fla9.latest.js?video=" + src
+        });
+
+        $("#ytapiplayer").append(player);
+        $("#ytapiplayer").append(script);
+
+        getCloudflarePlayer().volume = volume;
+    },
+    pause: function () {
+        getCloudflarePlayer().pause();
+    },
+    play: function () {
+        getCloudflarePlayer().play();
+    },
+    seek: function (pos) {
+        getCloudflarePlayer().currentTime = pos;
+    },
+    getVideoState: function () {
+        return 1;
+    },
+    getTime: function (callback) {
+        if(callback) callback(getCloudflarePlayer().currentTime);
+    },
+    getVolume: function(callback){
+        if (callback) callback(getCloudflarePlayer().volume);
+    }
+}
