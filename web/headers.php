@@ -84,7 +84,6 @@
 ?>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/tinyscrollbar/2.4.2/jquery.tinyscrollbar.min.js" integrity="sha256-gENsdwXJl1qiwOqS0DF+kfqTP5Dy+0gDTtxpRcWVhrU=" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/swfobject/2.2/swfobject.min.js" integrity="sha256-oYy9uw+7cz1/TLpdKv1rJwbj8UHHQ/SRBX5YADaM2OU=" crossorigin="anonymous"></script>
 <script src="https://w.soundcloud.com/player/api.js"></script>
 <script src="https://player.vimeo.com/api/player.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/video.js/7.0.5/video.min.js" integrity="sha256-m/9LXrATPmrFPoi/sfeUpug10+/7X6a1K/sZiclo6/w=" crossorigin="anonymous"></script>
