@@ -6,8 +6,7 @@
 	<meta name="description" content="BerryTube :: This is why I drink!">
 	<meta name="author" content="Cades / GreyMage / Eric Cutler">
 	<meta name="robots" content="noindex">
-	<script src="js/jquery-1.8.0.min.js"></script>
-	<script src="js/jquery-ui-1.8.23.custom.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
 	<link rel="stylesheet" type="text/css" href="css/colors.css" />
 	<link rel="stylesheet" type="text/css" href="css/layout-other.css" />
 	<link rel="stylesheet" type="text/css" href="css/uni-gui.css" />
@@ -35,4 +34,4 @@
 		<p>-- Eric</p>
 	</div>
 </body>
-</html>  
+</html>
