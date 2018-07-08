@@ -447,6 +447,54 @@ window.PLAYERS.file = {
     }
 };
 
+window.PLAYERS.dash = {
+    loadPlayer: function (src, to, volume) {
+        if (volume === false){
+            volume = 1;
+        }
+        var player = $("<video>", {
+            "style" : "width:100%;height:100%",
+            "id" : "vjs_player",
+            "data-setup" : '{ "autoplay": true, "controls": true }',
+            "class" : "video-js vjs-default-skin"
+        });
+
+        const parts = src.split('.');
+        var source = $("<source>", {
+            "src" : src,
+            "type" : 'application/dash+xml'
+        });
+
+        player.append(source);
+
+        $("#ytapiplayer").append(player);
+        videojs("vjs_player").ready(function(){
+            this.volume(volume);
+            this.on('volumechange',function(){
+                VOLUME = this.volume();
+            });
+        });
+    },
+    pause: function () {
+        videojs('vjs_player').pause();
+    },
+    play: function () {
+        videojs('vjs_player').play();
+    },
+    seek: function (pos) {
+        videojs('vjs_player').currentTime(pos);
+    },
+    getVideoState: function () {
+        return 1;
+    },
+    getTime: function (callback) {
+        if(callback) callback(videojs('vjs_player').currentTime());
+    },
+    getVolume: function(callback){
+        if (callback) callback(videojs('vjs_player').volume());
+    }
+};
+
 window.PLAYERS.hls = {
     loadPlayer: function (src, to, volume) {
         if (volume === false){
@@ -479,48 +527,3 @@ window.PLAYERS.hls = {
         if (callback) callback(videojs('vjs_player').volume());
     }
 };
-
-function getCloudflarePlayer() {
-    return $('#ytapiplayer > stream')[0];
-}
-
-window.PLAYERS.cloudflare = {
-    loadPlayer: function (src, to, volume) {
-        if (volume === false){
-            volume = 1;
-        }
-        var player = $("<stream>", {
-            "style" : "width:100%;height:100%",
-            "src" : src,
-            "controls": true,
-            "preload": "metadata"
-        });
-
-        var script = $("<script>", {
-            "src" : "https://embed.cloudflarestream.com/embed/r4xu.fla9.latest.js?video=" + src
-        });
-
-        $("#ytapiplayer").append(player);
-        $("#ytapiplayer").append(script);
-
-        getCloudflarePlayer().volume = volume;
-    },
-    pause: function () {
-        getCloudflarePlayer().pause();
-    },
-    play: function () {
-        getCloudflarePlayer().play();
-    },
-    seek: function (pos) {
-        getCloudflarePlayer().currentTime = pos;
-    },
-    getVideoState: function () {
-        return 1;
-    },
-    getTime: function (callback) {
-        if(callback) callback(getCloudflarePlayer().currentTime);
-    },
-    getVolume: function(callback){
-        if (callback) callback(getCloudflarePlayer().volume);
-    }
-}

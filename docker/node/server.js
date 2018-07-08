@@ -26,6 +26,8 @@ var util = require('util');
 var crypto = require('crypto');
 var url = require('url');
 const getDuration = require('get-video-duration');
+const isoDuration = require('iso8601-duration');
+const fetch = require('node-fetch');
 var mysql = null;
 
 if(false){
@@ -2475,6 +2477,59 @@ function addVideoFile(socket,data,meta,successCallback,failureCallback){
 	});
 }
 
+function addVideoDash(socket,data,meta,successCallback,failureCallback){
+	if (!failureCallback){
+		failureCallback = function(){};
+	}
+
+	var videoid = data.videoid.trim();
+	if(videoid.length==0)
+	{
+		failureCallback();
+		return;
+	}
+
+	fetch(videoid)
+		.then(resp => resp.text())
+		.then(data => et.parse(data))
+		.then(manifest => {
+			const root = manifest.getroot();
+			let duration = root.get('mediaPresentationDuration');
+			if (!duration) {
+				failureCallback('no duration');
+				return;
+			}
+			duration = Math.ceil(isoDuration.toSeconds(isoDuration.parse(duration)));
+			if (duration <= 0) {
+				failureCallback('zero duration');
+				return;
+			}
+			adminLog(socket, {msg:"Added DASH video "+videoid, type:"playlist"});
+			var volat = data.volat;
+			if(meta.type <= 0) volat = true;
+			if(volat === undefined) volat = false;
+			const parts = videoid.split('/');
+			rawAddVideo({
+				pos: SERVER.PLAYLIST.length,
+				// Don't collide with vimeo
+				videoid: videoid,
+				videotitle: encodeURI(data.videotitle || parts[parts.length-1]),
+				videolength: duration,
+				videotype: "dash",
+				who: meta.nick,
+				queue: data.queue,
+				volat: volat
+			}, function () {
+				if (successCallback)successCallback();
+			}, function (err) {
+				if (failureCallback)failureCallback(err);
+			});
+		}).catch(err => {
+			console.log('DASH manifest error', err);
+			failureCallback(err);
+		});
+}
+
 /* Permission Abstractions */
 function ifShouldSendVideoData(socket,truecallback,falsecallback){
 	socket.get('mode',function(err,type){
@@ -3444,6 +3499,14 @@ io.sockets.on('connection', function (socket) {
 			}
 			else if(data.videotype == "file"){
 				addVideoFile(socket,data,meta,function(){
+					debugLog("Video Added");
+				},function(err){
+					debugLog(err);
+					socket.emit("dupeAdd");
+				});
+			}
+			else if(data.videotype == "dash") {
+				addVideoDash(socket,data,meta,function(){
 					debugLog("Video Added");
 				},function(err){
 					debugLog(err);
