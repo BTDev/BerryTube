@@ -6,8 +6,9 @@
 		if (NO_CDN) {
 			return $fname;
 		}
-		$hash = @sha1_file(__DIR__ . '/' . $fname);
+		$hash = @sha1_file(__DIR__ . '/' . $fname, true);
 		if ($hash) {
+			$hash = rtrim(strtr(base64_encode($hash), '+/', '-_'), '=');
 			return CDN_ORIGIN . "/sha1/$hash/$fname";
 		} else {
 			return $fname;
