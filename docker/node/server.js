@@ -1066,6 +1066,14 @@ function kickUser(socket,reason){
 	socket.emit("kicked",reason);
 	socket.disconnect();
 }
+function kickUserByNick(socket,nick,reason){
+	adminLog(socket, {msg:'Kicked ' + nick, type:"user"});
+	getSocketOfNick(nick,function(s){
+		kickUser(s, reason);
+	},function(){
+		cleanUsers();
+	});
+}
 function cleanUsers(){
 /*
 	var newSERVER.CHATLIST = [];
@@ -1644,7 +1652,8 @@ function _sendChat(nick,type,incoming,socket){
 		rcv:["rcv","shout","yell","announcement","rvc"],
 		request:["r","request","requests","req"],
 		spoiler:["spoiler","sp","spoilers"],
-		drink:["drink","d"]
+		drink:["drink","d"],
+		kick:["kick","k"]
 	}
 
 	// Handle Actions
@@ -1670,6 +1679,17 @@ function _sendChat(nick,type,incoming,socket){
 				});
 			}
 		});
+	}
+	if(action_map.kick.indexOf(parsed.command) >= 0){
+		ifCanKickUser(socket,function(){
+			const parts = parsed.msg.split(' ', 2);
+			if (parts[0]) {
+				kickUserByNick(socket, parts[0], parts[1]);
+			}
+		},function(){
+			kickForIllegalActivity(socket);
+		});
+		return;
 	}
 
 	var bufferMessage = false; if(data) bufferMessage = true;
@@ -3738,12 +3758,7 @@ io.sockets.on('connection', function (socket) {
 	});
 	socket.on("kickUser",function(data){
 		ifCanKickUser(socket,function(){
-			adminLog(socket, {msg:'Kicked ' + data.nick, type:"user"});
-			getSocketOfNick(data.nick,function(s){
-				kickUser(s, data.reason);
-			},function(){
-				cleanUsers();
-			});
+			kickUserByNick(socket, data.nick, data.reason);
 		},function(){
 			kickForIllegalActivity(socket);
 		})
