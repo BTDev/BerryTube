@@ -1682,9 +1682,9 @@ function _sendChat(nick,type,incoming,socket){
 	}
 	if(action_map.kick.indexOf(parsed.command) >= 0){
 		ifCanKickUser(socket,function(){
-			const parts = parsed.msg.split(' ', 2);
+			const parts = parsed.msg.split(' ');
 			if (parts[0]) {
-				kickUserByNick(socket, parts[0], parts[1]);
+				kickUserByNick(socket, parts[0], parts.slice(1).join(' ') || undefined);
 			}
 		},function(){
 			kickForIllegalActivity(socket);
