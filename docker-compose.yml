@@ -81,7 +81,7 @@ services:
 
     mysql:
         build: ./docker/mysql/
-        command: --default-authentication-plugin=mysql_native_password
+        command: --default-authentication-plugin=mysql_native_password --skip-performance-schema
         restart: always
         environment:
             - MYSQL_RANDOM_ROOT_PASSWORD=yes
