@@ -54,7 +54,7 @@ function desktopSquee(str){
         //hopefully not at the expense of intended functionality
         if (window.outerWidth < window.innerWidth && window.outerHeight < window.innerHeight && window.outerHeight<150 && window.outerWidth<150)
             return;
-        var n = new Notification(str,{'icon':"plugins/desktopSquees/bpcm.png"});
+        var n = new Notification(str,{'icon':"images/bpcm.png"});
         //replace this URL with full path to bpcm.png
         n.onshow = function () {
             setTimeout(function(){n.close()}, 7000);//chrome wasn't happy with n.close being called directly
