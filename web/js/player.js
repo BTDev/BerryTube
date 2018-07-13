@@ -425,6 +425,9 @@ window.PLAYERS.file = {
             this.on('volumechange',function(){
                 VOLUME = this.volume();
             });
+            this.on('seeked',function(){
+                videoSeeked(this.currentTime());
+            });
         });
     },
     pause: function () {
@@ -472,6 +475,9 @@ window.PLAYERS.dash = {
             this.volume(volume);
             this.on('volumechange',function(){
                 VOLUME = this.volume();
+            });
+            this.on('seeked',function(){
+                videoSeeked(this.currentTime());
             });
         });
     },
