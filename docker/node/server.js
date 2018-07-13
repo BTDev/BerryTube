@@ -30,13 +30,16 @@ const isoDuration = require('iso8601-duration');
 const fetch = require('node-fetch');
 var mysql = null;
 
-if(false){
 process.on('uncaughtException', function (err) {
-	console.error("Logging Error");
+	console.error("Uncaught exception");
 	console.error(err);
-	eLog(err);
+	if (err !== 'ECONNRESET') {
+		console.log('Ignoring ECONNRESET');
+	} else {
+		console.log('Not ECONNRESET; exiting...');
+		process.exit(1);
+	}
 });
-}
 
 process.stdin.resume();
 process.stdin.setEncoding('utf8');
