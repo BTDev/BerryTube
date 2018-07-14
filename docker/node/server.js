@@ -28,6 +28,7 @@ var url = require('url');
 const getDuration = require('get-video-duration');
 const isoDuration = require('iso8601-duration');
 const fetch = require('node-fetch');
+const bcrypt = require('bcrypt');
 var mysql = null;
 
 process.on('uncaughtException', function (err) {
@@ -2874,31 +2875,65 @@ function userLogin(socket,data,truecallback,falsecallback){
 			if(result.length == 0) {
 				writeToLog("NAME TAKE",ip+" Claimed Name "+qnick);
 				addUserToChat(socket, {nick:qnick,type:-1, meta:{}},truecallback);
-			} else if(result.length == 1 && result[0].pass == qpass) {
+			} else if(result.length == 1) {
 				// Fix case
 				qnick = result[0].name;
-				try{
-					writeToLog("USER LOGIN",ip+" Logged in As "+qnick);
-				}catch(e){}
-				if(result[0].type >= 1){
-					// Send admin-only detals.
-					socket.join('admin');
-					sendToggleables(io.sockets);
-					sendCovertData(socket, result[0].type);
+				function onPasswordValid(){
+					try{
+						writeToLog("USER LOGIN",ip+" Logged in As "+qnick);
+					}catch(e){}
+					if(result[0].type >= 1){
+						// Send admin-only detals.
+						socket.join('admin');
+						sendToggleables(io.sockets);
+						sendCovertData(socket, result[0].type);
+					}
+					var meta = {};
+					try {
+						if(result[0].meta)
+							meta = JSON.parse(result[0].meta) || {};
+					} catch(e){
+						console.error("Failed to parse user meta: ", e);
+						meta = {};
+					}
+					addUserToChat(socket, {
+											nick:qnick,
+											type:result[0].type,
+											meta:meta
+										  },truecallback);
 				}
-				var meta = {};
-				try {
-					if(result[0].meta)
-						meta = JSON.parse(result[0].meta) || {};
-				} catch(e){
-					console.error("Failed to parse user meta: ", e);
-					meta = {};
+				if (result[0].pass == qpass) {
+					bcrypt.hash(data.pass, SERVER.settings.core.bcrypt_rounds, function(err, hash){
+						if (err) {
+							console.error(err);
+							return;
+						}
+
+						mysql.query('UPDATE users SET pass = ? WHERE name = ?', [hash, qnick], function(err){
+							if (err) {
+								console.error(err);
+								return;
+							}
+						});
+					});
+					onPasswordValid();
+				} else if (data.pass) {
+					bcrypt.compare(data.pass, result[0].pass, function(err, matched){
+						if (err) {
+							console.error(err);
+							return;
+						}
+
+						if (matched) {
+							onPasswordValid();
+						}
+					});
+				} else {
+					// Don't allow people to spam login attempts
+					handleLoginFail(socket);
+					debugLog("PW INCORRECT");
+					if(falsecallback) falsecallback();
 				}
-				addUserToChat(socket, {
-										nick:qnick,
-										type:result[0].type,
-										meta:meta
-									  },truecallback);
 			}else{
 				// Don't allow people to spam login attempts
 				handleLoginFail(socket);
@@ -3335,20 +3370,25 @@ io.sockets.on('connection', function (socket) {
 				});
 			}
 			else{
-				var pass = crypto.createHash('md5').update(data.pass).digest("hex");
-				var q = 'INSERT INTO users (name, pass, type) VALUES (?,?,?)'; debugLog(q);
-				mysql.query(q,	[data.nick, pass, 0] , function(err, result, fields){
+				bcrypt.hash(data.pass, SERVER.settings.core.bcrypt_rounds, function(err, hash){
 					if (err) {
-						//throw err;
 						console.error(err);
 						return;
 					}
-					// Registered, log em in.
-					userLogin(socket, data, function(){
-						debugLog("Nick Set = "+data.nick);
-						SERVER.RECENTLY_REGISTERED.push({ip: ip, time: new Date()});
-					},function(){
-						debugLog("Error logging in.");
+					var q = 'INSERT INTO users (name, pass, type) VALUES (?,?,?)'; debugLog(q);
+					mysql.query(q,	[data.nick, hash, 0] , function(err, result, fields){
+						if (err) {
+							//throw err;
+							console.error(err);
+							return;
+						}
+						// Registered, log em in.
+						userLogin(socket, data, function(){
+							debugLog("Nick Set = "+data.nick);
+							SERVER.RECENTLY_REGISTERED.push({ip: ip, time: new Date()});
+						},function(){
+							debugLog("Error logging in.");
+						});
 					});
 				});
 			}
@@ -3361,16 +3401,24 @@ io.sockets.on('connection', function (socket) {
 			return;
 		}
 
-		socket.get('nick', function(nick){
-			if (!nick) {
+		socket.get('nick', function(err, nick){
+			if (err || !nick) {
+				console.error(err);
 				return;
 			}
-			var pass = crypto.createHash('md5').update(data.pass).digest("hex");
-			mysql.query('UPDATE users SET pass = ? WHERE name = ?', [pass, nick], function(err){
+			bcrypt.hash(data.pass, SERVER.settings.core.bcrypt_rounds, function(err, hash){
 				if (err) {
 					console.error(err);
 					return;
 				}
+
+				mysql.query('UPDATE users SET pass = ? WHERE name = ?', [hash, nick], function(err){
+					if (err) {
+						console.error(err);
+						return;
+					}
+					socket.emit('forceRefresh');
+				});
 			});
 		});
 	});

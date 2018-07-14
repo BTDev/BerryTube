@@ -9,7 +9,8 @@
     "socket.io": "^0.9.10",
     "get-video-duration": "^0.3.0",
     "iso8601-duration": "^1.1.1",
-    "node-fetch": "^2.1.2"
+    "node-fetch": "^2.1.2",
+    "bcrypt": "^3.0.0"
   },
   "devDependencies": {},
   "author": "Eric Cutler <bulzeeb@gmail.com> (https://github.com/GreyMage)",

@@ -538,3 +538,10 @@ socket.on('doorStuck', function() {
 socket.on('midasTouch', function(data) {
 	$('#chatlist li.' + data.nick).addClass('gilded');
 });
+socket.on('forceRefresh', function(){
+	// disable drunk mode to skip dialog
+	if (window.Bem) {
+		Bem.loggingIn = true;
+	}
+	window.location.reload();
+});

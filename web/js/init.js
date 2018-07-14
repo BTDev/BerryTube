@@ -1572,7 +1572,7 @@ function initLogoutForm(headbar){
     $('<span/>').text('Logged in as '+ORIGNAME).appendTo($('<td/>').appendTo(row));
     $('<input/>').attr('name','logout').attr('type','hidden').appendTo($('<td/>').appendTo(row));
 
-	var passwdbtn = $('<div/>').addClass("submit").text("Change password").appendTo($('<td/>').appendTo(row));
+	var passwdbtn = $('<div/>').addClass("submit").css('width', '120px').text("Change password").appendTo($('<td/>').appendTo(row));
 	passwdbtn.click(function(){
 		showPasswordChangeDialog();
 	});

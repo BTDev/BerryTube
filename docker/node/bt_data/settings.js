@@ -25,7 +25,7 @@ settings.core.max_failed_logins = 10; // Number of times an IP can password fail
 settings.core.register_cooldown = 1000 * 60 * 30; //ms
 settings.core.country_restriction_ignored = ['DE', 'IL']; // Some countries are particularly restrictive, ignore them.
 settings.core.country_allow_required = ['GB', 'CA', 'US']; // Required countries if we have an allow list instead of a deny list
-
+settings.core.bcrypt_rounds = 10;
 
 // Init Toggle settings
 settings.toggles.bestponi = [false,'Best Poni'];
