@@ -61,12 +61,8 @@
 	$format = "fail";
 	if(isset($_GET['username']) && isset($_GET['password'])){ $mode = "get"; }
 	if(isset($_POST['username']) && isset($_POST['password'])){ $mode = "post"; }
-	if(isset($_GET['username']) && isset($_GET['md5pass'])){ $mode = "get"; }
-	if(isset($_POST['username']) && isset($_POST['md5pass'])){ $mode = "post"; }
 	if(isset($_GET['format'])){ $format = $_GET['format']; }
 	if(isset($_POST['format'])){ $format = $_POST['format']; }
-	//foreach($_GET as $k => $v){$_GET[$k] = $mysqli->real_escape_string($_GET[$k]);}
-	//foreach($_POST as $k => $v){$_POST[$k] = $mysqli->real_escape_string($_POST[$k]);}
 
 	if($mode == "fail"){
 		$x = array(
@@ -86,33 +82,31 @@
 
 	if($mode == "get"){
 		$username = $mysqli->real_escape_string($_GET['username']);
-		if(isset($_GET['md5pass'])){
-			$password = $mysqli->real_escape_string($_GET['md5pass']);
-		} else {
-			$password = md5($_GET['password']);
-		}
+		$password = $_GET['password'];
 	}
 
 	if($mode == "post"){
 		$username = $mysqli->real_escape_string($_POST['username']);
-		if(isset($_POST['md5pass'])){
-			$password = $mysqli->real_escape_string($_POST['md5pass']);
-		} else {
-			$password = md5($_POST['password']);
-		}
+		$password = $_POST['password'];
 	}
 
-	$q = sprintf('SELECT * FROM users where `name` = "%s" and `pass` = "%s"',$username,$password);
+	$q = sprintf('SELECT * FROM users where `name` = "%s"',$username);
 	$blacklist = array(
 		"meta",
 		"pass"
 	);
 
+	function checkPassword($input, $actual) {
+		return md5($input) == $actual || password_verify($input, preg_replace('/^\\$2b\\$/', '\\$2y\\$', $actual));
+	}
+
 	if($format == "xml"){
 		$output = "<?xml version=\"1.0\"?>\n<user>";
 		if ($result = $mysqli->query($q)) {
 			while($row = $result->fetch_array(MYSQLI_ASSOC)){
-
+				if (!checkPassword($password, $row['pass'])) {
+					die();
+				}
 				$node = "";
 				foreach($row as $k => $v){
 					if(in_array($k,$blacklist)) continue;
@@ -133,6 +127,9 @@
 		$output = array();
 		if ($result = $mysqli->query($q)) {
 			while($row = $result->fetch_array(MYSQLI_ASSOC)){
+				if (!checkPassword($password, $row['pass'])) {
+					die();
+				}
 				$filtered = array();
 				foreach($row as $k => $v){
 					if(in_array($k,$blacklist)) continue;
