@@ -3957,5 +3957,9 @@ io.sockets.on('connection', function (socket) {
 	socket.on("crash",function(data){
 		//socket.emit(socket);
 	});
+	socket.on("error",function(err){
+		console.error('Socket error:');
+		console.error(err);
+	});
 });
 /* vim: set noexpandtab : */
