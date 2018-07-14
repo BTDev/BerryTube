@@ -28,10 +28,8 @@ settings.core.country_allow_required = ['GB', 'CA', 'US']; // Required countries
 
 
 // Init Toggle settings
-settings.toggles.flutteryay = [true,'Pink Yay'];
 settings.toggles.bestponi = [false,'Best Poni'];
 settings.toggles.wobniar = [false,'wobniaR'];
-//settings.toggles.noghetti = [true,'Kick for ghetti'];
 settings.toggles.mutegray = [false,'Mute Greynames'];
 settings.toggles.allowreg = [true,'Allow Registration'];
 settings.toggles.spaceaids = [true,'Bans are Contagious'];

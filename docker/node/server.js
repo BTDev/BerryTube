@@ -1483,23 +1483,9 @@ function applyFilters(nick,msg,socket){
 	return msg;
 }
 function applyPluginFilters(msg,socket){
-
-	var re;
-
-	if(getToggleable("flutteryay")){
-		// Handle pink yays.
-		re = new RegExp('(^|[^a-zA-Z0-9_\/])yay($|[^a-zA-Z0-9_\/])','g');
-		if(getToggleable("wobniar")){
-			//handle backwards text.
-			msg = msg.replace(re,'$1naps< >naps/<yay>"rettulf"=ssalc$2');
-		} else {
-			msg = msg.replace(re,'$1<span class="flutter">yay</span>$2');
-		}
-	}
-
 	if(getToggleable("bestponi")){
 		//handle best pony.
-		re = new RegExp('^[a-zA-Z ]+is bes([st]) pon([tiye])(.*)','i');
+		var re = new RegExp('^[a-zA-Z ]+is bes([st]) pon([tiye])(.*)','i');
 		msg = msg.replace(re,randomPoni()+' is bes$1 pon$2$3');
 	}
 
