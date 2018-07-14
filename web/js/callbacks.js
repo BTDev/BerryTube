@@ -369,7 +369,7 @@ function onSocketReconnecting(from) {
 	if ($('.chatbuffer .reconnecting').length == 0) {
 		let msg = 'Connection lost. Attempting to reconnect...';
 		if (from === 'serverRestart') {
-			msg = 'Server has restarted! Reconnecting...';
+			msg = 'Server is restarting... Reconnecting soon!';
 		}
 
 		$('.chatbuffer').append($('<div/>').addClass('reconnecting').text(msg));

@@ -1421,7 +1421,6 @@ function resetTime(){
 }
 function addDrink(amt,socket,callback){
 	SERVER.DRINKS = (parseInt(SERVER.DRINKS)|0) + parseInt(amt);
-	if(SERVER.DRINKS < 0) SERVER.DRINKS = 0;
 	if(SERVER.DRINKS > 1000000){
 		SERVER.DRINKS = "lol go fuck yourself";
 		kickUser(socket,"Berry Punch is mad at you");
@@ -1659,9 +1658,6 @@ function _sendChat(nick,type,incoming,socket){
 	if(action_map.drink.indexOf(parsed.command) >= 0){
 		ifCanCallDrinks(socket,function(){
 			data.emote = "drink";
-			if(parsed.multi <= 0){
-				sendMessage = false;
-			}
 			if(channel == "main") {
 				addDrink(parsed.multi,socket,function(){
 					sendDrinks(io.sockets);

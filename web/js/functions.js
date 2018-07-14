@@ -1054,7 +1054,7 @@ function addChatMsg(data,_to) {
 				$("<span/>").addClass("nick").appendTo(td).text(nick + ":");
 				$("<span/>").addClass("msg").appendTo(td).html(msgText + " drink!");
 
-				if (data.msg.multi > 1) {
+				if (data.msg.multi) {
 					$("<span/>").addClass("multi").appendTo($("<td/>").appendTo(tr)).text(data.msg.multi + "x");
 				}
 
@@ -1133,7 +1133,7 @@ function manageDrinks(dd){
 				}
 
 				//console.log(dd);
-				if(dd > DRINKS){ // Added a drink
+				if(dd && dd != DRINKS){ // Added a drink
 					if(getStorage("drinkNotify") == 1){
 						DRINK.play();
 					}
