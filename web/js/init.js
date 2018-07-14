@@ -1571,14 +1571,19 @@ function initLogoutForm(headbar){
     var row = $('<tr/>').appendTo(layoutTable);
     $('<span/>').text('Logged in as '+ORIGNAME).appendTo($('<td/>').appendTo(row));
     $('<input/>').attr('name','logout').attr('type','hidden').appendTo($('<td/>').appendTo(row));
-    var logoutbtn = $('<div/>').addClass("submit").text("Logout").appendTo($('<td/>').appendTo(row));
 
+	var passwdbtn = $('<div/>').addClass("submit").text("Change password").appendTo($('<td/>').appendTo(row));
+	passwdbtn.click(function(){
+		showPasswordChangeDialog();
+	});
+
+    var logoutbtn = $('<div/>').addClass("submit").text("Logout").appendTo($('<td/>').appendTo(row));
     logoutbtn.click(function(){
         if(typeof localStorage != 'undefined') {
             localStorage.removeItem('nick');
             localStorage.removeItem('pass');
         }
-        logoutForm.submit()
+        logoutForm.submit();
     });
 }
 function initLoginForm(headbar){

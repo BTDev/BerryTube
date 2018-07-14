@@ -3355,6 +3355,25 @@ io.sockets.on('connection', function (socket) {
 
 		});
 	});
+	socket.on("changePassword",function(data){
+		if(!data.pass || data.pass.length <= 5){
+			socket.emit("loginError", {message:"Invalid password. Must be at least 6 characters long."});
+			return;
+		}
+
+		socket.get('nick', function(nick){
+			if (!nick) {
+				return;
+			}
+			var pass = crypto.createHash('md5').update(data.pass).digest("hex");
+			mysql.query('UPDATE users SET pass = ? WHERE name = ?', [pass, nick], function(err){
+				if (err) {
+					console.error(err);
+					return;
+				}
+			});
+		});
+	});
 	socket.on("setNick",function(data){
 		ghostBustUser(socket, data, function(){
 			ifNickFree(data.nick,function(meta){

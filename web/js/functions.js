@@ -599,6 +599,65 @@ function showDoorStuckDialog() {
 
     parent.window.center();
 }
+function showPasswordChangeDialog() {
+	var parent = $("body").dialogWindow({
+        title:"Change Password",
+        uid:"passwdchange",
+        center:true
+    });
+
+	var mainOptWrap = $('<div/>').appendTo(parent).addClass('controlWindow');
+
+	var errorMsg, pass1, pass2;
+	mainOptWrap.append(
+		$('<div>').append(
+			$('<label>', {
+				for: 'newpassword1',
+				text: 'New password '
+			})
+		).append(
+			pass1 = $('<input>', {
+				id: 'newpassword1',
+				type: 'password'
+			}).attr('autocomplete', 'new-password')
+		)
+	).append(
+		$('<div>').append(
+			$('<label>', {
+				for: 'newpassword2',
+				text: 'New password '
+			})
+		).append(
+			pass2 = $('<input>', {
+				id: 'newpassword2',
+				type: 'password'
+			}).attr('autocomplete', 'new-password')
+		)
+	).append(
+		errorMsg = $('<div>').css('color', 'red')
+	);
+
+    var buttonDiv = $('<div/>').css("text-align", "center").appendTo(mainOptWrap);
+
+    var okayBtn = $('<div/>').addClass('button').appendTo(buttonDiv);
+    $('<span/>').appendTo(okayBtn).text("Okay");
+    okayBtn.click(function(){
+        if (pass1.val() !== pass2.val()) {
+        	errorMsg.text("Passwords don't match!");
+        	return;
+        }
+
+        if (pass1.val().length < 6) {
+        	errorMsg.text("Password must be at least 6 characters long!");
+        	return;
+        }
+
+        socket.emit('changePassword', {pass: pass1.val()});
+        parent.window.close();
+    });
+
+    parent.window.center();
+}
 function windowFocused(){
 	if(CHAT_NOTIFY) {
 		clearInterval(CHAT_NOTIFY);
