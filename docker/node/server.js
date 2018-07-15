@@ -2464,9 +2464,8 @@ function addVideoFile(socket,data,meta,successCallback,failureCallback){
 		const parts = videoid.split('/');
 		rawAddVideo({
 			pos: SERVER.PLAYLIST.length,
-			// Don't collide with vimeo
 			videoid: videoid,
-			videotitle: encodeURI(parts[parts.length-1]),
+			videotitle: parts[parts.length-1],
 			videolength: duration,
 			videotype: "file",
 			who: meta.nick,
@@ -2517,9 +2516,8 @@ function addVideoDash(socket,data,meta,successCallback,failureCallback){
 			const parts = videoid.split('/');
 			rawAddVideo({
 				pos: SERVER.PLAYLIST.length,
-				// Don't collide with vimeo
 				videoid: videoid,
-				videotitle: encodeURI(data.videotitle || parts[parts.length-1]),
+				videotitle: data.videotitle ? encodeURI(data.videotitle) : parts[parts.length-1],
 				videolength: duration,
 				videotype: "dash",
 				who: meta.nick,
