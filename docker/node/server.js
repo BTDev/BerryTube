@@ -2786,6 +2786,15 @@ function ifCanSetOverrideCss(socket,truecallback,falsecallback){
 		}
 	});
 }
+function ifCanForceRefresh(socket,truecallback,falsecallback){
+	socket.get('type',function(err,type){
+		if(parseInt(type) >= 2){
+			if(truecallback)truecallback();
+		}else{
+			if(falsecallback)falsecallback();
+		}
+	});
+}
 function ifNickFree(nick,truecallback,falsecallback){
 	for(var i in SERVER.CHATLIST){
 		debugLog(SERVER.CHATLIST[i].nick);
@@ -4014,6 +4023,19 @@ io.sockets.on('connection', function (socket) {
 		},function(){
 			kickForIllegalActivity(socket);
 		})
+	});
+	socket.on("forceRefreshAll",function(data){
+		ifCanForceRefresh(socket,function(){
+			if (!data) {
+				data = {};
+			}
+			if (!data.delay) {
+				data.delay = true;
+			}
+			io.sockets.emit('forceRefresh', data);
+		},function(){
+			kickForIllegalActivity(socket);
+		});
 	});
 	socket.on("crash",function(data){
 		//socket.emit(socket);

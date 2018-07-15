@@ -538,10 +538,26 @@ socket.on('doorStuck', function() {
 socket.on('midasTouch', function(data) {
 	$('#chatlist li.' + data.nick).addClass('gilded');
 });
-socket.on('forceRefresh', function(){
-	// disable drunk mode to skip dialog
-	if (window.Bem) {
-		Bem.loggingIn = true;
+socket.on('forceRefresh', function(data){
+	let delay = 0;
+	if (data && data.delay) {
+		if (data.delay === true) {
+			if (data.delayMin === undefined) {
+				data.delayMin = 100;
+			}
+			if (data.delayMax === undefined) {
+				data.delayMax = 5000;
+			}
+			delay = Math.random() * (data.delayMax - data.delayMin) + data.delayMin;
+		} else {
+			delay = data.delay;
+		}
 	}
-	window.location.reload();
+	setTimeout(function(){
+		// disable drunk mode to skip confirmation dialog
+		if (window.Bem) {
+			Bem.loggingIn = true;
+		}
+		window.location.reload();
+	}, delay);
 });
