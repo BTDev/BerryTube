@@ -137,7 +137,7 @@
 	Bem.skip_css = true;
 	Bem.origin = ORIGIN + '/berrymotes';
 	Bem.cdn_origin = CDN_ORIGIN + '/berrymotes';
-	Bem.data_url = '<?= cdn('berrymotes/data/berrymotes_json_data.json') ?>';
+	Bem.data_url = '<?= cdn('berrymotes/data/berrymotes_json_data.v2.json') ?>';
 </script>
 <script src="<?= cdn('berrymotes/js/berrymotes.berrytube.js') ?>" defer></script>
 <script src="<?= cdn('berrymotes/js/berrymotes.core.js') ?>" defer></script>
