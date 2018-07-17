@@ -17,6 +17,7 @@ services:
             - DOMAIN
             - CDN_DOMAIN
             - SOCKET_DOMAIN
+            - EXTRA_DOMAIN
             - HTTP_PORT
             - HTTPS_PORT
             - LEGACY_SOCKET_PORT
@@ -27,6 +28,7 @@ services:
             - caddy:/root/.caddy
             - ${EXISTING_CERT_DIR}:/existing-certs:ro
             - ./web:/var/www/html/web:ro
+            - ${EXTRA_DIR}:/var/www/html/extra:ro
             - ./berrymotes/data:/var/www/html/berrymotes/data:ro
             - ./berrymotes/css:/var/www/html/berrymotes/css:ro
             - ./berrymotes/js:/var/www/html/berrymotes/js:ro
@@ -40,6 +42,7 @@ services:
             - net
         depends_on:
             - php
+            - extra-php
 
     php:
         build: ./docker/php/
@@ -65,6 +68,17 @@ services:
             - net
         depends_on:
             - mysql
+
+    extra-php:
+        build: ./docker/php/
+        restart: always
+        init: true
+        volumes:
+            - ${EXTRA_DIR}:/var/www/html/extra
+        expose:
+            - '9000'
+        networks:
+            - net
 
     node:
         build: ./docker/node/
