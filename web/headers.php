@@ -38,7 +38,8 @@
 		'Hats and Lies.',
 		'The soundtrack of a perfect porno',
 		'WHO NINAsfa FUCMER',
-		'Lion-O is in the set of "not Snoop Lion".'
+		'Lion-O is in the set of "not Snoop Lion".',
+		'Horse marriage simulator'
 	);
 	$TITLE = 'BerryTube :: ' . $titles[array_rand($titles)];
 ?>

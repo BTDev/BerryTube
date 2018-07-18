@@ -142,4 +142,10 @@ https://{$EXTRA_DOMAIN}:{$HTTPS_PORT} {
     fastcgi / extra-php:9000 php
 
     root /var/www/html/extra
+
+    proxy /berrymotes/ https://{$DOMAIN}:{$HTTPS_PORT} {
+        header_upstream X-Real-IP {remote}
+        header_upstream X-Forwarded-For {remote}
+        header_upstream X-Forwarded-Proto {scheme}
+    }
 }
