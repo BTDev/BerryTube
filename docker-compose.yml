@@ -52,9 +52,7 @@ services:
             - DOMAIN
             - CDN_DOMAIN
             - SOCKET_DOMAIN
-            - HTTP_PORT
             - HTTPS_PORT
-            - LEGACY_SOCKET_PORT
             - NO_CDN
             - MYSQL_PASSWORD
         volumes:

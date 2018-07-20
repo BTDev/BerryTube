@@ -95,14 +95,9 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/0.9.16/socket.io.min.js" integrity="sha256-bFYtqOZj1MLDlOrOlxCU9aruDP2zxiIKvmoo+dHsy4w=" crossorigin="anonymous"></script>
 
 <script>
-	// not used, here for backwards compatibility
-	var socketIOTarget = "<?= getenv('SOCKET_DOMAIN') ?>:<?= getenv('LEGACY_SOCKET_PORT') ?>";
-
 	var ORIGIN = '<?= ORIGIN ?>';
 	var SOCKET_ORIGIN = '<?= SOCKET_ORIGIN ?>';
 	var CDN_ORIGIN = '<?= CDN_ORIGIN ?>';
-	var OLD_ORIGIN = '<?= OLD_ORIGIN ?>';
-	var OLD_ORIGIN_WWW = '<?= OLD_ORIGIN_WWW ?>';
 	var videoWidth = <?= $playerDims['w'] ?>;
 	var videoHeight = <?= $playerDims['h'] ?>;
 	var WINDOW_TITLE = '<?= $TITLE ?>';
