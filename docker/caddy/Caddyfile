@@ -149,3 +149,7 @@ https://{$EXTRA_DOMAIN}:{$HTTPS_PORT} {
         header_upstream X-Forwarded-Proto {scheme}
     }
 }
+
+http://localhost:1234 {
+    import common
+}

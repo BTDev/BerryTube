@@ -2,6 +2,8 @@
 set -exo pipefail
 shopt -s nullglob
 
+rm -f /tmp/mysql-inited-flag
+
 # if command starts with an option, prepend mysqld
 if [ "${1:0:1}" = '-' ]; then
 	set -- mysqld "$@"
@@ -242,4 +244,5 @@ if [ "$1" = 'mysqld' -a -z "$wantHelp" ]; then
 	echo
 fi
 
+touch /tmp/mysql-inited-flag
 exec "$@"

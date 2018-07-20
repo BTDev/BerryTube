@@ -41,8 +41,10 @@ services:
         networks:
             - net
         depends_on:
-            - php
-            - extra-php
+            php:
+                condition: service_healthy
+            extra-php:
+                condition: service_healthy
 
     php:
         build: ./docker/php/
@@ -65,7 +67,8 @@ services:
         networks:
             - net
         depends_on:
-            - mysql
+            mysql:
+                condition: service_healthy
 
     extra-php:
         build: ./docker/php/
@@ -89,7 +92,8 @@ services:
         networks:
             - net
         depends_on:
-            - mysql
+            mysql:
+                condition: service_healthy
 
     mysql:
         build: ./docker/mysql/
