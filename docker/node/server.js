@@ -2933,6 +2933,11 @@ function userLogin(socket,data,truecallback,falsecallback){
 
 						if (matched) {
 							onPasswordValid();
+						} else {
+							// Don't allow people to spam login attempts
+							handleLoginFail(socket);
+							debugLog("PW INCORRECT");
+							if(falsecallback) falsecallback();
 						}
 					});
 				} else {
