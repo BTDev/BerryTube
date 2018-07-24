@@ -898,6 +898,8 @@ function handleACL(){
             dbg("CAN NOT AREAS");
         }
 
+        scrollBuffersToBottom();
+
         dbg("ACL DONE.");
     } catch(e) {
         console.log("Error in handleACL",e);
@@ -980,6 +982,14 @@ function addLogMsg(data, to){
         }
 
 		filterAdminLog();
+}
+
+function scrollBuffersToBottom() {
+	if (!KEEP_BUFFER) {
+		return;
+	}
+	$('#chatbuffer').prop({ scrollTop: $('#chatbuffer').prop("scrollHeight") });
+	$('#adminbuffer').prop({ scrollTop: $('#adminbuffer').prop("scrollHeight") });
 }
 
 function addChatMsg(data,_to) {
@@ -1135,9 +1145,7 @@ function addChatMsg(data,_to) {
 				return;
 		}
 
-		while ($(to).children().length > 500) {
-			$(to).children().first().remove();
-		}
+		$(to).children().slice(0, -500).remove();
 
 		var d = new Date(data.msg.timestamp);
 		CHATLIST[nick] = d.getTime();
@@ -1148,6 +1156,8 @@ function addChatMsg(data,_to) {
 			var s = addZero(d.getSeconds());
 			var name = $("<span/>").addClass("timestamp").prependTo(newmsg).text("<" + h + ":" + m + ":" + s + ">");
 		}
+
+		scrollBuffersToBottom();
 
 		if (!isGhost) {
 			notifyNewMsg(metadata.channel, isSquee, data.msg.emote == "rcv");

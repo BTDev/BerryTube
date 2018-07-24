@@ -1967,15 +1967,7 @@ $(function(){
 
 	$(".chatbuffer")
 		.mouseenter(function() { KEEP_BUFFER = false; })
-		.mouseleave(function() { KEEP_BUFFER = true; });
-
-	setInterval(function(){
-		if(KEEP_BUFFER)
-		{
-			$("#chatbuffer").prop({ scrollTop: $("#chatbuffer").prop("scrollHeight") });
-			$("#adminbuffer").prop({ scrollTop: $("#adminbuffer").prop("scrollHeight") });
-		}
-	},100);
+		.mouseleave(function() { KEEP_BUFFER = true; scrollBuffersToBottom(); });
 
 	var preloads = $('<div/>').addClass("preload").appendTo("body");
 	$('<img src="' + CDN_ORIGIN + '/images/ajax-loader.gif"/>').appendTo(preloads);
