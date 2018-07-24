@@ -96,7 +96,7 @@ function updateTimers() {
                 tr.querySelector('.countdown-start-time').innerHTML = event.start_dt.format('[<small>]ddd[</small>] hh:mm[<small>] A[</small>]');
             }
 
-            tr.querySelector('.countdown-time-diff').innerHTML = moment.duration(event.start_dt.diff(now)).format('d[<small>d</small>] hh[<small>h</small>] mm[<small>m</small>] ss[<small>s</small>]');
+            tr.querySelector('.countdown-time-diff').innerHTML = moment.duration(event.start_dt.diff(now)).format('d[<small>d</small>] hh[<small>h</small>] mm[<small>m</small>]');
         }
 
         tr.querySelector('.countdown-title').textContent = event.title;
@@ -107,12 +107,14 @@ function updateTimers() {
 
     const oldTbody = document.querySelector('#countdown-timers > tbody');
     oldTbody.parentNode.replaceChild(tbody, oldTbody);
+
+    // try to trigger update 1 second past the minute
+    setTimeout(updateTimers, 61000 - now.seconds() * 1000 - now.milliseconds());
 }
 
 setTimeout(() => {
     updateEvents().then(() => {
         updateTimers();
-        setInterval(updateTimers, 1000); // recalculate times once a second
         setInterval(updateEvents, Math.floor(1000 * 60 * 60 * (24 - Math.random() * 3))); // reload calendar once a day, give or take
     });
 }, 1000 * Math.random());
