@@ -2082,6 +2082,8 @@ function showChat(channel) {
 			}
 			break;
 	}
+
+	scrollBuffersToBottom();
 }
 
 function cycleChatTab(left) {
