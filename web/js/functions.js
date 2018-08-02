@@ -2229,3 +2229,7 @@ function unfuckPlaylist() {
 	}
 }
 
+function refreshDebugDumps() {
+	DEBUG_DUMPS = [];
+	socket.emit('debugDump');
+}

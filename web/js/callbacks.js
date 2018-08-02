@@ -561,3 +561,6 @@ socket.on('forceRefresh', function(data){
 		window.location.reload();
 	}, delay);
 });
+socket.on('debugDump', function(data){
+	DEBUG_DUMPS.push(data);
+});

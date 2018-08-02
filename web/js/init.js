@@ -183,6 +183,7 @@ var ADMIN_NOTIFY = false;
 var LAST_QUEUE_ATTEMPT = null;
 var POLL_TITLE_FORMAT = '';
 var POLL_OPTIONS = [];
+var DEBUG_DUMPS = [];
 
 (function() {
 	// This isn't 100% necessary, but it keeps things a bit tidier by not making storedList global

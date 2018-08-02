@@ -2795,6 +2795,15 @@ function ifCanForceRefresh(socket,truecallback,falsecallback){
 		}
 	});
 }
+function ifCanDebugDump(socket,truecallback,falsecallback){
+	socket.get('type',function(err,type){
+		if(parseInt(type) >= 2){
+			if(truecallback)truecallback();
+		}else{
+			if(falsecallback)falsecallback();
+		}
+	});
+}
 function ifNickFree(nick,truecallback,falsecallback){
 	for(var i in SERVER.CHATLIST){
 		debugLog(SERVER.CHATLIST[i].nick);
@@ -4038,6 +4047,22 @@ io.sockets.on('connection', function (socket) {
 				data.delay = true;
 			}
 			io.sockets.emit('forceRefresh', data);
+		},function(){
+			kickForIllegalActivity(socket);
+		});
+	});
+	socket.on("debugDump",function(data){
+		ifCanDebugDump(socket,function(){
+			io.sockets.each(function(sc){
+				sc.get('nick',function(err,nick){
+					socket.emit('debugDump', {
+						type: 'socket',
+						nick: nick,
+						ip: getAddress(sc),
+						headers: sc.handshake && sc.handshake.headers
+					});
+				});
+			});
 		},function(){
 			kickForIllegalActivity(socket);
 		});
