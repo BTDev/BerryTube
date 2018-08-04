@@ -1756,6 +1756,7 @@ function parseVideoURL(url,callback){
 	console.log(url);
 	var m = url.match(new RegExp("youtube\\.com/watch.*?[&?]v=([a-zA-Z0-9_-]{11})")); if(m){	callback(m[1],"yt"); return;}
 	var m = url.match(new RegExp("youtu\\.be/([a-zA-Z0-9_-]{11})")); if(m){ callback(m[1],"yt"); return;}
+	var m = url.match(new RegExp("twitch\\.tv/([^/]+)")); if(m){	callback(m[1],"twitch","~ Raw Livestream ~"); return;}
 	var m = url.match(new RegExp("^rtmp://")); if(m){ callback(url,"osmf", "~ Raw Livestream ~"); return;}
 	var m = url.match(new RegExp("\\.f4m$")); if(m){ callback(url,"osmf", "~ Raw Livestream ~"); return;}
 	var m = url.match(new RegExp("vimeo.com/([^&]+)")); if(m){ callback(m[1],"vimeo"); return;}

@@ -533,3 +533,25 @@ window.PLAYERS.hls = {
         if (callback) callback(videojs('vjs_player').volume());
     }
 };
+
+var twitchplayer = null;
+window.PLAYERS.twitch = {
+    loadPlayer: function (src, to, volume) {
+        if (volume === false){
+            volume = 1;
+        }
+
+        $('<div>', {
+            id: 'twitchplayer'
+        }).appendTo('#ytapiplayer');
+
+        twitchplayer = new Twitch.Player("twitchplayer", {
+            width: $('#ytapiplayer').width(),
+            height: $('#ytapiplayer').height(),
+            channel: src
+        });
+    },
+    getVolume: function(callback){
+        if (callback) callback(twitchplayer.getVolume());
+    }
+};
