@@ -8,7 +8,7 @@ RUN apk add --no-cache bash ca-certificates curl && \
     curl -L https://getcaddy.com | bash -s personal http.realip,tls.dns.cloudflare && \
     apk del --no-cache caddy-install-deps
 
-COPY Caddyfile ./
+COPY Caddyfile mimes ./
 RUN env \
     DOMAIN=localhost \
     CDN_DOMAIN=cdn.localhost \
