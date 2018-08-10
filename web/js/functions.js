@@ -667,6 +667,12 @@ function windowFocused(){
 function windowBlurred(){
 
 }
+function windowShown(){
+	scrollBuffersToBottom();
+}
+function windowHidden(){
+
+}
 function addZero(i){
 	if(i < 10) {
 		i = "0"+i.toString();

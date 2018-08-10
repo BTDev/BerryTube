@@ -1966,6 +1966,14 @@ $(function(){
 		windowFocused()
 	});
 
+	document.addEventListener('visibilitychange', function(){
+		if(document.hidden){
+			windowHidden();
+		} else {
+			windowShown();
+		}
+	}, false);
+
 	$(".chatbuffer")
 		.mouseenter(function() { KEEP_BUFFER = false; })
 		.mouseleave(function() { KEEP_BUFFER = true; scrollBuffersToBottom(); });
