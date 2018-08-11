@@ -1731,7 +1731,7 @@ function initPolls(under){
 	newPollTitle = $('<input/>').attr('type','text').appendTo(x);
 
 	var td = $('<td/>').appendTo(row);
-	newPollObscure = $('<input/>').addClass("cb").attr('type','checkbox').attr("title","Obscure votes until poll closes.").appendTo(td);
+	newPollObscure = $('<input/>').addClass("cb").attr('type','checkbox').attr("title","Obscure votes until poll closes.").prop('checked', true).appendTo(td);
 
 	// Options Row Container
 	var row = $('<tr/>').appendTo(table);
@@ -1746,6 +1746,8 @@ function initPolls(under){
 	$('<td/>').appendTo(row);
 	var td = $('<td/>').appendTo(row);
 	var newOptionBtn = $('<div/>').addClass("btn").text("New Option").appendTo(td);
+	var td = $('<td/>').appendTo(row);
+	var newOptionManyBtn = $('<div/>').addClass("btn").text("+5").appendTo(td);
 
 	// Submit Row
 	var row = $('<tr/>').appendTo(table);
@@ -1764,10 +1766,13 @@ function initPolls(under){
 	var runoffThreshold = $('<input/>').attr('type', 'text').attr('title', 'Vote threshold for the runoff.').appendTo(x);
 
 	// Init
-	addPollOpt(optionContainer,2);
+	addPollOpt(optionContainer,5);
 	newOptionBtn.click(function(){
 		addPollOpt(optionContainer,1);
 	});
+	newOptionManyBtn.click(function(){
+		addPollOpt(optionContainer,5);
+	})
 	createPollBtn.click(function(){
 		if(canCreatePoll()){
 			var ops = canvas.find(".option");
@@ -1784,8 +1789,8 @@ function initPolls(under){
 			newPollTitle.val('');
 			runoffThreshold.val('');
 			ops.parent().remove();
-			addPollOpt(optionContainer,2);
-			newPollObscure.prop('checked', false);
+			addPollOpt(optionContainer,5);
+			newPollObscure.prop('checked', true);
 			newPollBtn.click();
 		}
 	});
@@ -1815,7 +1820,7 @@ function initPolls(under){
 				runoffThreshold.val('');
 				canvas.find('.option').parent().remove();
 				addPollOpt(optionContainer, 2);
-				newPollObscure.prop('checked', false);
+				newPollObscure.prop('checked', true);
 				newPollBtn.click();
 			}
 		}
