@@ -509,7 +509,6 @@ SERVER.DLOG = fs.createWriteStream(SERVER.settings.core.debug_file_name,{flags: 
 SERVER.FAILED_LOGINS=[];
 SERVER.RECENTLY_REGISTERED=[];
 SERVER.GILDNAME = "*";
-SERVER.TERMINATE_CODE = null;
 
 var MODE_VIDEOCHAT = 0;
 var MODE_CHATONLY = 1;
@@ -1134,10 +1133,6 @@ var commit = function(){
 
 	upsertMisc({name:'server_time', value:''+Math.ceil(SERVER.TIME)});
 	upsertMisc({name:'server_active_videoid', value:''+SERVER.ACTIVE.videoid});
-
-	if (SERVER.TERMINATE_CODE != null) {
-		process.exit(SERVER.TERMINATE_CODE);
-	}
 };
 
 const commitInterval = setInterval(commit,SERVER.settings.core.db_commit_delay);
@@ -1147,8 +1142,10 @@ process.on('SIGTERM', function(signal){
 	console.log('Running commit before exit...');
 	clearInterval(commitInterval);
 	io.sockets.emit('serverRestart');
-	SERVER.TERMINATE_CODE = 128 + signal;
 	commit();
+	setTimeout(function(){
+		process.exit(128 + signal);
+	}, 3000);
 });
 
 function hotPotatoLeader(departing){
