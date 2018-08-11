@@ -617,18 +617,12 @@ function initResumePosition(callback){
 	});
 }
 function upsertMisc(data, callback){
-	var q = 'delete from misc where name = ?'; debugLog(q);
-	mysql.query(q, [data.name], function(err, result, fields) {
+	var q = 'insert into misc (name,value) VALUES (?,?) ON DUPLICATE KEY UPDATE value=?'; debugLog(q);
+	mysql.query(q, [data.name, data.value, data.value], function(err, result, fields) {
 		if (err) {
 			console.error(err);
 		}
-		var q = 'insert into misc (name,value) VALUES (?,?)'; debugLog(q);
-		mysql.query(q, [data.name, data.value], function(err, result, fields) {
-			if (err) {
-				console.error(err);
-			}
-			if(callback) callback();
-		});
+		if(callback) callback();
 	});
 }
 function getMisc(data, callback){
