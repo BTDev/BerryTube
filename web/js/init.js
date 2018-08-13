@@ -198,6 +198,17 @@ var DEBUG_DUMPS = [];
 	}
 })();
 
+try {
+	const stored = localStorage.getItem('ignoreList');
+	if (stored) {
+		IGNORELIST = JSON.parse(stored);
+	} else {
+		localStorage.setItem('ignoreList', JSON.stringify([]));
+	}
+} catch(e) {
+	console.log('invalid stored ignoreList', e);
+}
+
 try{
 	window.socket = io.connect(SOCKET_ORIGIN, {
 		'connect timeout': 4500 + Math.random() * 1000,
@@ -619,6 +630,11 @@ function showConfigMenu(on){
 	var showSqueesBtn_label = $('<span/>').appendTo(showSqueesBtn).text("Manage 3rd-party plugins");
 	showSqueesBtn.click(showPluginWindow);
 	//----------------------------------------
+	var row = $('<div/>').appendTo(configOps);
+	var showIgnoreDialogBtn = $('<div/>').appendTo(row).addClass('button');
+	var showIgnoreDialogBtn_label = $('<span/>').appendTo(showIgnoreDialogBtn).text("Manage ignored users");
+	showIgnoreDialogBtn.click(showIgnoreDialog);
+	//----------------------------------------
 	/*var migrateOps = $('<fieldset/>').appendTo($('<li/>').appendTo(optWrap));
 	$('<legend/>').appendTo(migrateOps).text("Import settings");
 	var row = $('<div/>').appendTo(migrateOps);
@@ -745,21 +761,25 @@ function showUserActions(who){
 			cmds.window.close();
 		})
 	}
-	if(IGNORELIST.indexOf(target) == -1 && target != NAME){
-		var option = $('<li/>').text("Ignore user").addClass('btn').appendTo(optWrap);
-		option.click(function(){
-			IGNORELIST.push(target);
-			who.addClass('ignored');
-			cmds.window.close();
-		})
-	}
-	if(IGNORELIST.indexOf(target) != -1 && target != NAME){
-		var option = $('<li/>').text("Unignore user").addClass('btn').appendTo(optWrap);
-		option.click(function(){
-			IGNORELIST.splice(IGNORELIST.indexOf(target),1);
-			who.removeClass('ignored');
-			cmds.window.close();
-		})
+	if (!who.hasClass('admin')) {
+		if(IGNORELIST.indexOf(target) == -1 && target != NAME){
+			var option = $('<li/>').text("Ignore user").addClass('btn').appendTo(optWrap);
+			option.click(function(){
+				IGNORELIST.push(target);
+				localStorage.setItem('ignoreList', JSON.stringify(IGNORELIST));
+				who.addClass('ignored');
+				cmds.window.close();
+			})
+		}
+		if(IGNORELIST.indexOf(target) != -1 && target != NAME){
+			var option = $('<li/>').text("Unignore user").addClass('btn').appendTo(optWrap);
+			option.click(function(){
+				IGNORELIST.splice(IGNORELIST.indexOf(target),1);
+				localStorage.setItem('ignoreList', JSON.stringify(IGNORELIST));
+				who.removeClass('ignored');
+				cmds.window.close();
+			})
+		}
 	}
 
 	if(canShadowBan() && target != NAME){
@@ -849,6 +869,8 @@ function addUser(data, sortafter){
 		var newusr = $('<li/>').append($('<span/>').addClass('chatlistname').text(nick)).data('nick',nick).show("blind").appendTo(chatul).addClass(nick);
 		if (nick == NAME) {
 			newusr.addClass("me");
+		} else if (IGNORELIST.indexOf(nick) != -1) {
+			newusr.addClass("ignored");
 		}
 		if (shadowbanned) {
 			newusr.addClass('sbanned');

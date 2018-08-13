@@ -256,6 +256,39 @@ function showAdminFilterWindow(){
 	waitForExisting();
 
 }
+function showIgnoreDialog() {
+	var parent = $('body').dialogWindow({
+		title:'Ignore Management',
+		uid:'ignoremanagement',
+		center:true
+	});
+
+	var mainOptWrap = $('<div/>').appendTo(parent).addClass('controlWindow');
+	var banZone = $('<div/>').addClass('banZone').appendTo(mainOptWrap);
+
+	function addBanRow(name) {
+		var row = $('<div/>').addClass('row').appendTo(banZone);
+		var nicks = $('<span/>').text(name);
+		$('<div/>').addClass('content').append(nicks).css('width', '290px').appendTo(row);
+		$('<div/>').addClass('unban button').text("Unignore").css('width', '52px').appendTo(row).click(function() {
+			IGNORELIST.splice(IGNORELIST.indexOf(name),1);
+			localStorage.setItem('ignoreList', JSON.stringify(IGNORELIST));
+			$('#chatlist li.' + name).removeClass('ignored');
+			row.remove();
+		});
+		$('<div/>').addClass('clear').appendTo(row);
+	}
+
+	if (IGNORELIST.length) {
+		for (let name of IGNORELIST) {
+			addBanRow(name);
+		}
+	} else {
+		$('<div/>').text("You haven't ignored anyone. Right click on a user if you want to do so.").css('width', '280px').css('margin', '10px').appendTo(banZone);
+	}
+
+	parent.window.center();
+}
 function showBanlistWindow() {
 	socket.emit('getBanlist');
 
