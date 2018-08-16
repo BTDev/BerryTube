@@ -28,11 +28,13 @@ function showAdminFilterWindow(){
 			nickMatch:".*",
 			nickParam:"i",
 			chatMatch:".*",
-			chatParam:"i",
+			chatParam:"ig",
 			chatReplace:"",
 			actionSelector:'none',
 			enable:true,
-            name:""
+            name:"",
+            allowLinks:false,
+            allowEmotes:false
 		}
 		for(var i in data){
 			myData[i] = data[i];
@@ -123,6 +125,24 @@ function showAdminFilterWindow(){
 		if(myData.enable) enable.prop('checked',true);
 		newRule.data('enable',enable);
 
+		/* Allow links */
+		var allowLinksRow = $('<tr/>').appendTo(newTable);
+		var allowLinksLabelCol = $('<td/>').appendTo(allowLinksRow);
+		var allowLinksDataCol = $('<td/>').appendTo(allowLinksRow);
+		$('<span/>').text("Affect Links:").appendTo(allowLinksLabelCol);
+		var allowLinks = $('<input/>').attr('type','checkbox').appendTo(allowLinksDataCol);
+		if(myData.allowLinks) allowLinks.prop('checked',true);
+		newRule.data('allowLinks',allowLinks);
+
+		/* Allow emotes */
+		var allowEmotesRow = $('<tr/>').appendTo(newTable);
+		var allowEmotesLabelCol = $('<td/>').appendTo(allowEmotesRow);
+		var allowEmotesDataCol = $('<td/>').appendTo(allowEmotesRow);
+		$('<span/>').text("Affect Emotes:").appendTo(allowEmotesLabelCol);
+		var allowEmotes = $('<input/>').attr('type','checkbox').appendTo(allowEmotesDataCol);
+		if(myData.allowEmotes) allowEmotes.prop('checked',true);
+		newRule.data('allowEmotes',allowEmotes);
+
 		var rules = mainOptWrap.data('rules');
 		rules.push(newRule);
 
@@ -176,6 +196,8 @@ function showAdminFilterWindow(){
 				actionSelector:$(rules[i]).data('actionSelector').val(),
 				actionMetadata:$(rules[i]).data('actionMetadata').val(),
 				enable:$(rules[i]).data('enable').is(':checked'),
+				allowLinks:$(rules[i]).data('allowLinks').is(':checked'),
+				allowEmotes:$(rules[i]).data('allowEmotes').is(':checked'),
 				name:$(rules[i]).data('name').val()
 			};
 			convertedRules.push(d);
@@ -205,13 +227,23 @@ function showAdminFilterWindow(){
 				chatReplace:$(rules[i]).data('chatReplace').val(),
 				actionSelector:$(rules[i]).data('actionSelector').val(),
 				actionMetadata:$(rules[i]).data('actionMetadata').val(),
-				enable:$(rules[i]).data('enable').is(':checked')
+				enable:$(rules[i]).data('enable').is(':checked'),
+				allowLinks:$(rules[i]).data('allowLinks').is(':checked'),
+				allowEmotes:$(rules[i]).data('allowEmotes').is(':checked')
 			};
             if(!d.enable) continue;
 
+            let chatMatch = d.chatMatch;
+			if(!d.allowLinks){
+				chatMatch = '(?<!https?://\\S+(?!\\s))' + chatMatch;
+			}
+			if(!d.allowEmotes){
+				chatMatch += '(?![\\w-]*?\\))';
+			}
+
 			// Name Check
 			var nickCheck = new RegExp(d.nickMatch,d.nickParam);
-			var chatCheck = new RegExp(d.chatMatch,d.chatParam);
+			var chatCheck = new RegExp(chatMatch,d.chatParam);
 			if(nick.match(nickCheck)){ //console.log("matched name");
 				if(msg.match(chatCheck)){ //console.log("matched chat");
 					// Perform Action

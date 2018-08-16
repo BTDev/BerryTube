@@ -1443,13 +1443,21 @@ function applyFilters(nick,msg,socket){
 				continue;
 			}
 
+			let chatMatch = d.chatMatch;
+			if(!d.allowLinks){
+				chatMatch = '(?<!https?://\\S+(?!\\s))' + chatMatch;
+			}
+			if(!d.allowEmotes){
+				chatMatch += '(?![\\w-]*?\\))';
+			}
+
 			// Sanity Check, kill rule on failure.
 			try{
 				var nickCheck = new RegExp(d.nickMatch,d.nickParam);
-				var chatCheck = new RegExp(d.chatMatch,d.chatParam);
+				var chatCheck = new RegExp(chatMatch,d.chatParam);
 			} catch(e) {
 				console.error(e);
-				SERVER.FILTERS.splice(i,1);
+				//SERVER.FILTERS.splice(i,1);
 				continue;
 			}
 
