@@ -167,14 +167,16 @@ https://{$EXTRA_SOCKET_DOMAIN}:{$HTTPS_PORT} {
         -X-Frame-Options
     }
 
-    proxy /wut/ponypen.sock http://{$DOMAIN}:9990 {
-        without /wut/ponypen.sock
+    rewrite / /{?app}/
+
+    proxy /ponypen/ http://{$DOMAIN}:9990 {
+        without /ponypen/
         transparent
         websocket
     }
 
-    proxy /wut/canvas.sock http://{$DOMAIN}:9991 {
-        without /wut/canvas.sock
+    proxy /canvas/ http://{$DOMAIN}:9991 {
+        without /canvas/
         transparent
         websocket
     }
