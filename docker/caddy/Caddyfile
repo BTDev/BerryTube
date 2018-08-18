@@ -168,7 +168,7 @@ https://{$EXTRA_SOCKET_DOMAIN}:{$HTTPS_PORT} {
         -X-Frame-Options
     }
 
-    rewrite / /{?app}/
+    rewrite / /{?app}/{path}
 
     proxy /ponypen/ http://{$DOMAIN}:9990 {
         without /ponypen/
