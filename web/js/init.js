@@ -761,25 +761,23 @@ function showUserActions(who){
 			cmds.window.close();
 		})
 	}
-	if (!who.hasClass('admin')) {
-		if(IGNORELIST.indexOf(target) == -1 && target != NAME){
-			var option = $('<li/>').text("Ignore user").addClass('btn').appendTo(optWrap);
-			option.click(function(){
-				IGNORELIST.push(target);
-				localStorage.setItem('ignoreList', JSON.stringify(IGNORELIST));
-				who.addClass('ignored');
-				cmds.window.close();
-			})
-		}
-		if(IGNORELIST.indexOf(target) != -1 && target != NAME){
-			var option = $('<li/>').text("Unignore user").addClass('btn').appendTo(optWrap);
-			option.click(function(){
-				IGNORELIST.splice(IGNORELIST.indexOf(target),1);
-				localStorage.setItem('ignoreList', JSON.stringify(IGNORELIST));
-				who.removeClass('ignored');
-				cmds.window.close();
-			})
-		}
+	if(IGNORELIST.indexOf(target) == -1 && target != NAME){
+		var option = $('<li/>').text("Ignore user").addClass('btn').appendTo(optWrap);
+		option.click(function(){
+			IGNORELIST.push(target);
+			localStorage.setItem('ignoreList', JSON.stringify(IGNORELIST));
+			who.addClass('ignored');
+			cmds.window.close();
+		})
+	}
+	if(IGNORELIST.indexOf(target) != -1 && target != NAME){
+		var option = $('<li/>').text("Unignore user").addClass('btn').appendTo(optWrap);
+		option.click(function(){
+			IGNORELIST.splice(IGNORELIST.indexOf(target),1);
+			localStorage.setItem('ignoreList', JSON.stringify(IGNORELIST));
+			who.removeClass('ignored');
+			cmds.window.close();
+		})
 	}
 
 	if(canShadowBan() && target != NAME){
