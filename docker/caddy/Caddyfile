@@ -161,18 +161,20 @@ https://{$EXTRA_SOCKET_DOMAIN}:{$HTTPS_PORT} {
     }
 
     header / {
-        Access-Control-Allow-Origin "*"
+        Access-Control-Allow-Origin {>Origin}
         Access-Control-Allow-Methods "OPTIONS, HEAD, GET"
         Access-Control-Max-Age "600"
         -X-Frame-Options
     }
 
     proxy /wut/ponypen.sock http://{$DOMAIN}:9990 {
+        without /wut/ponypen.sock
         transparent
         websocket
     }
 
     proxy /wut/canvas.sock http://{$DOMAIN}:9991 {
+        without /wut/canvas.sock
         transparent
         websocket
     }
