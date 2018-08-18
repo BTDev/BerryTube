@@ -13,6 +13,8 @@ RUN env \
     DOMAIN=localhost \
     CDN_DOMAIN=cdn.localhost \
     SOCKET_DOMAIN=socket.localhost \
+    EXTRA_DOMAIN=btc.localhost \
+    EXTRA_SOCKET_DOMAIN=socket.btc.localhost \
     HTTP_PORT=80 \
     HTTPS_PORT=443 \
     LEGACY_SOCKET_PORT=8344 \

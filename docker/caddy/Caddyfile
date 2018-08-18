@@ -67,6 +67,7 @@ http://www.{$DOMAIN}:{$HTTP_PORT} {
 https://www.{$DOMAIN}:{$HTTPS_PORT} {
 	import common
 
+    root /dev/null
     redir / https://{$DOMAIN}:{$HTTPS_PORT}{uri}
 }
 
@@ -152,6 +153,27 @@ https://{$EXTRA_DOMAIN}:{$HTTPS_PORT} {
     }
 }
 
-http://localhost:1234 {
+https://{$EXTRA_SOCKET_DOMAIN}:{$HTTPS_PORT} {
     import common
+
+    tls {
+        alpn http/1.1
+    }
+
+    header / {
+        Access-Control-Allow-Origin "*"
+        Access-Control-Allow-Methods "OPTIONS, HEAD, GET"
+        Access-Control-Max-Age "600"
+        -X-Frame-Options
+    }
+
+    proxy /wut/ponypen.sock http://{$DOMAIN}:9990 {
+        transparent
+        websocket
+    }
+
+    proxy /wut/canvas.sock http://{$DOMAIN}:9991 {
+        transparent
+        websocket
+    }
 }

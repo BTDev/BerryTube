@@ -18,6 +18,7 @@ services:
             - CDN_DOMAIN
             - SOCKET_DOMAIN
             - EXTRA_DOMAIN
+            - EXTRA_SOCKET_DOMAIN
             - HTTP_PORT
             - HTTPS_PORT
             - LEGACY_SOCKET_PORT
@@ -54,6 +55,8 @@ services:
             - DOMAIN
             - CDN_DOMAIN
             - SOCKET_DOMAIN
+            - EXTRA_DOMAIN
+            - EXTRA_SOCKET_DOMAIN
             - HTTPS_PORT
             - NO_CDN
             - MYSQL_PASSWORD
@@ -74,6 +77,13 @@ services:
         build: ./docker/php/
         restart: always
         init: true
+        environment:
+            - DOMAIN
+            - CDN_DOMAIN
+            - SOCKET_DOMAIN
+            - EXTRA_DOMAIN
+            - EXTRA_SOCKET_DOMAIN
+            - HTTPS_PORT
         volumes:
             - ${EXTRA_DIR}:/var/www/html/extra
         expose:
