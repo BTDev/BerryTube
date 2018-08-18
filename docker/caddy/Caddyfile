@@ -163,7 +163,8 @@ https://{$EXTRA_SOCKET_DOMAIN}:{$HTTPS_PORT} {
     header / {
         Access-Control-Allow-Origin {>Origin}
         Access-Control-Allow-Methods "OPTIONS, HEAD, GET"
-        Access-Control-Max-Age "600"
+        Access-Control-Allow-Credentials true
+        Access-Control-Max-Age 600
         -X-Frame-Options
     }
 
