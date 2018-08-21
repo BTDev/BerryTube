@@ -30,7 +30,7 @@
     root /var/www/html/web
 
     log / stdout {combined} {
-        except /ping.txt /ping.php
+        except /ping.txt /ping.php /sha1/76fd81f2d5d91ab09c20dbe097b4bcda9a0e6c9b/ping.txt
     }
 
 	import tls_{$TLS_TYPE}
