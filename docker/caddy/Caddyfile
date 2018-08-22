@@ -182,3 +182,8 @@ https://{$EXTRA_SOCKET_DOMAIN}:{$HTTPS_PORT} {
         websocket
     }
 }
+
+# for Docker healthcheck
+http://localhost:1234 {
+    import common
+}
