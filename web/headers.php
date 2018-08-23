@@ -113,9 +113,13 @@
 		// skip "GeoIP Country Edition: ", take only code
 		echo substr($geo, 23, 2);
 		?>';
+
+	var scriptNodes = <?php
+		require_once('plugin-data.php');
+		echo str_replace('"' . CDN_ORIGIN, 'CDN_ORIGIN+"', json_encode($plugin_data, JSON_UNESCAPED_SLASHES));
+		?>;
 </script>
 
-<script src="js/plugin-data.js.php"></script>
 <script src="<?= cdn('js/lib.js') ?>"></script>
 <script src="<?= cdn('js/init.js') ?>"></script>
 <script src="<?= cdn('js/functions.js') ?>"></script>

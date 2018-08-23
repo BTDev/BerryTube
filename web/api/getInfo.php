@@ -1,6 +1,6 @@
 <?php
 
-	require('apiconfig.php');
+	require_once('apiconfig.php');
 
 	header('Access-Control-Allow-Origin: '.$_SERVER['HTTP_ORIGIN']);
     header('Access-Control-Allow-Methods: GET, PUT, POST, DELETE, OPTIONS');
@@ -12,7 +12,7 @@
 		die('Connect Error (' . mysqli_connect_errno() . ') '. mysqli_connect_error());
 	}
 
-	require("IPSession.php");
+	require_once("IPSession.php");
 
 	$ips = new ipSession($mysqli);
 

@@ -1,6 +1,6 @@
 <?php
 
-	require('apiconfig.php');
+	require_once('apiconfig.php');
 
 	function array_to_xml($x, &$y) {
 		foreach($x as $key => $value) {

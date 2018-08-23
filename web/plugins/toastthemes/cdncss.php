@@ -4,7 +4,7 @@ $theme = $_GET['theme'];
 assert(strpos($theme, '.') === false);
 
 header('Content-Type: text/css');
-require('../../config.php');
+require_once('../../config.php');
 
 function replacer($matches) {
     global $theme;

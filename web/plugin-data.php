@@ -1,10 +1,8 @@
 <?php
 
-header('Content-Type: application/javascript');
+require_once('config.php');
 
-require('../config.php');
-
-echo 'scriptNodes=', json_encode([
+$plugin_data = [
     [
         'title' => 'ToastThemes',
         'desc' => 'A script that provides a large assortment of custom themes for the site, along with a few other fun features.',
@@ -23,7 +21,7 @@ echo 'scriptNodes=', json_encode([
     ]*/,
     [
         'title' => 'wutColors',
-        'desc' => 'Gives each user a unique color to make chat easier to keep track of. <a href="http://btc.berrytube.tv/wut/wutColors/" target="_blank">Set your color here</a>',
+        'desc' => 'Gives each user a unique color to make chat easier to keep track of. <a href="https://btc.berrytube.tv/wut/wutColors/" target="_blank">Set your color here</a>',
         'authors' => ['wut'],
         'settings' => 'scriptNodeWutColorsEnabled',
         'css' => ['https://dl.dropboxusercontent.com/s/f5axkxk4wojatsf/style.css'],
@@ -78,4 +76,4 @@ echo 'scriptNodes=', json_encode([
         'css' => [],
         'js' => [cdn('plugins/videoBlacklist/videoBlacklist.js')]
     ]
-]), ';';
+];

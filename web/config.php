@@ -1,6 +1,6 @@
 <?php
 
-	require('api/apiconfig.php');
+	require_once('api/apiconfig.php');
 
 	function cdn($fname) {
 		if (NO_CDN) {
