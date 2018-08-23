@@ -63,7 +63,6 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cookieconsent2/3.0.6/cookieconsent.min.css" integrity="sha256-00kGHOz9RdKF3UMt7O3Ookbg/gzvO40T0znI4awon7A=" crossorigin="anonymous" />
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js" integrity="sha256-KM512VNnjElC30ehFwehXjx1YCHPiQkOPmqnrWtpccM=" crossorigin="anonymous"></script>
 
 <?php
 	// Load any other headers, like from the theme cookie.
@@ -84,16 +83,49 @@
 	}
 ?>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/tinyscrollbar/2.4.2/jquery.tinyscrollbar.min.js" integrity="sha256-gENsdwXJl1qiwOqS0DF+kfqTP5Dy+0gDTtxpRcWVhrU=" crossorigin="anonymous"></script>
-<script src="https://w.soundcloud.com/player/api.js"></script>
-<script src="https://player.vimeo.com/api/player.js"></script>
-<script src="https://player.twitch.tv/js/embed/v1.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/video.js/7.0.5/video.min.js" integrity="sha256-m/9LXrATPmrFPoi/sfeUpug10+/7X6a1K/sZiclo6/w=" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/videojs-flash/2.1.1/videojs-flash.min.js" integrity="sha256-5luNwx2z1Vkxkd82h83bdRlV2qVpI0IogaHhjBfza2g=" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/videojs-contrib-hls/5.14.1/videojs-contrib-hls.min.js" integrity="sha256-ngHSRzCW6euvtJPYDc6HnWd9UvS7VxXfOcRt5Kt0ZrA=" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/dashjs/2.8.0/dash.all.min.js" integrity="sha256-Tr9wr4DxlOudFlRVpPC95TjmXQSRUk7GgHjwy77vnGs=" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/videojs-contrib-dash/2.9.3/videojs-dash.min.js" integrity="sha256-VsGrOcGYYvdJEhXVd9TBs3P5CEip76d9Foc2VcqUDv0=" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/0.9.16/socket.io.min.js" integrity="sha256-bFYtqOZj1MLDlOrOlxCU9aruDP2zxiIKvmoo+dHsy4w=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js" integrity="sha256-KM512VNnjElC30ehFwehXjx1YCHPiQkOPmqnrWtpccM=" crossorigin="anonymous" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tinyscrollbar/2.4.2/jquery.tinyscrollbar.min.js" integrity="sha256-gENsdwXJl1qiwOqS0DF+kfqTP5Dy+0gDTtxpRcWVhrU=" crossorigin="anonymous" defer></script>
+<script src="https://w.soundcloud.com/player/api.js" defer></script>
+<script src="https://player.vimeo.com/api/player.js" defer></script>
+<script src="https://player.twitch.tv/js/embed/v1.js" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/video.js/7.0.5/video.min.js" integrity="sha256-m/9LXrATPmrFPoi/sfeUpug10+/7X6a1K/sZiclo6/w=" crossorigin="anonymous" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/videojs-flash/2.1.1/videojs-flash.min.js" integrity="sha256-5luNwx2z1Vkxkd82h83bdRlV2qVpI0IogaHhjBfza2g=" crossorigin="anonymous" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/videojs-contrib-hls/5.14.1/videojs-contrib-hls.min.js" integrity="sha256-ngHSRzCW6euvtJPYDc6HnWd9UvS7VxXfOcRt5Kt0ZrA=" crossorigin="anonymous" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/dashjs/2.8.0/dash.all.min.js" integrity="sha256-Tr9wr4DxlOudFlRVpPC95TjmXQSRUk7GgHjwy77vnGs=" crossorigin="anonymous" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/videojs-contrib-dash/2.9.3/videojs-dash.min.js" integrity="sha256-VsGrOcGYYvdJEhXVd9TBs3P5CEip76d9Foc2VcqUDv0=" crossorigin="anonymous" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/0.9.16/socket.io.min.js" integrity="sha256-bFYtqOZj1MLDlOrOlxCU9aruDP2zxiIKvmoo+dHsy4w=" crossorigin="anonymous" defer></script>
+
+<script src="<?= cdn('js/lib.js') ?>" defer></script>
+<script src="<?= cdn('js/init.js') ?>" defer></script>
+<script src="<?= cdn('js/functions.js') ?>" defer></script>
+<script src="<?= cdn('js/callbacks.js') ?>" defer></script>
+<script src="<?= cdn('js/player.js') ?>" defer></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cookieconsent2/3.0.6/cookieconsent.min.js" integrity="sha256-bPOd70Y8ohKatGmjL6tszdveppYZCunsUfLOq7v8JBw=" crossorigin="anonymous" defer></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.19.1/moment.min.js" integrity="sha256-zG8v+NWiZxmjNi+CvUYnZwKtHzFtdO8cAKUIdB8+U9I=" crossorigin="anonymous" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment-duration-format/1.3.0/moment-duration-format.min.js" integrity="sha256-SjPDuWPRLxUNqTwhiAcTNcIwQLbf5khquJsz5fekYms=" crossorigin="anonymous" defer></script>
+<script src="<?= cdn('js/countdown.js') ?>" defer></script>
+
+<script src="<?= cdn('berrymotes/js/berrymotes.berrytube.js') ?>" defer></script>
+<script src="<?= cdn('berrymotes/js/berrymotes.core.js') ?>" defer></script>
+
+<template id="countdown-future-row">
+    <tr>
+        <th class="countdown-title" scope="row"></th>
+        <td class="countdown-start-time"></td>
+        <td class="countdown-time-diff"></td>
+        <td class="countdown-note"></td>
+    </tr>
+</template>
+
+<template id="countdown-happening-row">
+    <tr>
+        <th class="countdown-title" scope="row"></th>
+        <td class="countdown-happening" colspan="2">It's happening!</td>
+        <td class="countdown-note"></td>
+    </tr>
+</template>
 
 <script>
 	var ORIGIN = '<?= ORIGIN ?>';
@@ -118,45 +150,10 @@
 		require_once('plugin-data.php');
 		echo str_replace('"' . CDN_ORIGIN, 'CDN_ORIGIN+"', json_encode($plugin_data, JSON_UNESCAPED_SLASHES));
 		?>;
-</script>
 
-<script src="<?= cdn('js/lib.js') ?>"></script>
-<script src="<?= cdn('js/init.js') ?>"></script>
-<script src="<?= cdn('js/functions.js') ?>"></script>
-<script src="<?= cdn('js/callbacks.js') ?>"></script>
-<script src="<?= cdn('js/player.js') ?>"></script>
-
-<!-- START DEFERRED SCRIPTS -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/cookieconsent2/3.0.6/cookieconsent.min.js" integrity="sha256-bPOd70Y8ohKatGmjL6tszdveppYZCunsUfLOq7v8JBw=" crossorigin="anonymous" defer></script>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.19.1/moment.min.js" integrity="sha256-zG8v+NWiZxmjNi+CvUYnZwKtHzFtdO8cAKUIdB8+U9I=" crossorigin="anonymous" defer></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/moment-duration-format/1.3.0/moment-duration-format.min.js" integrity="sha256-SjPDuWPRLxUNqTwhiAcTNcIwQLbf5khquJsz5fekYms=" crossorigin="anonymous" defer></script>
-<script src="<?= cdn('js/countdown.js') ?>" defer></script>
-
-<script>
 	Bem = typeof Bem === "undefined" ? {} : Bem;
 	Bem.skip_css = true;
 	Bem.origin = ORIGIN + '/berrymotes';
 	Bem.cdn_origin = CDN_ORIGIN + '/berrymotes';
 	Bem.data_url = '<?= cdn('berrymotes/data/berrymotes_json_data.v2.json') ?>';
 </script>
-<script src="<?= cdn('berrymotes/js/berrymotes.berrytube.js') ?>" defer></script>
-<script src="<?= cdn('berrymotes/js/berrymotes.core.js') ?>" defer></script>
-<!-- END DEFERRED SCRIPTS -->
-
-<template id="countdown-future-row">
-    <tr>
-        <th class="countdown-title" scope="row"></th>
-        <td class="countdown-start-time"></td>
-        <td class="countdown-time-diff"></td>
-        <td class="countdown-note"></td>
-    </tr>
-</template>
-
-<template id="countdown-happening-row">
-    <tr>
-        <th class="countdown-title" scope="row"></th>
-        <td class="countdown-happening" colspan="2">It's happening!</td>
-        <td class="countdown-note"></td>
-    </tr>
-</template>
