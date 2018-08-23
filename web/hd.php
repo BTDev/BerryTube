@@ -50,7 +50,7 @@
 	<div id="videobg">
 		<div id="videowrap">
 			<div id="ytapiplayer">
-				You need Flash player 8+ and JavaScript enabled to view this video.
+				Loading&hellip;
 			</div>
 		</div>
 	</div>
