@@ -10,7 +10,7 @@ $plugin_data = [
         'setting' => 'scriptNodeToastThemesEnabled',
         'css' => [cdn('plugins/toastthemes/toastthemes.css')],
         'js' => [cdn('plugins/toastthemes/toastthemes.js')]
-    ]/*,
+    ],
     [
         'title' => 'Ponypen',
         'desc' => 'A script that turns the video player into a pony playground.',
@@ -18,7 +18,7 @@ $plugin_data = [
         'setting' => 'scriptNodePonypenEnabled',
         'css' => [],
         'js' => ['https://btc.berrytube.tv/wut/ponypen.js']
-    ]*/,
+    ],
     [
         'title' => 'wutColors',
         'desc' => 'Gives each user a unique color to make chat easier to keep track of. <a href="https://btc.berrytube.tv/wut/wutColors/" target="_blank">Set your color here</a>',
