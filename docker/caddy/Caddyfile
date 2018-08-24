@@ -181,6 +181,12 @@ https://{$EXTRA_SOCKET_DOMAIN}:{$HTTPS_PORT} {
         transparent
         websocket
     }
+
+    proxy /shotbutton/ http://{$DOMAIN}:9992 {
+        without /shotbutton/
+        transparent
+        websocket
+    }
 }
 
 # for Docker healthcheck
