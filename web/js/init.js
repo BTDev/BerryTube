@@ -1902,40 +1902,51 @@ $(function(){
 		if(event.keyCode == 27){ event.preventDefault(); } // Stop escape killing connection in firefox.
 	});
 
-	if (MY_COUNTRY && window.cookieconsent) {
-		window.cookieconsent.hasTransition = false;
-		window.cookieconsent.initialise({
-		    palette: {
-				popup: {
-					background: "#64386b",
-					text: "#ffcdfd"
+	setTimeout(function(){
+		if (MY_COUNTRY && window.cookieconsent) {
+			window.cookieconsent.hasTransition = false;
+			window.cookieconsent.initialise({
+			    palette: {
+					popup: {
+						background: "#64386b",
+						text: "#ffcdfd"
+					},
+					button: {
+						background: "#f8a8ff",
+						text: "#3f0045"
+					}
 				},
-				button: {
-					background: "#f8a8ff",
-					text: "#3f0045"
+				theme: "classic",
+				position: "bottom-left",
+				law: {
+					countryCode: MY_COUNTRY
+				},
+				content: {
+					message: 'Like every other website on the planet, we use cookies.',
+					link: 'Would you like to know more?',
+					href: 'https://cookiesandyou.com',
+					image: CDN_ORIGIN + '/images/cookies/' + Math.floor(Math.random()*5) + '.png'
+				},
+				elements: {
+					messagelink:
+						'<span id="cookieconsent:desc" class="cc-message">' +
+							'<img style="float:right;margin-left:1em;height:100px;min-width:45px" src="{{image}}">' +
+							'{{message}} ' +
+							'<a tabindex="0" class="cc-link" href="{{href}}" target="_blank">{{link}}</a>' +
+						'</span>'
 				}
-			},
-			theme: "classic",
-			position: "bottom-left",
-			law: {
-				countryCode: MY_COUNTRY
-			},
-			content: {
-				message: 'Like every other website on the planet, we use cookies.',
-				link: 'Would you like to know more?',
-				href: 'https://cookiesandyou.com',
-				image: CDN_ORIGIN + '/images/cookies/' + Math.floor(Math.random()*5) + '.png'
-			},
-			elements: {
-				messagelink:
-					'<span id="cookieconsent:desc" class="cc-message">' +
-						'<img style="float:right;margin-left:1em;height:100px;min-width:45px" src="{{image}}">' +
-						'{{message}} ' +
-						'<a tabindex="0" class="cc-link" href="{{href}}" target="_blank">{{link}}</a>' +
-					'</span>'
-			}
-		});
-	}
+			}, function(popup){
+				if (popup.options.enabled || popup.options.revokable) {
+					$('<link>', {
+						rel: 'stylesheet',
+						href: 'https://cdnjs.cloudflare.com/ajax/libs/cookieconsent2/3.0.6/cookieconsent.min.css',
+						integrity: 'sha256-00kGHOz9RdKF3UMt7O3Ookbg/gzvO40T0znI4awon7A=',
+						crossorigin: 'anonymous'
+					}).appendTo(document.head);
+				}
+			});
+		}
+	}, 1000);
 
     whenExists('#headbar', function(){
         initLoginForm($('#headbar'));
