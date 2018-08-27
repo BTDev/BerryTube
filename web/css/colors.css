@@ -309,7 +309,6 @@ body {
     border: 1px solid red;
     color: red;
     cursor: pointer;
-    float: right;
     font-size: 10px;
     height: 14px;
     line-height: 14px;
@@ -318,6 +317,9 @@ body {
     text-align: center;
     width: 14px;
 	display:none;
+    position: absolute;
+    top: 3px;
+    right: 3px;
 }
 #playlist ul .delete.confirm {
 	background-color: #880000;
@@ -327,7 +329,6 @@ body {
     border: 1px solid white;
     color: white;
     cursor: pointer;
-    float: right;
     font-size: 10px;
     height: 14px;
     line-height: 14px;
@@ -336,30 +337,24 @@ body {
     text-align: center;
     width: 14px;
 	display:none;
+    position: absolute;
+    top: 3px;
+    right: 23px;
 }
-#playlist ul .setVolatile{
-    border: 1px solid;
-    color: yellow;
-    cursor: pointer;
-    float: right;
-    font-size: 10px;
-    height: 14px;
-    line-height: 14px;
-    margin-left: 5px;
-    padding: 0;
-    text-align: center;
-    width: 14px;
-	display:none;
-}
-.admin #playlist ul .delete, .mod #playlist ul .delete, .assistant #playlist ul .delete,
-.admin #playlist ul .setVolatile, .mod #playlist ul .setVolatile, .assistant #playlist ul .setVolatile {
+.admin #playlist ul .delete, .mod #playlist ul .delete, .assistant #playlist ul .delete {
 	display:block;
+}
+.admin #playlist ul .time, .mod #playlist ul .time, .assistant #playlist ul .time {
+    right: 43px;
 }
 .admin #playlist ul .requeue, .mod #playlist ul .requeue, .berry #playlist ul .requeue, .assistant #playlist ul .requeue{
 	display:block;
 }
-#playlist ul li.notify .title:after {
-    content: ' ★';
+.berry #playlist ul .requeue {
+    right: 3px;
+}
+.berry #playlist ul .time {
+    right: 23px;
 }
 #playlist .track{
     border-left: 1px solid #732C7B;
@@ -455,7 +450,6 @@ form .submit:hover {
     height: 9px;
     margin: 2px 5px 2px 2px;
     width: 9px;
-	display:none;
 	border-radius:9px;
 }
 .colorGrid {
