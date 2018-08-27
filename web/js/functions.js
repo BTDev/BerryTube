@@ -1348,9 +1348,10 @@ function addNewMailMessage(nick, msg) {
 }
 function plSearch(term){
     if(typeof term == "undefined" || term.match(/^$/) || term.length < 3){
+    	$("#playlist").removeClass("searching");
         $("#plul li").removeClass("search-hidden");
 		$("#plul li.history").remove();
-		$("#plul li .title").attr("active-offset", "");
+		$("#plul li .title").removeAttr("active-offset");
 		smartRefreshScrollbar();
 		scrollToPlEntry(ACTIVE.domobj.index());
 		realignPosHelper();
@@ -1359,6 +1360,7 @@ function plSearch(term){
 			socket.emit('searchHistory', {search:term});
 		}
 
+		$("#playlist").addClass("searching");
         $("#plul li").addClass("search-hidden");
         $("#plul li.active").removeClass("search-hidden");
         elem=PLAYLIST.first;

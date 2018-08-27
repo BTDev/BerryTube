@@ -226,7 +226,7 @@ body {
 #playlist ul .title {
 	float: left;
 }
-#playlist ul li .title:before {
+#playlist.searching ul li .title:before {
     content: attr(active-offset);
 	opacity: 0.75;
 }
