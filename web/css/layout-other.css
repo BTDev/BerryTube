@@ -223,6 +223,8 @@ body {
     position: relative;
     padding-right: 35px;
     overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
 }
 .admin #playlist ul li, .mod #playlist ul li, .assistant #playlist ul li {
     padding-right: 75px;

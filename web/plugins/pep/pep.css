@@ -31,10 +31,10 @@
 #playlist ul.showStarts li {
     padding-right: 60px;
 }
-.admin #playlist ul li, .mod #playlist ul li, .assistant #playlist ul li {
+.admin #playlist ul.showStarts li, .mod #playlist ul.showStarts li, .assistant #playlist ul.showStarts li {
     padding-right: 100px;
 }
-.berry #playlist ul li {
+.berry #playlist ul.showStarts li {
     padding-right: 80px;
 }
 .copyCaption{
