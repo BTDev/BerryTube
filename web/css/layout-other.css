@@ -174,7 +174,9 @@ body {
 }
 #playlist .viewport {
 	height: 350px;
-	overflow: hidden;
+    margin-right: 5px;
+    overflow-x: hidden;
+	overflow-y: scroll;
 	position: relative;
 }
 #playlist .overview {
@@ -182,29 +184,6 @@ body {
 	position: absolute;
 	left: 0;
 	top: 0;
-}
-#playlist .scrollbar {
-	position: relative;
-	float: right;
-	width: 15px;
-}
-#playlist .track {
-	height: 100%;
-	width: 14px;
-	position: relative;
-}
-#playlist .thumb {
-	height: 20px;
-	width: 14px;
-	cursor: pointer;
-	overflow: hidden;
-	position: absolute;
-	top: 0;
-}
-#playlist .thumb .end {
-	overflow: hidden;
-	height: 5px;
-	width: 14px;
 }
 #playlist .disable {
 	display: none;

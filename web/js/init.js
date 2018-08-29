@@ -1309,11 +1309,7 @@ function initPlaylist(parent){
 	plwrap = $('<div id="playlist"/>').appendTo(parent);
 	setVal('sorting', false);
 
-	var x = $('<div/>').addClass('scrollbar').appendTo(plwrap);
-	var x = $('<div/>').addClass('track').appendTo(x);
-	var x = $('<div/>').addClass('thumb').appendTo(x);
-	var x = $('<div/>').addClass('end').appendTo(x);
-	var viewPort = $('<div/>').addClass('viewport').appendTo(plwrap);
+	var viewPort = $('<div/>').addClass('viewport').attr('style', 'width: auto !important').appendTo(plwrap);
 	var overview = $('<div/>').addClass('overview').appendTo(viewPort);
 
 	plul = $("<ul/>").appendTo(overview).attr('id','plul');

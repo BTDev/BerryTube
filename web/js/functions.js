@@ -1355,7 +1355,6 @@ function plSearch(term){
     if(typeof term == "undefined" || term.match(/^$/) || term.length < 3){
     	$("#plul li").removeClass("search-hidden");
 		$("#plul li.history").remove();
-		smartRefreshScrollbar();
 		scrollToPlEntry(ACTIVE.domobj.index());
 		realignPosHelper();
     } else {
@@ -1385,7 +1384,6 @@ function plSearch(term){
             }
             elem=elem.next;
         }
-		smartRefreshScrollbar();
 		scrollToPlEntry(0);
 		realignPosHelper();
     }
@@ -1560,7 +1558,6 @@ function addVideo(data, queue, sanityid){
         });
 
         populatePlEntry(entry,elem);
-        smartRefreshScrollbar();
         highlight(entry);
         revertLoaders();
         recalcStats();
@@ -2012,32 +2009,13 @@ function highlight(elem){
 	$(elem).effect("highlight", {}, 1000);
 }
 function scrollToPlEntry(index){
-  var scrollbar = $('#playlist').data("plugin_tinyscrollbar");
-	try{
-		var t = $("#playlist ul").children(":not(.search-hidden)")[index]
-		var vph = $("#playlist .overview").height()
-		var plh = $("#playlist .viewport").height()
-		var o = $(t).position().top;
-		if(o + plh > vph){
-      scrollbar.update("bottom");
-		} else {
-      scrollbar.update(o);
-		}
-	}catch(e){}
+	const pos = $('#playlist ul').children(':not(.search-hidden)').eq(index).position();
+	if (pos) {
+		$('#playlist .viewport').scrollTop(pos.top);
+	}
 }
 function smartRefreshScrollbar(){
-	try{
-		var scrollPos = parseInt($("#playlist .overview").css("top"));
-		var listHeight = $("#playlist .overview").height();
-		var viewportHeight = $("#playlist .viewport").height();
-		$("#playlist").tinyscrollbar();
-    var scrollbar = $('#playlist').data("plugin_tinyscrollbar");
-		if(scrollPos + listHeight <= viewportHeight){
-      scrollbar.update("bottom");
-		}else{
-			scrollbar.update(scrollPos * -1);
-		}
-	}catch(e){}
+	// OBSOLETE: here for backward compatibility with userscripts
 }
 function getVideoIdOfLongUrl(url){
 	var id = url.match(/v=([^&]+)/)
@@ -2079,7 +2057,6 @@ function setPlaylistPosition(to){
 			ACTIVE.domobj.addClass("active");
 		//PL_POSITION = to;
 
-		smartRefreshScrollbar();
 		realignPosHelper();
 		if(getStorage("plFolAcVid") == 1){
 			var x = ACTIVE.domobj.index();

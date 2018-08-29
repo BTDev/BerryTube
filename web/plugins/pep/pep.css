@@ -254,10 +254,6 @@ animation: pulse 3s ease-in-out infinite;
 
 #playlist .viewport {
   min-height:350px;
-  width: -moz-calc(100% - 20px) !important;
-  width: -o-calc(100% - 20px) !important;
-  width: -webkit-calc(100% - 20px) !important;
-  width: calc(100% - 20px) !important;
   height: -moz-calc(100% - 27px) !important;
   height: -o-calc(100% - 27px) !important;
   height: -webkit-calc(100% - 27px) !important;
