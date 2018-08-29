@@ -876,6 +876,12 @@ function handleACL(){
 					playlist.sortable("enable");
 				} else {
 					playlist.addClass("previouslyEnabled");
+					playlist.find("li").each(function() {
+						const el = $(this);
+						//addVolatile(entry);
+						addRequeue(el);
+						addDelete(el);
+					});
 					playlist.sortable({
 						start: function(event,ui){
 							PLAYLIST_DRAGFROM = ui.item.index();
@@ -899,6 +905,7 @@ function handleACL(){
 					});
 				}
                 plul.disableSelection();
+                scrollToPlEntry(ACTIVE.domobj.index());
                 dbg("CAN CONTROL PLAYLIST");
             });
         }else{
@@ -1634,15 +1641,18 @@ function setVidColorTag(pos,tag,volat){
 }
 function _setVidColorTag(domobj,tag,volat){
 	var ct = $(domobj).find(".colorTag");
+	if (!ct.length) {
+		ct = $("<div/>").addClass("colorTag").prependTo(domobj);
+	}
 
 	if(volat){ct.addClass("volatile");}else{ct.removeClass("volatile");}
 
 	if(tag == false){
 		console.log("removing tag on ",domobj);
-		ct.hide();
+		ct.remove();
 	} else {
 		console.log("setting tag on ",domobj,tag);
-		ct.show().css("background-color",tag);
+		ct.css("background-color",tag);
 	}
 }
 function setColorTheme(cssPath){
