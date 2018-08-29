@@ -237,6 +237,7 @@ try{
 }
 
 function addColorTag(entry,elem){
+	$("<div/>").addClass("colorTag").prependTo(entry);
 	if("colorTag" in elem.meta){
 		var v = false;
 		if("colorTagVolat" in elem.meta){ v = elem.meta.colorTagVolat; }
@@ -255,17 +256,18 @@ function addTime(entry,elem){
 	time.addClass('time');
 }
 function addDelete(entry){
-	if(canDeleteVideo()) {
-		var delbtn = $("<div/>").appendTo(entry);
-		delbtn.text("X");
-		delbtn.addClass('delete');
-		delbtn.confirmClick(function(){
-			doDelete(entry);
-		});
-		delbtn.mousedown(function(e) {
-			e.stopPropagation();
-			e.preventDefault();
-		});
+	var delbtn = $("<div/>").appendTo(entry);
+	delbtn.text("X");
+	delbtn.addClass('delete');
+	delbtn.confirmClick(function(){
+		doDelete(entry);
+	});
+	delbtn.mousedown(function(e) {
+		e.stopPropagation();
+		e.preventDefault();
+	});
+	if(canDeleteVideo()){
+		delbtn.addClass("visible");
 	}
 }
 function doDelete(entry){
@@ -279,17 +281,18 @@ function doDelete(entry){
 	}
 }
 function addRequeue(entry){
-	if(controlsPlaylist()) {
-		var qbtn = $("<div/>").appendTo(entry);
-		qbtn.text("Q");
-		qbtn.addClass('requeue');
-		qbtn.click(function(){
-			doRequeue(entry);
-		});
-		qbtn.mousedown(function(e) {
-			e.stopPropagation();
-			e.preventDefault();
-		});
+	var qbtn = $("<div/>").appendTo(entry);
+	qbtn.text("Q");
+	qbtn.addClass('requeue');
+	qbtn.click(function(){
+		doRequeue(entry);
+	});
+	qbtn.mousedown(function(e) {
+		e.stopPropagation();
+		e.preventDefault();
+	});
+	if(controlsPlaylist()){
+		qbtn.addClass("visible");
 	}
 }
 function doRequeue(entry){
@@ -313,6 +316,17 @@ function doRequeue(entry){
 		socket.emit("sortPlaylist",data);
 	}
 	setVal("sorting",false)
+}
+function addVolatile(entry){
+	var qbtn = $("<div/>").appendTo(entry);
+	qbtn.text("V");
+	qbtn.addClass('setVolatile');
+	qbtn.click(function(){
+		doVolatile(entry);
+	});
+	if(canToggleVolatile()){
+		qbtn.addClass("visible");
+	}
 }
 function doVolatile(entry){
 	if(canToggleVolatile()) {
@@ -1056,11 +1070,13 @@ function addVideoControls(entry,optionList){
 	}
 }
 function populatePlEntry(entry,elem){
-	entry.text(decodeURI(elem.videotitle).replace(/&amp;/g, '&'));
+	addTitle(entry,elem);
 	addDelete(entry);
 	addRequeue(entry);
 	addColorTag(entry,elem);
+	//addVolatile(entry);
 	addTime(entry,elem);
+	$('<div/>').addClass("clear").appendTo(entry);
 	if(elem.volat){
 		entry.addClass("volatile");
 	}

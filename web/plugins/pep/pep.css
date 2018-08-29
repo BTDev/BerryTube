@@ -1,25 +1,25 @@
 
 /*loading pulse for button*/
-@-webkit-keyframes pulse
-{0% {border-color: #732C7B;}
+@-webkit-keyframes pulse  
+{0% {border-color: #732C7B;} 
 25% {border-color: #d400eb;}
 50% {border-color: #ed27ff;}
 75% {border-color: #d400eb;}
 100% {border-color: #732C7B;}}
-@-moz-keyframes pulse
-{0% {border-color: #732C7B;}
+@-moz-keyframes pulse  
+{0% {border-color: #732C7B;} 
 25% {border-color: #d400eb;}
 50% {border-color: #ed27ff;}
 75% {border-color: #d400eb;}
 100% {border-color: #732C7B;}}
-@-o-keyframes pulse
-{0% {border-color: #732C7B;}
+@-o-keyframes pulse  
+{0% {border-color: #732C7B;} 
 25% {border-color: #d400eb;}
 50% {border-color: #ed27ff;}
 75% {border-color: #d400eb;}
 100% {border-color: #732C7B;}}
-@keyframes pulse
-{0% {border-color: #732C7B;}
+@keyframes pulse  
+{0% {border-color: #732C7B;} 
 25% {border-color: #d400eb;}
 50% {border-color: #ed27ff;}
 75% {border-color: #d400eb;}
@@ -28,15 +28,6 @@
     outline:0 !important;
     border:none !important;
 }*/
-#playlist ul.showStarts li {
-    padding-right: 60px;
-}
-.admin #playlist ul li, .mod #playlist ul li, .assistant #playlist ul li {
-    padding-right: 100px;
-}
-.berry #playlist ul li {
-    padding-right: 80px;
-}
 .copyCaption{
     font-size:9px;
     margin:0px 3px;
@@ -44,13 +35,79 @@
     margin-top:-2px;
     display:inline-block;
 }
+body.admin #playlist ul li div.title,
+body.assistant #playlist ul li div.title,
+body.berry #playlist ul li div.title
+{
+    width:-webkit-calc(100% - 110px);
+    width:-moz-calc(100% - 110px);
+    width:calc(100% - 110px);
+}
+#playlist ul li div.title{
+    width:-webkit-calc(100% - 90px);
+    width:-moz-calc(100% - 90px);
+    width:calc(100% - 90px);
+}
+#playlist ul li div.colorTag[style*=block] ~ div.title{
+    width:-webkit-calc(100% - 100px);
+    width:-moz-calc(100% - 100px);
+    width:calc(100% - 100px);
+}
+#playlist ul li.alarm:not(.history) div.title{
+    width:-webkit-calc(100% - 80px);
+    width:-moz-calc(100% - 80px);
+    width:calc(100% - 80px);
+}
+#playlist ul li.alarm:not(.history) div.colorTag[style*=block] ~ div.title{
+    width:-webkit-calc(100% - 90px);
+    width:-moz-calc(100% - 90px);
+    width:calc(100% - 90px);
+}
+body.admin #playlist ul li.alarm:not(.history) div.title,
+body.assistant #playlist ul li.alarm:not(.history) div.title,
+body.berry #playlist ul li.alarm:not(.history) div.title{
+    width:-webkit-calc(100% - 100px);
+    width:-moz-calc(100% - 100px);
+    width:calc(100% - 100px);
+}
+body.admin #playlist ul li.alarm:not(.history) div.colorTag[style*=block] ~ div.title,
+body.assistant #playlist ul li.alarm:not(.history) div.colorTag[style*=block] ~ div.title,
+body.berry #playlist ul li.alarm:not(.history) div.colorTag[style*=block] ~ div.title{
+    width:-webkit-calc(100% - 110px);
+    width:-moz-calc(100% - 110px);
+    width:calc(100% - 110px);
+}
+#playlist ul.showStarts li:not(.history) div.title{
+    width:-webkit-calc(100% - 110px);
+    width:-moz-calc(100% - 110px);
+    width:calc(100% - 110px);
+}
+#playlist ul.showStarts li:not(.history) div.colorTag[style*=block] ~ div.title{
+    width:-webkit-calc(100% - 120px);
+    width:-moz-calc(100% - 120px);
+    width:calc(100% - 120px);
+}
+body.admin #playlist ul.showStarts li:not(.history) div.title,
+body.assistant #playlist ul.showStarts li:not(.history) div.title,
+body.berry #playlist ul.showStarts li:not(.history) div.title{
+    width:-webkit-calc(100% - 130px);
+    width:-moz-calc(100% - 130px);
+    width:calc(100% - 130px);
+}
+body.admin #playlist ul.showStarts li:not(.history) div.colorTag[style*=block] ~ div.title,
+body.assistant #playlist ul.showStarts li:not(.history) div.colorTag[style*=block] ~ div.title,
+body.berry #playlist ul.showStarts li:not(.history) div.colorTag[style*=block] ~ div.title{
+    width:-webkit-calc(100% - 140px);
+    width:-moz-calc(100% - 140px);
+    width:calc(100% - 140px);
+}
 #playlist ul.showStarts li:not(.history) div.time{
     font-size:0px;
     visibility:hidden;
 }
 #playlist ul.showStarts li:not(.history) div.time:after{
     font-size:10px;
-    text-indent: 0px;
+    text-indent: 0px; 
     visibility:visible;
     content: attr(data-till);
 }
@@ -127,7 +184,7 @@ animation: pulse 3s ease-in-out infinite;
     /*-mox-box-shadow: 0px 0px 2px 1px yellow;*/
     /*box-shadow: 0px 0px 2px 1px yellow;*/
     font-size:10px;
-    text-indent: 0px;
+    text-indent: 0px; 
     visibility:visible;
     color:yellow;
     content:'★';

@@ -876,11 +876,6 @@ function handleACL(){
 					playlist.sortable("enable");
 				} else {
 					playlist.addClass("previouslyEnabled");
-					playlist.find("li").each(function() {
-						const el = $(this);
-						addDelete(el);
-						addRequeue(el);
-					});
 					playlist.sortable({
 						start: function(event,ui){
 							PLAYLIST_DRAGFROM = ui.item.index();
@@ -1353,8 +1348,10 @@ function addNewMailMessage(nick, msg) {
 }
 function plSearch(term){
     if(typeof term == "undefined" || term.match(/^$/) || term.length < 3){
-    	$("#plul li").removeClass("search-hidden");
+    	$("#playlist").removeClass("searching");
+        $("#plul li").removeClass("search-hidden");
 		$("#plul li.history").remove();
+		$("#plul li .title").removeAttr("active-offset");
 		scrollToPlEntry(ACTIVE.domobj.index());
 		realignPosHelper();
     } else {
@@ -1362,7 +1359,8 @@ function plSearch(term){
 			socket.emit('searchHistory', {search:term});
 		}
 
-		$("#plul li").addClass("search-hidden");
+		$("#playlist").addClass("searching");
+        $("#plul li").addClass("search-hidden");
         $("#plul li.active").removeClass("search-hidden");
         elem=PLAYLIST.first;
         for(var i=0;i<PLAYLIST.length;i++){
@@ -1380,7 +1378,7 @@ function plSearch(term){
 				else {
 					index = '';
 				}
-                $(elem.domobj).removeClass("search-hidden");
+                $(elem.domobj).removeClass("search-hidden").find(".title").attr("active-offset", index);
             }
             elem=elem.next;
         }
@@ -1636,18 +1634,15 @@ function setVidColorTag(pos,tag,volat){
 }
 function _setVidColorTag(domobj,tag,volat){
 	var ct = $(domobj).find(".colorTag");
-	if (!ct.length) {
-		ct = $("<div/>").addClass("colorTag").prependTo(domobj);
-	}
 
 	if(volat){ct.addClass("volatile");}else{ct.removeClass("volatile");}
 
 	if(tag == false){
 		console.log("removing tag on ",domobj);
-		ct.remove();
+		ct.hide();
 	} else {
 		console.log("setting tag on ",domobj,tag);
-		ct.css("background-color",tag);
+		ct.show().css("background-color",tag);
 	}
 }
 function setColorTheme(cssPath){

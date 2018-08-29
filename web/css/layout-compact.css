@@ -54,6 +54,12 @@
 #playlist ul {
 	width: 679px;
 }
+#playlist ul .title {
+    width: 609px;
+}
+#playlist ul.controlsOn .title {
+    width: 549px;
+}
 #playlistAddControls .import input {
     width: 609px;
 }
