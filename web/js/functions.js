@@ -905,7 +905,9 @@ function handleACL(){
 					});
 				}
                 plul.disableSelection();
-                scrollToPlEntry(ACTIVE.domobj.index());
+                if (ACTIVE && ACTIVE.domobj) {
+                    scrollToPlEntry(ACTIVE.domobj.index());
+                }
                 dbg("CAN CONTROL PLAYLIST");
             });
         }else{
