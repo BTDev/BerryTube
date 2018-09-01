@@ -1636,7 +1636,8 @@ function _sendChat(nick,type,incoming,socket){
 		request:["r","request","requests","req"],
 		spoiler:["spoiler","sp","spoilers"],
 		drink:["drink","d"],
-		kick:["kick","k"]
+		kick:["kick","k"],
+		shitpost:["shitpost"]
 	}
 
 	// Handle Actions
@@ -1665,6 +1666,20 @@ function _sendChat(nick,type,incoming,socket){
 			const parts = parsed.msg.split(' ');
 			if (parts[0]) {
 				kickUserByNick(socket, parts[0], parts.slice(1).join(' ') || undefined);
+			}
+		},function(){
+			kickForIllegalActivity(socket);
+		});
+		return;
+	}
+	if(action_map.shitpost.indexOf(parsed.command) >= 0){
+		ifCanShitpost(socket,function(){
+			const parts = parsed.msg.split(' ');
+			if (parts[0]) {
+				adminLog(socket, {msg:'Shitposted ' + parts[0], type:"site"});
+				io.sockets.emit('shitpost', {
+					msg: parsed.msg
+				});
 			}
 		},function(){
 			kickForIllegalActivity(socket);
@@ -2812,6 +2827,17 @@ function ifCanKickUser(socket,truecallback,falsecallback){
 	socket.get('type',function(err,type){
 		if(
 			parseInt(type) > 1
+		){
+			if(truecallback)truecallback();
+		}else{
+			if(falsecallback)falsecallback();
+		}
+	});
+}
+function ifCanShitpost(socket,truecallback,falsecallback){
+	socket.get('type',function(err,type){
+		if(
+			parseInt(type) >= 2
 		){
 			if(truecallback)truecallback();
 		}else{

@@ -561,6 +561,18 @@ socket.on('forceRefresh', function(data){
 		window.location.reload();
 	}, delay);
 });
+socket.on('shitpost', function(data){
+	const parts = data.msg.split(' ');
+	switch (parts[0]) {
+		case 'roll':
+			const rollTarget = $(parts[1] || '#ytapiplayer');
+			rollTarget.css('animation', '1s zspin');
+			setTimeout(function(){
+				rollTarget.css('animation', '');
+			}, 1000 + 100);
+			break;
+	}
+});
 socket.on('debugDump', function(data){
 	DEBUG_DUMPS.push(data);
 });
