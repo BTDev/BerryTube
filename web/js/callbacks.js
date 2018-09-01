@@ -566,7 +566,7 @@ socket.on('shitpost', function(data){
 	switch (parts[0]) {
 		case 'roll':
 			const rollTarget = $(parts[1] || '#ytapiplayer');
-			rollTarget.css('animation', '1s zspin');
+			rollTarget.css('animation', '1s -zspin');
 			setTimeout(function(){
 				rollTarget.css('animation', '');
 			}, 1000 + 100);
