@@ -139,6 +139,7 @@ PEP.initButts = function(){
 PEP.toggleTimes = function(){
   $('#toggleTimes').toggleClass('timesOn');
   $('#plul').toggleClass('showStarts');
+  smartRefreshScrollbar();
   realignPosHelper();
 };
 
@@ -543,6 +544,7 @@ PEP.bench.fvc = function(data){
   $(document).bind("mouseup.checkplaylistresize",function (e){
     if($("#playlist").height()!==oplaylistsize){
       oplaylistsize = $("#playlist").height();
+      smartRefreshScrollbar();
     }
   });
 

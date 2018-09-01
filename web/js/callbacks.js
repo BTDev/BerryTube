@@ -199,6 +199,7 @@ socket.on("delVideo",function(data){
     else {
         elem.domobj.remove();
         PLAYLIST.remove(elem);
+        smartRefreshScrollbar();
         recalcStats();
     }
 });
@@ -520,6 +521,7 @@ socket.on('searchHistoryResults', function(data) {
 
 		$('<div/>').addClass("clear").appendTo(entry);
 	}
+	smartRefreshScrollbar();
 	scrollToPlEntry(0);
 	realignPosHelper();
 });
