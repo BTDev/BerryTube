@@ -11,4 +11,5 @@ RUN apk add --no-cache geoip && \
 
 HEALTHCHECK --interval=10s --timeout=3s --start-period=10s CMD test "$(/opt/PHP-FastCGI-Client-master/fcgiget.php localhost:9000/ping | tail -n1)" = pong
 COPY php-fpm.ini /usr/local/etc/php-fpm.d/zzz-berrytube.conf
+COPY php.ini /usr/local/etc/php/conf.d/zzz-berrytube.ini
 RUN php-fpm -t

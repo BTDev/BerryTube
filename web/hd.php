@@ -1,6 +1,6 @@
 <?php
 	require_once("config.php");
-	setcookie("LayoutType", "hd", time()+(60*60*24*30));
+	setcookie("LayoutType", "hd", time()+(60*60*24*30), "", "", true, false);
 
 	$w = 853; $r = 9/16;
 	$playerDims = Array(
