@@ -255,7 +255,7 @@ function addTime(entry,elem){
 	time.addClass('time');
 }
 function addDelete(entry){
-	if(canDeleteVideo()) {
+	if(canDeleteVideo() && $('> .delete', entry).length == 0) {
 		var delbtn = $("<div/>").prependTo(entry);
 		delbtn.text("X");
 		delbtn.addClass('delete');
@@ -279,7 +279,7 @@ function doDelete(entry){
 	}
 }
 function addRequeue(entry){
-	if(controlsPlaylist()) {
+	if(controlsPlaylist() && $('> .requeue', entry).length == 0) {
 		var qbtn = $("<div/>").prependTo(entry);
 		qbtn.text("Q");
 		qbtn.addClass('requeue');
@@ -315,7 +315,7 @@ function doRequeue(entry){
 	setVal("sorting",false)
 }
 function addVolatile(entry){
-	if(canToggleVolatile()){
+	if(canToggleVolatile() && $('> .setVolatile', entry).length == 0){
 		var qbtn = $("<div/>").prependTo(entry);
 		qbtn.text("V");
 		qbtn.addClass('setVolatile');
