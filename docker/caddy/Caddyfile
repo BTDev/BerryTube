@@ -40,11 +40,11 @@
         Feature-Policy "accelerometer 'none'; ambient-light-sensor 'none'; autoplay *; camera 'none'; encrypted-media *; fullscreen *; geolocation 'none'; gyroscope 'none'; magnetometer 'none'; microphone 'none'; midi 'none'; payment 'none'; picture-in-picture *; speaker 'none'; usb 'none'; vibrate 'none'; vr 'none'"
         #Content-Security-Policy-Report-Only "default-src 'none'; script-src * 'unsafe-inline'; style-src * 'unsafe-inline'; img-src * data:; font-src *; connect-src https://{$DOMAIN} https://{$CDN_DOMAIN} https://{$SOCKET_DOMAIN} https://api.teamup.com; media-src *; object-src 'self'; child-src https://www.youtube.com; worker-src 'none'; frame-ancestors 'none'; form-action 'none'; upgrade-insecure-requests; disown-opener; manifest-src 'none'"
         Referrer-Policy "strict-origin"
+        Strict-Transport-Security "max-age=60; includeSubDomains"
         X-Content-Type-Options "nosniff"
         X-Frame-Options "DENY"
         X-XSS-Protection "1; mode=block; report=\"https://atte.report-uri.com/r/d/xss/enforce\""
         -Public-Key-Pins
-        -Strict-Transport-Security
         -Server
         -X-Powered-By
     }
