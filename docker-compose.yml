@@ -14,6 +14,7 @@ services:
         command: caddy -agree -log stderr -ca "${CA_URL}" -email "${CA_EMAIL}"
         restart: always
         environment:
+            - "CADDY_UUID_FILE=/root/.caddy/uuid-${DOMAIN}"
             - DOMAIN
             - CDN_DOMAIN
             - SOCKET_DOMAIN
