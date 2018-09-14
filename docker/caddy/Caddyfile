@@ -82,7 +82,7 @@ https://{$DOMAIN}:{$HTTPS_PORT} {
     templates /api/migrate_frame.html
 }
 
-https://{$CDN_DOMAIN}:{$HTTPS_PORT} {
+https://cdn.{$DOMAIN}:{$HTTPS_PORT} {
     import common
 
     status 404 /404
@@ -119,7 +119,7 @@ https://{$CDN_DOMAIN}:{$HTTPS_PORT} {
 }
 
 http://:{$LEGACY_SOCKET_PORT},
-https://{$SOCKET_DOMAIN}:{$HTTPS_PORT} {
+https://socket.{$DOMAIN}:{$HTTPS_PORT} {
     import common
 
     tls {
@@ -139,7 +139,7 @@ https://{$SOCKET_DOMAIN}:{$HTTPS_PORT} {
     }
 }
 
-https://{$EXTRA_DOMAIN}:{$HTTPS_PORT} {
+https://btc.{$DOMAIN}:{$HTTPS_PORT} {
     import common
 
     index index.html index.htm index.txt index.php
@@ -154,7 +154,7 @@ https://{$EXTRA_DOMAIN}:{$HTTPS_PORT} {
     }
 }
 
-https://{$EXTRA_SOCKET_DOMAIN}:{$HTTPS_PORT} {
+https://socket.btc.{$DOMAIN}:{$HTTPS_PORT} {
     import common
 
     tls {
