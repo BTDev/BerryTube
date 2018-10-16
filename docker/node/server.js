@@ -32,12 +32,12 @@ const bcrypt = require('bcrypt');
 var mysql = null;
 
 process.on('uncaughtException', function (err) {
-	console.error("Uncaught exception");
-	console.error(err);
-	if (err !== 'ECONNRESET') {
-		console.log('Ignoring ECONNRESET');
+	console.log(`Uncaught ${err.code}: ${err.message}`);
+	console.log(err.stack);
+	if (err.code === 'ECONNRESET' || err.code === 'EPIPE') {
+		console.log('Ignoring...');
 	} else {
-		console.log('Not ECONNRESET; exiting...');
+		console.log('Not ignoring; exiting...');
 		process.exit(1);
 	}
 });
