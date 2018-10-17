@@ -41,7 +41,7 @@
         Expect-Staple "max-age=60; report-uri=\"https://atte.report-uri.com/r/d/staple/reportOnly\"; includeSubDomains"
         Feature-Policy "accelerometer 'none'; ambient-light-sensor 'none'; autoplay *; camera 'none'; encrypted-media *; fullscreen *; geolocation 'none'; gyroscope 'none'; magnetometer 'none'; microphone 'none'; midi 'none'; payment 'none'; picture-in-picture *; speaker 'none'; usb 'none'; vibrate 'none'; vr 'none'"
         Referrer-Policy "strict-origin"
-        Strict-Transport-Security "max-age=60; includeSubDomains"
+        Strict-Transport-Security "max-age=60"
         X-Content-Type-Options "nosniff"
         X-Frame-Options "DENY"
         X-XSS-Protection "1; mode=block; report=\"https://atte.report-uri.com/r/d/xss/enforce\""
