@@ -29,6 +29,7 @@ const getDuration = require('get-video-duration');
 const isoDuration = require('iso8601-duration');
 const fetch = require('node-fetch');
 const bcrypt = require('bcrypt');
+const isoCountries = require('i18n-iso-countries');
 var mysql = null;
 
 process.on('uncaughtException', function (err) {
@@ -2054,6 +2055,15 @@ function _addVideoVimeo(socket,data,meta,path,successCallback,failureCallback) {
 	req.end();
 }
 
+function resolveRestrictCountries(restrictReasons) {
+	if (restrictReasons.countries) {
+		if (!Array.isArray(restrictReasons.countries)) {
+			restrictReasons.countries = restrictReasons.countries.split(/\s+/);
+		}
+		restrictReasons.countryNames = restrictReasons.countries.map(code => isoCountries.getName(code, 'en'));
+	}
+}
+
 function __addVideoYT(socket,data,meta,successCallback,failureCallback){
 	var videoid = data.videoid.trim();
 	if(videoid.length==0)
@@ -2138,6 +2148,7 @@ function __addVideoYT(socket,data,meta,successCallback,failureCallback){
 			}
 			for(var hasProperties in restrictReasons) break;
 			if(hasProperties) {
+				resolveRestrictCountries(restrictReasons);
 				socket.emit("videoRestriction", restrictReasons);
 			}
 
@@ -2314,6 +2325,7 @@ function addVideoYT(socket,data,meta,successCallback,failureCallback){
 
 			for(var hasProperties in restrictReasons) break;
 			if(hasProperties) {
+				resolveRestrictCountries(restrictReasons);
 				socket.emit("videoRestriction", restrictReasons);
 			}
 

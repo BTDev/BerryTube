@@ -10,7 +10,8 @@
     "get-video-duration": "^0.3.0",
     "iso8601-duration": "^1.1.1",
     "node-fetch": "^2.1.2",
-    "bcrypt": "^3.0.0"
+    "bcrypt": "^3.0.0",
+    "i18n-iso-countries": "^3.7.8"
   },
   "devDependencies": {},
   "author": "Eric Cutler <bulzeeb@gmail.com> (https://github.com/GreyMage)",

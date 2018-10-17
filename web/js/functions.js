@@ -593,6 +593,9 @@ function showVideoRestrictionDialog(restricted, noembed, countries) {
 		});
 	}
 	else {
+		if (Array.isArray(countries)) {
+			countries = countries.join(', ');
+		}
 		$('<p>').appendTo(mainOptWrap).text("The video you attempted to queue is restricted in the following countries: " + countries).css("width", "300px");
 		$('<p>').appendTo(mainOptWrap).text("Would you like to queue the video anyway?").css("width", "300px");
 		var buttonDiv = $('<div/>').css("text-align", "center").appendTo(mainOptWrap);
