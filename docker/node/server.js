@@ -1795,11 +1795,12 @@ function sendToggleables(socket){
 	socket.emit("setToggleables",data);
 }
 function getSocketOfNick(targetnick,truecallback,falsecallback){
+	targetnick = targetnick.toLowerCase();
 	cl = io.sockets.clients();
 	for(var i=0;i<cl.length;i++){
 		(function(i){
 			cl[i].get("nick",function(err,nick){
-				if(nick == targetnick){
+				if(nick.toLowerCase() == targetnick){
 					if(truecallback)truecallback(cl[i]);
 				}
 			});
@@ -3069,6 +3070,7 @@ function ghostBustUser(socket, data, successCallback){
 							});
 }
 function getSocketOfNickAndIP(targetnick,targetip,truecallback,falsecallback){
+	targetnick = targetnick.toLowerCase();
 	var found = false;
 	for(var i=0;i<SERVER.IPLIST.length;i++){
 		if(SERVER.IPLIST[i].ip == targetip){
@@ -3082,7 +3084,7 @@ function getSocketOfNickAndIP(targetnick,targetip,truecallback,falsecallback){
 				(function(j){
 					theguy.sockets[j].get("nick",function(err,nick){
 						left--;
-						if(nick == targetnick){
+						if(nick.toLowerCase() == targetnick){
 							found = true;
 							if(truecallback)truecallback(theguy.sockets[j]);
 						}
