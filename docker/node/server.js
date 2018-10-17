@@ -3,6 +3,7 @@ var SERVER = {};
 SERVER.settings = require('./bt_data/settings.js');
 SERVER.ponts = require('./bt_data/ponts.js');
 SERVER.dbcon = require('./bt_data/db_info.js');
+SERVER.nick_blacklist = require('./bt_data/nick_blacklist.js');
 
 var io = require('socket.io').listen(SERVER.settings.core.nodeport);
 // Configure
@@ -2827,9 +2828,14 @@ function ifCanDebugDump(socket,truecallback,falsecallback){
 	});
 }
 function ifNickFree(nick,truecallback,falsecallback){
+	nick = nick.toLowerCase();
+	if (SERVER.nick_blacklist.has(nick)) {
+		if(falsecallback)falsecallback();
+		return;
+	}
 	for(var i in SERVER.CHATLIST){
 		debugLog(SERVER.CHATLIST[i].nick);
-		if(SERVER.CHATLIST[i].nick.toLowerCase() == nick.toLowerCase()){
+		if(SERVER.CHATLIST[i].nick.toLowerCase() == nick){
 			if(falsecallback)falsecallback();
 			return;
 		}
