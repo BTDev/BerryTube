@@ -1485,6 +1485,7 @@ function updatePoll(data){
     var titleStr = getPollTitle(votes);
     var titleLbl = thepoll.find('.title');
     if (typeof Bem !== 'undefined') {
+    	titleStr = titleStr.replace(/\\\\([\w-]+)/i, '[](/$1)');
         titleLbl.html(Bem.applyEmotesToStr(titleStr));
         Bem.postEmoteEffects(titleLbl);
     }
