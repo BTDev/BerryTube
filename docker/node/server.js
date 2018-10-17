@@ -1416,8 +1416,8 @@ function resetTime(){
 	SERVER.TIME=(0-SERVER.settings.vc.head_time);
 }
 function addDrink(amt,socket,callback){
-	SERVER.DRINKS = (parseInt(SERVER.DRINKS)|0) + parseInt(amt);
-	if(SERVER.DRINKS > 1000000){
+	SERVER.DRINKS = (parseInt(SERVER.DRINKS)||0) + parseInt(amt);
+	if(Math.abs(SERVER.DRINKS) > 1000000){
 		SERVER.DRINKS = "lol go fuck yourself";
 		kickUser(socket,"Berry Punch is mad at you");
 	}
