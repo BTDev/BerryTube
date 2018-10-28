@@ -2829,10 +2829,6 @@ function ifCanDebugDump(socket,truecallback,falsecallback){
 }
 function ifNickFree(nick,truecallback,falsecallback){
 	nick = nick && nick.toLowerCase();
-	if (SERVER.nick_blacklist.has(nick)) {
-		if(falsecallback)falsecallback();
-		return;
-	}
 	for(var i in SERVER.CHATLIST){
 		debugLog(SERVER.CHATLIST[i].nick);
 		if(SERVER.CHATLIST[i].nick.toLowerCase() == nick){
@@ -2928,6 +2924,12 @@ function userLogin(socket,data,truecallback,falsecallback){
 
 			// If nobody has already registered the name...
 			if(result.length == 0) {
+				if (SERVER.nick_blacklist.has(qnick)) {
+					handleLoginFail(socket);
+					debugLog("USERNAME BLACKLISTED");
+					if(falsecallback)falsecallback();
+					return;
+				}
 				writeToLog("NAME TAKE",ip+" Claimed Name "+qnick);
 				addUserToChat(socket, {nick:qnick,type:-1, meta:{}},truecallback);
 			} else if(result.length == 1) {
@@ -3413,6 +3415,10 @@ io.sockets.on('connection', function (socket) {
 		}
 		if(!getToggleable("allowreg")){
 			socket.emit("loginError", {message:"Registrations are currently Closed. Sorry for the inconvenience!"});
+			return;
+		}
+		if (SERVER.nick_blacklist.has(data.nick)) {
+			socket.emit("loginError", {message:"Username not available."});
 			return;
 		}
 		var q = 'select * from users where name like ?'; debugLog(q);
