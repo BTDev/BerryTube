@@ -2924,7 +2924,7 @@ function userLogin(socket,data,truecallback,falsecallback){
 
 			// If nobody has already registered the name...
 			if(result.length == 0) {
-				if (SERVER.nick_blacklist.has(qnick)) {
+				if (SERVER.nick_blacklist.has(qnick.toLowerCase())) {
 					handleLoginFail(socket);
 					debugLog("USERNAME BLACKLISTED");
 					if(falsecallback)falsecallback();
@@ -3417,7 +3417,7 @@ io.sockets.on('connection', function (socket) {
 			socket.emit("loginError", {message:"Registrations are currently Closed. Sorry for the inconvenience!"});
 			return;
 		}
-		if (SERVER.nick_blacklist.has(data.nick)) {
+		if (SERVER.nick_blacklist.has(data.nick.toLowerCase())) {
 			socket.emit("loginError", {message:"Username not available."});
 			return;
 		}
