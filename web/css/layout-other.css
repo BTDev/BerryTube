@@ -553,3 +553,16 @@ body {
     line-height: 20px;
     width: 20px;
 }
+
+/* mod-embedded images */
+.img-filter > img {
+    max-height: 150px;
+    max-width: 100%;
+}
+body.bem-enabled .chatbuffer .img-filter > span {
+    display: none
+}
+body:not(.bem-enabled) .chatbuffer .img-filter > img {
+    display: none;
+}
+

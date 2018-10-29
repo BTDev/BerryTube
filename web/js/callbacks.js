@@ -374,6 +374,7 @@ function onSocketReconnecting(from) {
 
 		$('.chatbuffer').append($('<div/>').addClass('reconnecting').text(msg));
 		$('#chatinput input').prop('disabled', true);
+		scrollBuffersToBottom();
 	}
 
 	// Also set this flag so that we don't get the ghost messages when we reconnect
@@ -384,6 +385,8 @@ socket.on('reconnect', function() {
 	// Reconnection was successful; if there's login data set, log the user back in
 	$('.chatbuffer .reconnecting').remove();
 	$('#chatinput input').prop('disabled', false);
+	scrollBuffersToBottom();
+
 	var data = $('#headbar').data('loginData');
 	if (data != undefined) {
 		data.ghostBust = true;
