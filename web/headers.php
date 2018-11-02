@@ -134,6 +134,11 @@
 	var videoHeight = <?= $playerDims['h'] ?>;
 	var WINDOW_TITLE = '<?= $TITLE ?>';
 
+	// here for caching reasons
+	var NOTIFY = new Audio('<?= cdn('sounds/notify.wav') ?>');
+	var DRINK = new Audio('<?= cdn('sounds/drink.wav') ?>');
+	var ATTENTION = new Audio('<?= cdn('sounds/attention.wav') ?>');
+
 	// for EU cookie law popup
 	var MY_COUNTRY = '<?php
 		if (strpos(CLIENT_IP, ':') === false) {
