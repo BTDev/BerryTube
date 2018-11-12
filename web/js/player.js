@@ -545,13 +545,75 @@ window.PLAYERS.twitch = {
             id: 'twitchplayer'
         }).appendTo('#ytapiplayer');
 
-        twitchplayer = new Twitch.Player("twitchplayer", {
+        const opts = {
             width: $('#ytapiplayer').width(),
-            height: $('#ytapiplayer').height(),
-            channel: src
+            height: $('#ytapiplayer').height()
+        };
+
+        const parts = src.split('/');
+        if (parts[0] === 'videos') {
+            opts.video = parts[1];
+        } else {
+            opts.channel = parts[0];
+        }
+
+        twitchplayer = new Twitch.Player("twitchplayer", opts);
+        twitchplayer.addEventListener(Twitch.Player.READY, function(){
+            if (twitchplayer) {
+                twitchplayer.setVolume(volume);
+                twitchplayer.seek(to || 0);
+            }
         });
+        twitchplayer.addEventListener(Twitch.Player.PLAYING, function(){
+            if (twitchplayer) {
+                videoSeeked(twitchplayer.getCurrentTime());
+            }
+        });
+    },/*
+    playVideo: function (id, at) {
+        if (twitchplayer) {
+            const parts = id.split('/');
+            if (parts[0] === 'videos') {
+                twitchplayer.setVideo(parts[1], at);
+            } else {
+                twitchplayer.setChannel(parts[0]);
+            }
+        }
+    },*/
+    pause: function () {
+        if (twitchplayer) twitchplayer.pause();
+    },
+    play: function () {
+        if (twitchplayer) twitchplayer.play();
+    },
+    seek: function (pos) {
+        if (twitchplayer) twitchplayer.seek(pos);
+    },
+    getTime: function (callback) {
+        if(callback && twitchplayer) callback(twitchplayer.getCurrentTime());
     },
     getVolume: function(callback){
-        if (callback) callback(twitchplayer.getVolume());
+        if (callback && twitchplayer) callback(twitchplayer.getVolume());
+    }
+};
+
+window.PLAYERS.twitchclip = {
+    loadPlayer: function (src, to, volume) {
+        if (volume === false){
+            volume = 1;
+        }
+
+        $('<iframe>', {
+            id: 'twitchclipplayer',
+            src: 'https://clips.twitch.tv/embed?clip=' + src,
+            width: $('#ytapiplayer').width(),
+            height: $('#ytapiplayer').height(),
+            frameborder: '0',
+            scrolling: 'no',
+            preload: 'auto',
+            allowfullscreen: 'true',
+            autoplay: 'true',
+            muted: volume === 0
+        }).appendTo('#ytapiplayer');
     }
 };

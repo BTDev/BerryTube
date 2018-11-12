@@ -518,10 +518,12 @@ var MODE_CHATONLY = 1;
 function writeToLog(eventclass,string,callback){
 	string = "<"+new Date().toUTCString()+"> "+eventclass+":"+string;
 	SERVER.LOG.write(string+"\n");
+	console.log(string);
 	if(callback)callback();
 }
 function debugLog(thing){
 	SERVER.DLOG.write(thing+"\n");
+	console.log(thing);
 }
 function _adminLog(data){
 	data.timestamp = new Date().toUTCString();
@@ -532,6 +534,7 @@ function _adminLog(data){
 	forModminSockets(function(sc){
 		sc.emit('adminLog', data);
 	});
+	console.log(data);
 	//io.sockets.in('admin').emit('adminLog', data);
 };
 function adminLog(socket, data) {
@@ -569,7 +572,7 @@ function sanitize(string){
 	return string;
 }
 function initPlaylist(callback){
-	var q = 'select * from '+SERVER.dbcon.video_table+' order by position'; debugLog(q);
+	var q = 'select * from '+SERVER.dbcon.video_table+' order by position'; //debugLog(q);
 	mysql.query(q, function(err, result, fields) {
 		if (err) {
 			//throw err;
@@ -618,7 +621,7 @@ function initResumePosition(callback){
 	});
 }
 function upsertMisc(data, callback){
-	var q = 'insert into misc (name,value) VALUES (?,?) ON DUPLICATE KEY UPDATE value=?'; debugLog(q);
+	var q = 'insert into misc (name,value) VALUES (?,?) ON DUPLICATE KEY UPDATE value=?'; //debugLog(q);
 	mysql.query(q, [data.name, data.value, data.value], function(err, result, fields) {
 		if (err) {
 			console.error(err);
@@ -734,7 +737,7 @@ function initTimer(){
 	console.log("Timer initialized");
 }
 function initAreas(){
-	var q = 'select * from areas'; debugLog(q);
+	var q = 'select * from areas'; //debugLog(q);
 	mysql.query(q, function(err, result, fields) {
 		if (err) {
 			//throw err;
@@ -1095,7 +1098,7 @@ var commit = function(){
 	var elem = SERVER.PLAYLIST.first;
 	for(var i=0;i<SERVER.PLAYLIST.length;i++)
 	{
-		var q = 'update '+SERVER.dbcon.video_table+' set position = ? where videoid = ?'; debugLog(q);
+		var q = 'update '+SERVER.dbcon.video_table+' set position = ? where videoid = ?'; //debugLog(q);
 		mysql.query(q, [i, '' + elem.videoid], function(err, result, fields) {
 			if (err) {
 			//throw err;
@@ -1108,7 +1111,7 @@ var commit = function(){
 
 	for(var i=0;i<SERVER.AREAS.length;i++)
 	{
-		var q = 'update areas set html = ? where name = ?'; debugLog(q);
+		var q = 'update areas set html = ? where name = ?'; //debugLog(q);
 		mysql.query(q, [SERVER.AREAS[i].html, SERVER.AREAS[i].name], function(err, result, fields) {
 			if (err) {
 				//throw err;
@@ -1539,7 +1542,7 @@ function _setVideoColorTag(elem,pos,tag,volat){
 		elem.meta.colorTagVolat = volat;
 	}
 
-	var q = 'update '+SERVER.dbcon.video_table+' set meta = ? where videoid = ?'; debugLog(q);
+	var q = 'update '+SERVER.dbcon.video_table+' set meta = ? where videoid = ?'; //debugLog(q);
 	mysql.query(q, [JSON.stringify(elem.meta), '' + elem.videoid], function(err, result, fields) {
 		if (err) {
 			//throw err;
@@ -1830,7 +1833,7 @@ function delVideo(data, socket){
 					position:i,
 					sanityid:elem.videoid
 				});
-				var q = 'delete from '+SERVER.dbcon.video_table+' where videoid = ? limit 1'; debugLog(q)
+				var q = 'delete from '+SERVER.dbcon.video_table+' where videoid = ? limit 1'; //debugLog(q)
 				var historyQuery = "";
 				var historyQueryParams;
 				// Don't archive livestreams
@@ -1903,7 +1906,7 @@ function rawAddVideo(d,successCallback,failureCallback){
 		});
 		if(!('meta' in d) || d.meta == null){d.meta = {};}
 		if(!('addedon' in d.meta)){d.meta.addedon = new Date().getTime();}
-		q = 'insert into '+SERVER.dbcon.video_table+' (position, videoid, videotitle, videolength, videotype, videovia, meta) VALUES (?,?,?,?,?,?,?)'; debugLog(q);
+		q = 'insert into '+SERVER.dbcon.video_table+' (position, videoid, videotitle, videolength, videotype, videovia, meta) VALUES (?,?,?,?,?,?,?)'; //debugLog(q);
 		var qParams = [ d.pos,
 						'' + d.videoid,
 						d.videotitle,
@@ -2465,7 +2468,9 @@ function addVideoSoundCloud(socket,data,meta,successCallback,failureCallback){
 
 function addVideoFile(socket,data,meta,successCallback,failureCallback){
 	if (!failureCallback){
-		failureCallback = function(){};
+		failureCallback = function(){
+			console.log(err);
+		};
 	}
 
 	var videoid = data.videoid.trim();
@@ -2507,7 +2512,9 @@ function addVideoFile(socket,data,meta,successCallback,failureCallback){
 
 function addVideoDash(socket,data,meta,successCallback,failureCallback){
 	if (!failureCallback){
-		failureCallback = function(){};
+		failureCallback = function(err){
+			console.log(err);
+		};
 	}
 
 	var videoid = data.videoid.trim();
@@ -2555,6 +2562,130 @@ function addVideoDash(socket,data,meta,successCallback,failureCallback){
 			console.log('DASH manifest error', err);
 			failureCallback(err);
 		});
+}
+
+function twitchApi(path, params={}) {
+    if (Array.isArray(path)) {
+        path = path.join('/');
+    }
+    params = Object.keys(params)
+        .map(key => encodeURIComponent(key) + '=' + encodeURIComponent(params[key]))
+        .join('&');
+
+    return fetch('https://api.twitch.tv/kraken/' + path + (params ? ('?' + params) : ''), {
+        headers: {
+            'Accept': 'application/vnd.twitchtv.v5+json',
+            'Client-ID': '16m5lm4sc21blhrrpyorpy4tco0pa9'
+        }
+    }).then(response => {
+    	console.log(response);
+    	if (response.ok) {
+    		return response.json();
+    	} else {
+    		return response.json().then(data => {
+    			console.log(data);
+    			return Promise.reject(new Error(data.error + ': ' + data.message))
+    		});
+    	}
+    });
+}
+
+function addVideoTwitch(socket,data,meta,successCallback,failureCallback){
+	if (!failureCallback){
+		failureCallback = function(err){
+			console.log(err);
+		};
+	}
+
+	var volat = data.volat;
+	if(meta.type <= 0) volat = true;
+	if(volat === undefined) volat = false;
+
+	const parts = data.videoid.trim().split('/');
+	if (parts[0] === 'videos') {
+		twitchApi(['videos', parts[1]]).then(response => {
+			let videoid = response._id;
+			if (videoid[0] === 'v') {
+				videoid = videoid.substr(1);
+			}
+
+			adminLog(socket, {msg:"Added Twitch video "+videoid, type:"playlist"});
+			rawAddVideo({
+				pos: SERVER.PLAYLIST.length,
+				videoid: 'videos/' + videoid,
+				videotitle: encodeURI(response.title),
+				videolength: Math.ceil(response.length),
+				videotype: "twitch",
+				who: meta.nick,
+				queue: data.queue,
+				volat: volat
+			}, function () {
+				if (successCallback)successCallback();
+			}, function (err) {
+				if (failureCallback)failureCallback(err);
+			});
+		}).catch(error => {
+			if (failureCallback) failureCallback(error);
+		});
+	} else {
+		twitchApi(['search', 'channels'], {query: parts[0], limit: 1}).then(response => {
+			response = response && response.channels && response.channels[0];
+			if (!response) {
+				if (failureCallback)failureCallback('no such channel');
+				return;
+			}
+
+			adminLog(socket, {msg:"Added Twitch stream "+response.name, type:"playlist"});
+			rawAddVideo({
+				pos: SERVER.PLAYLIST.length,
+				videoid: response.name,
+				videotitle: encodeURI(response.display_name),
+				videolength: 0,
+				videotype: "twitch",
+				who: meta.nick,
+				queue: data.queue,
+				volat: volat
+			}, function () {
+				if (successCallback)successCallback();
+			}, function (err) {
+				if (failureCallback)failureCallback(err);
+			});
+		}).catch(error => {
+			if (failureCallback) failureCallback(error);
+		});
+	}
+}
+
+function addVideoTwitchClip(socket,data,meta,successCallback,failureCallback){
+	if (!failureCallback){
+		failureCallback = function(err){
+			console.log(err);
+		};
+	}
+
+	var volat = data.volat;
+	if(meta.type <= 0) volat = true;
+	if(volat === undefined) volat = false;
+
+	twitchApi(['clips', data.videoid]).then(response => {
+		adminLog(socket, {msg:"Added Twitch clip "+response.slug, type:"playlist"});
+		rawAddVideo({
+			pos: SERVER.PLAYLIST.length,
+			videoid: response.slug,
+			videotitle: encodeURI(response.title),
+			videolength: Math.ceil(response.duration),
+			videotype: "twitchclip",
+			who: meta.nick,
+			queue: data.queue,
+			volat: volat
+		}, function () {
+			if (successCallback)successCallback();
+		}, function (err) {
+			if (failureCallback)failureCallback(err);
+		});
+	}).catch(error => {
+		if (failureCallback) failureCallback(error);
+	});
 }
 
 /* Permission Abstractions */
@@ -2909,7 +3040,7 @@ function userLogin(socket,data,truecallback,falsecallback){
 		qnick.length >= 1  &&
 		qnick.length <= 15
 	){
-		var q = 'select * from users where name = ?'; debugLog(q);
+		var q = 'select * from users where name = ?'; //debugLog(q);
 		mysql.query(q, [qnick], function(err, result, fields) {
 			if (err) {
 				//throw err;
@@ -3421,7 +3552,7 @@ io.sockets.on('connection', function (socket) {
 			socket.emit("loginError", {message:"Username not available."});
 			return;
 		}
-		var q = 'select * from users where name like ?'; debugLog(q);
+		var q = 'select * from users where name like ?'; //debugLog(q);
 		mysql.query(q, [data.nick], function(err, result, fields) {
 			if (err) {
 				console.error(err);
@@ -3442,7 +3573,7 @@ io.sockets.on('connection', function (socket) {
 						console.error(err);
 						return;
 					}
-					var q = 'INSERT INTO users (name, pass, type) VALUES (?,?,?)'; debugLog(q);
+					var q = 'INSERT INTO users (name, pass, type) VALUES (?,?,?)'; //debugLog(q);
 					mysql.query(q,	[data.nick, hash, 0] , function(err, result, fields){
 						if (err) {
 							//throw err;
@@ -3652,6 +3783,22 @@ io.sockets.on('connection', function (socket) {
 					socket.emit("dupeAdd");
 				});
 			}
+			else if(data.videotype == "twitch") {
+				addVideoTwitch(socket,data,meta,function(){
+					debugLog("Twitch Added");
+				},function(err){
+					debugLog(err);
+					socket.emit("dupeAdd");
+				});
+			}
+			else if(data.videotype == "twitchclip") {
+				addVideoTwitchClip(socket,data,meta,function(){
+					debugLog("TwitchClip Added");
+				},function(err){
+					debugLog(err);
+					socket.emit("dupeAdd");
+				});
+			}
 			else {
 				// Okay, so, it wasn't vimeo and it wasn't youtube, assume it's a livestream and just queue it.
 				// This requires a videotitle and a videotype that the client understands.
@@ -3782,7 +3929,7 @@ io.sockets.on('connection', function (socket) {
 											(function(i) {
 
 												var pos = SERVER.PLAYLIST.length + i;
-												var q = 'insert into '+SERVER.dbcon.video_table+' (position, videoid, videotitle, videolength, videovia) VALUES (?,?,?,?,?)'; debugLog(q);
+												var q = 'insert into '+SERVER.dbcon.video_table+' (position, videoid, videotitle, videolength, videovia) VALUES (?,?,?,?,?)'; //debugLog(q);
 												var qParams = [pos, '' + MEDIAS[i].videoid, MEDIAS[i].videotitle, MEDIAS[i].videolength, name];
 												mysql.query(q, qParams, function(err, result, fields) {
 													if (err) {
