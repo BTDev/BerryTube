@@ -1917,6 +1917,9 @@ $(function(){
 				law: {
 					countryCode: MY_COUNTRY
 				},
+				cookie: {
+					secure: true
+				},
 				content: {
 					message: 'Like every other website on the planet, we use cookies.',
 					link: 'Would you like to know more?',
@@ -1935,8 +1938,8 @@ $(function(){
 				if (popup.options.enabled || popup.options.revokable) {
 					$('<link>', {
 						rel: 'stylesheet',
-						href: 'https://cdnjs.cloudflare.com/ajax/libs/cookieconsent2/3.0.6/cookieconsent.min.css',
-						integrity: 'sha256-00kGHOz9RdKF3UMt7O3Ookbg/gzvO40T0znI4awon7A=',
+						href: 'https://cdnjs.cloudflare.com/ajax/libs/cookieconsent2/3.1.0/cookieconsent.min.css',
+						integrity: 'sha256-ebN46PPB/s45oUcqLn2SCrgOtYgVJaFiLZ26qVSqI8M=',
 						crossorigin: 'anonymous'
 					}).appendTo(document.head);
 				}
