@@ -102,8 +102,8 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/cookieconsent2/3.0.6/cookieconsent.min.js" integrity="sha256-bPOd70Y8ohKatGmjL6tszdveppYZCunsUfLOq7v8JBw=" crossorigin="anonymous" defer></script>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.19.1/moment.min.js" integrity="sha256-zG8v+NWiZxmjNi+CvUYnZwKtHzFtdO8cAKUIdB8+U9I=" crossorigin="anonymous" defer></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/moment-duration-format/1.3.0/moment-duration-format.min.js" integrity="sha256-SjPDuWPRLxUNqTwhiAcTNcIwQLbf5khquJsz5fekYms=" crossorigin="anonymous" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.2/moment.min.js" integrity="sha256-CutOzxCRucUsn6C6TcEYsauvvYilEniTXldPa6/wu0k=" crossorigin="anonymous" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment-duration-format/2.2.2/moment-duration-format.min.js" integrity="sha256-bXC/nhRjq/J7K4hnL8yvthqXkskSKOsZNfrLgXBigYg=" crossorigin="anonymous" defer></script>
 <script src="<?= cdn('js/countdown.js') ?>" defer></script>
 
 <script src="<?= cdn('berrymotes/js/berrymotes.berrytube.js') ?>" defer></script>
