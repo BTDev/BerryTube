@@ -32,6 +32,7 @@ services:
             - ./berrymotes/js:/var/www/html/berrymotes/js:ro
             - ./berrymotes/images:/var/www/html/berrymotes/images:ro
             - ./berrymotes/single_emotes:/var/www/html/berrymotes/single_emotes:ro
+            - ./berrymotes/css/berryemotecore.css:/var/www/html/berrymotes/berryemotecore.css:ro
         ports:
             - '${HTTP_PORT}:${HTTP_PORT}/tcp'
             - '${HTTPS_PORT}:${HTTPS_PORT}/tcp'
