@@ -26,7 +26,7 @@
         <tbody></tbody>
         <tfoot>
             <tr>
-                <td><a href="https://teamup.com/ksiyi7xykfdvgyocp3" target="_blank">full schedule</a></td>
+                <td><a href="https://teamup.com/ksiyi7xykfdvgyocp3" target="_blank" rel="noopener noreferrer">full schedule</a></td>
             </tr>
         </tfoot>
     </table>
