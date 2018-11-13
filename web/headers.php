@@ -89,7 +89,6 @@
 <script src="https://player.twitch.tv/js/embed/v1.js" defer></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/video.js/7.3.0/video.min.js" integrity="sha256-FtN3AlYCFtRDFdQIG+XM7JgkF3CYyzDkysTR34GUII4=" crossorigin="anonymous" defer></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/videojs-flash/2.1.2/videojs-flash.min.js" integrity="sha256-2sKPIPOV8Cj34r74ZnRcdKrQ7Jqqg0o1zR2c74VDW1s=" crossorigin="anonymous" defer></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/videojs-contrib-hls/5.14.1/videojs-contrib-hls.min.js" integrity="sha256-ngHSRzCW6euvtJPYDc6HnWd9UvS7VxXfOcRt5Kt0ZrA=" crossorigin="anonymous" defer></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/dashjs/2.9.2/dash.all.min.js" integrity="sha256-EmXFhpSryXnCa3tOiKDfYUFhpmnkvo3PSe3Tj3KpX6o=" crossorigin="anonymous" defer></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/videojs-contrib-dash/2.10.0/videojs-dash.min.js" integrity="sha256-xhLRr5mlvCCC7DndQjNURZOXGxwYUoB2VoF0mNUiuJc=" crossorigin="anonymous" defer></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/0.9.16/socket.io.min.js" integrity="sha256-bFYtqOZj1MLDlOrOlxCU9aruDP2zxiIKvmoo+dHsy4w=" crossorigin="anonymous" defer></script>
