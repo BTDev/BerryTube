@@ -40,9 +40,9 @@ window.PLAYERS.yt = {
             var params = {
                 disablekb: 1,
                 enablejsapi: 1,
-                //fs:1,
-                modestbranding: 1,
                 iv_load_policy: 3,
+                modestbranding: 1,
+                playsinline: 1,
                 rel: 0
             };
             if (getStorage("legacyPlayer") == 0) {
