@@ -55,7 +55,7 @@
 
 <link rel="stylesheet" href="<?= cdn('css/colors.css') ?>" id="mainTheme"/>
 <link rel="stylesheet" href="<?= cdn('css/layout-other.css') ?>"/>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/video.js/7.0.5/video-js.min.css" integrity="sha256-V6DHTwYvoVIEckEnXnIHN9DWMJYSs8SBzO5vIJQrVXY=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/video.js/7.3.0/video-js.min.css" integrity="sha256-mujqz1jG8djcBxoJnvfvTIjRxz7y5xNpzY18x8au5ck=" crossorigin="anonymous" />
 <link rel="stylesheet" href="<?= cdn('css/uni-gui.css') ?>" />
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/themes/ui-lightness/jquery-ui.min.css" integrity="sha256-N7K28w/GcZ69NlFwqiKb1d5YXy37TSfgduj5gQ6x8m0=" crossorigin="anonymous" />
 <link rel="stylesheet" href="<?= cdn('css/countdown.css') ?>" />
@@ -87,11 +87,11 @@
 <script src="https://w.soundcloud.com/player/api.js" defer></script>
 <script src="https://player.vimeo.com/api/player.js" defer></script>
 <script src="https://player.twitch.tv/js/embed/v1.js" defer></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/video.js/7.0.5/video.min.js" integrity="sha256-m/9LXrATPmrFPoi/sfeUpug10+/7X6a1K/sZiclo6/w=" crossorigin="anonymous" defer></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/videojs-flash/2.1.1/videojs-flash.min.js" integrity="sha256-5luNwx2z1Vkxkd82h83bdRlV2qVpI0IogaHhjBfza2g=" crossorigin="anonymous" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/video.js/7.3.0/video.min.js" integrity="sha256-FtN3AlYCFtRDFdQIG+XM7JgkF3CYyzDkysTR34GUII4=" crossorigin="anonymous" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/videojs-flash/2.1.2/videojs-flash.min.js" integrity="sha256-2sKPIPOV8Cj34r74ZnRcdKrQ7Jqqg0o1zR2c74VDW1s=" crossorigin="anonymous" defer></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/videojs-contrib-hls/5.14.1/videojs-contrib-hls.min.js" integrity="sha256-ngHSRzCW6euvtJPYDc6HnWd9UvS7VxXfOcRt5Kt0ZrA=" crossorigin="anonymous" defer></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/dashjs/2.8.0/dash.all.min.js" integrity="sha256-Tr9wr4DxlOudFlRVpPC95TjmXQSRUk7GgHjwy77vnGs=" crossorigin="anonymous" defer></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/videojs-contrib-dash/2.9.3/videojs-dash.min.js" integrity="sha256-VsGrOcGYYvdJEhXVd9TBs3P5CEip76d9Foc2VcqUDv0=" crossorigin="anonymous" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/dashjs/2.9.2/dash.all.min.js" integrity="sha256-EmXFhpSryXnCa3tOiKDfYUFhpmnkvo3PSe3Tj3KpX6o=" crossorigin="anonymous" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/videojs-contrib-dash/2.10.0/videojs-dash.min.js" integrity="sha256-xhLRr5mlvCCC7DndQjNURZOXGxwYUoB2VoF0mNUiuJc=" crossorigin="anonymous" defer></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/0.9.16/socket.io.min.js" integrity="sha256-bFYtqOZj1MLDlOrOlxCU9aruDP2zxiIKvmoo+dHsy4w=" crossorigin="anonymous" defer></script>
 
 <script src="<?= cdn('js/lib.js') ?>" defer></script>
