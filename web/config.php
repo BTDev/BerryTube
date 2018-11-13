@@ -6,6 +6,7 @@
 		if (NO_CDN) {
 			return $fname;
 		}
+		$fname = ltrim($fname, '/');
 		$hash = @sha1_file(__DIR__ . '/' . $fname, true);
 		if ($hash) {
 			$hash = rtrim(strtr(base64_encode($hash), '+/', '-_'), '=');

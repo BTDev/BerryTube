@@ -13,9 +13,9 @@ echo preg_replace_callback(
         global $theme;
         $url = $matches[1];
         if (substr($url, 0, 7) === 'images/') {
-            $url = cdn("plugins/toastthemes/css/$theme/$url");
+            $url = cdn("/plugins/toastthemes/css/$theme/$url");
         } else if (substr($url, 0, 8) === '/images/') {
-            $url = cdn(substr($url, 1));
+            $url = cdn($url);
         }
         $url = str_replace("'", "\\'", $url);
         return "url('$url')";

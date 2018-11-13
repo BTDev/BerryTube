@@ -152,7 +152,7 @@
 
 	var scriptNodes = <?php
 		require_once('plugin-data.php');
-		echo str_replace('"' . CDN_ORIGIN, 'CDN_ORIGIN+"', json_encode($plugin_data, JSON_UNESCAPED_SLASHES));
+		echo json_encode($plugin_data, JSON_UNESCAPED_SLASHES);
 		?>;
 
 	Bem = typeof Bem === "undefined" ? {} : Bem;
