@@ -543,13 +543,9 @@ window.PLAYERS.twitch = {
             volume = 1;
         }
 
-        $('<div>', {
-            id: 'twitchplayer'
-        }).appendTo('#ytapiplayer');
-
         const opts = {
-            width: $('#ytapiplayer').width(),
-            height: $('#ytapiplayer').height()
+            width: videoWidth,
+            height: videoHeight
         };
 
         const parts = src.split('/');
@@ -559,7 +555,7 @@ window.PLAYERS.twitch = {
             opts.channel = parts[0];
         }
 
-        twitchplayer = new Twitch.Player("twitchplayer", opts);
+        twitchplayer = new Twitch.Player("ytapiplayer", opts);
         twitchplayer.addEventListener(Twitch.Player.READY, function(){
             if (twitchplayer) {
                 twitchplayer.setVolume(volume);
@@ -608,14 +604,18 @@ window.PLAYERS.twitchclip = {
         $('<iframe>', {
             id: 'twitchclipplayer',
             src: 'https://clips.twitch.tv/embed?clip=' + src,
-            width: $('#ytapiplayer').width(),
-            height: $('#ytapiplayer').height(),
+            width: videoWidth,
+            height: videoHeight,
             frameborder: '0',
             scrolling: 'no',
             preload: 'auto',
             allowfullscreen: 'true',
             autoplay: 'true',
-            muted: volume === 0
+            muted: volume === 0,
+            css: {
+                width: '100%',
+                height: '100%'
+            }
         }).appendTo('#ytapiplayer');
     }
 };
