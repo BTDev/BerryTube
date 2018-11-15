@@ -1,4 +1,9 @@
 <meta charset="utf-8">
+<meta name="theme-color" content="#421C52">
+<meta name="description" content="BerryTube">
+<meta name="author" content="Cades / GreyMage / Eric Cutler">
+<meta name="robots" content="noindex">
+
 <style>html { background: #421C52; }</style>
 
 <?php // Pick random title.
@@ -44,11 +49,6 @@
 	$TITLE = 'BerryTube :: ' . $titles[array_rand($titles)];
 ?>
 <title><?php echo $TITLE; ?></title>
-
-<meta name="description" content="BerryTube">
-<meta name="author" content="Cades / GreyMage / Eric Cutler">
-<meta name="robots" content="noindex">
-<meta name="theme-color" content="#421C52">
 
 <link rel="shortcut icon" href="<?= cdn('images/favicon.ico') ?>"/>
 <link rel="icon" type="image/png" sizes="32x32" href="<?= cdn('images/favicon32.png') ?>"/>
