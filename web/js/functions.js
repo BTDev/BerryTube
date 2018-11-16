@@ -1656,15 +1656,27 @@ function _setVidColorTag(domobj,tag,volat){
 
 	if(volat){ct.addClass("volatile");}else{ct.removeClass("volatile");}
 
+	ct.removeClass('shitpost-flag');
+	ct.css('background-image', 'none');
+
 	if(tag == false){
 		console.log("removing tag on ",domobj);
 		ct.remove();
-	} else if (tag === 'euro') {
-		ct.addClass('shitpost-euro');
 	} else {
-		console.log("setting tag on ",domobj,tag);
-		ct.removeClass('shitpost-euro');
-		ct.css("background-color",tag);
+		let parts = tag.split('/');
+		if (parts.length === 1 && parts[0] === 'euro') {
+			parts = ['flag', 'europeanunion'];
+		}
+		switch (parts[0]) {
+			case 'flag':
+				ct.addClass('shitpost-flag');
+				ct.css('background-image', 'url(//cdn.atte.fi/famfamfam/flags/1/'+parts[1].replace(/\.\//g, '')+'.png');
+				break;
+			default:
+				console.log("setting tag on ",domobj,tag);
+				ct.css("background-color",tag);
+				break;
+		}
 	}
 }
 function setColorTheme(cssPath){
