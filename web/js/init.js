@@ -346,6 +346,10 @@ function doVolatile(entry){
 }
 function doColorTag(entry,tag,volat){
 	if(canColorTag()) {
+		if (window.SHITPOST_SKITTLE) {
+			tag = window.SHITPOST_SKITTLE;
+			delete window.SHITPOST_SKITTLE;
+		}
 		var pos = $(entry).index();
         var id = $(entry).data('plobject').videoid;
 		var data = {

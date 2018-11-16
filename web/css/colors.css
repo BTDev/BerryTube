@@ -475,6 +475,13 @@ form .submit:hover {
     border: 1px solid #880000;
     box-shadow: 0 0 3px red;
 }
+.colorTag.shitpost-euro {
+    border-radius: 0;
+    background-image: url(//cdn.atte.fi/famfamfam/flags/1/europeanunion.png);
+    background-repeat: no-repeat;
+    height: 11px;
+    width: 16px;
+}
 .colorGrid .swatch.kill{
 	background:url(/images/noswatch.png);
 }

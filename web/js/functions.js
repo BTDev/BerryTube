@@ -1659,8 +1659,11 @@ function _setVidColorTag(domobj,tag,volat){
 	if(tag == false){
 		console.log("removing tag on ",domobj);
 		ct.remove();
+	} else if (tag === 'euro') {
+		ct.addClass('shitpost-euro');
 	} else {
 		console.log("setting tag on ",domobj,tag);
+		ct.removeClass('shitpost-euro');
 		ct.css("background-color",tag);
 	}
 }
