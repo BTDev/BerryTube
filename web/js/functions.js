@@ -1670,7 +1670,7 @@ function _setVidColorTag(domobj,tag,volat){
 		switch (parts[0]) {
 			case 'flag':
 				ct.addClass('shitpost-flag');
-				ct.css('background-image', 'url(//cdn.atte.fi/famfamfam/flags/1/'+parts[1].replace(/\.\//g, '')+'.png');
+				ct.css('background-image', 'url('+CDN_ORIGIN+'/images/famflags/'+parts[1].replace(/\.\//g, '')+'.png');
 				break;
 			default:
 				console.log("setting tag on ",domobj,tag);
