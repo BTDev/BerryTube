@@ -1682,7 +1682,7 @@ function initLoginForm(headbar){
         return false;
     });
 
-    $('<label><input type="checkbox" checked="checked"/>Remember Me</label>').addClass('rememberMe').appendTo(headbar);
+    $('<label><input type="checkbox" checked="checked" class="rememberMe" />Remember Me</label>').appendTo(headbar);
     $('<div/>').addClass('loginError').appendTo(headbar);
 
     regbtn.click(function(){regForm.submit()});
