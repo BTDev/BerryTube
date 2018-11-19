@@ -1523,10 +1523,11 @@ function initChat(parent){
 		if(canChat()){
 			setNick.remove();
 			chatinput.removeClass("right");
+			chatinputbar.attr('aria-label', 'message');
 			clearInterval(tt);
 		}
 	},500)
-	var chatinputbar = $('<input/>').attr('maxlength','400').appendTo(chatinput);
+	var chatinputbar = $('<input/>').attr('maxlength','400').attr('aria-label', 'nickname').appendTo(chatinput);
 	chatinputbar.keyup(function(e) {
 		if(e.keyCode == 13) {chatinputbar.submit(); }
 	});
@@ -1616,13 +1617,13 @@ function initLoginForm(headbar){
     var loginForm = $('<form/>').attr('method','post').appendTo(loginWrap);
     var layoutTable = $('<table/>').appendTo(loginForm);
     var row = $('<tr/>').appendTo(layoutTable);
-    $('<span/>').text('Username').appendTo($('<td/>').appendTo(row));
-    var userBar = $('<input/>').attr('name','loginname').attr('type','text').attr('autocomplete','username').appendTo($('<td/>').appendTo(row));
+    $('<label/>').attr('for', 'loginname').text('Username').appendTo($('<td/>').appendTo(row));
+    var userBar = $('<input/>').attr('id','loginname').attr('name','loginname').attr('type','text').attr('autocomplete','username').appendTo($('<td/>').appendTo(row));
     var showregbtn = $('<div/>').addClass("submit").text("Register").appendTo($('<td/>').appendTo(row));
 
     var row = $('<tr/>').appendTo(layoutTable);
-    $('<span/>').text('Password').appendTo($('<td/>').appendTo(row));
-    var loginBar = $('<input/>').attr('name','loginpass').attr('type','password').attr('autocomplete','current-password').appendTo($('<td/>').appendTo(row));
+    $('<label/>').attr('for', 'loginpass').text('Password').appendTo($('<td/>').appendTo(row));
+    var loginBar = $('<input/>').attr('id','loginpass').attr('name','loginpass').attr('type','password').attr('autocomplete','current-password').appendTo($('<td/>').appendTo(row));
     var loginbtn = $('<div/>').addClass("submit").text("Login").appendTo($('<td/>').appendTo(row));
 
     showregbtn.click(function(){
@@ -1681,7 +1682,7 @@ function initLoginForm(headbar){
         return false;
     });
 
-    $('<input type="checkbox" checked="checked">Remember Me</input>').addClass('rememberMe').appendTo(headbar);
+    $('<label><input type="checkbox" checked="checked"/>Remember Me</label>').addClass('rememberMe').appendTo(headbar);
     $('<div/>').addClass('loginError').appendTo(headbar);
 
     regbtn.click(function(){regForm.submit()});
@@ -1894,7 +1895,7 @@ function initMailbox() {
 						$('#mailButtonDiv').removeClass('new');
 						toggleMailDiv();
 					}))),
-			$('<div id="mailButtonDiv"/>').html('<img src="' + CDN_ORIGIN + '/images/envelope.png"></img>').click(toggleMailDiv)));
+			$('<div id="mailButtonDiv"/>').html('<img src="' + CDN_ORIGIN + '/images/envelope.png" alt="mail"></img>').click(toggleMailDiv)));
 }
 $(function(){
 	dbg("page loaded, firing onload scripts")
@@ -1904,6 +1905,7 @@ $(function(){
 
 	setTimeout(function(){
 		if (MY_COUNTRY && window.cookieconsent) {
+			let cookiepopupShown = false;
 			window.cookieconsent.hasTransition = false;
 			window.cookieconsent.initialise({
 			    palette: {
@@ -1927,25 +1929,26 @@ $(function(){
 				content: {
 					message: 'Like every other website on the planet, we use cookies.',
 					link: 'Would you like to know more?',
-					href: 'https://cookiesandyou.com',
-					image: CDN_ORIGIN + '/images/cookies/' + Math.floor(Math.random()*5) + '.png'
+					href: 'https://cookiesandyou.com'
 				},
 				elements: {
 					messagelink:
 						'<span id="cookieconsent:desc" class="cc-message">' +
-							'<img style="float:right;margin-left:1em;height:100px;min-width:45px" src="{{image}}">' +
+							'<img id="cookieconsent-image">' +
 							'{{message}} ' +
-							'<a tabindex="0" class="cc-link" href="{{href}}" target="_blank">{{link}}</a>' +
+							'<a tabindex="0" class="cc-link" href="{{href}}" target="_blank" rel="noreferrer noopener">{{link}}</a>' +
 						'</span>'
 				}
 			}, function(popup){
-				if (popup.options.enabled || popup.options.revokable) {
+				if (!cookiepopupShown && popup.options.enabled || popup.options.revokable) {
+					cookiepopupShown = true;
 					$('<link>', {
 						rel: 'stylesheet',
 						href: 'https://cdnjs.cloudflare.com/ajax/libs/cookieconsent2/3.1.0/cookieconsent.min.css',
 						integrity: 'sha256-ebN46PPB/s45oUcqLn2SCrgOtYgVJaFiLZ26qVSqI8M=',
 						crossorigin: 'anonymous'
 					}).appendTo(document.head);
+					$('#cookieconsent-image').attr('src', CDN_ORIGIN + '/images/cookies/' + Math.floor(Math.random()*5) + '.png');
 				}
 			});
 		}
@@ -2016,9 +2019,6 @@ $(function(){
 	$(".chatbuffer")
 		.mouseenter(function() { KEEP_BUFFER = false; })
 		.mouseleave(function() { KEEP_BUFFER = true; scrollBuffersToBottom(); });
-
-	var preloads = $('<div/>').addClass("preload").appendTo("body");
-	$('<img src="' + CDN_ORIGIN + '/images/ajax-loader.gif"/>').appendTo(preloads);
 
 	//Init plugin manager stuff
 	for (var i in scriptNodes) {

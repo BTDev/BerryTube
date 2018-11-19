@@ -1654,26 +1654,29 @@ function _setVidColorTag(domobj,tag,volat){
 		ct = $("<div/>").addClass("colorTag").prependTo(domobj);
 	}
 
-	if(volat){ct.addClass("volatile");}else{ct.removeClass("volatile");}
-
-	ct.removeClass('shitpost-flag');
-	ct.css('background-image', 'none');
+	if(volat){
+		ct.addClass("volatile");
+	} else {
+		ct.removeClass("volatile");
+	}
 
 	if(tag == false){
-		console.log("removing tag on ",domobj);
 		ct.remove();
 	} else {
+		ct.removeClass('shitpost-flag');
+		ct.css('background-image', 'none');
+
 		let parts = tag.split('/');
 		if (parts.length === 1 && parts[0] === 'euro') {
 			parts = ['flag', 'europeanunion'];
 		}
+
 		switch (parts[0]) {
 			case 'flag':
 				ct.addClass('shitpost-flag');
 				ct.css('background-image', 'url('+CDN_ORIGIN+'/images/famflags/'+parts[1].replace(/\.\//g, '')+'.png');
 				break;
 			default:
-				console.log("setting tag on ",domobj,tag);
 				ct.css("background-color",tag);
 				break;
 		}

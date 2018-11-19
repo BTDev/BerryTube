@@ -122,9 +122,6 @@ body {
 .clear{
 	clear:both;
 }
-.preload{
-	display:none;
-}
 .flutter {
     color: #FF5499;
 }
@@ -484,7 +481,7 @@ form .submit:hover {
 .colorGrid .swatch.kill{
 	background:url(/images/noswatch.png);
 }
-#adminbuffer {
+#chatpane.admin #adminbuffer {
 	background-image: url(/images/adminbg.png) !important;
 	background-repeat: no-repeat !important;
 	background-position: center !important;

@@ -171,7 +171,8 @@ socket.on("setAreas",function(data){
 			var selName = "#dyn_"+name;
 			whenExists(selName,function(area){
 				area.html(html);
-				$("a", area).attr("rel", "noopener noreferrer");
+				$("a:not([rel])", area).attr("rel", "noopener noreferrer");
+				$("img:not([alt])", area).attr("alt", "");
 			});
 		})(i)
 	}

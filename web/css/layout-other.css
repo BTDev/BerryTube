@@ -1,4 +1,10 @@
 /* Etc. */
+#cookieconsent-image {
+    float: right;
+    margin-left: 1em;
+    height: 100px;
+    min-width: 45px;
+}
 .fifty, .wrapper.fifty{
     width: 50%;
 	background: url(/images/50.png);
