@@ -1212,6 +1212,7 @@ function initPlaylistControls(plwrap){
 		}
 	});
 
+	/*
 	var vaddBtn = $('<div/>').addClass("impele").addClass("btn").text("+").appendTo(container);
 	vaddBtn.click(function(){
 		if(controlsPlaylist()){
@@ -1242,37 +1243,11 @@ function initPlaylistControls(plwrap){
 			});
 		}
 	});
-	videoImport.keyup(function(e) { if(e.keyCode == 13) { vqBtn.click(); } });
-	$('<div/>').addClass("clear").appendTo(container);
-	/*
-	var openPlaylistButton = $('<div/>').addClass('slideBtn').text("Import Playlist").appendTo(plcontrolwrap);
-	var playlistImportWrap = $('<div/>').addClass('import').insertAfter(openPlaylistButton);
-	openPlaylistButton.click(function(){
-		if(playlistImportWrap.is(":hidden")){
-			playlistImportWrap.show("blind");
-		}else{
-			playlistImportWrap.hide("blind");
-		}
-	});
-
-	$('<div/>').addClass("note").text("Insert Playlist ID Below.").appendTo(playlistImportWrap);
-	var container = $('<div/>').appendTo(playlistImportWrap);
-	var impwrap = $('<div/>').addClass("impele").appendTo(container);
-	var playlistImport = $('<input/>').appendTo(impwrap);
-
-	var paddBtn = $('<div/>').addClass("impele").addClass("btn").text("+").appendTo(container);
-	paddBtn.click(function(){
-		if(controlsPlaylist()){
-			$(this).data('revertTxt',"+");
-			$(this).text('').addClass("loading");
-			socket.emit("importPlaylist",{
-				plid:$(playlistImport).val()
-			});
-		}
-	});
-	playlistImport.keyup(function(e) { if(e.keyCode == 13) { paddBtn.click(); } });
-	$('<div/>').addClass("clear").appendTo(container);
 	*/
+
+	videoImport.keyup(function(e) { if(e.keyCode == 13) { vvBtn.click(); } });
+	$('<div/>').addClass("clear").appendTo(container);
+
 	var openPlaylistControls = $('<div/>').addClass('slideBtn').text("Misc Controls").appendTo(plcontrolwrap);
 	var playlistControlWrap = $('<div/>').addClass('import').insertAfter(openPlaylistControls);
 	openPlaylistControls.click(function(){

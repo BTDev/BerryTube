@@ -568,14 +568,16 @@ socket.on('forceRefresh', function(data){
 });
 socket.on('shitpost', function(data){
 	const parts = data.msg.split(' ');
-	switch (parts[0]) {
+	switch (parts[0].toLowerCase()) {
 		case 'roll':
+		case 'spin':
+		case 'zspin':
 			const rollTarget = $(parts[1] || '#ytapiplayer,#chatpane');
 			const animation = parts[2] || '-zspin';
-			rollTarget.css('animation', '1s ' + animation);
+			rollTarget.css('animation', '1.5s ' + animation);
 			setTimeout(function(){
 				rollTarget.css('animation', '');
-			}, 1000 + 100);
+			}, 1500 + 100);
 			break;
 	}
 });
