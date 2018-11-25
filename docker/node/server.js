@@ -2081,7 +2081,7 @@ function __addVideoYT(socket,data,meta,successCallback,failureCallback){
 		host: 'gdata.youtube.com',
 		port: 80,
 		method: 'GET',
-		path: '/feeds/api/videos/'+videoid.toString()
+		path: '/feeds/api/videos/'+encodeURIComponent(videoid.toString())
 	};
 
 	//https://www.youtube.com/watch?v=woyqYP8b3Aw
@@ -2204,7 +2204,7 @@ function addVideoYT(socket,data,meta,successCallback,failureCallback){
 		host: 'www.googleapis.com',
 		port: 443,
 		method: 'GET',
-		path: '/youtube/v3/videos?id='+(videoid.toString())+'&key=AIzaSyBBM2fo32Pzrcf0GHO5LnEHxjYd1T1li-Q&part=snippet%2CcontentDetails%2Cstatus'
+		path: '/youtube/v3/videos?id='+encodeURIComponent(videoid.toString())+'&key=AIzaSyBBM2fo32Pzrcf0GHO5LnEHxjYd1T1li-Q&part=snippet%2CcontentDetails%2Cstatus'
 	};
 
 	var parseDuration = function(duration){
@@ -2413,9 +2413,9 @@ function addVideoSoundCloud(socket,data,meta,successCallback,failureCallback){
 	//http://api.soundcloud.com/resolve.json?url=
 	// &client_id=98e8581d9fc8d2dbb59cb5a785201ffd
 	if(videoid.substring(0,2) == "SC") {
-		path = '/tracks/'+videoid.substring(2)+'.json?client_id=98e8581d9fc8d2dbb59cb5a785201ffd';
+		path = '/tracks/'+encodeURIComponent(videoid.substring(2))+'.json?client_id=98e8581d9fc8d2dbb59cb5a785201ffd';
 	} else {
-		path = '/resolve.json?url='+videoid+'&client_id=98e8581d9fc8d2dbb59cb5a785201ffd';
+		path = '/resolve.json?url='+encodeURIComponent(videoid)+'&client_id=98e8581d9fc8d2dbb59cb5a785201ffd';
 	}
 	var options = {
 		host: 'api.soundcloud.com',
@@ -3833,7 +3833,7 @@ io.sockets.on('connection', function (socket) {
 				host: 'gdata.youtube.com',
 				port: 80,
 				method: 'GET',
-				path: '/feeds/api/playlists/'+plid.toString()+'?v=2&max-results=1'
+				path: '/feeds/api/playlists/'+encodeURIComponent(plid.toString())+'?v=2&max-results=1'
 			};
 			debugLog(options.path);
 			var recievedBody = "";
@@ -3862,7 +3862,7 @@ io.sockets.on('connection', function (socket) {
 								host: 'gdata.youtube.com',
 								port: 80,
 								method: 'GET',
-								path: '/feeds/api/playlists/'+plid.toString()+'?v=2&max-results='+maxResults+'&start-index='+myStart
+								path: '/feeds/api/playlists/'+encodeURIComponent(plid.toString())+'?v=2&max-results='+maxResults+'&start-index='+myStart
 							};
 							debugLog("("+i+" * "+maxResults+")+1 = "+myStart);
 							debugLog("Attempting to get "+myStart+" to "+(myStart+maxResults));
