@@ -63,6 +63,3 @@
 #playlistAddControls .import input {
     width: 609px;
 }
-.admin #playlistAddControls .import input, .mod #playlistAddControls .import input, .assistant #playlistAddControls .import input {
-    width: 571px;
-}
