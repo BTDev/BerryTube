@@ -1,5 +1,7 @@
 <?php
 
+require_once('apiconfig.php');
+
 class ipSession{
 
 	var $mysqli;
