@@ -6,7 +6,7 @@ Before running for the first time
 
 Run `git submodule update --init --remote` to pull in berrymotes.
 
-Download [the emote data](https://cdn.berrytube.tv/berrymotes/data/berrymotes_json_data.json) and place it in `berrymotes/data/`. Avoid running the scraper, so that Reddit doesn't get mad at us.
+Download [the emote data](https://cdn.berrytube.tv/berrymotes/data/berrymotes_json_data.v2.json) and place it in `berrymotes/data/`. Avoid running the scraper, so that Reddit doesn't get mad at us.
 
 Copy `.env.sample` to `.env` and tweak the values. All the domains themselves and the main domain prefixed with www. must point to the server.
 
