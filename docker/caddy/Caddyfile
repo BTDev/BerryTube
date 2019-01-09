@@ -35,6 +35,12 @@
 
 	import tls_{$TLS_TYPE}
 
+	rewrite / {
+    	if {path} has /.
+    	if {path} not_starts_with /.well-known/
+    	to /404
+	}
+
     header / {
         Cache-Control "public, no-cache, must-revalidate"
         Expect-Ct "enforce; max-age=60; report-uri=\"https://atte.report-uri.com/r/d/ct/enforce\""
