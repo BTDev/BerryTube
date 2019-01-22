@@ -139,15 +139,17 @@
 	var ATTENTION = new Audio('<?= cdn('sounds/attention.wav') ?>');
 
 	// for EU cookie law popup
-	var MY_COUNTRY = '<?php
-		if (strpos(CLIENT_IP, ':') === false) {
-		    $geo = exec('geoiplookup -- ' . escapeshellarg(CLIENT_IP));
-		} else {
-		    $geo = exec('geoiplookup6 -- ' . escapeshellarg(CLIENT_IP));
+	var MY_COUNTRY = <?php
+		try {
+			require_once('geoip2.phar');
+			$georeader = new GeoIp2\Database\Reader('/usr/local/share/GeoIP/GeoLite2-Country.mmdb');
+			$geo = $georeader->country(CLIENT_IP);
+			echo "'", $geo->country->isoCode, "';\n";
+		} catch (Exception $e) {
+			echo "null;\n";
+			echo "/* $e */\n";
 		}
-		// skip "GeoIP Country Edition: ", take only code
-		echo substr($geo, 23, 2);
-		?>';
+		?>
 
 	var scriptNodes = <?php
 		require_once('plugin-data.php');
