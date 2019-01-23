@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>BT Popup</title>
+</head>
+<body>
+    <p>
+        This page is a helper for opening BerryTube in a dedicated window.
+    </p>
+    <p>
+        <button id="manual">Manual popup</button>
+    </p>
+    <noscript>This page needs JavaScript enabled to function.</noscript>
+    <script>
+        'use strict';
+
+        function tryOpen() {
+            const win = window.open('/', '_blank', 'toolbar=0,location=0,menubar=0');
+            if (win) {
+                window.close();
+            }
+        }
+
+        document.getElementById('manual').addEventListener('click', tryOpen);
+        tryOpen();
+    </script>
+</body>
+</html>
