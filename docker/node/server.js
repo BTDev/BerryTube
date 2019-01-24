@@ -1,3 +1,8 @@
+const ACTION_CREATE_POLL = "createPoll"
+const ACTION_CLOSE_POLL = "closePoll"
+const ACTION_VOTE_POLL = "votePoll"
+const CAN_SEE_OBSCURED_POLLS = "canSeeObscuredPolls"
+
 // Include the SERVER.settings
 var SERVER = {};
 SERVER.settings = require('./bt_data/settings.js');
@@ -147,277 +152,241 @@ Video.prototype.pack = function(){
 	}
 };
 // SERVER.POLL OBJECT
-function Poll() {}
-Poll.prototype = {
-	creator:"",
-	obscure:false,
-	obscurehelp:[],
-	title:"",
-	options:[],
-	votes:[],
-	length:0,
-	votedIPS:[]
-};
-Poll.prototype.newPoll = function(title,ops,obscure,socket,callback){
-	p = this;
-	ifCanCreatePoll(socket,function(){
-		debugLog("can create")
-		p.closePoll(socket,function(){
-			debugLog("old one closed.")
-			socket.get("nick",function (err, nick){
-				if(typeof nick == 'undefined' || nick == null) nick = "some guy";
-				p.creator = nick;
-				p.title = title;
-				p.obscure = obscure;
+class PollService {	
+	constructor() {
+		this.currentPoll = null
+	}
 
-				p.options=[];
-				p.votes=[];
-				p.length=0;
-				p.votedIPS=[];
-				for(var i=0;i<ops.length;i++){
-					if(ops[i].length > 0){
-						var newop = sanitize(ops[i]);
-						p.options.push(newop);
-						p.votes.push(0);
-						p.length++;
-						p.obscurehelp.push("?");
-					}
-				}
-				if(p.length == 0){
-					return; // :C
-				}else{
-					p.notify(io.sockets);
-					p.getLog(function(log){
-						writeToLog("SERVER.POLL OPENED",log, function(err) {
-							if(callback)callback();
-						});
-					});
-				}
-			})
-		});
-	},function(){
-		debugLog("Bad Create Poll.");
-	});
-};
-Poll.prototype.closePoll = function(socket,callback){
-	p = this;
-	ifCanClosePoll(socket,function(){
-		if(p.length == 0) {
-			callback();
-			return;
+	/**
+	 * Creates a new poll
+	 * @param {*} socket socket.io socket that requested this poll be created
+	 * @param {{title: string, options: string[], obsure: boolean, pollType: string}} options the options that represent the poll 
+	 */
+	async createPoll(socket, { title, options, isObscured, pollType = "normal" }) {
+		if (!(await getCanDoAsync(socket, ACTION_CREATE_POLL))) {
+			debugLog("Bad Create Poll.");
+			return
 		}
 
-		cl = io.sockets.clients();
-		var doneCount = 0;
-		// Write current poll to log.
-		p.getLog(function(log){
-			writeToLog("SERVER.POLL CLOSED",log, function(err) {
-				if(err) {
-					console.err(err);
-					return;
-				}
-				for(var i=0;i<cl.length;i++){
-					(function(i){
-						cl[i].set("myvote",-1,function(){
-							// Do callback if we're done.
-							if(++doneCount >= cl.length){
+		await this.closeCurrentPoll(socket)
 
-								io.sockets.emit("clearPoll",{
-									votes:p.votes
-								});
+		if (!options.length)
+			return
 
-								p.creator="";
-								p.title="";
-								p.options=[];
-								p.votes=[];
-								p.obscurehelp=[];
-								p.length=0;
-								p.votedIPS=[];
-
-								if(callback)callback();
-							}
-						});
-					})(i);
-				}
-			});
-		});
-	},function(){
-		debugLog("Bad Close Poll.");
-	});
-};
-Poll.prototype.vote = function(option,socket,callback){
-	p = this;
-	ifCanVoteOnPoll(socket,function(){
-		socket.get("myvote",function(err,myvote){
-			if(err) {
-				console.err(err);
-				return;
-			}
-			if(typeof myvote == 'undefined' || myvote == null || myvote == -1){
-				if(typeof p.options[option] != 'undefined'){
-					// So everything is good, EXCEPT, make sure only one vote per IP is recorded.
-					var ip = getAddress(socket);
-					if(!ip) return false;
-					if(p.votedIPS.indexOf(ip) == -1){
-						socket.set("myvote",option,function(){
-							p.votedIPS.push(ip);
-							p.votes[option]++;
-
-							if(p.obscure){
-								io.sockets.each(function(sc){
-									sc.get('type',function(err,type){
-										if(parseInt(type) > 0 || SERVER.LEADER == sc){ // Mod though, so show anyway.
-											sc.emit("updatePoll",{
-												votes:p.votes
-											});
-										} else { // So hide em.
-											sc.emit("updatePoll",{
-												votes:p.obscurehelp
-											});
-										}
-									});
-								});
-							} else {
-								io.sockets.emit("updatePoll",{
-									votes:p.votes
-								});
-							}
-							if(callback)callback();
-						});
-					}
-				}
-			}
-		});
-	},function(){
-		debugLog("Bad Poll Vote.");
-	});
-};
-Poll.prototype.unVote = function(socket,callback){
-	p = this;
-	socket.get("myvote",function(err,myvote){
-		if(typeof myvote != 'undefined' && myvote != null && myvote != -1){
-			if(typeof p.options[myvote] != 'undefined'){
-				socket.set("myvote",-1,function(){
-					// Okay, all good, now then just make sure they actually had a vote in.
-					var ip = getAddress(socket);
-					if(!ip) return false;
-					if(p.votedIPS.indexOf(ip) != -1){
-						p.votedIPS.splice(p.votedIPS.indexOf(ip),1);
-						p.votes[myvote]--;
-						if(p.obscure){
-							io.sockets.each(function(sc){
-								sc.get('type',function(err,type){
-									if(parseInt(type) > 0 || SERVER.LEADER == sc){ // Mod though, so show anyway.
-										sc.emit("updatePoll",{
-											votes:p.votes
-										});
-									} else { // So hide em.
-										sc.emit("updatePoll",{
-											votes:p.obscurehelp
-										});
-									}
-								});
-							});
-						} else {
-							io.sockets.emit("updatePoll",{
-								votes:p.votes
-							});
-						}
-						if(callback)callback();
-					}
-				});
-			}
+		this.currentPoll = {
+			title,
+			creator: (await getSocketPropAsync(socket, "nick")) || "some guy",
+			isObscured,
+			votes: [],
+			options: options.map(op => sanitize(op)).filter(o => o),
+			pollType
 		}
-	});
-};
-Poll.prototype.notify = function(socket, ghost, callback){ // This function got fucking complicated.
-	p = this;
-	if(p.length > 0)
-	{
-		// Check if single socket or group
-		if(socket == io.sockets){
-			if(p.obscure){ // Secret Poll
-				io.sockets.each(function(socket){
-					socket.get('type',function(err,type){
-						if(parseInt(type) > 0 || SERVER.LEADER == socket){ // Mod though, so show anyway.
-							socket.emit("newPoll",{
-								creator:p.creator,
-								title:p.title,
-								options:p.options,
-								votes:p.votes,
-								obscure:p.obscure,
-								ghost:ghost
-							});
-						} else { // So hide em.
-							socket.emit("newPoll",{
-								creator:p.creator,
-								title:p.title,
-								options:p.options,
-								votes:p.obscurehelp,
-								fuckYou:"Stop trying to cheat",
-								obscure:p.obscure,
-								ghost:ghost
-							});
-						}
-					});
-				});
-			} else { // Not obscured, dont worry about it
-				socket.emit("newPoll",{
-					creator:p.creator,
-					title:p.title,
-					options:p.options,
-					votes:p.votes,
-					obscure:p.obscure,
-					ghost:ghost
-				});
+
+		writeToLog("SERVER.POLL OPENED", this.getDebugString())
+		this.publishToAll("newPoll")
+	}
+
+	/**
+	 * Closes the currently active poll
+	 * @param {*} socket socket.io socket that requested that this poll be closed
+	 */
+	async closeCurrentPoll(socket) {
+		if (!this.currentPoll)
+			return
+
+		if (!(await getCanDoAsync(socket, ACTION_CLOSE_POLL))) {
+			debugLog("Bad Close Poll.");
+			return
+		}
+
+		writeToLog("SERVER.POLL CLOSED", this.getDebugString())
+
+		const clients = io.sockets.clients()
+		for (let i = 0; i < clients.length; i++)
+			await setSocketPropAsync(clients[i], "voteData", null)
+
+		this.currentPoll.isObscured = false
+		this.publishToAll("clearPoll")
+		this.currentPoll = null
+	}
+
+	/**
+	 * Casts a normal vote
+	 * @param {*} socket socket.io socket that requested this vote
+	 * @param {*} data the vote data to set - this is different depending on the poll type
+	 */
+	async castVote(socket, voteData) {
+		if (!this.currentPoll)
+			return
+
+		if (!(await getCanDoAsync(socket, ACTION_VOTE_POLL))) {
+			debugLog("Bad Poll Vote.");
+			return
+		}
+
+		if (await getSocketPropAsync(socket, "voteData"))
+			return // cannot vote twice
+
+		const ipAddress = getAddress(socket);
+		if (!ipAddress || this.currentPoll.votes.find(v => v.ipAddress == ipAddress))
+			return // Make sure only one vote per IP is recorded.
+		
+		// make sure the client isn't trying to do anything bad, so filter all user-supplied params
+		const vote = this.currentPoll.pollType == "normal"
+			? {
+				voteData: {optionIndex: parseInt(voteData.option)},
+				ipAddress
 			}
-		} else { // Single User
-			if(p.obscure){ // Secret Poll
-				socket.get('type',function(err,type){
-					if(parseInt(type) > 0 || SERVER.LEADER == socket){ // Mod though, so show anyway.
-						socket.emit("newPoll",{
-							creator:p.creator,
-							title:p.title,
-							options:p.options,
-							votes:p.votes,
-							obscure:p.obscure,
-							ghost:ghost
-						});
-					} else { // So hide em.
-						socket.emit("newPoll",{
-							creator:p.creator,
-							title:p.title,
-							options:p.options,
-							votes:p.obscurehelp,
-							fuckYou:"Stop trying to cheat",
-							obscure:p.obscure,
-							ghost:ghost
-						});
-					}
-				});
-			} else {
-				socket.emit("newPoll",{
-					creator:p.creator,
-					title:p.title,
-					options:p.options,
-					votes:p.votes,
-					obscure:p.obscure,
-					ghost:ghost
-				});
+			: {
+				voteData: {optionIndicies: voteData.options.map(_ => parseInt(0))},
+				ipAddress
 			}
+
+		await setSocketPropAsync(socket, "voteData", vote)
+		this.currentPoll.votes.push(vote)
+		this.publishToAll("updatePoll")
+	}
+
+	/**
+	 * Unsets all vote information for a socket
+	 * @param {*} socket socket.io to unset votes for
+	 */
+	async clearVote(socket) {
+		if (!this.currentPoll)
+			return
+
+		const voteData = await getSocketPropAsync(socket, "voteData")
+		if (!voteData)
+			return
+		
+		this.currentPoll = this.currentPoll.filter(p => p != voteData)
+		this.publishToAll()
+		await setSocketPropAsync(socket, "voteData", null)
+	}
+
+	/**
+	 * Publishes poll data to every client.
+	 */
+	async publishToAll(eventName) {
+		if (!this.currentPoll) {
+			io.sockets.emit(eventName, null)
+			return
+		}
+
+		if (this.currentPoll.isObscured) {
+			const clients = io.sockets.clients()
+			for (let i = 0; i < clients.length; i++)
+				await this.publishTo(clients[i], eventName)
+		} else
+			io.sockets.emit(eventName, this.getPollState(this.currentPoll))
+	}
+
+	/**
+	 * Publishes poll data to the specified socket
+	 * @param {*} socket the socket.io socket to send poll data to
+	 */
+	async publishTo(socket, eventName) {
+		if (!this.currentPoll) {
+			socket.emit("clearPoll", {options: [], votes: []})
+			return
+		}
+
+		if (!this.currentPoll.isObscured || (await getCanDoAsync(socket, CAN_SEE_OBSCURED_POLLS)))
+			socket.emit(eventName, this.getPollState(this.currentPoll))
+		else
+			socket.emit(eventName, this.getObscuredPollState(this.currentPoll))
+	}
+
+	/**
+	 * Adds poll event handlers for a socket
+	 * @param {*} socket socket.io to attach to
+	 */
+	attachToSocket(socket) {
+		socket.on("newPoll", async (data) => {
+			try {
+				await this.createPoll(socket, {
+					title: data.title || "",
+					options: data.ops || [],
+					isObscured: !!data.obscure,
+					pollType: data.pollType || "normal"
+				})
+	
+				adminLog(socket, {msg: `Created poll '${data.title}'`, type: "site"})
+			} catch (e) {
+				debugLog(`Cannot create poll: ${e.stack}`)
+			}
+		})
+	
+		socket.on("closePoll", async () => {
+			try {
+				await this.closeCurrentPoll(socket)
+				adminLog(socket, {msg: 'Closed poll', type:"site"})
+			} catch (e) {
+				debugLog(`Cannot close poll: ${e.stack}`)
+			}
+		})
+	
+		socket.on("votePoll", async (data) => {
+			try {
+				if (!this.currentPoll)
+					return
+				
+				if (this.currentPoll.pollType == "normal")
+					await this.castVote(socket, {option: data.op})
+				else
+					await this.castVote(socket, data)
+
+			} catch (e) {
+				debugLog(`Cannot vote on poll poll: ${e.stack}`)
+			}
+		})
+
+		socket.on("disconnect", async () => {
+			await this.clearVote(socket)
+		})
+
+		this.publishTo(socket, "newPoll")
+	}
+
+	getPollState(poll) {
+		return {
+			creator: poll.creator,
+			title: poll.title,
+			options: poll.options,
+			obscure: poll.isObscured,
+			ghost: false,
+			pollType: poll.pollType,
+
+			// compatability with old clients
+			votes: poll.pollType == "normal"
+				? poll.votes.reduce(
+					(arr, vote) => {
+						arr[vote.voteData.optionIndex]++
+						return arr
+					}, 
+					poll.options.map(_ => 0))
+				: null,
+
+			// make sure ip address info doesn't leak, so only pass in the internal voteData info
+			votes2: poll.votes.map(v => v.voteData)
 		}
 	}
-	if(callback)callback();
+
+	getObscuredPollState(poll) {
+		return {
+			...this.getPollState(poll),
+			votes: poll.pollType == "normal" ? poll.options.map(_ => "?") : [],
+			votes2: []
+		}
+	}
+	
+	getDebugString() {
+		return this.currentPoll
+			? `${this.currentPoll.creator}:${this.currentPoll.title}${this.currentPoll.options.map((o, i) => `${o}`)}`
+			: "no poll"
+	}
 }
-Poll.prototype.getLog = function(callback){
-	p = this;
-	var ret = p.creator+":";
-	ret += p.title+":";
-	for(var i=0;i<p.options.length;i++){
-		ret+=p.options[i]+"("+p.votes[i]+"):";
-	}
-	callback(ret);
-};
+
 // CREATE THE LINKED LIST DATATYPE
 function LinkedList() {}
 LinkedList.prototype = {
@@ -504,7 +473,7 @@ SERVER.BANS=[];
 SERVER.IP_METADATA={};
 SERVER.FILTERS = [];
 SERVER.DRINKS=0;
-SERVER.POLL = new Poll();
+SERVER.POLL = new PollService();
 SERVER.LOG = fs.createWriteStream(SERVER.settings.core.log_file_name,{flags: 'a'});
 SERVER.ELOG = fs.createWriteStream(SERVER.settings.core.error_file_name,{flags: 'a'});
 SERVER.DLOG = fs.createWriteStream(SERVER.settings.core.debug_file_name,{flags: 'w'});
@@ -2864,24 +2833,49 @@ function ifChatMsgIsOk(socket,data,truecallback,falsecallback){
 		if(falsecallback)falsecallback();
 	}
 }
-function ifCanVoteOnPoll(socket,truecallback,falsecallback){
-	if(truecallback)truecallback();
+
+async function setSocketPropAsync(socket, prop, value) {
+	return new Promise((res, rej) => {
+		socket.set(prop, value, (err) => {
+			if (err) {
+				rej(err)
+				return
+			}
+
+			res()
+		})
+	})
 }
-function ifCanCreatePoll(socket,truecallback,falsecallback){
-	socket.get('type',function(err,type){
-		if(
-			isLeader(socket) ||
-			parseInt(type) > 0
-		){
-			if(truecallback)truecallback();
-		}else{
-			if(falsecallback)falsecallback();
-		}
-	});
+
+async function getSocketPropAsync(socket, prop) {
+	return new Promise((res, rej) => {
+		socket.get(prop, (err, value) => {
+			if (err) {
+				rej(err)
+				return
+			}
+
+			res(value)
+		})
+	})
 }
-function ifCanClosePoll(socket,truecallback,falsecallback){
-	ifCanCreatePoll(socket,truecallback,falsecallback);
+
+async function getCanDoAsync(socket, action) {
+	const type = parseInt(await getSocketPropAsync(socket, "type"))
+	const leader = isLeader(socket)
+	
+	if (action == ACTION_CREATE_POLL)
+		return leader || type > 0
+	else if (action == ACTION_CLOSE_POLL)
+		return leader || type > 0
+	else if (action == ACTION_VOTE_POLL)
+		return true
+	else if (action == CAN_SEE_OBSCURED_POLLS)
+		return type > 0 || SERVER.LEADER == socket
+
+	throw new Error(`Invalid action passed into canDoAsync: ${action}`)
 }
+
 function ifCanCallDrinks(socket,truecallback,falsecallback){
 	socket.get('type',function(err,type){
 		if(
@@ -3316,7 +3310,6 @@ io.sockets.on('connection', function (socket) {
 		socket.emit("recvPlaylist",SERVER.PLAYLIST.toArray());
 		sendChatList(socket);
 		sendDrinks(socket);
-		SERVER.POLL.notify(socket, true);
 		sendAreas(socket);
 		for(var i in SERVER.OUTBUFFER['main'])	{
 			emitChat(socket,SERVER.OUTBUFFER['main'][i],true);
@@ -3336,11 +3329,6 @@ io.sockets.on('connection', function (socket) {
 			}
 
 			rmUserFromChat(socket);
-
-			SERVER.POLL.unVote(socket,function(){
-				socket.get("myvote",function(err,myvote){});
-			});
-
 			writeToLog("USER PART:"+ip+" Has Left. ["+(io.sockets.clients().length-1)+"]");
 		});
 	});
@@ -3444,46 +3432,9 @@ io.sockets.on('connection', function (socket) {
 			kickForIllegalActivity(socket);
 		});
 	});
-	socket.on('newPoll',function(data){
-		ifCanCreatePoll(socket,function(){
-			//debugLog("trying to create");
-			adminLog(socket, {msg:"Created poll '" + data.title + "'", type:"site"});
-			var title = data.title;
-			var ops = data.ops;
-			var obscure = data.obscure;
-			console.log(data);
-			SERVER.POLL.newPoll(title,ops,obscure,socket,function(){
-				debugLog("Created new poll.");
-			});
-		},function(){
-			debugLog("cannot create")
-		});
-	});
-	socket.on('closePoll',function(data){
-		ifCanClosePoll(socket,function(){
-			adminLog(socket, {msg: 'Closed poll', type:"site"});
-			debugLog("trying to close");
-			SERVER.POLL.closePoll(socket,function(){
-			debugLog("Closed Poll.");
-			});
-		},function(){
-			debugLog("cannot close")
-		});
-	});
-	socket.on('votePoll',function(data){
-		ifCanVoteOnPoll(socket,function(){
-			debugLog("trying to vote")
-			var op = data.op;
-			SERVER.POLL.vote(op,socket,function(){
-				socket.get('myvote', function (err, myvote) {
-					debugLog("VOTE IS "+myvote+" PLEASE GOD.");
-				});
-				debugLog("Voted.");
-			});
-		},function(){
-			debugLog("cannot vote")
-		});
-	});
+
+	SERVER.POLL.attachToSocket(socket)
+
 	socket.on("myPlaylistIsInited",function(data){
 		sendStatus("createPlayer",socket);
 	});
