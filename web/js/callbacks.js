@@ -326,9 +326,8 @@ socket.on("setToggleables",function(data){
 	}
 });
 socket.on("clearPoll",function(data){
-	console.log(data);
 	updatePoll(data);
-	closePoll();
+	closePoll(data);
 });
 socket.on("recvFilters",function(data){
 	FILTERS = data;

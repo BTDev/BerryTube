@@ -3,6 +3,16 @@ function setRuleTitle(titleBar, myData) {
     titleBar.html(['<span class="name">', myData.name, '</span> <span class="code">',  myData.chatMatch, ' => ', myData.chatReplace.replace(/</g, '&lt;').replace(/>/g, '&gt'), '</span>'].join(''));
 }
 
+function onModuleLoaded(callback) {
+	if (window.isModuleLoaded) {
+		callback()
+		return
+	}
+
+	(window.moduleLoadedCallbacks = (window.moduleLoadedCallbacks || []))
+		.push(callback)
+}
+
 function showAdminFilterWindow(){
 
 	socket.emit('getFilters');
@@ -1275,25 +1285,33 @@ function handleNumCount(data){
 		area.text(CONNECTED);
 	});
 }
-function closePoll(){
+function closePoll(data){
+	if (data.pollType == "ranked") {
+		onModuleLoaded(() => window.rankedPolls.closeRankedPoll())
+		return
+	} else {
+		//unbind old buttons
+		var existing = $(".poll.active")
+		existing.find(".btn").each(function(key, val) {
+			if ($(val).hasClass("close")) 
+				return
 
-	//unbind old buttons
-	var existing = $(".poll.active");
-	existing.find(".btn").each(function(key,val){
-		if($(val).hasClass("close")) return;
-		$(val).unbind('click');
-	});
-	existing.removeClass("active");
+			$(val).unbind('click')
+		})
 
-	var keep = getStorage("keeppolls");
-	var polls = $("#pollpane").children(".poll");
-	for(var i=0;i<polls.length;i++){
-		if($(polls[i]).hasClass("active")) continue;
-		if(--keep < 0){
-			$(polls[i]).remove();
-		}
+		existing.removeClass("active")
 	}
 
+	// remove old polls...
+	var keep = getStorage("keeppolls")
+	var polls = $("#pollpane").children(".poll")
+	for (var i=0; i < polls.length; i++) {
+		if ($(polls[i]).hasClass("active")) 
+			continue
+
+		if (--keep < 0)
+			$(polls[i]).remove()
+	}
 }
 function toggleChatMode(){
 	var chatbuffer = $(".chatbuffer");
@@ -1401,6 +1419,11 @@ function plSearch(term){
     }
 }
 function newPoll(data){
+	if (data.pollType == "ranked") {
+		onModuleLoaded(() => window.rankedPolls.createRankedPoll(data))
+		return
+	}
+	
 	if (data.ghost && IGNORE_GHOST_MESSAGES) {
 		// Ghost poll on a reconnect; just revote, don't redisplay it
 		var vote = $('.voted');
@@ -1429,7 +1452,7 @@ function newPoll(data){
 		var pollTitle = data.title;
 		var obscure = data.obscure;
 
-		closePoll();
+		closePoll({});
 
 		// New time.
 		whenExists("#pollpane",function(stack){
@@ -1477,6 +1500,11 @@ function newPoll(data){
 	}
 }
 function updatePoll(data){
+	if (data.pollType == "ranked") {
+		onModuleLoaded(() => window.rankedPolls.updateRankedPoll(data))
+		return
+	}
+	
 	var votes = data.votes;
 	var thepoll = $(".poll.active");
 	thepoll.find(".btn").each(function(key,val){
