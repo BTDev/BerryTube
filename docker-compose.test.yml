@@ -1,0 +1,11 @@
+version: "3.7"
+
+services:
+    watcher:
+        build: ./docker/watcher
+        volumes:
+            - ./docker/node:/packages/node
+            - watcher_node_modules:/packages/watcher/node_modules
+
+volumes:
+    watcher_node_modules:

@@ -1,12 +1,12 @@
-const { sanitize } = require("../security")
+const { sanitize } = require("../security");
 
 exports.PollInstance = class {
 	set isObscured(value) {
-		this.options.isObscured = value
+		this.options.isObscured = value;
 	}
 
 	get isObscured() {
-		return this.options.isObscured
+		return this.options.isObscured;
 	}
 	
 	get state() {
@@ -17,11 +17,11 @@ exports.PollInstance = class {
 			obscure: this.options.isObscured,
 			ghost: false,
 			pollType: this.options.pollType
-		}
+		};
 	}
 
 	get obscuredState() {
-		return this.state
+		return this.state;
 	}
 	
 	constructor(pollService, {title, options, isObscured, creator, pollType}) {
@@ -32,13 +32,13 @@ exports.PollInstance = class {
 			isObscured: !!isObscured,
 			options: options.map(sanitize).filter(f => f),
 			pollType
-		}
+		};
 	}
 
 	castVote(options, existingVote = null) {
-		return { }
+		return { };
 	}
 
 	clearVote(vote) {
 	}
-}
+};

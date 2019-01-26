@@ -463,6 +463,22 @@ body {
 	font-size: 13px;
 	margin: 5px;
 }
+#logBuffer th {
+    text-align: left;
+    background: #eee;
+}
+#logBuffer th, #logBuffer td {
+    padding: 3px;
+}
+#logBuffer td {
+    vertical-align: top;
+}
+#logBuffer .createdAt {
+    display: flex;
+}
+#logBuffer .createdAt .date {
+    margin-right: 5px;
+}
 #logBuffer .message {
 	margin-bottom: 4px;
 	position: relative;
@@ -479,7 +495,7 @@ body {
 #logBuffer .msg {
 	margin-left: 175px;
 }
-#logBuffer div.filtered {
+#logBuffer tr.filtered {
     display: none !important;
 }
 
@@ -587,8 +603,7 @@ body:not(.bem-enabled) .chatbuffer .img-filter > img {
 }
 
 .ranked-poll__title {
-    margin-bottom: 10px;
-    border-bottom: 2px solid rgba(0, 0, 0, .5);
+    margin-bottom: 5px;
     padding-bottom: 10px;
     padding-left: 5px;
     display: flex;
@@ -776,6 +791,10 @@ button.ranked-poll__submit-button {
     margin-right: 10px;
 }
 
+.ranked-poll--is-obscured .ranked-poll__visualizer {
+    display: none;
+}
+
 .ranked-poll--is-obscured .ranked-poll__results-panel {
     display: none;
 }
@@ -868,4 +887,13 @@ button.ranked-poll__submit-button {
 
 .ranked-poll__poll-result:nth-child(-n + 3) .ranked-poll__poll-result-body {
     display: block;
+}
+
+.ranked-poll__results-panel .ranked-poll__poll-option-votes {
+    cursor: default;
+}
+
+.ranked-poll.ranked-poll--is-closed .ranked-poll__results-panel {
+    background: rgba(0, 0, 0, .4);
+    border-radius: 4px;
 }

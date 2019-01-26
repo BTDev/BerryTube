@@ -1,1 +1,1 @@
-exports.PollService = require("./service").PollService
+exports.PollService = require("./service").PollService;

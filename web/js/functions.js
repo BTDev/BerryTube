@@ -1019,30 +1019,54 @@ function handleSpamChecks(callback){
 	}
 }
 function addLogMsg(data, to){
-        if (to.length == 0) return;
-		if (IGNORE_GHOST_MESSAGES && data.ghost) return;
-        var timestamp = data.timestamp;
-		var h = addZero(timestamp.getHours());
-		var m = addZero(timestamp.getMinutes());
-		var s = addZero(timestamp.getSeconds());
+	if (to.length == 0) return;
+	if (IGNORE_GHOST_MESSAGES && data.ghost) return;
+	const timestampDate = new Date(data.logEvent.createdAt);
 
-        var newmsg = $('<div/>').addClass('message').addClass(data.nick).addClass(data.type).append(
-			$('<div/>').addClass('nickwrap').append(
-				$('<span/>').addClass('timestamp').text('<' + h + ':' + m + ':' + s + '>'),
-				$('<span/>').addClass('nick').text(data.nick)),
-			$('<div/>').addClass('msg').text(data.msg),
-			$('<div/>').addClass('clear'));
-		if (data.berry) {
-			newmsg.addClass('Berry');
-		}
-        newmsg.prependTo(to);
+	const 
+		hh = addZero(timestampDate.getHours()),
+		mm = addZero(timestampDate.getMinutes()),
+		ss = addZero(timestampDate.getSeconds()),
+        MM = ("" + (timestampDate.getMonth() + 1)).padStart(2, "0"),
+        dd = ("" + timestampDate.getDate()).padStart(2, "0"),
+        yyyy = timestampDate.getFullYear();
 
-        const filterDropdown = $('#logNickFilter');
-        if ($('option:contains('+data.nick+')', filterDropdown).length === 0) {
-        	$('<option/>').text(data.nick).appendTo(filterDropdown);
-        }
+	var newmsg = 
+		$("<tr />")
+			.addClass("message")
+			.addClass(data.nick)
+			.addClass(data.type)
+			.append(
+				$("<td />")
+					.addClass("nick")
+					.text(data.logEvent.data.mod),
+				$("<td />")
+					.addClass("createdAt")
+					.append(
+						$("<span />").addClass("date").text(`${yyyy}-${MM}-${dd}`),
+						$("<span />").addClass("time").text(`${hh}:${mm}:${ss}`)
+					),
+				$("<td />")
+					.addClass("event")
+					.text(data.logEvent.event),
+				$("<td />")
+					.addClass("message")
+					.text(data.logEvent.formatted),
+				$("<td />")
+					.addClass("message")
+					.text(data.logEvent.data.type));
 
-		filterAdminLog();
+	if (data.berry) {
+		newmsg.addClass("Berry");
+	}
+	newmsg.prependTo(to.find("tbody"));
+
+	const filterDropdown = $("#logNickFilter");
+	if ($("option:contains("+data.nick+")", filterDropdown).length === 0) {
+		$("<option/>").text(data.nick).appendTo(filterDropdown);
+	}
+
+	filterAdminLog();
 }
 
 function scrollBuffersToBottom() {
@@ -2316,7 +2340,7 @@ function sortPlaylist(data) {
 function filterAdminLog() {
 	var nickFilter = $('#logNickFilter').find(':selected').text();
 	var typeFilter = $('#logTypeFilter').find(':selected').text();
-	var buf = $('#logBuffer');
+	var buf = $('#logBuffer tbody');
 	buf.children().addClass('filtered');
 	var selector = '';
 	if (nickFilter != 'All modmins') {

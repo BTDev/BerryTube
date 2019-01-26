@@ -42,6 +42,11 @@ To stop and remove containers (keeps data): `docker-compose down`
 
 Note that the `web` directory is mounted directly into the containers (as read-only), so any changes there will get applied immediately.
 
+Testing In Development
+----------------------
+Simply execute `docker-compose -f docker-compose.test.yml up` to startup the testing container. This container will autorun scripts specfied in `docker/watcher/test/index.js`. It has access to all of berrytube's files via the `berrytube` module that is imported via `file:` in the package.json.
+
+Each run will perform a `yarn install` - however, the node_moduels directory is cached locally in a named volume called `watcher_node_modules`.
 
 Database
 --------

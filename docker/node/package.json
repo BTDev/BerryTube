@@ -4,17 +4,24 @@
   "description": "BerryTube",
   "main": "server.js",
   "dependencies": {
-    "elementtree": "^0.1.7",
-    "mysql": "^2.15.0",
-    "socket.io": "^0.9.19",
-    "get-video-duration": "^0.3.0",
-    "iso8601-duration": "^1.1.1",
-    "node-fetch": "^2.1.2",
     "bcrypt": "^3.0.0",
-    "i18n-iso-countries": "^3.7.8"
+    "elementtree": "^0.1.7",
+    "get-video-duration": "^0.3.0",
+    "i18n-iso-countries": "^3.7.8",
+    "iso8601-duration": "^1.1.1",
+    "mysql": "^2.15.0",
+    "node-fetch": "^2.1.2",
+    "socket.io": "^0.9.19"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "chai": "^4.2.0",
+    "mocha": "^5.2.0"
+  },
   "author": "Eric Cutler <bulzeeb@gmail.com> (https://github.com/GreyMage)",
   "license": "ISC",
-  "private": true
+  "private": true,
+  "scripts": {
+    "test": "mocha \"./modules/**/*.test.js\"",
+    "test-w": "mocha --watch --reporter min \"./modules/**/*.test.js\""
+  }
 }

@@ -1,6 +1,8 @@
 const { PollService } = require("./modules/polls")
 const { AuthService } = require("./modules/auth")
 const { sanitize, getAddress } = require("./modules/security")
+const { DefaultLog, events, levels, consoleLogger, createStreamLogger } = require("./modules/log");
+const { getSocketName } = require("./modules/socket");
 
 // Include the SERVER.settings
 var SERVER = {};
@@ -199,11 +201,9 @@ LinkedList.Circular.prototype.toArray = function(){
 	var out = [];
 	for(var i=0;i<this.length;i++)
 	{
-		//debugLog(elem);
 		out.push(elem.pack());
 		elem=elem.next;
 	}
-	debugLog(out);
 	return out;
 };
 
@@ -226,16 +226,55 @@ SERVER.BANS=[];
 SERVER.IP_METADATA={};
 SERVER.FILTERS = [];
 SERVER.DRINKS=0;
-SERVER.LOG = fs.createWriteStream(SERVER.settings.core.log_file_name,{flags: 'a'});
-SERVER.ELOG = fs.createWriteStream(SERVER.settings.core.error_file_name,{flags: 'a'});
-SERVER.DLOG = fs.createWriteStream(SERVER.settings.core.debug_file_name,{flags: 'w'});
 SERVER.FAILED_LOGINS=[];
 SERVER.RECENTLY_REGISTERED=[];
 SERVER.GILDNAME = "*";
 
-const authService = new AuthService({ debugLog, isLeader })
-const pollService = new PollService({ debugLog, auth: authService, adminLog, io })
+// sets where our log output goes for our default logger...
+DefaultLog.addLogger(
+	// outputs everything to the console...
+	consoleLogger,
+	
+	// outputs to the log files...
+	createStreamLogger({
+		[levels.LEVEL_DEBUG]: fs.createWriteStream(SERVER.settings.core.debug_file_name, { flags: "w" }),
+		[levels.LEVEL_INFORMATION]: fs.createWriteStream(SERVER.settings.core.log_file_name, { flags: "w" }),
+		[levels.LEVEL_ERROR]: fs.createWriteStream(SERVER.settings.core.error_file_name, { flags: "a" })
+	}),
 
+	// forwards all log messages that begin with "EVENT_ADMIN_" to the mod channel...
+	async (logEvent) => {
+		const {event, formatted, data, createdAt} = logEvent;
+		
+		if (!event.startsWith("EVENT_ADMIN_"))
+			return;
+
+		let isBerry = false;
+		if (SERVER.LEADER)
+			isBerry = (await getSocketName(SERVER.LEADER)) == data.mod;
+	
+		const buffer = SERVER.OUTBUFFER["adminLog"] = (SERVER.OUTBUFFER["adminLog"] || []);
+		const adminMessage = {
+			msg: formatted,
+			type: data.type || "site",
+			nick: data.mod,
+			berry: isBerry,
+			timestamp: Math.round(createdAt.getTime() / 1000),
+			logEvent
+		};
+	
+		buffer.push(adminMessage);
+		if (buffer.length > SERVER.settings.core.max_saved_buffer)
+			buffer.shift();
+	
+		forModminSockets(socket => socket.emit("adminLog", adminMessage));
+	});
+
+// our composition root
+const authService = new AuthService({ isLeader })
+const pollService = new PollService({ auth: authService, io })
+
+// all registered services receive certain events, so group them up
 const services = [
 	pollService,
 	authService
@@ -244,55 +283,8 @@ const services = [
 var MODE_VIDEOCHAT = 0;
 var MODE_CHATONLY = 1;
 
-function writeToLog(eventclass,string,callback){
-	string = "<"+new Date().toUTCString()+"> "+eventclass+":"+string;
-	SERVER.LOG.write(string+"\n");
-	console.log(string);
-	if(callback)callback();
-}
-function debugLog(thing){
-	SERVER.DLOG.write(thing+"\n");
-	console.log(thing);
-}
-function _adminLog(data){
-	data.timestamp = new Date().toUTCString();
-	var channel = "adminLog";
-	if(!SERVER.OUTBUFFER[channel]) { SERVER.OUTBUFFER[channel] = [] }
-	SERVER.OUTBUFFER[channel].push(data);
-	if(SERVER.OUTBUFFER[channel].length > SERVER.settings.core.max_saved_buffer) SERVER.OUTBUFFER[channel].shift();
-	forModminSockets(function(sc){
-		sc.emit('adminLog', data);
-	});
-	console.log(data);
-	//io.sockets.in('admin').emit('adminLog', data);
-};
-function adminLog(socket, data) {
-	if(!socket){
-		data.nick = "Server";
-		_adminLog(data);
-	}
-	else {
-		socket.get('nick', function (err, nick) {
-			if(nick == null) nick = "?";
-			data.nick = nick;
-			data.berry = SERVER.LEADER == socket;
-			_adminLog(data);
-		});
-	}
-}
-function eLog(string,callback){
-	try{
-		var stack = new Error().stack;
-		string = "<"+new Date().toUTCString()+">:"+string+"\n"+stack;
-		SERVER.ELOG.write(string+"\n");
-		if(callback)callback();
-	} catch(e) {
-		console.error("Had an error, but couldn't log it. :C");
-		console.error(err);
-	}
-}
 function initPlaylist(callback){
-	var q = 'select * from '+SERVER.dbcon.video_table+' order by position'; //debugLog(q);
+	var q = 'select * from '+SERVER.dbcon.video_table+' order by position';
 	mysql.query(q, function(err, result, fields) {
 		if (err) {
 			//throw err;
@@ -341,7 +333,7 @@ function initResumePosition(callback){
 	});
 }
 function upsertMisc(data, callback){
-	var q = 'insert into misc (name,value) VALUES (?,?) ON DUPLICATE KEY UPDATE value=?'; //debugLog(q);
+	var q = 'insert into misc (name,value) VALUES (?,?) ON DUPLICATE KEY UPDATE value=?';
 	mysql.query(q, [data.name, data.value, data.value], function(err, result, fields) {
 		if (err) {
 			console.error(err);
@@ -364,7 +356,7 @@ function getMisc(data, callback){
 				val = row.value;
 			} catch(e) {
 				val = "";
-				debugLog("Bad stored misc. Blah. " + data.name);
+				DefaultLog.debug(events.EVENT_DEBUG, "Bad stored misc. Blah. " + data.name);
 			}
 		}
 		if(callback) callback(val);
@@ -422,11 +414,9 @@ function initTimer(){
 		{
 			var d = new Date();
 			var curtime = d.getTime();
-			//console.error("SERVER.STATE: "+SERVER.STATE)
-			//debugLog(SERVER.TIME);
 			if(Math.ceil(SERVER.TIME+1) >= (SERVER.ACTIVE.videolength + SERVER.settings.vc.tail_time))
 			{
-				debugLog(Math.ceil(SERVER.TIME+1)+" >= "+SERVER.ACTIVE.videolength);
+				DefaultLog.debug(events.EVENT_DEBUG, Math.ceil(SERVER.TIME+1)+" >= "+SERVER.ACTIVE.videolength);
 				playNext();
 			}
 			else if(SERVER.STATE != 2)
@@ -457,7 +447,7 @@ function initTimer(){
 	console.log("Timer initialized");
 }
 function initAreas(){
-	var q = 'select * from areas'; //debugLog(q);
+	var q = 'select * from areas';
 	mysql.query(q, function(err, result, fields) {
 		if (err) {
 			//throw err;
@@ -526,7 +516,7 @@ function sendPlaylist(socket,everyone){
 		socket.broadcast.emit("updatePlaylist",SERVER.PLAYLIST.toArray());
 }
 function playNext(){
-	debugLog("automatically progressing to next video");
+	DefaultLog.debug(events.EVENT_DEBUG, "automatically progressing to next video");
 	var Old = SERVER.ACTIVE;
 	if(SERVER.ACTIVE.volat){
 		var elem = SERVER.PLAYLIST.first;
@@ -741,7 +731,7 @@ function unShadowBanIP(ip){
 								sc.emit('unShadowBan', {'nick': nick});
 							});
 							//io.sockets.in('admin').emit('unShadowBan', {'nick': nick});
-							debugLog('Sending unshadow ban on nick: ' + nick);
+							DefaultLog.debug(events.EVENT_DEBUG, 'Sending unshadow ban on nick: ' + nick);
 						}
 					});
 				}
@@ -766,7 +756,7 @@ function sendShadowBanStatus(target, ip){
 				theguy.sockets[j].get('nick', function(err, nick){
 					if(nick){
 						target.emit('shadowBan', {'nick': nick, temp: SERVER.SHADOWBANT_IPS[ip].temp});
-						debugLog('Sending shadow ban on nick: ' + nick);
+						DefaultLog.debug(events.EVENT_DEBUG, 'Sending shadow ban on nick: ' + nick);
 					}
 				});
 			}
@@ -790,7 +780,15 @@ function kickUser(socket,reason){
 	socket.disconnect();
 }
 function kickUserByNick(socket,nick,reason){
-	adminLog(socket, {msg:'Kicked ' + nick, type:"user"});
+	getSocketName(socket).then(name => DefaultLog.info(
+		events.EVENT_ADMIN_KICKED, 
+		"{mod} kicked {nick} on {type}", {
+			mod: name, 
+			type: "user",
+			nick
+		}
+	))
+
 	getSocketOfNick(nick,function(s){
 		kickUser(s, reason);
 	},function(){
@@ -818,7 +816,7 @@ var commit = function(){
 	var elem = SERVER.PLAYLIST.first;
 	for(var i=0;i<SERVER.PLAYLIST.length;i++)
 	{
-		var q = 'update '+SERVER.dbcon.video_table+' set position = ? where videoid = ?'; //debugLog(q);
+		var q = 'update '+SERVER.dbcon.video_table+' set position = ? where videoid = ?';
 		mysql.query(q, [i, '' + elem.videoid], function(err, result, fields) {
 			if (err) {
 			//throw err;
@@ -831,7 +829,7 @@ var commit = function(){
 
 	for(var i=0;i<SERVER.AREAS.length;i++)
 	{
-		var q = 'update areas set html = ? where name = ?'; //debugLog(q);
+		var q = 'update areas set html = ? where name = ?';
 		mysql.query(q, [SERVER.AREAS[i].html, SERVER.AREAS[i].name], function(err, result, fields) {
 			if (err) {
 				//throw err;
@@ -886,7 +884,7 @@ function hotPotatoLeader(departing){
 		}
 		reassignLeader(check);
 	}else{
-		debugLog("NO SERVER.LEADER");
+		DefaultLog.debug(events.EVENT_DEBUG, "NO SERVER.LEADER");
 	}
 }
 function reassignLeader(socket){
@@ -903,7 +901,7 @@ function reassignLeader(socket){
 			nick:nick
 		});
 	});
-	debugLog("SERVER.LEADER SET");
+	DefaultLog.debug(events.EVENT_DEBUG, "SERVER.LEADER SET");
 }
 function setBpAsLeader(){
 	SERVER.BP_IS_LEADER = true;
@@ -916,7 +914,7 @@ function setBpAsLeader(){
 			nick:false
 	});
 	SERVER.STATE=1;
-	debugLog("we president now");
+	DefaultLog.debug(events.EVENT_DEBUG, "we president now");
 }
 function rmUserFromChat(socket){
 	for(var i=0;i<SERVER.CHATLIST.length;i++) {
@@ -984,7 +982,7 @@ function addUserToChat(socket,data,callback){
 }
 function _detailChatlist(){
 	for(var i=0;i<SERVER.CHATLIST.length;i++) {
-		debugLog(SERVER.CHATLIST[i].socket.disconnected);
+		DefaultLog.debug(events.EVENT_DEBUG, SERVER.CHATLIST[i].socket.disconnected);
 	}
 }
 function mergeObjects(one, two){
@@ -998,7 +996,7 @@ function mergeObjects(one, two){
 	return result;
 }
 function sendChatList(socket, type){
-	debugLog("SEND SERVER.CHATLIST");
+	DefaultLog.debug(events.EVENT_DEBUG, "SEND SERVER.CHATLIST");
 	var out = [];
 	if(type >= 1){
 		for(var i=0;i<SERVER.CHATLIST.length;i++) {
@@ -1056,7 +1054,6 @@ function sendChatList(socket, type){
 	}
 }
 function sendUserJoin(user){
-	debugLog("SEND JOIN. user: " + user);
 	io.sockets.each(function(socket){
 		socket.get('type', function(err, type){
 			var data={nick:user.nick, type:user.type};
@@ -1065,16 +1062,17 @@ function sendUserJoin(user){
 				data.shadowbanned = user.shadowbanned;
 				data.tempshadowbanned = user.tempshadowbanned;
 			}
-			if(user.gold) data.gold=true;
-			socket.emit('userJoin',data);
+			if(user.gold) 
+				data.gold = true;
 
+			socket.emit('userJoin',data);
 		});
 	});
 }
 function sendUserPart(socket,callback){
 	socket.get('nick', function (err, nick) {
 		if(nick == null) return false;
-		debugLog("SEND PART");
+		DefaultLog.debug(events.EVENT_DEBUG, "SEND PART");
 		io.sockets.emit("userPart",{
 			nick:nick
 		});
@@ -1096,7 +1094,7 @@ function getCommand(msg){
 function cmdCheck(msg,whatfor){
 	var re = new RegExp("^(/"+whatfor+"([-0-9]*)([\ ]+|$)|\/"+whatfor+"$)[\ ]*(.*)",'i');
 	if(ret = msg.match(re)){
-		debugLog(ret)
+		DefaultLog.debug(events.EVENT_DEBUG, ret)
 		if(ret.length >= 5){
 			return {
 				amt:parseInt(ret[2])||1,
@@ -1108,8 +1106,8 @@ function cmdCheck(msg,whatfor){
 	return false;
 }
 */
-function handleNewVideoChange(){
-	writeToLog("VIDEO CHANGE",decodeURI(SERVER.ACTIVE.videotitle));
+function handleNewVideoChange() {
+	DefaultLog.info(events.EVENT_VIDEO_CHANGE, "to {videoTitle}", { videoTitle: decodeURI(SERVER.ACTIVE.videotitle) });
 	resetDrinks();
 	resetTime();
 	// Is this a livestream? if so, stop ticking.
@@ -1174,12 +1172,12 @@ function applyFilters(nick,msg,socket){
 				continue;
 			}
 
-			if(nick.match(nickCheck)){ //debugLog("matched name");
-				if(msg.match(chatCheck)){ //debugLog("matched chat");
+			if(nick.match(nickCheck)){
+				if(msg.match(chatCheck)){
 					// Perform Action
 					actionChain.push({action:d.actionSelector,meta:d.actionMetadata});
 				}
-				if(d.chatReplace.trim().length > 0){ //debugLog("doing a replace");
+				if(d.chatReplace.trim().length > 0){
 					msg = msg.replace(chatCheck,d.chatReplace);
 				}
 			}
@@ -1235,8 +1233,17 @@ function setVideoVolatile(socket,pos,isVolat){
 		elem=elem.next;
 	}
 	elem.volat = isVolat;
-	var volatStr = isVolat ? "volatile" : "not volatile";
-	adminLog(socket, {msg: "Set "+decodeURIComponent(elem.videotitle)+" to "+volatStr, type: "playlist"});
+
+	getSocketName(socket).then(name => DefaultLog.info(
+		events.EVENT_ADMIN_SET_VOLATILE, 
+		"{mod} set {title} to {status} on {type}", {
+			mod: name, 
+			type: "playlist",
+			title: decodeURIComponent(elem.videotitle),
+			status: isVolat ? "volatile" : "not volatile"
+		}
+	));
+	
 	io.sockets.emit("setVidVolatile",{
 		pos:pos,
 		volat:isVolat
@@ -1263,7 +1270,7 @@ function _setVideoColorTag(elem,pos,tag,volat){
 		elem.meta.colorTagVolat = volat;
 	}
 
-	var q = 'update '+SERVER.dbcon.video_table+' set meta = ? where videoid = ?'; //debugLog(q);
+	var q = 'update '+SERVER.dbcon.video_table+' set meta = ? where videoid = ?';
 	mysql.query(q, [JSON.stringify(elem.meta), '' + elem.videoid], function(err, result, fields) {
 		if (err) {
 			//throw err;
@@ -1402,7 +1409,15 @@ function _sendChat(nick,type,incoming,socket){
 		ifCanShitpost(socket,function(){
 			const parts = parsed.msg.split(' ');
 			if (parts[0]) {
-				adminLog(socket, {msg:'Shitposted ' + parts[0], type:"site"});
+				getSocketName(socket).then(name => DefaultLog.info(
+					events.EVENT_ADMIN_SHATPOST, 
+					"{mod} shatpost {title} on {type}", {
+						mod: name, 
+						type: "site",
+						title: parts[0]
+					}
+				));
+				
 				io.sockets.emit('shitpost', {
 					msg: parsed.msg
 				});
@@ -1473,7 +1488,6 @@ function setOverrideCss(path){
 	});
 }
 function sendCovertData(socket, type){
-	debugLog("Sending covert data");
 	sendChatList(socket, type);
 	sendToggleables(socket);
 	for(var i in SERVER.OUTBUFFER['admin'])	{
@@ -1494,7 +1508,17 @@ function setToggleable(socket, name,state,callback){
 	   state = !SERVER.settings.toggles[name][0];
 	}
 	SERVER.settings.toggles[name][0] = state;
-	adminLog(socket, {msg: "Setting "+name+" to "+(state ? "on":"off"), type:"site"});
+	
+	getSocketName(socket).then(name => DefaultLog.info(
+		events.EVENT_ADMIN_SET_TOGGLEABLE, 
+		"{mod} set {name} to {state} on {type}", {
+			mod: name, 
+			type: "site",
+			name,
+			state: state ? "on" : "off"
+		}
+	));
+	
 	if(callback)callback({
 		name:name,
 		state:state
@@ -1514,7 +1538,6 @@ function sendToggleables(socket){
 			data[key] = {};
 			data[key].label = SERVER.settings.toggles[key][1];
 			data[key].state = SERVER.settings.toggles[key][0];
-			debugLog(key + " " +data[key]);
 		}
 	}
 	socket.emit("setToggleables",data);
@@ -1548,13 +1571,21 @@ function delVideo(data, socket){
 			if(elem == SERVER.ACTIVE) playNext();
 
 			try{
-				adminLog(socket, {msg:'Deleted ' + decodeURIComponent(elem.videotitle), type:'playlist'});
+				getSocketName(socket).then(name => DefaultLog.info(
+					events.EVENT_ADMIN_DELETED_VIDEO, 
+					"{mod} deleted {title} on {type}", {
+						mod: name, 
+						type: "playlist",
+						title: decodeURIComponent(elem.videotitle),
+					}
+				));
+				
 				SERVER.PLAYLIST.remove(elem);
 				io.sockets.emit('delVideo',{
 					position:i,
 					sanityid:elem.videoid
 				});
-				var q = 'delete from '+SERVER.dbcon.video_table+' where videoid = ? limit 1'; //debugLog(q)
+				var q = 'delete from '+SERVER.dbcon.video_table+' where videoid = ? limit 1';
 				var historyQuery = "";
 				var historyQueryParams;
 				// Don't archive livestreams
@@ -1627,7 +1658,7 @@ function rawAddVideo(d,successCallback,failureCallback){
 		});
 		if(!('meta' in d) || d.meta == null){d.meta = {};}
 		if(!('addedon' in d.meta)){d.meta.addedon = new Date().getTime();}
-		q = 'insert into '+SERVER.dbcon.video_table+' (position, videoid, videotitle, videolength, videotype, videovia, meta) VALUES (?,?,?,?,?,?,?)'; //debugLog(q);
+		q = 'insert into '+SERVER.dbcon.video_table+' (position, videoid, videotitle, videolength, videotype, videovia, meta) VALUES (?,?,?,?,?,?,?)';
 		var qParams = [ d.pos,
 						'' + d.videoid,
 						d.videotitle,
@@ -1757,7 +1788,16 @@ function _addVideoVimeo(socket,data,meta,path,successCallback,failureCallback) {
 			}
 			console.log(recievedBody);
 			console.log("done?");
-			adminLog(socket, {msg:"Added vimeo video "+jdata.title, type:"playlist"});
+
+			DefaultLog.info(
+				events.EVENT_ADMIN_ADDED_VIDEO, 
+				"{mod} added {provider} video {title} on {type}", {
+					mod: meta.nick, 
+					type: "playlist",
+					title: jdata.title,
+					provider: "vimeo"
+				});
+
 			rawAddVideo({
 				pos: pos,
 				videoid: jdata.id || jdata.video_id,
@@ -1881,7 +1921,16 @@ function __addVideoYT(socket,data,meta,successCallback,failureCallback){
 			var pos = SERVER.PLAYLIST.length;
 
 			if(OK){
-				adminLog(socket, {msg: "Added youtube video "+formattedTitle, type: "playlist"});
+				getSocketName(socket).then(name => DefaultLog.info(
+					events.EVENT_ADMIN_ADDED_VIDEO, 
+					"{mod} added {provider} video {title} on {type}", {
+						mod: name, 
+						type: "playlist",
+						title: formattedTitle,
+						provider: "youtube"
+					}
+				));
+	
 				var volat = data.volat;
 				if(meta.type <= 0) volat = true;
 				if(volat === undefined) volat = false;
@@ -2057,9 +2106,17 @@ function addVideoYT(socket,data,meta,successCallback,failureCallback){
 
 			var pos = SERVER.PLAYLIST.length;
 
-			if(OK){
-
-				adminLog(socket, {msg: "Added youtube video "+formattedTitle, type: "playlist"});
+			if(OK) {
+				getSocketName(socket).then(name => DefaultLog.info(
+					events.EVENT_ADMIN_ADDED_VIDEO, 
+					"{mod} added {provider} video {title} on {type}", {
+						mod: name, 
+						type: "playlist",
+						title: formattedTitle,
+						provider: "youtube"
+					}
+				));
+				
 				var volat = data.volat;
 				if(meta.type <= 0) volat = true;
 				if(volat === undefined) volat = false;
@@ -2107,7 +2164,7 @@ function followRedirect(options, successCallback,failureCallback){
 			}
 			http.get(options, successCallback)
 			.on('error', function(e){
-				debugLog('Blew up requesting: ' + res.headers.location + " error: " + e);
+				DefaultLog.debug(events.EVENT_DEBUG, 'Blew up requesting: ' + res.headers.location + " error: " + e);
 				if (failureCallback) failureCallback(e);
 			});
 
@@ -2118,7 +2175,7 @@ function followRedirect(options, successCallback,failureCallback){
 			if(failureCallback) failureCallback();
 		}
 	}).on('error', function(e) {
-		debugLog('Blew up requesting: ' + options.path + " error: " + e);
+		DefaultLog.debug(events.EVENT_DEBUG, 'Blew up requesting: ' + options.path + " error: " + e);
 		if(failureCallback) failureCallback(e);
 	});
 }
@@ -2144,7 +2201,7 @@ function addVideoSoundCloud(socket,data,meta,successCallback,failureCallback){
 		method: 'GET',
 		path: path
 	};
-	debugLog("Calling soundcloud api: " + path);
+	DefaultLog.debug(events.EVENT_DEBUG, "Calling soundcloud api: " + path);
 	var recievedBody = "";
 	followRedirect(options, function(res){
 		res.setEncoding('utf8');
@@ -2159,8 +2216,18 @@ function addVideoSoundCloud(socket,data,meta,successCallback,failureCallback){
 				if (failureCallback)failureCallback(err);
 				return;
 			}
-			debugLog("soundcloud API response: " + recievedBody);
-			adminLog(socket, {msg:"Added SoundCloud video "+jdata.title, type:"playlist"});
+			DefaultLog.debug(events.EVENT_DEBUG, "soundcloud API response: " + recievedBody);
+
+			getSocketName(socket).then(name => DefaultLog.info(
+				events.EVENT_ADMIN_ADDED_VIDEO, 
+				"{mod} added {provider} video {title} on {type}", {
+					mod: name, 
+					type: "playlist",
+					title: jdata.title,
+					provider: "soundcloud"
+				}
+			));
+			
 			var volat = data.volat;
 			if(meta.type <= 0) volat = true;
 			if(volat === undefined) volat = false;
@@ -2206,7 +2273,17 @@ function addVideoFile(socket,data,meta,successCallback,failureCallback){
 			failureCallback('no duration');
 			return;
 		}
-		adminLog(socket, {msg:"Added file video "+videoid, type:"playlist"});
+
+		getSocketName(socket).then(name => DefaultLog.info(
+			events.EVENT_ADMIN_ADDED_VIDEO, 
+			"{mod} added {provider} video {title} on {type}", {
+				mod: name, 
+				type: "playlist",
+				title: videoid,
+				provider: "file"
+			}
+		));
+
 		var volat = data.volat;
 		if(meta.type <= 0) volat = true;
 		if(volat === undefined) volat = false;
@@ -2260,7 +2337,17 @@ function addVideoDash(socket,data,meta,successCallback,failureCallback){
 				failureCallback('zero duration');
 				return;
 			}
-			adminLog(socket, {msg:"Added DASH video "+videoid, type:"playlist"});
+
+			getSocketName(socket).then(name => DefaultLog.info(
+				events.EVENT_ADMIN_ADDED_VIDEO, 
+				"{mod} added {provider} video {title} on {type}", {
+					mod: name, 
+					type: "playlist",
+					title: videoid,
+					provider: "dash"
+				}
+			));
+			
 			var volat = data.volat;
 			if(meta.type <= 0) volat = true;
 			if(volat === undefined) volat = false;
@@ -2330,7 +2417,16 @@ function addVideoTwitch(socket,data,meta,successCallback,failureCallback){
 				videoid = videoid.substr(1);
 			}
 
-			adminLog(socket, {msg:"Added Twitch video "+videoid, type:"playlist"});
+			getSocketName(socket).then(name => DefaultLog.info(
+				events.EVENT_ADMIN_ADDED_VIDEO, 
+				"{mod} added {provider} video {title} on {type}", {
+					mod: name, 
+					type: "playlist",
+					title: videoid,
+					provider: "twitch"
+				}
+			));
+			
 			rawAddVideo({
 				pos: SERVER.PLAYLIST.length,
 				videoid: 'videos/' + videoid,
@@ -2356,7 +2452,16 @@ function addVideoTwitch(socket,data,meta,successCallback,failureCallback){
 				return;
 			}
 
-			adminLog(socket, {msg:"Added Twitch stream "+response.name, type:"playlist"});
+			getSocketName(socket).then(name => DefaultLog.info(
+				events.EVENT_ADMIN_ADDED_VIDEO, 
+				"{mod} added {provider} video {title} on {type}", {
+					mod: name, 
+					type: "playlist",
+					title: response.name,
+					provider: "twitch-stream"
+				}
+			));
+			
 			rawAddVideo({
 				pos: SERVER.PLAYLIST.length,
 				videoid: response.name,
@@ -2389,7 +2494,16 @@ function addVideoTwitchClip(socket,data,meta,successCallback,failureCallback){
 	if(volat === undefined) volat = false;
 
 	twitchApi(['clips', data.videoid]).then(response => {
-		adminLog(socket, {msg:"Added Twitch clip "+response.slug, type:"playlist"});
+		getSocketName(socket).then(name => DefaultLog.info(
+			events.EVENT_ADMIN_ADDED_VIDEO, 
+			"{mod} added {provider} video {title} on {type}", {
+				mod: name, 
+				type: "playlist",
+				title: response.slug,
+				provider: "twitch-clip"
+			}
+		));
+		
 		rawAddVideo({
 			pos: SERVER.PLAYLIST.length,
 			videoid: response.slug,
@@ -2665,7 +2779,7 @@ function ifCanDebugDump(socket,truecallback,falsecallback){
 function ifNickFree(nick,truecallback,falsecallback){
 	nick = nick && nick.toLowerCase();
 	for(var i in SERVER.CHATLIST){
-		debugLog(SERVER.CHATLIST[i].nick);
+		DefaultLog.debug(events.EVENT_DEBUG, SERVER.CHATLIST[i].nick);
 		if(SERVER.CHATLIST[i].nick.toLowerCase() == nick){
 			if(falsecallback)falsecallback();
 			return;
@@ -2720,7 +2834,7 @@ function ifCanSetToggleables(socket,truecallback,falsecallback){
 function userLogin(socket,data,truecallback,falsecallback){
 	if(!ifCanLogin(socket)) {
 		var ip = getAddress(socket);
-		writeToLog("LOGIN FAIL LIMIT", "Too many failed logins for ip: "+ip+" attempted nick: "+data.nick);
+		DefaultLog.info(events.EVENT_LOGIN_FAIL, "Too many failed logins for user {nick} on ip {ip}", { ip, nick: data.nick });
 		if(falsecallback) falsecallback();
 		socket.emit("loginError", {message:"Too many failed login attempts. Try again later."});
 		return;
@@ -2744,7 +2858,7 @@ function userLogin(socket,data,truecallback,falsecallback){
 		qnick.length >= 1  &&
 		qnick.length <= 15
 	){
-		var q = 'select * from users where name = ?'; //debugLog(q);
+		var q = 'select * from users where name = ?';
 		mysql.query(q, [qnick], function(err, result, fields) {
 			if (err) {
 				//throw err;
@@ -2761,18 +2875,18 @@ function userLogin(socket,data,truecallback,falsecallback){
 			if(result.length == 0) {
 				if (SERVER.nick_blacklist.has(qnick.toLowerCase())) {
 					handleLoginFail(socket);
-					debugLog("USERNAME BLACKLISTED");
+					DefaultLog.debug(events.EVENT_DEBUG, "USERNAME BLACKLISTED");
 					if(falsecallback)falsecallback();
 					return;
 				}
-				writeToLog("NAME TAKE",ip+" Claimed Name "+qnick);
+				DefaultLog.info(events.EVENT_NAME_TAKE, "{nick} took nick on ip {ip}", { ip, nick: qnick });
 				addUserToChat(socket, {nick:qnick,type:-1, meta:{}},truecallback);
 			} else if(result.length == 1) {
 				// Fix case
 				qnick = result[0].name;
 				function onPasswordValid(){
 					try{
-						writeToLog("USER LOGIN",ip+" Logged in As "+qnick);
+						DefaultLog.info(events.EVENT_LOGIN, "{nick} logged in on ip {ip}", { ip, nick: qnick });
 					}catch(e){}
 					if(result[0].type >= 1){
 						// Send admin-only detals.
@@ -2822,25 +2936,25 @@ function userLogin(socket,data,truecallback,falsecallback){
 						} else {
 							// Don't allow people to spam login attempts
 							handleLoginFail(socket);
-							debugLog("PW INCORRECT");
+							DefaultLog.debug(events.EVENT_DEBUG, "PW INCORRECT");
 							if(falsecallback) falsecallback();
 						}
 					});
 				} else {
 					// Don't allow people to spam login attempts
 					handleLoginFail(socket);
-					debugLog("PW INCORRECT");
+					DefaultLog.debug(events.EVENT_DEBUG, "PW INCORRECT");
 					if(falsecallback) falsecallback();
 				}
 			}else{
 				// Don't allow people to spam login attempts
 				handleLoginFail(socket);
-				debugLog("PW INCORRECT");
+				DefaultLog.debug(events.EVENT_DEBUG, "PW INCORRECT");
 				if(falsecallback) falsecallback();
 			}
 		});
 	}else{
-		debugLog("ILLEGAL NICK");
+		DefaultLog.debug(events.EVENT_DEBUG, "ILLEGAL NICK");
 		if(falsecallback) falsecallback();
 		return;
 	}
@@ -2905,7 +3019,7 @@ function ghostBustUser(socket, data, successCallback){
 	}
 	getSocketOfNickAndIP(data.nick, ip,
 							function(socket){
-								debugLog("Ghost busted user: " + data.nick);
+								DefaultLog.debug(events.EVENT_DEBUG, "Ghost busted user: " + data.nick);
 								kickUser(socket, "Ghosted");
 								successCallback();
 							},
@@ -2988,7 +3102,7 @@ initShadowbant();
 initHardbant();
 initFilters();
 initAreas();
-writeToLog("SERVER ONLINE, BerryTube "+SERVER.settings.core.version);
+DefaultLog.info(events.EVENT_SERVER_ONLINE, "server version {version} started up", { version: SERVER.settings.core.version });
 
 io.configure(function (){
   io.set('authorization', function (handshakeData, callback) {
@@ -3015,7 +3129,7 @@ io.sockets.on('connection', function (socket) {
 		sendConnectedUsers();
 		var ip = getAddress(socket);
 		if(!ip) return false;
-		writeToLog("USER JOIN",ip+" Has Joined. ["+io.sockets.clients().length+"]");
+		DefaultLog.info(events.EVENT_USER_JOINED, "user joined on ip {ip}, total users: {userCount}", { ip, userCount: io.sockets.clients().length });
 		// Send the SERVER.PLAYLIST, and then the position.
 		sendToggleables(socket);
 		socket.emit("recvPlaylist",SERVER.PLAYLIST.toArray());
@@ -3040,13 +3154,21 @@ io.sockets.on('connection', function (socket) {
 			}
 
 			rmUserFromChat(socket);
-			writeToLog("USER PART:"+ip+" Has Left. ["+(io.sockets.clients().length-1)+"]");
+			DefaultLog.info(events.EVENT_USER_LEFT, "user left from ip {ip}, total users: {userCount}", { ip, userCount: io.sockets.clients().length - 1 });
 		});
 	});
 
 	socket.on("setOverrideCss",function(data){
 		ifCanSetOverrideCss(socket,function(){
-			adminLog(socket, {msg:"Set CSS override to "+data, type:"site"});
+			getSocketName(socket).then(name => DefaultLog.info(
+				events.EVENT_ADMIN_SET_CSS, 
+				"{mod} set css override to {css} on {type}", {
+					mod: name, 
+					type: "site",
+					css: data
+				}
+			));
+			
 			setOverrideCss(data);
 		},function(){
 			kickForIllegalActivity(socket,"You cannot set the CSS");
@@ -3054,7 +3176,14 @@ io.sockets.on('connection', function (socket) {
 	});
 	socket.on("setFilters",function(data){
 		ifCanSetFilters(socket,function(){
-			adminLog(socket, {msg:'Edited filters', type:"site"});
+			getSocketName(socket).then(name => DefaultLog.info(
+				events.EVENT_ADMIN_EDITED_FILTERS, 
+				"{mod} edited filters on {type}", {
+					mod: name, 
+					type: "site"
+				}
+			));
+			
 			SERVER.FILTERS = data;
 		},function(){
 			kickForIllegalActivity(socket,"You cannot set the Filters");
@@ -3100,13 +3229,20 @@ io.sockets.on('connection', function (socket) {
 	});
 	socket.on("randomizeList",function(data){
 		ifCanRandomizeList(socket,function(meta){
-			adminLog(socket, {msg:'Randomized playlist', type: "playlist"})
+			getSocketName(socket).then(name => DefaultLog.info(
+				events.EVENT_ADMIN_RANDOMIZED_PLAYLIST, 
+				"{mod} randomized playlist on {type}", {
+					mod: name, 
+					type: "playlist"
+				}
+			));
+			
 			var newSz = SERVER.PLAYLIST.length;
 			var tmp = [];
 			var elem = SERVER.PLAYLIST.first;
 			for(var i=0;i<newSz;i++){
 				tmp.push(elem);
-				//debugLog(elem);
+			
 				elem = elem.next;
 			}
 			for(var i=0;i<newSz;i++){
@@ -3153,7 +3289,7 @@ io.sockets.on('connection', function (socket) {
 		sendStatus("renewPos",socket);
 	});
 	socket.on("refreshMyVideo",function(data){
-		debugLog("Sending Video Refresh");
+		DefaultLog.debug(events.EVENT_DEBUG, "Sending Video Refresh");
 		sendStatus("forceVideoChange",socket);
 	});
 	socket.on("refreshMyPlaylist", function(){
@@ -3165,14 +3301,14 @@ io.sockets.on('connection', function (socket) {
 
 				var ip = getAddress(socket);
 				if(!ip) return false;
-				writeToLog("CHAT",ip+":"+meta.nick+":"+data.msg);
+				DefaultLog.info(events.EVENT_CHAT, "user {nick} on ip {ip} sent message {message}", { ip, nick: meta.nick, message: data.msg });
 				sendChat(meta.nick,meta.type,data,socket);
 
 			},function(){
 				kickForIllegalActivity(socket,"Chat Spam");
 			});
 		},function(){
-			debugLog("Chat Failure");
+			DefaultLog.debug(events.EVENT_DEBUG, "Chat Failure");
 		});
 	});
 	socket.on("registerNick", function(data){
@@ -3214,7 +3350,7 @@ io.sockets.on('connection', function (socket) {
 			socket.emit("loginError", {message:"Username not available."});
 			return;
 		}
-		var q = 'select * from users where name like ?'; //debugLog(q);
+		var q = 'select * from users where name like ?';
 		mysql.query(q, [data.nick], function(err, result, fields) {
 			if (err) {
 				console.error(err);
@@ -3223,10 +3359,10 @@ io.sockets.on('connection', function (socket) {
 			if(result.length >= 1){
 				// Already registered, try logging in using the password we have.
 				userLogin(socket, data, function(){
-					debugLog("Nick Set = "+data.nick);
+					DefaultLog.debug(events.EVENT_DEBUG, "Nick Set = "+data.nick);
 				},function(){
 					socket.emit("loginError", {message:"Username is already taken!"});
-					debugLog("loginError nick already taken.");
+					DefaultLog.debug(events.EVENT_DEBUG, "loginError nick already taken.");
 				});
 			}
 			else{
@@ -3235,7 +3371,7 @@ io.sockets.on('connection', function (socket) {
 						console.error(err);
 						return;
 					}
-					var q = 'INSERT INTO users (name, pass, type) VALUES (?,?,?)'; //debugLog(q);
+					var q = 'INSERT INTO users (name, pass, type) VALUES (?,?,?)';
 					mysql.query(q,	[data.nick, hash, 0] , function(err, result, fields){
 						if (err) {
 							//throw err;
@@ -3244,10 +3380,10 @@ io.sockets.on('connection', function (socket) {
 						}
 						// Registered, log em in.
 						userLogin(socket, data, function(){
-							debugLog("Nick Set = "+data.nick);
+							DefaultLog.debug(events.EVENT_DEBUG, "Nick Set = "+data.nick);
 							SERVER.RECENTLY_REGISTERED.push({ip: ip, time: new Date()});
 						},function(){
-							debugLog("Error logging in.");
+							DefaultLog.debug(events.EVENT_DEBUG, "Error logging in.");
 						});
 					});
 				});
@@ -3286,20 +3422,26 @@ io.sockets.on('connection', function (socket) {
 		ghostBustUser(socket, data, function(){
 			ifNickFree(data.nick,function(meta){
 				userLogin(socket,data,function(){
-					debugLog("Nick Set = "+data.nick);
+					DefaultLog.debug(events.EVENT_DEBUG, "Nick Set = "+data.nick);
 				},function(){
 					socket.emit("loginError", {message: "Invalid Login."});
-					debugLog("Invalid Login.");
+					DefaultLog.debug(events.EVENT_DEBUG, "Invalid Login.");
 				});
 			},function(){
 				socket.emit("loginError", {message: "Nick already taken."});
-				debugLog("Nick Taken.");
+				DefaultLog.debug(events.EVENT_DEBUG, "Nick Taken.");
 			});
 		});
 	});
 	socket.on("playNext",function(data){
 		ifCanControlPlaylist(socket,function(){
-			adminLog(socket,{msg:'Skipped Video', type:"playlist"});
+			getSocketName(socket).then(name => DefaultLog.info(
+				events.EVENT_ADMIN_SKIPPED_VIDEO, 
+				"{mod} skipped video on {type}", {
+					mod: name, 
+					type: "playlist"
+				}
+			));
 			playNext();
 		},function(){
 			kickForIllegalActivity(socket);
@@ -3338,8 +3480,15 @@ io.sockets.on('connection', function (socket) {
 				SERVER.PLAYLIST.insertBefore(toelem,fromelem);
 
 			io.sockets.emit("sortPlaylist",data);
-			adminLog(socket, {msg:'Moved ' + decodeURIComponent(fromelem.videotitle), type:"playlist"});
 
+			getSocketName(socket).then(name => DefaultLog.info(
+				events.EVENT_ADMIN_MOVED_VIDEO, 
+				"{mod} moved {title} on {type}", {
+					mod: name,
+					title: decodeURIComponent(fromelem.videotitle),
+					type: "playlist"
+				}
+			));
 		},function(){
 			kickForIllegalActivity(socket);
 		});
@@ -3382,9 +3531,16 @@ io.sockets.on('connection', function (socket) {
 				elem=elem.next;
 			}
 
-			adminLog(socket, {msg:'Forced video change', type:"playlist"});
+			getSocketName(socket).then(name => DefaultLog.info(
+				events.EVENT_ADMIN_FORCED_VIDEO_CHANGE, 
+				"{mod} forced video change on {type}", {
+					mod: name,
+					type: "playlist"
+				}
+			));
+			
 			handleNewVideoChange();
-			debugLog("Relaying Video Change");
+			DefaultLog.debug(events.EVENT_DEBUG, "Relaying Video Change");
 			sendStatus("forceVideoChange",io.sockets);
 
 			if(delme > -1){
@@ -3407,57 +3563,57 @@ io.sockets.on('connection', function (socket) {
 			console.log(data);
 			if(data.videotype == "yt"){
 				addVideoYT(socket,data,meta,function(){
-					debugLog("Video Added");
+					DefaultLog.debug(events.EVENT_DEBUG, "Video Added");
 				},function(err){
-					debugLog(err);
+					DefaultLog.debug(events.EVENT_DEBUG, err);
 					socket.emit("dupeAdd");
 				})
 			}
 			else if(data.videotype == "vimeo"){
 				addVideoVimeo(socket,data,meta,function(){
-					debugLog("Video Added");
+					DefaultLog.debug(events.EVENT_DEBUG, "Video Added");
 				},function(err){
-					debugLog(err);
+					DefaultLog.debug(events.EVENT_DEBUG, err);
 					socket.emit("dupeAdd");
 				})
 			}
 			else if(data.videotype == "soundcloud"){
 				addVideoSoundCloud(socket,data,meta,function(){
-					debugLog("Video Added");
+					DefaultLog.debug(events.EVENT_DEBUG, "Video Added");
 				},function(err){
-					debugLog(err);
+					DefaultLog.debug(events.EVENT_DEBUG, err);
 					socket.emit("dupeAdd");
 				});
 			}
 			else if(data.videotype == "file"){
 				addVideoFile(socket,data,meta,function(){
-					debugLog("Video Added");
+					DefaultLog.debug(events.EVENT_DEBUG, "Video Added");
 				},function(err){
-					debugLog(err);
+					DefaultLog.debug(events.EVENT_DEBUG, err);
 					socket.emit("dupeAdd");
 				});
 			}
 			else if(data.videotype == "dash") {
 				addVideoDash(socket,data,meta,function(){
-					debugLog("Video Added");
+					DefaultLog.debug(events.EVENT_DEBUG, "Video Added");
 				},function(err){
-					debugLog(err);
+					DefaultLog.debug(events.EVENT_DEBUG, err);
 					socket.emit("dupeAdd");
 				});
 			}
 			else if(data.videotype == "twitch") {
 				addVideoTwitch(socket,data,meta,function(){
-					debugLog("Twitch Added");
+					DefaultLog.debug(events.EVENT_DEBUG, "Twitch Added");
 				},function(err){
-					debugLog(err);
+					DefaultLog.debug(events.EVENT_DEBUG, err);
 					socket.emit("dupeAdd");
 				});
 			}
 			else if(data.videotype == "twitchclip") {
 				addVideoTwitchClip(socket,data,meta,function(){
-					debugLog("TwitchClip Added");
+					DefaultLog.debug(events.EVENT_DEBUG, "TwitchClip Added");
 				},function(err){
-					debugLog(err);
+					DefaultLog.debug(events.EVENT_DEBUG, err);
 					socket.emit("dupeAdd");
 				});
 			}
@@ -3465,11 +3621,20 @@ io.sockets.on('connection', function (socket) {
 				// Okay, so, it wasn't vimeo and it wasn't youtube, assume it's a livestream and just queue it.
 				// This requires a videotitle and a videotype that the client understands.
 
-				adminLog(socket, {msg:'Added livestream ' + data.videotitle, type:"playlist"});
+				getSocketName(socket).then(name => DefaultLog.info(
+					events.EVENT_ADMIN_ADDED_VIDEO, 
+					"{mod} added {provider} video {title} on {type}", {
+						mod: name, 
+						type: "playlist",
+						title: data.videotitle,
+						provider: "livestream"
+					}
+				));
+				
 				addLiveVideo(data,meta,function(){
-					debugLog("Video Added");
+					DefaultLog.debug(events.EVENT_DEBUG, "Video Added");
 				},function(err){
-					debugLog(err);
+					DefaultLog.debug(events.EVENT_DEBUG, err);
 					socket.emit("dupeAdd");
 				})
 			}
@@ -3497,7 +3662,7 @@ io.sockets.on('connection', function (socket) {
 				method: 'GET',
 				path: '/feeds/api/playlists/'+encodeURIComponent(plid.toString())+'?v=2&max-results=1'
 			};
-			debugLog(options.path);
+			DefaultLog.debug(events.EVENT_DEBUG, options.path);
 			var recievedBody = "";
 
 			var MAINREQ = http.request(options, function(MAINRES) {
@@ -3526,9 +3691,9 @@ io.sockets.on('connection', function (socket) {
 								method: 'GET',
 								path: '/feeds/api/playlists/'+encodeURIComponent(plid.toString())+'?v=2&max-results='+maxResults+'&start-index='+myStart
 							};
-							debugLog("("+i+" * "+maxResults+")+1 = "+myStart);
-							debugLog("Attempting to get "+myStart+" to "+(myStart+maxResults));
-							debugLog(options.host + options.path);
+							DefaultLog.debug(events.EVENT_DEBUG, "("+i+" * "+maxResults+")+1 = "+myStart);
+							DefaultLog.debug(events.EVENT_DEBUG, "Attempting to get "+myStart+" to "+(myStart+maxResults));
+							DefaultLog.debug(events.EVENT_DEBUG, options.host + options.path);
 
 							// Load this SERVER.PLAYLIST chunk.
 							var req = http.request(options, function(res) {
@@ -3553,8 +3718,8 @@ io.sockets.on('connection', function (socket) {
 													var NEWVID = new Video();
 													var o = new Video();
 													o.queue = false;
-													debugLog("New vid");
-													debugLog(NEWVID);
+													DefaultLog.debug(events.EVENT_DEBUG, "New vid");
+													DefaultLog.debug(events.EVENT_DEBUG, NEWVID);
 
 													for(var k=0; k<deeper._children.length; k++)
 													{
@@ -3576,7 +3741,7 @@ io.sockets.on('connection', function (socket) {
 
 													}
 
-													debugLog(NEWVID);
+													DefaultLog.debug(events.EVENT_DEBUG, NEWVID);
 													MEDIAS[myStart+i-1] = NEWVID;
 												}
 											}
@@ -3586,16 +3751,16 @@ io.sockets.on('connection', function (socket) {
 										for(var i=0; i<MEDIAS.length;++i)
 										{
 											//if(typeof MEDIAS[i].videoid === undefined) continue;
-											//debugLog("ON ID "+i+" OF "+MEDIAS.length+".");
+										
 											// This fucked up thing here lets me pass the current index of the synchronous loop into an asynchronous callback. jesus this shit is complex.
 											(function(i) {
 
 												var pos = SERVER.PLAYLIST.length + i;
-												var q = 'insert into '+SERVER.dbcon.video_table+' (position, videoid, videotitle, videolength, videovia) VALUES (?,?,?,?,?)'; //debugLog(q);
+												var q = 'insert into '+SERVER.dbcon.video_table+' (position, videoid, videotitle, videolength, videovia) VALUES (?,?,?,?,?)';
 												var qParams = [pos, '' + MEDIAS[i].videoid, MEDIAS[i].videotitle, MEDIAS[i].videolength, name];
 												mysql.query(q, qParams, function(err, result, fields) {
 													if (err) {
-														debugLog(err);
+														DefaultLog.debug(events.EVENT_DEBUG, err);
 													} else {
 														if(SERVER.PLAYLIST.length == 0){
 															SERVER.PLAYLIST.append(MEDIAS[i]);
@@ -3638,7 +3803,7 @@ io.sockets.on('connection', function (socket) {
 
 			MAINREQ.on('error', function(e) {
 				socket.emit("badAdd");
-				debugLog(e);
+				DefaultLog.debug(events.EVENT_DEBUG, e);
 			});
 
 			MAINREQ.end();
@@ -3665,7 +3830,16 @@ io.sockets.on('connection', function (socket) {
 	socket.on("moveLeader",function(data){
 		ifCanMoveBerry(socket,function(freeMove){
 			var targetnick = data || "Server";
-			adminLog(socket, {msg:'Gave berry to ' + targetnick, type:"user"});
+
+			getSocketName(socket).then(name => DefaultLog.info(
+				events.EVENT_ADMIN_SET_BERRY, 
+				"{mod} gave berry to {nick} on {type}", {
+					mod: name, 
+					type: "playlist",
+					nick: targetnick
+				}
+			));
+			
 			if(targetnick == "Server"){
 				setBpAsLeader();
 			} else if(freeMove) {
@@ -3701,24 +3875,40 @@ io.sockets.on('connection', function (socket) {
 			if (isbanning) {
 				if (temp) {
 					message = "Temporarily shadow banned " + targetNick;
-					socket.get('nick', function(err, nick){
-						writeToLog("SHADOWBAN TEMP",nick+" sbanned "+targetNick);
-					});
+					getSocketName(socket).then(name => DefaultLog.info(
+						events.EVENT_ADMIN_SHADOWBAN_TEMP, 
+						"{mod} banned {nick} on {type}", {
+							mod: name,
+							nick: targetNick,
+							type: "site"
+						}
+					));
 				}
 				else {
 					message = "Shadow banned " + targetNick;
-					socket.get('nick', function(err, nick){
-						writeToLog("SHADOWBAN PERM",nick+" sbanned "+targetNick);
-					});
+					getSocketName(socket).then(name => DefaultLog.info(
+						events.EVENT_ADMIN_SHADOWBAN_PERMANENT, 
+						"{mod} banned {nick} on {type}", {
+							mod: name,
+							nick: targetNick,
+							type: "site"
+						}
+					));
 				}
 			}
 			else {
 				message = "Un-shadow banned " + targetNick;
-				socket.get('nick', function(err, nick){
-					writeToLog("SHADOWBAN FORGIVE",nick+" un-sbanned "+targetNick);
-				});
+
+				getSocketName(socket).then(name => DefaultLog.info(
+					events.EVENT_ADMIN_SHADOWBAN_FORGIVEN, 
+					"{mod} unbanned {nick} on {type}", {
+						mod: name,
+						nick: targetNick,
+						type: "site"
+					}
+				));
 			}
-			adminLog(socket, {msg:message, type:"user"});
+
 			socket.get('nick', function(err, nick){
 				if(isbanning) {
 					var banEmotes = ['[](/ihavenomouthandimustscream)'
@@ -3749,9 +3939,7 @@ io.sockets.on('connection', function (socket) {
 					unShadowBanUser(s);
 				}
 			});
-		},function(){
-			// Marm: I don't see this function existing anywhere, so I commented it out.
-			//banUser(socket); // Nobody plays this game.
+		}, function(){
 			shadowBanUser(socket); // Nobody plays this game.
 			kickForIllegalActivity(socket);
 		})
@@ -3760,7 +3948,16 @@ io.sockets.on('connection', function (socket) {
 		ifCanSetAreas(socket,function(){
 			areaname = data.areaname;
 			content = data.content;
-			adminLog(socket, {msg:"Edited "+areaname, type:"site"});
+			
+			getSocketName(socket).then(name => DefaultLog.info(
+				events.EVENT_ADMIN_EDITED_AREA, 
+				"{mod} edited {area} on {type}", {
+					mod: name, 
+					type: "site",
+					area: areaname
+				}
+			));
+
 			setAreas(areaname,content);
 		},function(){
 			kickForIllegalActivity(socket);
@@ -3835,7 +4032,18 @@ io.sockets.on('connection', function (socket) {
 											break;
 										}
 									}
-									adminLog(socket, {msg: "Set "+d.nick+"'s note to '"+d.note+"'", type:"user"});
+
+									getSocketName(socket).then(name => DefaultLog.info(
+										events.EVENT_ADMIN_SET_NOTE, 
+										"{mod} set {nick}'s note to '{note}' on {type}", {
+											mod: name, 
+											type: "user",
+											area: areaname,
+											nick: d.nick,
+											note: d.note
+										}
+									));
+
 									forModminSockets(function(sc){
 										sc.emit('fondleUser', data);
 									});

@@ -1,4 +1,9 @@
 /docker/node/node_modules/
+/docker/node/bt.log
+/docker/node/debug.log
+/docker/node/error_bt.log
+/docker/watcher/node_modules/
 /.env
 /database/
 /docker-compose.override.yml
+yarn.error

@@ -225,7 +225,7 @@ try{
 			$(function() {
 				var AWSHIT = $("<center><h1>Unable to connect Socket.IO: "+reason+"</h1></center>").prependTo(document.body);
 			});
-			console.error(e);
+			console.error(reason);
 		}
 	});
 } catch(e) {
@@ -434,7 +434,23 @@ function showLogMenu(on){
 		filterAdminLog();
 	});
 
-	var logBuffer = $("<div/>").attr('id','logBuffer').appendTo(settWin);
+	var logBuffer = $(`
+		<div>
+			<table>
+				<thead>
+					<tr>
+						<th>modmin</th>
+						<th>time</th>
+						<th>event</th>
+						<th>message</th>
+						<th>type</th>
+					</tr>
+				</thead>
+				<tbody />
+			</table>
+		</div>`).attr('id','logBuffer')
+		.appendTo(settWin);
+
     for(var i=0; i < ADMIN_LOG.length; ++i){
         addLogMsg(ADMIN_LOG[i], logBuffer);
     }
