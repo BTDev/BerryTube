@@ -106,7 +106,9 @@ exports.RankedPoll = class extends PollInstance {
 
 			let minVote = 50000;
 			let realMin = 50000;
-			let maxVote = 0;			
+			let maxVote = 0;
+			const hasVoted = this.votes.map(f => false);
+			
 			for (let voteIndex = 0; voteIndex < this.votes.length; voteIndex++) {
 				const vote = this.votes[voteIndex];
 				for (let rank = 0; rank < vote.optionIndicies.length; rank++) {
@@ -123,7 +125,10 @@ exports.RankedPoll = class extends PollInstance {
 					if (finalVoteObject.isExcluded)
 						continue;
 
-					votesForOption[optionIndex].votes++;
+					if (!hasVoted[voteIndex]) {
+						votesForOption[optionIndex].votes++;
+						hasVoted[voteIndex] = true;
+					}
 				}
 			}
 

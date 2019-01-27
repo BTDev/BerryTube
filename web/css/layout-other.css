@@ -588,6 +588,10 @@ body:not(.bem-enabled) .chatbuffer .img-filter > img {
     display: none;
 }
 
+body.tweaked .ranked-poll__split {
+    flex-direction: column;
+}
+
 .ranked-poll__split {
     display: flex;
 }
@@ -595,6 +599,10 @@ body:not(.bem-enabled) .chatbuffer .img-filter > img {
 .ranked-poll_input-panel {
     flex-grow: 1;
     flex-basis: 0;
+}
+
+body.tweaked .ranked-poll_input-panel {
+    border-bottom: 5px solid rgba(255, 255, 255, .3);
 }
 
 .ranked-poll__results-panel {
@@ -621,6 +629,22 @@ body:not(.bem-enabled) .chatbuffer .img-filter > img {
 
 #pollpane .poll.ranked-poll {
     padding: 10px;
+}
+
+body.tweaked .ranked-poll__option {
+    margin-bottom: 10px;
+    display: grid;
+    grid-template-columns: auto auto auto 1fr;
+    grid-template-rows: auto auto;
+    background: rgba(0, 0, 0, .3);
+    font-size: 12px;
+    border-radius: 4px;
+}
+
+body.tweaked .ranked-poll__option-text {
+    grid-column: 1 / 5;
+    margin-top: 10px;
+    grid-template-rows: auto auto;
 }
 
 .ranked-poll__option {
