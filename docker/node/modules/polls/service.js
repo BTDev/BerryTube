@@ -15,7 +15,7 @@ const propVoteData = {
 };
 
 exports.PollService = class extends ServiceBase {
-	constructor({ auth, log, io }) {
+	constructor({ auth, io, log = null }) {
 		super({ log });
 		this.currentPoll = null;
 		this.auth = auth;
