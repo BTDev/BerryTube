@@ -1,0 +1,28 @@
+{
+	"name": "BerryTube",
+	"short_name": "BerryTube",
+	"start_url": "/",
+	"icons": [
+		{
+			"src": "/images/favicon192.png",
+			"type": "image/png",
+			"sizes": "192x192"
+		},
+		{
+			"src": "/images/favicon512.png",
+			"type": "image/png",
+			"sizes": "512x512"
+		}
+	],
+	"background_color": "#421C52",
+	"theme_color": "#421C52",
+	"display": "standalone",
+	"prefer_related_applications": true,
+	"related_applications": [
+		{
+			"platform": "play",
+			"url": "https://play.google.com/store/apps/details?id=com.trellmor.berrytubechat",
+			"id": "com.trellmor.berrytubechat"
+		}
+	]
+}

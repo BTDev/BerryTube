@@ -52,6 +52,9 @@
 
 <link rel="shortcut icon" href="<?= cdn('images/favicon.ico') ?>"/>
 <link rel="icon" type="image/png" sizes="32x32" href="<?= cdn('images/favicon32.png') ?>"/>
+<link rel="icon" type="image/png" sizes="192x192" href="<?= cdn('images/favicon192.png') ?>"/>
+<link rel="icon" type="image/png" sizes="512x512" href="<?= cdn('images/favicon512.png') ?>"/>
+<link rel="manifest" href="/manifest.json"/>
 
 <link rel="stylesheet" href="<?= cdn('css/colors.css') ?>" id="mainTheme"/>
 <link rel="stylesheet" href="<?= cdn('css/layout-other.css') ?>"/>
