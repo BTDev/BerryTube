@@ -439,8 +439,8 @@ function showLogMenu(on){
 			<table>
 				<thead>
 					<tr>
-						<th>modmin</th>
 						<th>time</th>
+						<th>modmin</th>
 						<th>event</th>
 						<th>message</th>
 						<th>type</th>

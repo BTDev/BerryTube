@@ -15,8 +15,8 @@ const propVoteData = {
 };
 
 exports.PollService = class extends ServiceBase {
-	constructor({ auth, io, log = null }) {
-		super({ log });
+	constructor({ auth, io, log }) {
+		super({ log, log });
 		this.currentPoll = null;
 		this.auth = auth;
 		this.votedIpAddressMap = {};
@@ -82,20 +82,29 @@ exports.PollService = class extends ServiceBase {
 		if (!(await this.auth.canDoAsync(socket, actions.ACTION_CLOSE_POLL)))
 			throw new Error("unauthoirzed");
 
-		await Promise.all(this.io.sockets.clients().map(c => propVoteData.set(c, null)));
 		const title = this.currentPoll.options.title;
+		const logData = { mod: await getSocketName(socket), title, type: "site" };
+
+		try {
+			await Promise.all(this.io.sockets.clients().map(c => propVoteData.set(c, null)));
+		} catch (e) {
+			// make sure potential errors above don't prevent us from closing the poll for reals
+			this.log.error(events.EVENT_GENERAL, "{mod} closed poll {title} on {type}, but there were some errors when we cleard socket data", logData, e)
+		}
+
 		this.currentPoll.isObscured = false;
-		await this.publishToAll("clearPoll");
 		this.currentPoll = null;
 		this.votedIpAddressMap = {};
-		
-		this.log.info(
-			events.EVENT_ADMIN_CLOSED_POLL, 
-			"{mod} closed poll {title} on {type}", { 
-				mod: await getSocketName(socket), 
-				title,
-				type: "site"
-			});
+
+		this.log.info(events.EVENT_ADMIN_CLOSED_POLL, "{mod} closed poll {title} on {type}", logData);
+
+		try {
+			await this.publishToAll("clearPoll");
+		} catch(e) {
+			// Under some circumstances, publishToAll may fail. We don't want that preventing the poll from being closed, otherwise poisoned polls will prevent new polls
+			// from being created until a server restart.
+			this.log.error(events.EVENT_GENERAL, "{mod} closed poll {title} on {type}, but there were some errors when we published clearPoll", logData, e)
+		}
 	}
 
 	/**

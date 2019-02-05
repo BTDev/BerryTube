@@ -85,7 +85,6 @@ describe("modules", function () {
         //         ["user4", "cast", { optionIndex: 4, rank: 0 }], ["user4", "cast", { optionIndex: 2, rank: 1 }], ["user4", "cast", { optionIndex: 0, rank: 2 }]
         //     );
 
-        //     console.log(this.service.currentPoll.results);
         //     expect(this.service.currentPoll.results).to.eql([{
         //         votes: 1,
         //         index: 0,

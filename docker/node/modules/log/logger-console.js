@@ -6,12 +6,20 @@ exports.consoleLogger = ({level, formatted, error, event, createdAt}) => {
     if (level == levels.LEVEL_ERROR) {
         console.error(formatted);
 
-        if (error)
-            console.error(error.stack || error);
+        if (error) {
+            if (error.stack)
+                console.error(error.stack);
+            else
+                console.error(`error: ${error}`)
+        }
     } else {
         console.log(formatted);
 
-        if (error)
-            console.log(error.stack || error);
+        if (error) {
+            if (error.stack)
+                console.log(error.stack);
+            else
+                console.log(`error: ${error}`)
+        }
     }
 };

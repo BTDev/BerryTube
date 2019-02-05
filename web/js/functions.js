@@ -1029,7 +1029,10 @@ function addLogMsg(data, to){
 		ss = addZero(timestampDate.getSeconds()),
         MM = ("" + (timestampDate.getMonth() + 1)).padStart(2, "0"),
         dd = ("" + timestampDate.getDate()).padStart(2, "0"),
-        yyyy = timestampDate.getFullYear();
+		yyyy = timestampDate.getFullYear(),
+		eventType = data.logEvent.event.startsWith("EVENT_ADMIN_")
+			? data.logEvent.event.substring(12)
+			: data.logEvent.event;
 
 	var newmsg = 
 		$("<tr />")
@@ -1038,17 +1041,17 @@ function addLogMsg(data, to){
 			.addClass(data.type)
 			.append(
 				$("<td />")
-					.addClass("nick")
-					.text(data.logEvent.data.mod),
-				$("<td />")
 					.addClass("createdAt")
 					.append(
 						$("<span />").addClass("date").text(`${yyyy}-${MM}-${dd}`),
 						$("<span />").addClass("time").text(`${hh}:${mm}:${ss}`)
 					),
 				$("<td />")
+					.addClass("nick")
+					.text(data.logEvent.data.mod),
+				$("<td />")
 					.addClass("event")
-					.text(data.logEvent.event),
+					.text(eventType),
 				$("<td />")
 					.addClass("message")
 					.text(data.logEvent.formatted),

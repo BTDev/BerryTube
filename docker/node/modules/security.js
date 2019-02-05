@@ -13,7 +13,6 @@ exports.getAddress = function (socket) {
         return socket.handshake.headers["x-forwarded-for"];
     }
     catch (e) {
-        console.log("Couldn't get IP from socket, so return false.");
         return false;
     }
 }

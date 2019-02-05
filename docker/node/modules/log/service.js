@@ -27,7 +27,7 @@ exports.LogService = class {
         this.levelOverrides[event] = levelOverride;
     }
     
-    addMessage(level, event, format, data = null, error = null) {
+    async addMessage(level, event, format, data = null, error = null) {
         if (level < this.defaultLevel || (this.levelOverrides.hasOwnProperty(event) && level < this.levelOverrides[event]))
             return;
 
@@ -35,6 +35,20 @@ exports.LogService = class {
             format = "<undefined>";
         else if (typeof(format) !== "string")
             format = format.toString();
+
+        if (data) {
+            // resolve all of the data promises
+            for (const piece in data) {
+                if (!data.hasOwnProperty(piece))
+                    continue;
+
+                const value = data[piece];
+                if (!value || !value.then)
+                    continue;
+
+                data[piece] = await value;
+            }
+        }
         
         if (level === levels.LEVEL_DEBUG) {
             // if this is a DEBUG, find out what line it executed on. This isn't the quickest thing in the world, however debug-level messages should be
@@ -79,20 +93,20 @@ exports.LogService = class {
         } else
             formatted = format;
 
-        const message = {level, event, format, data, error, formatted, error, createdAt: this.now()};
+        const message = {level, event, format, data, error, formatted, createdAt: this.now()};
         for (const logger of this.loggers)
             logger(message);
     }
 
     debug(...args) {
-        this.addMessage(levels.LEVEL_DEBUG, ...args);
+        return this.addMessage(levels.LEVEL_DEBUG, ...args);
     }
 
     info(...args) {
-        this.addMessage(levels.LEVEL_INFORMATION, ...args);
+        return this.addMessage(levels.LEVEL_INFORMATION, ...args);
     }
 
     error(...args) {
-        this.addMessage(levels.LEVEL_ERROR, ...args);
+        return this.addMessage(levels.LEVEL_ERROR, ...args);
     }
 };

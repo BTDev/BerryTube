@@ -74,7 +74,7 @@ exports.RankedPoll = class extends PollInstance {
 
 		const finalVoteCounts = options.map((_, i) => ({votes: 0, index: i, isExcluded: false, rankDistribution: [0, 0, 0], opacity: .2}));
 		const hasApplied = this.votes.map(() => [false, false, false]);
-		let lastMax;
+		let finalMaxVote;
 		
 		if (votes.length == 0)
 			return finalVoteCounts;
@@ -100,12 +100,11 @@ exports.RankedPoll = class extends PollInstance {
 
 		let round = 0;
 
-		while (true) {			
+		while (true) {
 			// tally up all votes, except for ones that are excluded
 			const votesForOption = options.map((_, i) => ({votes: 0, index: i}));
 
 			let minVote = 50000;
-			let realMin = 50000;
 			let maxVote = 0;
 			const hasVoted = this.votes.map(f => false);
 			
@@ -137,12 +136,11 @@ exports.RankedPoll = class extends PollInstance {
 					continue;
 
 				const count = votesForOption[i].votes;
-				realMin = Math.min(realMin, count);
-				minVote = Math.max(realMin, 1);
+				minVote = Math.max(count, 1);
 				maxVote = Math.max(maxVote, count);
 			}
 
-			lastMax = maxVote;
+			finalMaxVote = maxVote;
 
 			// copy in the latest vote data into our finalVoteCounts
 			for (let i = 0; i < votesForOption.length; i++) {
@@ -200,7 +198,7 @@ exports.RankedPoll = class extends PollInstance {
 		
 		// pre-calculate the target opacity
 		for (let i = 0; i < finalVoteCounts.length; i++) {
-			finalVoteCounts[i].opacity = Math.max(finalVoteCounts[i].votes / lastMax, .2);
+			finalVoteCounts[i].opacity = Math.max(finalVoteCounts[i].votes / finalMaxVote, .2);
 		}
 
 		return finalVoteCounts;
