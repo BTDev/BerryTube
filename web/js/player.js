@@ -48,6 +48,9 @@ window.PLAYERS.yt = {
             if (getStorage("legacyPlayer") == 0) {
                 params.wmode = "transparent";
             }
+            if (parseInt(getStorage("disableYoutube")) == 1) {
+                return;
+            }
             self.PLAYER = new YT.Player('ytapiplayer', {
                 height: videoHeight,
                 width: videoWidth,

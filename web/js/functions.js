@@ -3,6 +3,16 @@ function setRuleTitle(titleBar, myData) {
     titleBar.html(['<span class="name">', myData.name, '</span> <span class="code">',  myData.chatMatch, ' => ', myData.chatReplace.replace(/</g, '&lt;').replace(/>/g, '&gt'), '</span>'].join(''));
 }
 
+function onModuleLoaded(callback) {
+	if (window.isModuleLoaded) {
+		callback()
+		return
+	}
+
+	(window.moduleLoadedCallbacks = (window.moduleLoadedCallbacks || []))
+		.push(callback)
+}
+
 function showAdminFilterWindow(){
 
 	socket.emit('getFilters');
@@ -1009,30 +1019,57 @@ function handleSpamChecks(callback){
 	}
 }
 function addLogMsg(data, to){
-        if (to.length == 0) return;
-		if (IGNORE_GHOST_MESSAGES && data.ghost) return;
-        var timestamp = data.timestamp;
-		var h = addZero(timestamp.getHours());
-		var m = addZero(timestamp.getMinutes());
-		var s = addZero(timestamp.getSeconds());
+	if (to.length == 0) return;
+	if (IGNORE_GHOST_MESSAGES && data.ghost) return;
+	const timestampDate = new Date(data.logEvent.createdAt);
 
-        var newmsg = $('<div/>').addClass('message').addClass(data.nick).addClass(data.type).append(
-			$('<div/>').addClass('nickwrap').append(
-				$('<span/>').addClass('timestamp').text('<' + h + ':' + m + ':' + s + '>'),
-				$('<span/>').addClass('nick').text(data.nick)),
-			$('<div/>').addClass('msg').text(data.msg),
-			$('<div/>').addClass('clear'));
-		if (data.berry) {
-			newmsg.addClass('Berry');
-		}
-        newmsg.prependTo(to);
+	const 
+		hh = addZero(timestampDate.getHours()),
+		mm = addZero(timestampDate.getMinutes()),
+		ss = addZero(timestampDate.getSeconds()),
+        MM = ("" + (timestampDate.getMonth() + 1)).padStart(2, "0"),
+        dd = ("" + timestampDate.getDate()).padStart(2, "0"),
+		yyyy = timestampDate.getFullYear(),
+		eventType = data.logEvent.event.startsWith("EVENT_ADMIN_")
+			? data.logEvent.event.substring(12)
+			: data.logEvent.event;
 
-        const filterDropdown = $('#logNickFilter');
-        if ($('option:contains('+data.nick+')', filterDropdown).length === 0) {
-        	$('<option/>').text(data.nick).appendTo(filterDropdown);
-        }
+	var newmsg = 
+		$("<tr />")
+			.addClass("message")
+			.addClass(data.nick)
+			.addClass(data.type)
+			.append(
+				$("<td />")
+					.addClass("createdAt")
+					.append(
+						$("<span />").addClass("date").text(`${yyyy}-${MM}-${dd}`),
+						$("<span />").addClass("time").text(`${hh}:${mm}:${ss}`)
+					),
+				$("<td />")
+					.addClass("nick")
+					.text(data.logEvent.data.mod),
+				$("<td />")
+					.addClass("event")
+					.text(eventType),
+				$("<td />")
+					.addClass("message")
+					.text(data.logEvent.formatted),
+				$("<td />")
+					.addClass("message")
+					.text(data.logEvent.data.type));
 
-		filterAdminLog();
+	if (data.berry) {
+		newmsg.addClass("Berry");
+	}
+	newmsg.prependTo(to.find("tbody"));
+
+	const filterDropdown = $("#logNickFilter");
+	if ($("option:contains("+data.nick+")", filterDropdown).length === 0) {
+		$("<option/>").text(data.nick).appendTo(filterDropdown);
+	}
+
+	filterAdminLog();
 }
 
 function scrollBuffersToBottom() {
@@ -1275,25 +1312,33 @@ function handleNumCount(data){
 		area.text(CONNECTED);
 	});
 }
-function closePoll(){
+function closePoll(data){
+	if (data.pollType == "ranked") {
+		onModuleLoaded(() => window.rankedPolls.closeRankedPoll())
+		return
+	} else {
+		//unbind old buttons
+		var existing = $(".poll.active")
+		existing.find(".btn").each(function(key, val) {
+			if ($(val).hasClass("close")) 
+				return
 
-	//unbind old buttons
-	var existing = $(".poll.active");
-	existing.find(".btn").each(function(key,val){
-		if($(val).hasClass("close")) return;
-		$(val).unbind('click');
-	});
-	existing.removeClass("active");
+			$(val).unbind('click')
+		})
 
-	var keep = getStorage("keeppolls");
-	var polls = $("#pollpane").children(".poll");
-	for(var i=0;i<polls.length;i++){
-		if($(polls[i]).hasClass("active")) continue;
-		if(--keep < 0){
-			$(polls[i]).remove();
-		}
+		existing.removeClass("active")
 	}
 
+	// remove old polls...
+	var keep = getStorage("keeppolls")
+	var polls = $("#pollpane").children(".poll")
+	for (var i=0; i < polls.length; i++) {
+		if ($(polls[i]).hasClass("active")) 
+			continue
+
+		if (--keep < 0)
+			$(polls[i]).remove()
+	}
 }
 function toggleChatMode(){
 	var chatbuffer = $(".chatbuffer");
@@ -1401,6 +1446,11 @@ function plSearch(term){
     }
 }
 function newPoll(data){
+	if (data.pollType == "ranked") {
+		onModuleLoaded(() => window.rankedPolls.createRankedPoll(data))
+		return
+	}
+	
 	if (data.ghost && IGNORE_GHOST_MESSAGES) {
 		// Ghost poll on a reconnect; just revote, don't redisplay it
 		var vote = $('.voted');
@@ -1429,7 +1479,7 @@ function newPoll(data){
 		var pollTitle = data.title;
 		var obscure = data.obscure;
 
-		closePoll();
+		closePoll({});
 
 		// New time.
 		whenExists("#pollpane",function(stack){
@@ -1477,6 +1527,11 @@ function newPoll(data){
 	}
 }
 function updatePoll(data){
+	if (data.pollType == "ranked") {
+		onModuleLoaded(() => window.rankedPolls.updateRankedPoll(data))
+		return
+	}
+	
 	var votes = data.votes;
 	var thepoll = $(".poll.active");
 	thepoll.find(".btn").each(function(key,val){
@@ -2288,7 +2343,7 @@ function sortPlaylist(data) {
 function filterAdminLog() {
 	var nickFilter = $('#logNickFilter').find(':selected').text();
 	var typeFilter = $('#logTypeFilter').find(':selected').text();
-	var buf = $('#logBuffer');
+	var buf = $('#logBuffer tbody');
 	buf.children().addClass('filtered');
 	var selector = '';
 	if (nickFilter != 'All modmins') {

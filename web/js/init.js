@@ -225,7 +225,7 @@ try{
 			$(function() {
 				var AWSHIT = $("<center><h1>Unable to connect Socket.IO: "+reason+"</h1></center>").prependTo(document.body);
 			});
-			console.error(e);
+			console.error(reason);
 		}
 	});
 } catch(e) {
@@ -434,7 +434,23 @@ function showLogMenu(on){
 		filterAdminLog();
 	});
 
-	var logBuffer = $("<div/>").attr('id','logBuffer').appendTo(settWin);
+	var logBuffer = $(`
+		<div>
+			<table>
+				<thead>
+					<tr>
+						<th>time</th>
+						<th>modmin</th>
+						<th>event</th>
+						<th>message</th>
+						<th>type</th>
+					</tr>
+				</thead>
+				<tbody />
+			</table>
+		</div>`).attr('id','logBuffer')
+		.appendTo(settWin);
+
     for(var i=0; i < ADMIN_LOG.length; ++i){
         addLogMsg(ADMIN_LOG[i], logBuffer);
     }
@@ -1751,6 +1767,12 @@ function initPolls(under){
 	var td = $('<td/>').appendTo(row);
 	var createPollBtn = $('<div/>').addClass("btn").text("Create Poll").appendTo(td);
 
+	// Ranked Row
+	var row = $('<tr/>').appendTo(table);
+	$('<td/>').appendTo(row);
+	var td = $('<td/>').appendTo(row);
+	var createRankedPollBtn = $('<div/>').addClass("btn").text("Create Ranked Poll").appendTo(td);
+
 	// Runoff row
 	var row = $('<tr/>').appendTo(table);
 	$('<td/>').appendTo(row);
@@ -1769,27 +1791,11 @@ function initPolls(under){
 	newOptionManyBtn.click(function(){
 		addPollOpt(optionContainer,5);
 	})
-	createPollBtn.click(function(){
-		if(canCreatePoll()){
-			var ops = canvas.find(".option");
-			var data = [];
-			for(var i=0;i<ops.length;i++)
-			{
-				data.push($(ops[i]).val());
-			}
-			socket.emit("newPoll",{
-				title:$(newPollTitle).val(),
-				obscure:newPollObscure.is(":checked"),
-				ops:data
-			});
-			newPollTitle.val('');
-			runoffThreshold.val('');
-			ops.parent().remove();
-			addPollOpt(optionContainer,5);
-			newPollObscure.prop('checked', true);
-			newPollBtn.click();
-		}
-	});
+	
+	createPollBtn.click(() => doCreatePoll("normal"));
+	
+	createRankedPollBtn.click(() => doCreatePoll("ranked"))
+
 	createRunoffBtn.click(function() {
 		if (canCreatePoll()) {
 			var threshold = parseInt(runoffThreshold.val());
@@ -1823,6 +1829,31 @@ function initPolls(under){
 	});
 
 	$('<div/>').css("clear",'both').appendTo(pollControl);
+
+	function doCreatePoll(pollType) {
+		if (!canCreatePoll())
+			return
+		
+		const ops = canvas.find(".option")
+		const data = []
+
+		for (var i = 0; i < ops.length; i++)
+			data.push($(ops[i]).val());
+
+		socket.emit("newPoll", {
+			title: $(newPollTitle).val(),
+			obscure: newPollObscure.is(":checked"),
+			ops: data,
+			pollType
+		});
+
+		newPollTitle.val('');
+		runoffThreshold.val('');
+		ops.parent().remove();
+		addPollOpt(optionContainer,5);
+		newPollObscure.prop('checked', true);
+		newPollBtn.click();
+	}
 }
 function initAreas(){
 	var hw = $("<div/>").addClass("wrapper").insertAfter($("#countdown-timers"));
@@ -1994,6 +2025,8 @@ $(function(){
 	$(".chatbuffer")
 		.mouseenter(function() { KEEP_BUFFER = false; })
 		.mouseleave(function() { KEEP_BUFFER = true; scrollBuffersToBottom(); });
+
+	setVal("INIT_FINISHED", true)
 
 	//Init plugin manager stuff
 	for (var i in scriptNodes) {

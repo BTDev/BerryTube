@@ -14,4 +14,5 @@ RUN npm install && \
     apk --no-cache del build-dependencies
 
 COPY bt_data/ ./bt_data/
+COPY modules/ ./modules/
 COPY server.js entrypoint.sh ./

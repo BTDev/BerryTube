@@ -1,0 +1,13 @@
+# just runs the test watcher
+version: "3.7"
+
+services:
+    watcher:
+        build: ./docker/watcher
+        volumes:
+            - ./docker/node:/packages/node
+            - watcher_node_modules:/packages/watcher/node_modules
+        command: ["test-w"]
+
+volumes:
+    watcher_node_modules:
