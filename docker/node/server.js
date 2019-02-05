@@ -45,7 +45,7 @@ process.on("uncaughtException", function (err) {
 
 	try {
 		const isIgnored = err.code === "ECONNRESET" || err.code === "EPIPE"
-		
+
 		DefaultLog.error(events.EVENT_PROC_UNHANDLED_EXCEPTION,
 			"unhandled process exception {code}: {message}. Ignoring: {isIgnored}",
 			{ isIgnored, code: err && err.code, message: err && err.message },
@@ -71,7 +71,7 @@ process.stdin.on('data', function (chunk) {
 
 /* New DB Init Code Begins Here */
 function dbInit(){
-	DefaultLog.info(events.EVENT_DB_CONNECTION, "starting database connection to {user}@{host}:{port}", { 
+	DefaultLog.info(events.EVENT_DB_CONNECTION, "starting database connection to {user}@{host}:{port}", {
 		host: SERVER.dbcon.host,
 		port: SERVER.dbcon.post,
 		user: SERVER.dbcon.mysql_user,
@@ -85,14 +85,14 @@ function dbInit(){
 	};
 
 	mysql = _mysql.createConnection(config);
-	
+
 	mysql.on("error", function(err) {
 		DefaultLog.error(events.EVENT_DB_CONNECTION, "the database connection threw an error: attempting reconnect", { }, err)
 		setTimeout(function(){
 			dbInit();
 		}, 1000)
 	});
-	
+
 	mysql.query(`use ${SERVER.dbcon.database}`);
 }
 
@@ -248,7 +248,7 @@ SERVER.GILDNAME = "*";
 DefaultLog.addLogger(
 	// outputs everything to the console...
 	consoleLogger,
-	
+
 	// outputs to the log files...
 	createStreamLogger({
 		[levels.LEVEL_DEBUG]: fs.createWriteStream(SERVER.settings.core.debug_file_name, { flags: "w" }),
@@ -259,14 +259,14 @@ DefaultLog.addLogger(
 	// forwards all log messages that begin with "EVENT_ADMIN_" to the mod channel...
 	async (logEvent) => {
 		const {event, formatted, data, createdAt} = logEvent;
-		
+
 		if (!event.startsWith("EVENT_ADMIN_"))
 			return;
 
 		let isBerry = false;
 		if (SERVER.LEADER)
 			isBerry = (await getSocketName(SERVER.LEADER)) == data.mod;
-	
+
 		const buffer = SERVER.OUTBUFFER["adminLog"] = (SERVER.OUTBUFFER["adminLog"] || []);
 		const adminMessage = {
 			msg: formatted,
@@ -276,11 +276,11 @@ DefaultLog.addLogger(
 			timestamp: Math.round(createdAt.getTime() / 1000),
 			logEvent
 		};
-	
+
 		buffer.push(adminMessage);
 		if (buffer.length > SERVER.settings.core.max_saved_buffer)
 			buffer.shift();
-	
+
 		forModminSockets(socket => socket.emit("adminLog", adminMessage));
 	});
 
@@ -322,7 +322,7 @@ function initPlaylist(callback) {
 		}
 
 		SERVER.ACTIVE = SERVER.PLAYLIST.first;
-		if(callback) 
+		if(callback)
 			callback()
 	});
 }
@@ -350,8 +350,8 @@ function upsertMisc(data, callback){
 	mysql.query(sql, [data.name, data.value, data.value], function(err) {
 		if (err)
 			DefaultLog.error(events.EVENT_DB_QUERY, "query \"{sql}\" failed", { sql }, err);
-		
-		if (callback) 
+
+		if (callback)
 			callback();
 	});
 }
@@ -597,7 +597,7 @@ function banUser(o){
 		augmentBan(existing,o);
 	else
 		SERVER.BANS.push(o);
-		
+
 	prepareBans();
 
 	for(i in o.nicks){
@@ -753,26 +753,22 @@ function kickIfUnderLevel(socket,reason,level){
 	});
 }
 function kickForIllegalActivity(socket,reason){
-	DefaultLog.info(events.EVENT_ADMIN_KICKED, 
-		"{nick} got kicked on {type} because {reason} (illegal things)", 
+	DefaultLog.info(events.EVENT_ADMIN_KICKED,
+		"{nick} got kicked on {type} because {reason} (illegal things)",
 		{ nick: getSocketName(socket), type: "user", reason })
 
 	socket.emit("kicked",reason);
 	socket.disconnect(); // NOT ALLOWED.
 }
-function kickUser(socket,reason){
-	DefaultLog.info(events.EVENT_ADMIN_KICKED, 
-		"{nick} got kicked on {type} because {reason}", 
+function kickUser(socket,reason,meta){
+	DefaultLog.info(meta && meta.ghosted ? events.EVENT_GHOSTED : events.EVENT_ADMIN_KICKED,
+		"{nick} got kicked on {type} because {reason}",
 		{ nick: getSocketName(socket), type: "user", reason })
 
 	socket.emit("kicked",reason);
 	socket.disconnect();
 }
 function kickUserByNick(socket,nick,reason){
-	DefaultLog.info(events.EVENT_ADMIN_KICKED, 
-		"{mod} kicked {nick} on {type} because {reason} (illegal things)", 
-		{ nick, type: "user", reason, mod: getSocketName(socket) })
-
 	getSocketOfNick(nick, function(s) {
 		kickUser(s, reason);
 	});
@@ -990,7 +986,7 @@ function sendUserJoin(user){
 				data.shadowbanned = user.shadowbanned;
 				data.tempshadowbanned = user.tempshadowbanned;
 			}
-			if(user.gold) 
+			if(user.gold)
 				data.gold = true;
 
 			socket.emit('userJoin',data);
@@ -1017,8 +1013,8 @@ function getCommand(msg){
 	return parsed;
 }
 function handleNewVideoChange() {
-	DefaultLog.info(events.EVENT_VIDEO_CHANGE, 
-		"changed video to {videoTitle}", 
+	DefaultLog.info(events.EVENT_VIDEO_CHANGE,
+		"changed video to {videoTitle}",
 		{ videoTitle: decodeURI(SERVER.ACTIVE.videotitle) });
 
 	resetDrinks();
@@ -1145,10 +1141,10 @@ function setVideoVolatile(socket,pos,isVolat){
 	}
 	elem.volat = isVolat;
 
-	DefaultLog.info(events.EVENT_ADMIN_SET_VOLATILE, 
-		"{mod} set {title} to {status} on {type}", 
+	DefaultLog.info(events.EVENT_ADMIN_SET_VOLATILE,
+		"{mod} set {title} to {status} on {type}",
 		{ mod: getSocketName(socket), type: "playlist", title: decodeURIComponent(elem.videotitle), status: isVolat ? "volatile" : "not volatile" });
-	
+
 	io.sockets.emit("setVidVolatile",{
 		pos:pos,
 		volat:isVolat
@@ -1313,10 +1309,10 @@ function _sendChat(nick,type,incoming,socket){
 		ifCanShitpost(socket,function(){
 			const parts = parsed.msg.split(' ');
 			if (parts[0]) {
-				DefaultLog.info(events.EVENT_ADMIN_SHATPOST, 
-					"{mod} shatpost {title} on {type}", 
+				DefaultLog.info(events.EVENT_ADMIN_SHATPOST,
+					"{mod} shatpost {title} on {type}",
 					{ mod: nick,  type: "site", title: parts[0] });
-				
+
 				io.sockets.emit('shitpost', {
 					msg: parsed.msg
 				});
@@ -1408,7 +1404,7 @@ function setToggleable(socket, name,state,callback){
 	}
 
 	SERVER.settings.toggles[name][0] = state;
-	
+
 	if (callback)
 		callback(null, {
 			name: name,
@@ -1462,7 +1458,7 @@ function delVideo(data, socket){
 			if(elem.deleted) break;
 			if(elem == SERVER.ACTIVE) playNext();
 
-			try{				
+			try{
 				SERVER.PLAYLIST.remove(elem);
 				io.sockets.emit('delVideo',{
 					position:i,
@@ -1474,7 +1470,7 @@ function delVideo(data, socket){
 
 				const isLivestream = elem.videolength <= 0
 				const shouldArchive = !isLivestream
-				
+
 				if (shouldArchive) {
 					historyQuery = "insert into videos_history (videoid, videotitle, videolength, videotype, date_added, meta) values (?,?,?,?,NOW(),?)";
 					historyQueryParams = [
@@ -1500,17 +1496,17 @@ function delVideo(data, socket){
 						});
 					}
 				});
-				
+
 				elem.deleted = true;
 
 				DefaultLog.info(events.EVENT_ADMIN_DELETED_VIDEO,
-					"{mod} deleted {title} on {type}", 
+					"{mod} deleted {title} on {type}",
 					{ mod: getSocketName(socket), type: "playlist", title: decodeURIComponent(elem.videotitle) });
 
 				break;
 			} catch(e) {
-				DefaultLog.error(events.EVENT_ADMIN_DELETED_VIDEO, 
-					"{mod} could not delete {title} on {type}", 
+				DefaultLog.error(events.EVENT_ADMIN_DELETED_VIDEO,
+					"{mod} could not delete {title} on {type}",
 					{ mod: getSocketName(socket),  type: "playlist", title: decodeURIComponent(elem.videotitle) }, e);
 			}
 		}
@@ -1521,8 +1517,8 @@ function delVideo(data, socket){
 				break;
 			}
 		} catch(e) {
-			DefaultLog.error(events.EVENT_ADMIN_DELETED_VIDEO, 
-				"{mod} could not delete {index} on {type}", 
+			DefaultLog.error(events.EVENT_ADMIN_DELETED_VIDEO,
+				"{mod} could not delete {index} on {type}",
 				{ mod: getSocketName(socket), type: "playlist", index: data.index}, e);
 
 			break;
@@ -1534,11 +1530,11 @@ function rawAddVideo(d,successCallback,failureCallback){
 	// Check for any existing metadata
 	var sql = 'select meta from videos_history where videoid = ?';
 	mysql.query(sql, ['' + d.videoid], function(err, result) {
-		if (err) { 
+		if (err) {
 			DefaultLog.error(events.EVENT_DB_QUERY, "query \"{sql}\" failed", { sql }, err);
-			return;	
+			return;
 		}
-		
+
 		if(result.length == 1){
 			try{
 				d.meta = JSON.parse(result[0].meta);
@@ -1635,7 +1631,7 @@ function addLiveVideo(data,meta,successCallback,failureCallback){
 		queue:data.queue,
 		volat:volat
 	},function(){
-		if(successCallback)successCallback();
+		if(successCallback)successCallback({ title: data.videotitle });
 	},function(err){
 		if(failureCallback)failureCallback(err);
 	})
@@ -1689,7 +1685,7 @@ function _addVideoVimeo(socket,data,meta,path,successCallback,failureCallback) {
 				queue: data.queue,
 				volat: volat
 			}, function () {
-				if (successCallback)successCallback();
+				if (successCallback)successCallback({ title: jdata.title });
 			}, function (err) {
 				if (failureCallback)failureCallback(err);
 			});
@@ -1715,7 +1711,7 @@ function addVideoYT(socket,data,meta,successCallback,failureCallback){
 	var videoid = data.videoid.trim();
 	if(videoid.length==0)
 	{
-		if (failureCallback) 
+		if (failureCallback)
 			failureCallback("no title specified");
 		return;
 	}
@@ -1848,7 +1844,7 @@ function addVideoYT(socket,data,meta,successCallback,failureCallback){
 
 			var pos = SERVER.PLAYLIST.length;
 
-			if (!maybeError) {				
+			if (!maybeError) {
 				var volat = data.volat;
 				if(meta.type <= 0) volat = true;
 				if(volat === undefined) volat = false;
@@ -1863,7 +1859,7 @@ function addVideoYT(socket,data,meta,successCallback,failureCallback){
 					queue:data.queue,
 					volat:volat
 				},function(){
-					if(successCallback)successCallback();
+					if(successCallback)successCallback({ title: formattedTitle });
 				},function(err){
 					if(failureCallback)
 						failureCallback(err);
@@ -1898,7 +1894,7 @@ function followRedirect(options, successCallback,failureCallback){
 			}
 			http.get(options, successCallback)
 			.on('error', function(e){
-				if (failureCallback) 
+				if (failureCallback)
 					failureCallback(e);
 			});
 
@@ -1906,11 +1902,11 @@ function followRedirect(options, successCallback,failureCallback){
 		} else if(res.statusCode == 200) {
 			successCallback(res);
 		} else {
-			if(failureCallback) 
+			if(failureCallback)
 				failureCallback();
 		}
 	}).on('error', function(e) {
-		if (failureCallback) 
+		if (failureCallback)
 			failureCallback(e);
 	});
 }
@@ -1950,7 +1946,7 @@ function addVideoSoundCloud(socket,data,meta,successCallback,failureCallback){
 				if (failureCallback)failureCallback(err);
 				return;
 			}
-			
+
 			var volat = data.volat;
 			if(meta.type <= 0) volat = true;
 			if(volat === undefined) volat = false;
@@ -1969,7 +1965,7 @@ function addVideoSoundCloud(socket,data,meta,successCallback,failureCallback){
 					permalink: jdata.permalink_url
 				}
 			}, function () {
-				if (successCallback)successCallback();
+				if (successCallback)successCallback({ title: jdata.user.username + " - " + jdata.title });
 			}, function (err) {
 				if (failureCallback)failureCallback(err);
 			});
@@ -2005,7 +2001,7 @@ function addVideoFile(socket,data,meta,successCallback,failureCallback){
 			queue: data.queue,
 			volat: volat
 		}, function () {
-			if (successCallback)successCallback();
+			if (successCallback)successCallback({ title: parts[parts.length-1] });
 		}, function (err) {
 			if (failureCallback)failureCallback(err);
 		});
@@ -2042,17 +2038,18 @@ function addVideoDash(socket,data,meta,successCallback,failureCallback){
 			if(meta.type <= 0) volat = true;
 			if(volat === undefined) volat = false;
 			const parts = videoid.split('/');
+			const videoTitle = data.videotitle ? encodeURI(data.videotitle) : parts[parts.length-1];
 			rawAddVideo({
 				pos: SERVER.PLAYLIST.length,
 				videoid: videoid,
-				videotitle: data.videotitle ? encodeURI(data.videotitle) : parts[parts.length-1],
+				videotitle: videoTitle,
 				videolength: duration,
 				videotype: "dash",
 				who: meta.nick,
 				queue: data.queue,
 				volat: volat
 			}, function () {
-				if (successCallback)successCallback();
+				if (successCallback)successCallback({ title: videoTitle });
 			}, function (err) {
 				if (failureCallback)failureCallback(err);
 			});
@@ -2068,7 +2065,7 @@ async function twitchApi(path, params={}) {
     params = Object.keys(params)
         .map(key => encodeURIComponent(key) + '=' + encodeURIComponent(params[key]))
 		.join('&');
-		
+
 	const response = await fetch('https://api.twitch.tv/kraken/' + path + (params ? ('?' + params) : ''), {
         headers: {
             'Accept': 'application/vnd.twitchtv.v5+json',
@@ -2107,7 +2104,7 @@ function addVideoTwitch(socket,data,meta,successCallback,failureCallback){
 				queue: data.queue,
 				volat: volat
 			}, function () {
-				if (successCallback)successCallback();
+				if (successCallback)successCallback({ title: response.title });
 			}, function (err) {
 				if (failureCallback)failureCallback(err);
 			});
@@ -2121,7 +2118,7 @@ function addVideoTwitch(socket,data,meta,successCallback,failureCallback){
 				if (failureCallback)failureCallback('no such channel');
 				return;
 			}
-			
+
 			rawAddVideo({
 				pos: SERVER.PLAYLIST.length,
 				videoid: response.name,
@@ -2132,7 +2129,7 @@ function addVideoTwitch(socket,data,meta,successCallback,failureCallback){
 				queue: data.queue,
 				volat: volat
 			}, function () {
-				if (successCallback)successCallback();
+				if (successCallback)successCallback({ title: response.display_name });
 			}, function (err) {
 				if (failureCallback)failureCallback(err);
 			});
@@ -2158,7 +2155,7 @@ function addVideoTwitchClip(socket,data,meta,successCallback,failureCallback){
 			queue: data.queue,
 			volat: volat
 		}, function () {
-			if (successCallback)successCallback();
+			if (successCallback)successCallback({ title: response.title });
 		}, function (err) {
 			if (failureCallback)failureCallback(err);
 		});
@@ -2464,7 +2461,7 @@ function ifCanSetToggleables(socket,truecallback,falsecallback){
 }
 function userLogin(socket,data,truecallback,falsecallback){
 	if(!ifCanLogin(socket)) {
-		if(falsecallback) 
+		if(falsecallback)
 			falsecallback("Too many failed logins for user");
 
 		socket.emit("loginError", {message:"Too many failed login attempts. Try again later."});
@@ -2526,7 +2523,7 @@ function userLogin(socket,data,truecallback,falsecallback){
 						DefaultLog.error(events.EVENT_GENERAL, "Failed to parse user meta for {nick}", { nick: name }, e)
 						meta = {};
 					}
-					
+
 					addUserToChat(socket, { nick: qnick, type: result[0].type, meta: meta }, truecallback);
 				}
 				if (result[0].pass == qpass) {
@@ -2557,20 +2554,20 @@ function userLogin(socket,data,truecallback,falsecallback){
 						} else {
 							// Don't allow people to spam login attempts
 							handleLoginFail(socket);
-							if (falsecallback) 
+							if (falsecallback)
 								falsecallback("invalid password");
 						}
 					});
 				} else {
 					// Don't allow people to spam login attempts
 					handleLoginFail(socket);
-					if (falsecallback) 
+					if (falsecallback)
 						falsecallback("no password provided");
 				}
 			} else {
 				// Don't allow people to spam login attempts
 				handleLoginFail(socket);
-				if (falsecallback) 
+				if (falsecallback)
 					falsecallback("multiple users found for the same nick!?");
 			}
 		});
@@ -2639,7 +2636,7 @@ function ghostBustUser(socket, data, successCallback){
 	}
 	getSocketOfNickAndIP(data.nick, ip,
 		function(socket) {
-			kickUser(socket, "Ghosted");
+			kickUser(socket, "Ghosted", { ghosted: true });
 			successCallback();
 		},
 		function() {
@@ -2778,10 +2775,10 @@ io.sockets.on('connection', function (socket) {
 
 	socket.on("setOverrideCss",function(data){
 		ifCanSetOverrideCss(socket,function(){
-			DefaultLog.info(events.EVENT_ADMIN_SET_CSS, 
-				"{mod} set css override to {css} on {type}", 
+			DefaultLog.info(events.EVENT_ADMIN_SET_CSS,
+				"{mod} set css override to {css} on {type}",
 				{ mod: getSocketName(socket), type: "site", css: data });
-			
+
 			setOverrideCss(data);
 		},function(){
 			kickForIllegalActivity(socket,"You cannot set the CSS");
@@ -2790,9 +2787,9 @@ io.sockets.on('connection', function (socket) {
 	socket.on("setFilters",function(data){
 		ifCanSetFilters(socket,function(){
 			DefaultLog.info(events.EVENT_ADMIN_EDITED_FILTERS,
-				"{mod} edited filters on {type}", 
+				"{mod} edited filters on {type}",
 				{ mod: getSocketName(socket), type: "site" })
-			
+
 			SERVER.FILTERS = data;
 		},function(){
 			kickForIllegalActivity(socket,"You cannot set the Filters");
@@ -2823,7 +2820,7 @@ io.sockets.on('connection', function (socket) {
 	});
 	socket.on("delVideoHistory", function(data){
 		const logData = { mod: getSocketName(socket), type: "playlist", id: data.videoid};
-		
+
 		if(!data.videoid.match(/^[a-zA-Z0-9_ \-#]{3,50}$/)){
 			DefaultLog.error(events.EVENT_ADMIN_CLEARED_HISTORY, "{mod} could not delete history for invalid id {id} on {type}", logData);
 			return;
@@ -2841,17 +2838,17 @@ io.sockets.on('connection', function (socket) {
 	});
 	socket.on("randomizeList",function(data){
 		ifCanRandomizeList(socket,function(meta){
-			DefaultLog.info(events.EVENT_ADMIN_RANDOMIZED_PLAYLIST, 
-				"{mod} randomized playlist on {type}", 
+			DefaultLog.info(events.EVENT_ADMIN_RANDOMIZED_PLAYLIST,
+				"{mod} randomized playlist on {type}",
 				{ mod: getSocketName(socket), type: "playlist" }
 			)
-			
+
 			var newSz = SERVER.PLAYLIST.length;
 			var tmp = [];
 			var elem = SERVER.PLAYLIST.first;
 			for(var i=0;i<newSz;i++){
 				tmp.push(elem);
-			
+
 				elem = elem.next;
 			}
 			for(var i=0;i<newSz;i++){
@@ -2882,7 +2879,7 @@ io.sockets.on('connection', function (socket) {
 			ts = data.state;
 			setToggleable(socket, tn, ts, function(err) {
 				const logData = { mod: getSocketName(socket), type: "site", name: tn, state: ts ? "on" : "off" };
-				
+
 				if (err) {
 					DefaultLog.error(events.EVENT_ADMIN_SET_TOGGLEABLE, "{mod} could not set {name} to {state} on {type}", logData);
 					return
@@ -2977,7 +2974,7 @@ io.sockets.on('connection', function (socket) {
 				DefaultLog.error(events.EVENT_DB_QUERY, "query \"{sql}\" failed", { sql: q }, err);
 				return;
 			}
-			
+
 			if(result.length >= 1){
 				// Already registered, try logging in using the password we have.
 				userLogin(socket, data,
@@ -3005,7 +3002,7 @@ io.sockets.on('connection', function (socket) {
 						}
 
 						// Registered, log em in.
-						userLogin(socket, data, 
+						userLogin(socket, data,
 							function() {
 								DefaultLog.info(events.EVENT_REGISTER, "{nick} registered from ip {ip}", logData);
 								DefaultLog.info(events.EVENT_LOGIN, "newly registered {nick} logged in on ip {ip}", logData);
@@ -3025,7 +3022,7 @@ io.sockets.on('connection', function (socket) {
 		}
 	});
 	socket.on("changePassword",function(data){
-		socket.get('nick', function(err, nick){			
+		socket.get('nick', function(err, nick){
 			if (err || !nick) {
 				DefaultLog.error(events.EVENT_GENERAL, "Failed to get nick from socket on ip {ip}", { ip: getAddress(socket) })
 				return;
@@ -3038,7 +3035,7 @@ io.sockets.on('connection', function (socket) {
 				socket.emit("loginError", {message: err});
 				return;
 			}
-			
+
 			bcrypt.hash(data.pass, SERVER.settings.core.bcrypt_rounds, function(err, hash) {
 				if (err) {
 					DefaultLog.error(events.EVENT_GENERAL, "Failed to bcrypt for {nick}'s password", { nick }, e);
@@ -3080,10 +3077,10 @@ io.sockets.on('connection', function (socket) {
 	});
 	socket.on("playNext",function(data){
 		ifCanControlPlaylist(socket,function(){
-			DefaultLog.info(events.EVENT_ADMIN_SKIPPED_VIDEO, 
-				"{mod} skipped video on {type}", 
+			DefaultLog.info(events.EVENT_ADMIN_SKIPPED_VIDEO,
+				"{mod} skipped video on {type}",
 				{ mod: getSocketName(socket), type: "playlist"})
-				
+
 			playNext();
 		},function(){
 			kickForIllegalActivity(socket);
@@ -3123,8 +3120,8 @@ io.sockets.on('connection', function (socket) {
 
 			io.sockets.emit("sortPlaylist",data);
 
-			DefaultLog.info(events.EVENT_ADMIN_MOVED_VIDEO, 
-				"{mod} moved {title} on {type}", 
+			DefaultLog.info(events.EVENT_ADMIN_MOVED_VIDEO,
+				"{mod} moved {title} on {type}",
 				{ mod: getSocketName(socket), title: decodeURIComponent(fromelem.videotitle), type: "playlist"})
 		},function(){
 			kickForIllegalActivity(socket);
@@ -3168,10 +3165,10 @@ io.sockets.on('connection', function (socket) {
 				elem=elem.next;
 			}
 
-			DefaultLog.info(events.EVENT_ADMIN_FORCED_VIDEO_CHANGE, 
-				"{mod} forced video change on {type}", 
+			DefaultLog.info(events.EVENT_ADMIN_FORCED_VIDEO_CHANGE,
+				"{mod} forced video change on {type}",
 				{ mod: getSocketName(socket), type: "playlist" })
-			
+
 			handleNewVideoChange();
 			sendStatus("forceVideoChange",io.sockets);
 
@@ -3193,7 +3190,7 @@ io.sockets.on('connection', function (socket) {
 	socket.on("addVideo", function (data) {
 			ifCanControlPlaylist(socket, function (meta) {
 			const logData = { mod: getSocketName(socket), type: "playlist", title: data.videotitle, provider: data.videotype };
-			
+
 			if (data.videotype == "yt")
 				addVideoYT(socket, data, meta, onVideoAddSuccess, onVideoAddError);
 			else if (data.videotype == "vimeo")
@@ -3210,12 +3207,13 @@ io.sockets.on('connection', function (socket) {
 				addVideoTwitchClip(socket, data, meta, onVideoAddSuccess, onVideoAddError);
 			else {
 				// Okay, so, it wasn't vimeo and it wasn't youtube, assume it's a livestream and just queue it.
-				// This requires a videotitle and a videotype that the client understands.				
+				// This requires a videotitle and a videotype that the client understands.
 				data.videotype = "livestream";
 				addLiveVideo(data, meta, onVideoAddSuccess, onVideoAddError)
 			}
 
-			function onVideoAddSuccess() {
+			function onVideoAddSuccess(details) {
+				logData.title = details.title;
 				DefaultLog.info(
 					events.EVENT_ADMIN_ADDED_VIDEO,
 					"{mod} added {provider} video {title} on {type}",
@@ -3259,10 +3257,10 @@ io.sockets.on('connection', function (socket) {
 		ifCanMoveBerry(socket,function(freeMove){
 			var targetnick = data || "Server";
 
-			DefaultLog.info(events.EVENT_ADMIN_SET_BERRY, 
-				"{mod} gave berry to {nick} on {type}", 
+			DefaultLog.info(events.EVENT_ADMIN_SET_BERRY,
+				"{mod} gave berry to {nick} on {type}",
 				{ mod: getSocketName(socket), type: "playlist", nick: targetnick });
-			
+
 			if(targetnick == "Server"){
 				setBpAsLeader();
 			} else if(freeMove) {
@@ -3296,19 +3294,19 @@ io.sockets.on('connection', function (socket) {
 			if(forcetemp){temp = forcetemp;}
 			var message = "";
 			if (isbanning) {
-				message = temp 
+				message = temp
 					? `Shadow banned ${targetNick}`
 					: `Temporarily shadow banned ${targetNick}`
 
-				DefaultLog.info(temp ? events.EVENT_ADMIN_SHADOWBAN_TEMP : events.EVENT_ADMIN_SHADOWBAN_PERMANENT, 
-					"{mod} banned user {nick} on {type}", 
+				DefaultLog.info(temp ? events.EVENT_ADMIN_SHADOWBAN_TEMP : events.EVENT_ADMIN_SHADOWBAN_PERMANENT,
+					"{mod} banned user {nick} on {type}",
 					{ mod: getSocketName(socket), nick: targetNick, type: "site" });
 			}
 			else {
 				message = `Un-shadow banned ${targetNick}`;
 
-				DefaultLog.info(events.EVENT_ADMIN_SHADOWBAN_FORGIVEN, 
-					"{mod} unbanned {nick} on {type}", 
+				DefaultLog.info(events.EVENT_ADMIN_SHADOWBAN_FORGIVEN,
+					"{mod} unbanned {nick} on {type}",
 					{ mod: getSocketName(socket), nick: targetNick, type: "site" });
 			}
 
@@ -3337,18 +3335,18 @@ io.sockets.on('connection', function (socket) {
 			});
 			getSocketOfNick(targetNick, function(targetSocket) {
 				const logData = { mod: getSocketName(socket), ip: getAddress(targetSocket), type: "site" };
-				
+
 				if (isbanning){
-					DefaultLog.info(temp ? events.EVENT_ADMIN_SHADOWBAN_TEMP : events.EVENT_ADMIN_SHADOWBAN_PERMANENT, 
-						"{mod} banned ip {ip} on {type}", 
+					DefaultLog.info(temp ? events.EVENT_ADMIN_SHADOWBAN_TEMP : events.EVENT_ADMIN_SHADOWBAN_PERMANENT,
+						"{mod} banned ip {ip} on {type}",
 						logData);
 
 					shadowBanUser(targetSocket, temp);
 				} else {
 					DefaultLog.info(events.EVENT_ADMIN_SHADOWBAN_FORGIVEN,
-						"{mod} unbanned ip {ip} on {type}", 
+						"{mod} unbanned ip {ip} on {type}",
 						logData);
-					
+
 					unShadowBanUser(targetSocket);
 				}
 			});
@@ -3361,9 +3359,9 @@ io.sockets.on('connection', function (socket) {
 		ifCanSetAreas(socket,function(){
 			areaname = data.areaname;
 			content = data.content;
-			
-			DefaultLog.info(events.EVENT_ADMIN_EDITED_AREA, 
-				"{mod} edited {area} on {type}", 
+
+			DefaultLog.info(events.EVENT_ADMIN_EDITED_AREA,
+				"{mod} edited {area} on {type}",
 				{ mod: getSocketName(socket), type: "site", area: areaname });
 
 			setAreas(areaname,content);
@@ -3439,8 +3437,8 @@ io.sockets.on('connection', function (socket) {
 										}
 									}
 
-									DefaultLog.info(events.EVENT_ADMIN_SET_NOTE, 
-										"{mod} set {nick}'s note to '{note}' on {type}", 
+									DefaultLog.info(events.EVENT_ADMIN_SET_NOTE,
+										"{mod} set {nick}'s note to '{note}' on {type}",
 										{ mod: getSocketName(socket), type: "user", area: areaname, nick: d.nick, note: d.note});
 
 									forModminSockets(function(sc){
@@ -3529,8 +3527,8 @@ io.sockets.on('connection', function (socket) {
 	});
 	socket.on("error",function(err){
 		DefaultLog.error(
-			events.EVENT_SOCKET, 
-			"caught error on socket with ip {ip} and name {nick}", 
+			events.EVENT_SOCKET,
+			"caught error on socket with ip {ip} and name {nick}",
 			{ ip: getAddress(socket), nick: getSocketName(socket) });
 	});
 });
