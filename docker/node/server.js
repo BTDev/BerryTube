@@ -1,5 +1,6 @@
-const { PollService } = require("./modules/polls")
-const { AuthService } = require("./modules/auth")
+const { PollService } = require("./modules/polls");
+const { AuthService } = require("./modules/auth");
+const { ToggleService, toggles } = require("./modules/toggles");
 const { sanitize, getAddress } = require("./modules/security")
 const { DefaultLog, events, levels, consoleLogger, createStreamLogger } = require("./modules/log");
 const { getSocketName } = require("./modules/socket");
@@ -285,14 +286,23 @@ DefaultLog.addLogger(
 	});
 
 // our composition root
-const authService = new AuthService({ isLeader })
-const pollService = new PollService({ auth: authService, io })
+const authService = new AuthService({ isLeader });
+const toggleService = new ToggleService({ auth: authService, io, kickForIllegalActivity });
+const pollService = new PollService({ auth: authService, io });
+
+// service initialization...
+Object.keys(SERVER.settings.toggles)
+	.forEach(id => {
+		const [defaultValue, label] = SERVER.settings.toggles[id];
+		toggleService.add(id, label, defaultValue, Boolean);
+	});
 
 // all registered services receive certain events, so group them up
 const services = [
-	pollService,
-	authService
-]
+	authService,
+	toggleService,
+	pollService
+];
 
 var MODE_VIDEOCHAT = 0;
 var MODE_CHATONLY = 1;
@@ -563,8 +573,8 @@ function prepareBans(){
 	}
 }
 function augmentBan(ban,o){
-
-	if(!getToggleable("spaceaids")){ return; }
+	if (!toggleService.get(toggles.areBansContagious))
+		return;
 
 	// Merge IPs, Nicks, Take earlier time, take longer duration.
 	for(ip in o.ips){
@@ -1108,13 +1118,13 @@ function applyFilters(nick,msg,socket){
 	return msg;
 }
 function applyPluginFilters(msg,socket){
-	if(getToggleable("bestponi")){
+	if (toggleService.get(toggles.isBestPonyFilterEnabled)) {
 		//handle best pony.
 		var re = new RegExp('^[a-zA-Z ]+is bes([st]) pon([tiye])(.*)','i');
 		msg = msg.replace(re,randomPoni()+' is bes$1 pon$2$3');
 	}
 
-	if(getToggleable("wobniar")){
+	if (toggleService.get(toggles.isBackwardsTextFilterEnabled)) {
 		//handle backwards text.
 		var words = msg.split(" ");
 		for(var i=0;i<words.length;i++){
@@ -1229,7 +1239,7 @@ function _sendChat(nick,type,incoming,socket){
 		target = socket;
 	}
 
-	if(getToggleable("mutegray")){ // Mute grays?
+	if (toggleService.get(toggles.areGraysMuted)) {
 		if(type < 0){
 			target = socket;
 			emitChat(target,{
@@ -1384,7 +1394,6 @@ function setOverrideCss(path){
 }
 function sendCovertData(socket, type){
 	sendChatList(socket, type);
-	sendToggleables(socket);
 	for(var i in SERVER.OUTBUFFER['admin'])	{
 		emitChat(socket,SERVER.OUTBUFFER['admin'][i],true);
 	}
@@ -1393,42 +1402,6 @@ function sendCovertData(socket, type){
 		data.ghost = true;
 		socket.emit('adminLog', data);
 	}
-}
-function setToggleable(socket, name,state,callback){
-	if(typeof SERVER.settings.toggles[name] == "undefined"){
-		callback(`Toggleable ${name} not found`);
-	   	return;
-	}
-	if (typeof state == "undefined") {
-	   state = !SERVER.settings.toggles[name][0];
-	}
-
-	SERVER.settings.toggles[name][0] = state;
-
-	if (callback)
-		callback(null, {
-			name: name,
-			state: state
-		});
-}
-function getToggleable(name) {
-	if(typeof SERVER.settings.toggles[name] == "undefined") {
-		DefaultLog.error(events.EVENT_GENERAL, "No such toggleable {name} found", { name })
-		return false;
-	}
-
-	return SERVER.settings.toggles[name][0];
-}
-function sendToggleables(socket){
-	var data = {};
-	for(var key in SERVER.settings.toggles) {
-		if(SERVER.settings.toggles.hasOwnProperty(key)) {
-			data[key] = {};
-			data[key].label = SERVER.settings.toggles[key][1];
-			data[key].state = SERVER.settings.toggles[key][0];
-		}
-	}
-	socket.emit("setToggleables",data);
 }
 function getSocketOfNick(targetnick,truecallback,falsecallback){
 	targetnick = targetnick && targetnick.toLowerCase();
@@ -2448,17 +2421,6 @@ function ifCanSetAreas(socket,truecallback,falsecallback){
 		}
 	});
 }
-function ifCanSetToggleables(socket,truecallback,falsecallback){
-	socket.get('type',function(err,type){
-		if(
-			parseInt(type) >= 2
-		){
-			if(truecallback)truecallback();
-		}else{
-			if(falsecallback)falsecallback();
-		}
-	});
-}
 function userLogin(socket,data,truecallback,falsecallback){
 	if(!ifCanLogin(socket)) {
 		if(falsecallback)
@@ -2512,7 +2474,6 @@ function userLogin(socket,data,truecallback,falsecallback){
 					if(result[0].type >= 1){
 						// Send admin-only detals.
 						socket.join('admin');
-						sendToggleables(io.sockets);
 						sendCovertData(socket, result[0].type);
 					}
 					var meta = {};
@@ -2747,7 +2708,6 @@ io.sockets.on('connection', function (socket) {
 		if(!ip) return false;
 		DefaultLog.info(events.EVENT_SOCKET, "socket joined from ip {ip}, total users: {userCount}", { ip, userCount: io.sockets.clients().length });
 		// Send the SERVER.PLAYLIST, and then the position.
-		sendToggleables(socket);
 		socket.emit("recvPlaylist",SERVER.PLAYLIST.toArray());
 		sendChatList(socket);
 		sendDrinks(socket);
@@ -2873,25 +2833,6 @@ io.sockets.on('connection', function (socket) {
 	socket.on('chatOnly',function(){
 		socket.set('mode',MODE_CHATONLY);
 	});
-	socket.on('setToggleable',function(data){
-		ifCanSetToggleables(socket,function(){
-			tn = data.name;
-			ts = data.state;
-			setToggleable(socket, tn, ts, function(err) {
-				const logData = { mod: getSocketName(socket), type: "site", name: tn, state: ts ? "on" : "off" };
-
-				if (err) {
-					DefaultLog.error(events.EVENT_ADMIN_SET_TOGGLEABLE, "{mod} could not set {name} to {state} on {type}", logData);
-					return
-				}
-
-				DefaultLog.info(events.EVENT_ADMIN_SET_TOGGLEABLE, "{mod} set {name} to {state} on {type}", logData);
-				sendToggleables(io.sockets);
-			});
-		},function(){
-			kickForIllegalActivity(socket);
-		});
-	});
 
 	services.forEach(s => s.onSocketConnected(socket))
 
@@ -2959,10 +2900,12 @@ io.sockets.on('connection', function (socket) {
 			onRegisterError("Username must contain only letters, numbers and underscores.");
 			return;
 		}
-		if(!getToggleable("allowreg")){
+		
+		if (!toggleService.get(toggles.isRegistrationEnabled)) {
 			onRegisterError("Registrations are currently Closed. Sorry for the inconvenience!");
 			return;
 		}
+
 		if (SERVER.nick_blacklist.has(data.nick.toLowerCase())) {
 			onRegisterError("Username not available.");
 			return;
