@@ -177,7 +177,7 @@ exports.PollService = class extends ServiceBase {
 	 */
 	async publishTo(socket, eventName, sendClearPoll = true) {
 		if (!this.currentPoll) {
-			if (sendClearPoll);
+			if (sendClearPoll)
 				socket.emit("clearPoll", { options: [], votes: [] });
 			return
 		}

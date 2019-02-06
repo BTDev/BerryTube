@@ -35,7 +35,7 @@ exports.events = {
 
     // general fuckery
     EVENT_SOCKET: "EVENT_SOCKET",
-    EVENT_SOCKET_ACTION_FAILED: "EVENT_SOCKET_ACTION_FAILED",
+    EVENT_SOCKET_ACTION: "EVENT_SOCKET_ACTION",
     EVENT_PROC_UNHANDLED_EXCEPTION: "EVENT_PROC_UNHANDLED_EXCEPTION",
     EVENT_REPL: "EVENT_REPL",
     EVENT_GENERAL: "EVENT_GENERAL", // <- general debug, info or error, not otherwise specified

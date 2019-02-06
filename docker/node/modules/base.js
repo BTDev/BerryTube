@@ -29,7 +29,7 @@ exports.ServiceBase = class {
                 } catch (error) {
                     try {
                         this.log.error(
-                            events.EVENT_SOCKET_ACTION_FAILED, 
+                            events.EVENT_SOCKET_ACTION, 
                             "{nick} could not {action} because {message}", {
                                 action: actionName,
                                 message: error.message,

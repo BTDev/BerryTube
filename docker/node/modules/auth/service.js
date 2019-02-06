@@ -2,7 +2,7 @@ const { ServiceBase } = require("../base");
 const { getSocketPropAsync } = require("../socket");
 const { actions } = require("./actions");
 
-const getTypeAsync = async socket => parseInt(await getSocketPropAsync(socket));
+const getTypeAsync = async socket => parseInt(await getSocketPropAsync(socket, "type"));
 
 exports.AuthService = class extends ServiceBase {
     constructor({ isLeader }) {
@@ -32,6 +32,6 @@ exports.AuthService = class extends ServiceBase {
         if (!this.rules.hasOwnProperty(action))
             throw new Error(`Invalid action passed into canDoAsync: ${action}`);
 
-        return this.rules[action](socket)
+        return await this.rules[action](socket)
     }
 }

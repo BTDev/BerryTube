@@ -24,7 +24,7 @@ exports.ToggleService = class extends ServiceBase {
         this.toggles = {};
 
         this.exposeSocketActions({
-            "setToggleable": this.set.bind(this)
+            "setToggleable": this.setAsync.bind(this)
         });
     }
 
@@ -46,7 +46,7 @@ exports.ToggleService = class extends ServiceBase {
         return this.toggles[id].value;
     }
 
-    set(socket, {name: id, state}) {
+    async setAsync(socket, {name: id, state}) {
 		if (!(await this.auth.canDoAsync(socket, actions.ACTION_SET_TOGGLEABLE))) {
             this.kickForIllegalActivity(socket, "You cannot set toggleables");
             throw new Error("unauthoirzed");
@@ -70,7 +70,7 @@ exports.ToggleService = class extends ServiceBase {
     }
 
     publishToAll() {
-        this.io.emit("setToggleables", this.state);
+        this.io.sockets.emit("setToggleables", this.state);
     }
 
 	onSocketConnected(socket) {
