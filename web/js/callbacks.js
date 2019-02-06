@@ -583,3 +583,52 @@ socket.on('shitpost', function(data){
 socket.on('debugDump', function(data){
 	DEBUG_DUMPS.push(data);
 });
+
+(() => {
+	const userState = {};
+
+	socket.on("setUserState", ({ users: userStatePatch }) => {
+		for (const nick in userStatePatch) {
+			if (!userStatePatch.hasOwnProperty(nick))
+				continue;
+
+			const user = userState[nick] || (userState[nick] = {});
+			const patch = userStatePatch[nick];
+
+			for (const prop in patch) {
+				if (!patch.hasOwnProperty(prop))
+					continue;
+
+				user[prop] = patch[prop];
+			}
+		}
+
+		refreshTypingIndicator();
+	});
+
+	socket.on("userPart", function ({ nick }) {
+		delete userState[nick];
+		refreshTypingIndicator();
+	});
+
+	function refreshTypingIndicator() {
+		const users = [];
+		for (const nick in userState) {
+			if (!userState.hasOwnProperty(nick) || nick == NAME)
+				continue;
+
+			const state = userState[nick];
+			if (state.isTyping)
+				users.push(nick);
+		}
+
+		const typingString = !users.length
+			? ""
+			: users.length == 1
+				? `${users[0]} is typing...`
+				: `${users.join(", ")} are typing...`;
+
+		setChatStatusMessage(typingString);
+		scrollBuffersToBottom();
+	}
+})();

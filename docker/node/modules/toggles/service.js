@@ -22,10 +22,23 @@ exports.ToggleService = class extends ServiceBase {
         this.auth = auth;
         this.kickForIllegalActivity = kickForIllegalActivity;
         this.toggles = {};
+        this.listeners = [];
 
         this.exposeSocketActions({
             "setToggleable": this.setAsync.bind(this)
         });
+    }
+
+    addListener(onToggleSetListener) {
+        this.listeners.push(onToggleSetListener);
+
+        return () => {
+            const index = this.listeners.indexOf(onToggleSetListener);
+            if (index === -1)
+                return;
+
+            this.listeners.splice(index, 1);
+        };
     }
 
     add(id, label, defaultValue, convert) {
@@ -35,6 +48,7 @@ exports.ToggleService = class extends ServiceBase {
         const value = convert(defaultValue);
         this.toggles[id] = { id, label, value, convert, defaultValue: value };
         this.publishToAll();
+        this.listeners.forEach(l => l(id, value));
     }
 
     get(id) {
@@ -67,6 +81,7 @@ exports.ToggleService = class extends ServiceBase {
         logData.state = toggle.value;
         this.log.info(events.EVENT_ADMIN_SET_TOGGLEABLE, "{mod} set {toggleable} to {state} on {type}", logData);
         this.publishToAll();
+        this.listeners.forEach(l => l(id, toggle.value));
     }
 
     publishToAll() {

@@ -18,6 +18,8 @@ exports.ServiceBase = class {
         }
     }
     
+    onTick(elapsedMilliseconds) { }
+    
     onSocketConnected(socket) { 
         for (const actionName in this._socketActions) {
             if (!this._socketActions.hasOwnProperty(actionName))

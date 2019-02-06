@@ -1479,6 +1479,7 @@ function initChat(parent){
 	var admintab = $('<div id="admintab"/>').addClass('tab').text('#OPS').click(function() { showChat('admin'); }).appendTo(chattabs);
 
 	var chatbuffer = $('<div id="chatbuffer"/>').addClass('chatbuffer').css('display', 'block').appendTo(chatpane);
+	var chatStatus = $('<div id="chatStatus"/>').appendTo(chatpane);
 	var sbstare = $('<marquee/>').html('[](/sbstare)').appendTo(chatbuffer);
 
 	var adminbuffer = $('<div id="adminbuffer"/>').addClass('chatbuffer').css('display', 'none').appendTo(chatpane);
@@ -1520,13 +1521,23 @@ function initChat(parent){
 	},500)
 	var chatinputbar = $('<input/>').attr('maxlength','400').attr('aria-label', 'nickname').appendTo(chatinput);
 	chatinputbar.keyup(function(e) {
-		if(e.keyCode == 13) {chatinputbar.submit(); }
+		if(e.keyCode == 13) {
+			chatinputbar.submit(); 
+			stopTyping();
+		}
 	});
-	chatinputbar.keydown(function(objEvent) {
+
+	chatinputbar.keydown(function(objEvent) {	
 		if (objEvent.keyCode == 9) {  //tab pressed
 			objEvent.preventDefault(); // stops its action
 			tabComplete($(this));
-		}else{
+		} else {
+			if (objEvent.key && objEvent.key.length == 1) {
+				// kinda a bit of a hack, but this should only poke the typing indicator if a character (non control)
+				// key was pressed that resulted in a single char being sent.
+				ensureIsTyping();
+			}
+			
 			$(this).data('tabcycle',false);
 			$(this).data('tabindex',0);
 
@@ -1567,6 +1578,49 @@ function initChat(parent){
 	$('<div/>').addClass("clear").appendTo(chatpane);
 	initPolls(chatpane);
 	initChatControls(chatpane)
+
+	let isTyping = false;
+	let isTypingInterval = null;
+
+	function ensureIsTyping() {
+		isTyping = true;
+
+		if (!isTypingInterval) {
+			sendNewUserState({ isTyping: true })
+			isTyping = false;
+			isTypingInterval = window.setInterval(() => {
+				if (!isTyping) {
+					window.clearInterval(isTypingInterval);
+					isTypingInterval = null;
+				}
+				
+				sendNewUserState({ isTyping });
+				isTyping = false;
+			}, 2000);
+		}
+	}
+
+	function stopTyping() {
+		isTyping = false;
+		sendNewUserState({ isTyping });
+
+		if (isTypingInterval) {
+			window.clearInterval(isTypingInterval);
+			isTypingInterval = null;
+		}
+	}
+}
+function setChatStatusMessage(message) {
+	const $chatPane = $("#chatpane");
+	const $chatStatus = $("#chatStatus");
+
+	if (message) {
+		$chatPane.addClass("is-showing-status");
+		$chatStatus.text(message);
+	} else {
+		$chatPane.removeClass("is-showing-status");
+		$chatStatus.text("");
+	}
 }
 function initChatList(data){
 	$("#chatlist ul").children().remove();

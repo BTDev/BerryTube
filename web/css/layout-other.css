@@ -320,6 +320,7 @@ body {
 	overflow-x: hidden;
     position: absolute;
     top: 20px;
+    box-sizing: border-box;
 }
 .admin .chatbuffer, .mod .chatbuffer, .assistant .chatbuffer {
 	height: 318px;
@@ -920,4 +921,24 @@ button.ranked-poll__submit-button {
 .ranked-poll.ranked-poll--is-closed .ranked-poll__results-panel {
     background: rgba(0, 0, 0, .4);
     border-radius: 4px;
+}
+
+#chatpane.is-showing-status #chatbuffer {
+    padding-bottom: 1em;
+}
+
+#chatpane.is-showing-status #chatStatus {
+    display: block;
+}
+
+#chatStatus {
+    display: none;
+    position: absolute;
+    bottom: 38px;
+    z-index: 10;
+    width: 100%;
+    color: #555;
+    font-style: italic;
+    font-size: 10px;
+    left: 10px;
 }

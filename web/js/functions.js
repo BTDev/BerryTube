@@ -2367,3 +2367,7 @@ function refreshDebugDumps() {
 	DEBUG_DUMPS = [];
 	socket.emit('debugDump');
 }
+
+function sendNewUserState(state) {
+	socket.emit("setUserState", state);
+}
