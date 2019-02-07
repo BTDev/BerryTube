@@ -1,2 +1,5 @@
-exports.actions = require("./actions").actions;
-exports.AuthService = require("./service").AuthService;
+module.exports = {
+    ...require("./middleware"),
+    ...require("./actions"),
+    ...require("./service")
+};

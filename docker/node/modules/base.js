@@ -1,51 +1,25 @@
-const { DefaultLog } = require("./log");
-const { events } = require("./log/events");
-const { getSocketName } = require("./socket");
+const { addSocketActionHandlers } = require("./socket-actions");
+
+const _services = Symbol("#services");
 
 exports.ServiceBase = class {
-    constructor({log = DefaultLog}) {
-        this.log = log;
-        this._socketActions = {};
+    constructor(services) {
+        this[_services] = services;
+        // ^ I don't like taking dependencies on every service in our service locator, however
+        // for now this is the best way to propogate our service locator to our socket action
+        // midlewares.
+
+        this.log = services.log;
         this.onSocketConnected = this.onSocketConnected.bind(this)
     }
-    
-    exposeSocketActions(actions) {
-        for (const actionName in actions) {
-            if (!actions.hasOwnProperty(actionName))
-                continue;
 
-            this._socketActions[actionName] = actions[actionName];
-        }
+    getSocketApi() {
+        return {};
     }
-    
-    onSocketConnected(socket) { 
-        for (const actionName in this._socketActions) {
-            if (!this._socketActions.hasOwnProperty(actionName))
-                continue;
 
-            socket.on(actionName, async data => {
-                try {
-                    await this._socketActions[actionName](socket, data);
-                } catch (error) {
-                    try {
-                        this.log.error(
-                            events.EVENT_SOCKET_ACTION_FAILED, 
-                            "{nick} could not {action} because {message}", {
-                                action: actionName,
-                                message: error.message,
-                                nick: await getSocketName(socket)
-                            },
-                            error);
-                    } catch (e) {
-                        console.error("The error handler threw an error! How embarrassing.")
-                        
-                        if (e)
-                            console.error(e.stack || e)
-                    }
-                }
-            });
-        }
+    onSocketConnected(socket) {
+        addSocketActionHandlers(socket, this[_services], this.getSocketApi());
     }
-    
+
     onSocketAuthenticated(socket, type) { }
 };

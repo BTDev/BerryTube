@@ -1,8 +1,9 @@
 const { getAddress } = require("../security");
-const { actions } = require("../auth");
+const { actions, $auth } = require("../auth");
 const { getSocketPropAsync, setSocketPropAsync, socketProps, getSocketName } = require("../socket");
+const { use } = require("../socket-actions");
 const { ServiceBase } = require("../base");
-const { events } = require("../log/events");
+const { events, $log } = require("../log");
 
 const pollTypes = {
 	"normal": require("./poll-normal").NormalPoll,
@@ -15,26 +16,45 @@ const propVoteData = {
 };
 
 exports.PollService = class extends ServiceBase {
-	constructor({ auth, io, log }) {
-		super({ log, log });
+	constructor(services) {
+		super(services);
 		this.currentPoll = null;
-		this.auth = auth;
+		this.auth = services.auth;
+		this.io = services.io;
 		this.votedIpAddressMap = {};
-		this.io = io;
+	}
 
-		this.exposeSocketActions({
-			"newPoll": this.createPoll.bind(this),
-			"closePoll": this.closeCurrentPoll.bind(this),
-			"votePoll": this.castVote.bind(this),
+	getSocketApi() {
+		return {
+			"newPoll": use(
+				$auth([actions.ACTION_CREATE_POLL]),
+				$log(events.EVENT_ADMIN_CREATED_POLL, (socket, d) => [
+					"{mod} created poll {title} on {type}",
+					{ mod: getSocketName(socket), title: d.title, type: "site" }
+				]),
+				this.createPoll.bind(this)),
+
+			"closePoll": use(
+				$auth([actions.ACTION_CLOSE_POLL]),
+				$log(events.EVENT_ADMIN_CLOSED_POLL, (socket, d) => [
+					"{mod} closed poll {title} on {type}",
+					{ mod: getSocketName(socket), title: d.title, type: "site" }
+				]),
+				this.closeCurrentPoll.bind(this)),
+
+			"votePoll": use(
+				$auth([actions.ACTION_VOTE_POLL]),
+				this.castVote.bind(this)),
+
 			"disconnect": this.clearVote.bind(this)
-		});
+		};
 	}
 
 	/**
 	 * Opens a new poll of arbitrary type
 	 * Invoked via the "newPoll" socket action
-	 * @param {*} socket socket.io socket that requested this poll be created
 	 * @param {any} rawOptions the options to create this poll with
+	 * @param {*} socket socket.io socket that requested this poll be created
 	 */
 	async createPoll(socket, rawOptions) {
 		const options = {
@@ -43,9 +63,6 @@ exports.PollService = class extends ServiceBase {
 			isObscured: !!rawOptions.obscure,
 			pollType: rawOptions.pollType || "normal"
 		};
-		
-		if (!(await this.auth.canDoAsync(socket, actions.ACTION_CREATE_POLL)))
-			throw new Error("unauthoirzed");
 
 		const PollType = pollTypes[options.pollType]
 		if (!PollType)
@@ -61,13 +78,6 @@ exports.PollService = class extends ServiceBase {
 		this.currentPoll = new PollType(this, options, this.log);
 		this.votedIpAddressMap = {};
 		await this.publishToAll("newPoll");
-
-		this.log.info(
-			events.EVENT_ADMIN_CREATED_POLL, 
-			"{mod} opened poll {title} on {type}", { 
-				mod: await getSocketName(socket), 
-				title: options.title,
-				type: "site"});
 	}
 
 	/**
@@ -78,9 +88,6 @@ exports.PollService = class extends ServiceBase {
 	async closeCurrentPoll(socket) {
 		if (!this.currentPoll)
 			return;
-
-		if (!(await this.auth.canDoAsync(socket, actions.ACTION_CLOSE_POLL)))
-			throw new Error("unauthoirzed");
 
 		const title = this.currentPoll.options.title;
 		const logData = { mod: await getSocketName(socket), title, type: "site" };
@@ -96,11 +103,9 @@ exports.PollService = class extends ServiceBase {
 		this.currentPoll = null;
 		this.votedIpAddressMap = {};
 
-		this.log.info(events.EVENT_ADMIN_CLOSED_POLL, "{mod} closed poll {title} on {type}", logData);
-
 		try {
 			await this.publishToAll("clearPoll");
-		} catch(e) {
+		} catch (e) {
 			// Under some circumstances, publishToAll may fail. We don't want that preventing the poll from being closed, otherwise poisoned polls will prevent new polls
 			// from being created until a server restart.
 			this.log.error(events.EVENT_GENERAL, "{mod} closed poll {title} on {type}, but there were some errors when we published clearPoll", logData, e)
@@ -117,15 +122,12 @@ exports.PollService = class extends ServiceBase {
 		if (!this.currentPoll)
 			throw new Error("no current poll");
 
-		if (!(await this.auth.canDoAsync(socket, actions.ACTION_VOTE_POLL)))
-			throw new Error("unauthoirzed");
-
 		const ipAddress = getAddress(socket);
 		if (ipAddress != "172.20.0.1" && (!ipAddress || this.votedIpAddressMap.hasOwnProperty(ipAddress)))
 			throw new Error("IP has already voted");
 
 		const existingVote = await propVoteData.get(socket)
-		if (existingVote && existingVote.isComplete) 
+		if (existingVote && existingVote.isComplete)
 			throw new Error("socket has already voted");
 
 		const newVote = this.currentPoll.castVote(options, existingVote);
@@ -160,7 +162,7 @@ exports.PollService = class extends ServiceBase {
 	 */
 	async publishToAll(eventName, sendClearPoll = true) {
 		if (!this.currentPoll) {
-			if (sendClearPoll);
+			if (sendClearPoll)
 				this.io.sockets.emit("clearPoll", { options: [], votes: [] });
 			return;
 		}
@@ -178,7 +180,7 @@ exports.PollService = class extends ServiceBase {
 	async publishTo(socket, eventName, sendClearPoll = true) {
 		if (!this.currentPoll) {
 			if (sendClearPoll);
-				socket.emit("clearPoll", { options: [], votes: [] });
+			socket.emit("clearPoll", { options: [], votes: [] });
 			return
 		}
 

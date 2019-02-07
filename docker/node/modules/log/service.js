@@ -81,12 +81,22 @@ exports.LogService = class {
 
         let formatted;
         if (typeof data === "object") {
-            const formatParts = [];
             const formattedParts = [];
     
             parseFormat(format, (type, match) => {
-                formatParts.push({type, match});
-                formattedParts.push(type == "constant" ? match : (data[match] || ""));
+                if (type == "constant") {
+                    formattedParts.push(match);
+                    return;
+                }
+                
+                const value = data[match];
+                const toPrint = typeof(value) == "undefined"
+                    ? "{undefined}"
+                    : value == null
+                        ? "{null}"
+                        : value.toString()
+                
+                formattedParts.push(toPrint);
             });
     
             formatted = formattedParts.join("");
