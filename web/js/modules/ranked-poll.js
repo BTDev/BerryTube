@@ -43,15 +43,15 @@ export class RankedPoll {
                                 { className: "label ranked-poll__option", ref: e => optionRows.push(e) },
                                 createElement(
                                     "button",
-                                    { innerText: "1st", onClick: () => rankChoice(i, 0), className: "ranked-poll__1st-button", disabled: true }
+                                    { innerText: "1", onClick: () => rankChoice(i, 0), className: "ranked-poll__1st-button", disabled: true }
                                 ),
                                 createElement(
                                     "button",
-                                    { innerText: "2nd", onClick: () => rankChoice(i, 1), className: "ranked-poll__2nd-button", disabled: true }
+                                    { innerText: "2", onClick: () => rankChoice(i, 1), className: "ranked-poll__2nd-button", disabled: true }
                                 ),
                                 createElement(
                                     "button",
-                                    { innerText: "3rd", onClick: () => rankChoice(i, 2), className: "ranked-poll__3rd-button", disabled: true }
+                                    { innerText: "3", onClick: () => rankChoice(i, 2), className: "ranked-poll__3rd-button", disabled: true }
                                 ),
                                 createElement(
                                     "div",
@@ -123,7 +123,7 @@ export class RankedPoll {
 
         this.pollElement.classList.remove("ranked-poll--is-obscured");
         this.pollElement.classList.add("ranked-poll--is-visible");
-        this.voteCount.innerText = `(${state.rankedVotes.length} vote${state.rankedVotes.length != 1 ? "s" : ""})`;
+        this.voteCount.innerText = ` (${state.rankedVotes.length} vote${state.rankedVotes.length != 1 ? "s" : ""})`;
         clear(this.resultsPanel);
 
         state.results
