@@ -1,24 +1,21 @@
-const { events, doesFunctionSupressLogging, withSuppresedLogs } = require("./log");
+const { events, getAutoLogLevel, levels } = require("./log");
 const { AuthException } = require("./auth/middleware");
 const { getSocketName } = require("./socket");
+
+exports.$catch = handler => async (next, socket, actionArg, context, actionName) => {
+	try {
+		return await next(actionArg);
+	} catch (e) {
+		return handler(socket, actionArg, e);
+	}
+}
+
 
 exports.use = (...middlewares) => {
 	if (!middlewares.length)
 		throw new Error("y tho");
 
 	const handler = middlewares[middlewares.length - 1];
-	
-	let areLogsSuppresed = false;
-	for (const middleware of middlewares) {
-		if (!doesFunctionSupressLogging(middleware))
-			continue;
-
-		areLogsSuppresed = true;
-		break;
-	}
-
-	if (areLogsSuppresed)
-		withSuppresedLogs(pipeline);
 	
 	return pipeline;
 
@@ -49,18 +46,20 @@ exports.addSocketActionHandlers = function (socket, context, actions) {
  * Context is an object that is threaded though the pipeline. It should contain the socket, in addition
  * to all of the services exposed by our service locator.
  */
-exports.addSocketActionHandler = function (socket, context, actionName, handler) {
-	const isDefaultLoggingEnabled = !doesFunctionSupressLogging(handler);
-
+exports.addSocketActionHandler = function (socket, baseContext, actionName, handler) {
 	socket.on(actionName, async (actionArg) => {
+		let logLevel = levels.LEVEL_DEBUG;
+
 		try {
+			const context = Object.create(baseContext);
 			const result = handler(socket, actionArg, context, actionName);
-			
+			logLevel = getAutoLogLevel(context);
+
 			if (result && result.then)
 				await result; // <- await promise-likes so that exceptions propagate to our catch below
 
-			if (isDefaultLoggingEnabled) {
-				context.log.error(events.EVENT_SOCKET_ACTION, 
+			if (logLevel <= levels.LEVEL_INFORMATION) {
+				context.log.info(events.EVENT_SOCKET_ACTION, 
 					"{nick} did {actionName}", 
 					{ actionName, nick: await getSocketName(socket) });
 			}
@@ -69,7 +68,7 @@ exports.addSocketActionHandler = function (socket, context, actionName, handler)
 				if ((error instanceof AuthException) && error.kickOnFail)
 					context.kickForIllegalActivity(socket, `user is not allowed to ${actionName}`);
 
-				if (isDefaultLoggingEnabled) {
+				if (logLevel <= levels.LEVEL_ERROR) {
 					context.log.error(events.EVENT_SOCKET_ACTION, 
 						"{nick} could not {actionName} because {message}", 
 						{ actionName, message: error.message, nick: await getSocketName(socket) },

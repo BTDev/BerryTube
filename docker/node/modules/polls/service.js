@@ -26,7 +26,7 @@ exports.PollService = class extends ServiceBase {
 
 	getSocketApi() {
 		return {
-			"newPoll": use(
+			[actions.ACTION_CREATE_POLL]: use(
 				$auth([actions.ACTION_CREATE_POLL]),
 				$log(events.EVENT_ADMIN_CREATED_POLL, (socket, d) => [
 					"{mod} created poll {title} on {type}",
@@ -34,7 +34,7 @@ exports.PollService = class extends ServiceBase {
 				]),
 				this.createPoll.bind(this)),
 
-			"closePoll": use(
+			[actions.ACTION_CLOSE_POLL]: use(
 				$auth([actions.ACTION_CLOSE_POLL]),
 				$log(events.EVENT_ADMIN_CLOSED_POLL, (socket, d) => [
 					"{mod} closed poll {title} on {type}",
@@ -42,7 +42,7 @@ exports.PollService = class extends ServiceBase {
 				]),
 				this.closeCurrentPoll.bind(this)),
 
-			"votePoll": use(
+			[actions.ACTION_VOTE_POLL]: use(
 				$auth([actions.ACTION_VOTE_POLL]),
 				this.castVote.bind(this)),
 

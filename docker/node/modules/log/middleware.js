@@ -1,21 +1,22 @@
 const { getSocketName } = require("../socket");
 const { getAddress } = require("../security");
+const { levels } = require("./index");
 
-const _areLogsSuppresed = Symbol("#areLogsSuppresed");
+const _autologLevel = Symbol("#areLogsSuppresed");
 
-exports.withSuppresedLogs = middleware => {
-    middleware[_areLogsSuppresed] = true;
-    return middleware;
+exports.getAutoLogLevel = context => context[_autologLevel] || levels.LEVEL_DEBUG;
+
+exports.$autoLog = level => (next, socket, actionArg, context, actionName) => {
+    context[_autologLevel] = level;
+    return next(actionArg);
 }
 
-exports.doesFunctionSupressLogging = middleware => middleware[_areLogsSuppresed];
-
 exports.$log = (event, messageOrFunc = null, dataOrNothing = null) => {
-    dewIt[_areLogsSuppresed] = true;
     return dewIt;
 
     async function dewIt(next, socket, actionArg, context, actionName) {
         try {
+            context[_autologLevel] = levels.DISABLED;
             const res = await next(actionArg);
             context.log.info(event, ...getLogArgs(socket, actionArg, context, actionName))
             return res;

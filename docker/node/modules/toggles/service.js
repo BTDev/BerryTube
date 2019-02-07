@@ -1,6 +1,7 @@
 const { ServiceBase } = require("../base");
 const { getSocketName } = require("../socket");
-const { actions } = require("../auth/actions");
+const { actions, $auth } = require("../auth");
+const { $log } = require("../log");
 const { events } = require("../log");
 
 exports.ToggleService = class extends ServiceBase {
@@ -16,18 +17,26 @@ exports.ToggleService = class extends ServiceBase {
         return state;
     }
     
-    constructor({ io, auth, log, kickForIllegalActivity }) {
-        super({ log });
-        this.io = io;
-        this.auth = auth;
-        this.kickForIllegalActivity = kickForIllegalActivity;
+    constructor(services) {
+        super(services);
+        this.io = services.io;
+        this.auth = services.auth;
+        this.kickForIllegalActivity = services.kickForIllegalActivity;
         this.toggles = {};
         this.listeners = [];
-
-        this.exposeSocketActions({
-            "setToggleable": this.setAsync.bind(this)
-        });
     }
+    
+	getSocketApi() {
+		return {
+			[actions.ACTION_SET_TOGGLEABLE]: use(
+				$auth([actions.ACTION_SET_TOGGLEABLE]),
+				$log(events.EVENT_ADMIN_CREATED_POLL, (socket, data) => [
+					"{mod} set {toggleable} to {state} on {type}",
+                    { mod: getSocketName(socket), toggleable: data.name, type: "site", state: Boolean(data.state) }
+				]),
+				(_, data) => this.setAsync(data))
+		};
+	}
 
     addListener(onToggleSetListener) {
         this.listeners.push(onToggleSetListener);
@@ -60,26 +69,15 @@ exports.ToggleService = class extends ServiceBase {
         return this.toggles[id].value;
     }
 
-    async setAsync(socket, {name: id, state}) {
-		if (!(await this.auth.canDoAsync(socket, actions.ACTION_SET_TOGGLEABLE))) {
-            this.kickForIllegalActivity(socket, "You cannot set toggleables");
-            throw new Error("unauthoirzed");
-        }
-
-        const logData = { mod: await getSocketName(socket), toggleable: id, type: "site" };
-
-        if (!this.toggles.hasOwnProperty(id)) {
-            this.log.error(events.EVENT_ADMIN_SET_TOGGLEABLE, "{mod} could not set {toggleable} because it does not eixst on {type}", logData);
+    async setAsync({name: id, state}) {
+        if (!this.toggles.hasOwnProperty(id))
             throw new Error(`Toggle ${id} not found`);
-        }
 
         const toggle = this.toggles[id];
         toggle.value = (typeof(state) !== "undefined")
             ? toggle.convert(state)
             : this.toggles[id].defaultValue;
 
-        logData.state = toggle.value;
-        this.log.info(events.EVENT_ADMIN_SET_TOGGLEABLE, "{mod} set {toggleable} to {state} on {type}", logData);
         this.publishToAll();
         this.listeners.forEach(l => l(id, toggle.value));
     }

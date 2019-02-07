@@ -1,6 +1,8 @@
 const { parseFormat } = require("../utils");
 
 const levels = exports.levels = {
+    DISABLED: 999,
+
     LEVEL_DEBUG: 1,
     LEVEL_INFORMATION: 2,
     LEVEL_ERROR: 3
