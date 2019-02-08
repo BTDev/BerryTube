@@ -2655,26 +2655,20 @@ io.sockets.on('connection', function (socket) {
 		[actions.ACTION_SEARCH_VIDEO_HISTORY]: use(
 			$catch(() => socket.emit("searchHistoryResults", [])),
 			$auth(actions.ACTION_SEARCH_VIDEO_HISTORY),
-			$notAsync,
-			function (_, data, context) {
-				var sql = "select * from videos_history where videotitle like ? order by date_added desc limit 50";
-				mysql.query(sql, ['%' + encodeURI(data.search).replace('%', '\\%') + '%'], function (err, result, fields) {
-					if (err) {
-						rejectContext(context, err);
-						return;
-					}
-					for (var i = 0; i < result.length; ++i) {
-						var o = result[i];
-						try {
-							o.meta = JSON.parse(o.meta);
-							if (typeof o.meta != "object") {
-								o.meta = {};
-							}
-						} catch (e) { o.meta = {}; }
-					}
-					socket.emit('searchHistoryResults', result);
-					completeContext(context);
-				});
+			function (_, data) {
+				const pattern = '%' + encodeURI(data.search).replace('%', '\\%') + '%'
+				const { result } = await query`select * from videos_history where videotitle like ${pattern} order by date_added desc limit 50`
+
+				for (var i = 0; i < result.length; ++i) {
+					var o = result[i];
+					try {
+						o.meta = JSON.parse(o.meta);
+						if (typeof o.meta != "object") {
+							o.meta = {};
+						}
+					} catch (e) { o.meta = {}; }
+				}
+				socket.emit('searchHistoryResults', result);
 			}),
 
 		/**
@@ -2684,6 +2678,9 @@ io.sockets.on('connection', function (socket) {
 		 */
 		[actions.ACTION_DELETE_VIDEO_HISTORY]: use(
 			$auth(actions.ACTION_DELETE_VIDEO_HISTORY),
+			$log(events.EVENT_ADMIN_EDITED_FILTERS, (_, data) => [
+				"{mod} deleted history for id {id} on {type}",
+				{ mod: getSocketName(socket), type: "playlist", id: data.videoid }]),
 			$autoLog(levels.DISABLED),
 			function (_, data) {
 				const logData = { mod: getSocketName(socket), type: "playlist", id: data.videoid };
@@ -2693,15 +2690,7 @@ io.sockets.on('connection', function (socket) {
 					return;
 				}
 
-				var sql = 'delete from videos_history where videoid = ? limit 1';
-				mysql.query(sql, [data.videoid], function (err) {
-					if (err) {
-						DefaultLog.error(events.EVENT_DB_QUERY, "query \"{sql}\" failed", { sql }, err);
-						DefaultLog.error(events.EVENT_ADMIN_CLEARED_HISTORY, "{mod} could not delete history for invalid id {id} on {type}", logData, err)
-					} else {
-						DefaultLog.info(events.EVENT_ADMIN_CLEARED_HISTORY, "{mod} deleted history for id {id} on {type}", logData, err)
-					}
-				});
+				query`delete from videos_history where videoid = ${data.videoid} limit 1`;
 			}),
 
 		/**
