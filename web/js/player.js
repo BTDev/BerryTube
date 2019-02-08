@@ -283,7 +283,7 @@ function osmfEventHandler(playerId, event, data) {
     }
 }
 
-window.PLAYERS.osmf = window.PLAYERS.livestream = {
+window.PLAYERS.osmf = {
     loadPlayer: function (src, to, volume) {
         if (volume === false){
             volume = 1;
