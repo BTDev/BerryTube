@@ -1,28 +1,29 @@
 exports.actions = {
     ACTION_CHANGE_PASSWORD: "changePassword",
-    ACTION_CHAT: "chat",
     ACTION_REFRESH_PLAYLIST: "refreshMyPlaylist",
     ACTION_REFRESH_VIDEO: "refreshMyVideo",
     ACTION_REGISTER: "registerNick",
     ACTION_RENEW_POSITION: "renewPos",
     ACTION_SET_CHATONLY: "chatOnly",
-    ACTION_SET_NICK: "setNick",
+    ACTION_LOGIN: "setNick",
     ACTION_SET_PLAYLIST_IS_INITIALIZED: "myPlaylistIsInited",
     ACTION_VOTE_POLL: "votePoll",
     
-    ACTION_FORCE_STATE_CHANGE: "forceStateChange",
-    ACTION_VIDEO_SEEK: "videoSeek",
+    ACTION_CHAT: "chat",
+
+    ACTION_SET_VIDEO_STATE: "forceStateChange",
+    ACTION_SEEK_VIDEO: "videoSeek",
     
     ACTION_CLOSE_POLL: "closePoll",
     ACTION_CREATE_POLL: "createPoll",
     CAN_SEE_OBSCURED_POLLS: "canSeeObscuredPolls",
     
     ACTION_ADD_VIDEO: "addVideo",
-    ACTION_FORCE_VIDEO_CHANGE: "forceVideoChange",
-    ACTION_PLAY_NEXT: "playNext",
-    ACTION_SORT_PLAYLIST: "sortPlaylist",
+    ACTION_PLAY_VIDEO: "forceVideoChange",
+    ACTION_SKIP_VIDEO: "playNext",
+    ACTION_MOVE_VIDEO: "sortPlaylist",
 
-    ACTION_GIVE_UP_LEADER: "giveUpLeader",
+    ACTION_UNSET_LEADER: "giveUpLeader",
     
     ACTION_DELETE_VIDEO_HISTORY: "delVideoHistory",
     ACTION_DELETE_VIDEO: "delVideo",

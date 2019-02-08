@@ -1,6 +1,9 @@
 exports.socketProps = {
 	PROP_VOTE_DATA: "PROP_VOTE_DATA",
-	PROP_NICK: "nick"
+	PROP_NICK: "nick",
+	PROP_TYPE: "type",
+	PROP_LAST_MESSAGE: "lastmsg",
+	PROP_CHAT_HP: "chathp"
 };
 
 exports.getSocketPropAsync = function (socket, prop) {

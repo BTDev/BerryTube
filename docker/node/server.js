@@ -2,8 +2,8 @@ const { PollService } = require("./modules/polls")
 const { AuthService, $auth, actions } = require("./modules/auth")
 const { sanitize, getAddress } = require("./modules/security")
 const { DefaultLog, events, levels, consoleLogger, createStreamLogger, $log, $autoLog } = require("./modules/log");
-const { getSocketName } = require("./modules/socket");
-const { addSocketActionHandlers, use, $catch } = require("./modules/socket-actions");
+const { getSocketName, setSocketPropAsync, getSocketPropAsync, socketProps } = require("./modules/socket");
+const { addSocketActionHandlers, use, $catch, $notAsync, completeContext, rejectContext } = require("./modules/socket-actions");
 const { ToggleService, toggles } = require("./modules/toggles");
 
 // Include the SERVER.settings
@@ -96,6 +96,35 @@ function dbInit(){
 	});
 
 	mysql.query(`use ${SERVER.dbcon.database}`);
+}
+
+function query(queryParts, ...params) {
+	return new Promise((res, rej) => {
+		const sql = queryParts.join(" ? ");
+		mysql.query(sql, params, (err, result, fields) => {
+			if (err) {
+				rej(err);
+				DefaultLog.error(events.EVENT_DB_QUERY, "query \"{sql}\" failed", { sql }, err);
+				return;
+			}
+
+			res({result, fields});
+		});
+	});
+}
+
+function bcryptAsync(subject, rounds = SERVER.settings.core.bcrypt_rounds) {
+	return new Promise((res, rej) => {
+		bcrypt.hash(subject, rounds, (err, hashed) => {
+			if (err) {
+				DefaultLog.error(events.EVENT_GENERAL, "Failed to bcrypt {subject}", { subject }, err);
+				rej(err);
+				return;
+			}
+
+			res(hashed);
+		})
+	});
 }
 
 dbInit();
@@ -1167,15 +1196,26 @@ function setVideoVolatile(socket,pos,isVolat){
 		volat:isVolat
 	});
 }
-function setVideoColorTag(pos,tag,volat){
+function setVideoColorTagAsync(pos, tag, volat) {
+	return new Promise((res, rej) => {
+		setVideoColorTag(pos, tag,volat, err => {
+			if (err) {
+				rej(err);
+				return;
+			}
+
+			res();
+		});
+	});
+}
+function setVideoColorTag(pos,tag,volat,callback){
 	var elem = SERVER.PLAYLIST.first;
 	for(var i=0;i<pos;i++){
 		elem=elem.next;
 	}
-	_setVideoColorTag(elem,pos,tag,volat);
+	_setVideoColorTag(elem,pos,tag,volat,callback);
 }
-function _setVideoColorTag(elem,pos,tag,volat){
-
+function _setVideoColorTag(elem,pos,tag,volat,callback = noop){
 	if(tag == false){
 		delete elem.meta.colorTag;
 	} else {
@@ -1192,8 +1232,11 @@ function _setVideoColorTag(elem,pos,tag,volat){
 	mysql.query(sql, [JSON.stringify(elem.meta), '' + elem.videoid], function(err) {
 		if (err) {
 			DefaultLog.error(events.EVENT_DB_QUERY, "query \"{sql}\" failed", { sql }, err);
+			callback(err);
 			return;
 		}
+
+		callback();
 	});
 	io.sockets.emit("setVidColorTag",{
 		pos:pos,
@@ -1205,16 +1248,6 @@ function _setVideoColorTag(elem,pos,tag,volat){
 /* ================= */
 function emitChat(socket,data,ghost){
 	if(socket)socket.emit("chatMsg",{msg:data,ghost:ghost});
-}
-function sendChat(nick,type,incoming,socket){
-	// before we do anything else, lets check how long since the last time he spoke.
-	handleSpamChecks({
-		nick:nick, // Who is talking
-		type:type, // Userlevel
-		incoming:incoming, // msg,metadata
-		socket:socket,
-		callback: _sendChat
-	});
 }
 function _sendChat(nick,type,incoming,socket){
 	//Sanitize.
@@ -1373,24 +1406,31 @@ function _sendChat(nick,type,incoming,socket){
 
 	//
 }
-function handleSpamChecks(x){
-	x.socket.get("lastmsg",function(err,lasttime){
-		x.socket.get("chathp",function(err,hp){
-			if(typeof lasttime == "undefined" || lasttime == null){	lasttime = new Date().getTime() - SERVER.settings.core.spamhp; }
-			if(typeof hp == "undefined" || hp == null){ hp = SERVER.settings.core.spamhp; }
-			var nowtime = new Date().getTime();
-			var dTime = nowtime - lasttime;
-			var dHp = dTime - SERVER.settings.core.spamcompare
-			hp = Math.min(hp + dHp,SERVER.settings.core.spamhp); // apply damage/healing.
-			if(hp < 0){
-				kickIfUnderLevel(x.socket,"Spamming",1);
-			} else {
-				x.callback(x.nick,x.type,x.incoming,x.socket);
-				x.socket.set("chathp",hp);
-				x.socket.set("lastmsg",nowtime);
-			}
-		});
-	});
+async function handleSpamChecks(socket) {
+	const lasttime = await getSocketPropAsync(socketProps.PROP_LAST_MESSAGE);
+	const hp = await getSocketPropAsync(socketProps.PROP_CHAT_HP);
+	
+	if (typeof lasttime == "undefined" || lasttime == null) { 
+		lasttime = new Date().getTime() - SERVER.settings.core.spamhp; 
+	}
+
+	if (typeof hp == "undefined" || hp == null) { 
+		hp = SERVER.settings.core.spamhp;
+	}
+	
+	var nowtime = new Date().getTime();
+	var dTime = nowtime - lasttime;
+	var dHp = dTime - SERVER.settings.core.spamcompare
+	hp = Math.min(hp + dHp,SERVER.settings.core.spamhp); // apply damage/healing.
+
+	if (hp >= 0) {
+		kickIfUnderLevel(socket,"Spamming",1);
+		return false;
+	}
+
+	await setSocketPropAsync(socket, socketProps.PROP_CHAT_HP, hp);
+	await setSocketPropAsync(socket, socketProps.PROP_LAST_MESSAGE, nowtime);
+	return true;
 }
 
 /* ================= */
@@ -1422,15 +1462,34 @@ function getSocketOfNick(targetnick,truecallback,falsecallback){
 	}
 }
 
-function delVideo(data, socket){
+function delVideoAsync(data, socket) {
+	return new Promise((res, rej) => {
+		delVideo(data, socket, err => {
+			if (err) {
+				rej(err);
+				return;
+			}
+
+			res();
+		});
+	})
+}
+
+function delVideo(data, socket, callback = noop){
 	elem = SERVER.PLAYLIST.first;
+	let waiting = false;
 	for(var i=0;i<SERVER.PLAYLIST.length;i++)
 	{
 		if(i == data.index)
 		{
-			if(data.sanityid && elem.videoid != data.sanityid) return doorStuck(socket);
+			if(data.sanityid && elem.videoid != data.sanityid) {
+				callback();
+				return doorStuck(socket);
+			}
 
-			if(elem.deleted) break;
+			if(elem.deleted)
+				break;
+			
 			if(elem == SERVER.ACTIVE) playNext();
 
 			try{
@@ -1457,17 +1516,23 @@ function delVideo(data, socket){
 					];
 				}
 
+				waiting = true;
 				mysql.query(q, ['' + elem.videoid], function(err) {
 					if (err) {
 						DefaultLog.error(events.EVENT_DB_QUERY, "query \"{sql}\" failed", { sql: q }, err);
+						callback(err);
 						return;
 					}
+
 					if(historyQuery){
 						mysql.query(historyQuery, historyQueryParams, function(err) {
 							if (err) {
 								DefaultLog.error(events.EVENT_DB_QUERY, "query \"{sql}\" failed", { sql: historyQuery }, err);
+								callback(err);
 								return;
 							}
+
+							callback();
 						});
 					}
 				});
@@ -1498,6 +1563,9 @@ function delVideo(data, socket){
 
 			break;
 		}
+
+		if (!waiting)
+			callback();
 	}
 }
 function rawAddVideo(d,successCallback,failureCallback){
@@ -2153,24 +2221,6 @@ function ifCanAnnounce(socket,truecallback,falsecallback){
 		});
 	});
 }
-function ifCanChat(socket,truecallback,falsecallback){
-	socket.get('nick', function (err, nick){
-		socket.get('type',function(err,type){
-			if(nick == null)
-			{
-				if(falsecallback)falsecallback();
-			}
-			else
-			{
-				var meta = {
-					nick:nick,
-					type:type
-				};
-				if(truecallback)truecallback(meta);
-			}
-		});
-	});
-}
 function ifChatMsgIsOk(socket,data,truecallback,falsecallback){
 	if("msg" in data){
 		if(data.msg.length > SERVER.settings.core.max_chat_size){
@@ -2194,6 +2244,10 @@ function ifCanCallDrinks(socket,truecallback,falsecallback){
 			if(falsecallback)falsecallback();
 		}
 	});
+}
+function isNickFreeAsync(nick) {
+	return new Promise((res) => 
+		ifNickFree(nick, () => res(true), () => res(false)));
 }
 function ifNickFree(nick,truecallback,falsecallback){
 	nick = nick && nick.toLowerCase();
@@ -2226,6 +2280,11 @@ function ifCanShitpost(socket,truecallback,falsecallback){
 			if(falsecallback)falsecallback();
 		}
 	});
+}
+function userLoginAsync(socket, data) {
+	return new Promise((res, rej) => {
+		userLogin(socket, data, () => res(), (err) => rej(err));
+	})
 }
 function userLogin(socket,data,truecallback,falsecallback){
 	if(!ifCanLogin(socket)) {
@@ -2410,6 +2469,13 @@ function ghostBustUser(socket, data, successCallback){
 			successCallback();
 		});
 }
+
+function getSocketOfNickAndIPAsync(targetnick, targetip) {
+	return new Promise((res) => {
+		getSocketOfNickAndIP(targetnick, targetip, res, () => res(null));
+	});
+}
+
 function getSocketOfNickAndIP(targetnick,targetip,truecallback,falsecallback){
 	targetnick = targetnick && targetnick.toLowerCase();
 	var found = false;
@@ -2541,26 +2607,39 @@ io.sockets.on('connection', function (socket) {
 	});
 
 	addSocketActionHandlers(socket, serviceLocator, {
+		/**
+		 * Adds an external stylesheet to each client with the specified href.
+		 * @param {any} _ Ignored.
+		 * @param {string} linkHref The href of the style to add.
+		 */
 		[actions.ACTION_SET_OVERRIDE_CSS]: use(
 			$auth(actions.ACTION_SET_OVERRIDE_CSS),
 			$log(events.EVENT_ADMIN_SET_CSS, (_, data) => [
 				"{mod} set css override to {css} on {type}",
 				{ mod: getSocketName(socket), type: "site", css: data }]),
-			function (_, data) {
+			function (_, linkHref) {
 				upsertMisc(
-					{ name: "overrideCss", value: data },
-					() => io.sockets.emit("overrideCss", data));
+					{ name: "overrideCss", value: linkHref },
+					() => io.sockets.emit("overrideCss", linkHref));
 			}),
 
+		/**
+		 * Sets sitewide text filters.
+		 * @param {any} _ Ignored.
+		 * @param {IFilter[]} filters The filters configuration object.
+		 */
 		[actions.ACTION_SET_FILTERS]: use(
 			$auth(actions.ACTION_SET_FILTERS),
 			$log(events.EVENT_ADMIN_EDITED_FILTERS, () => [
 				"{mod} edited filters on {type}",
 				{ mod: getSocketName(socket), type: "site" }]),
-			function (_, data) {
-				SERVER.FILTERS = data;
+			function (_, filters) {
+				SERVER.FILTERS = filters;
 			}),
 
+		/**
+		 * Gets sitewide text filters.
+		 */
 		[actions.ACTION_GET_FILTERS]: use(
 			$auth(actions.ACTION_GET_FILTERS),
 			$autoLog(levels.LEVEL_ERROR),
@@ -2568,14 +2647,20 @@ io.sockets.on('connection', function (socket) {
 				socket.emit("recvFilters", SERVER.FILTERS);
 			}),
 
+		/**
+		 * Searches the videos_history table for a video based off of title.
+		 * @param {any} _ Ignored.
+		 * @param {string} data.search The title to use for the video search.
+		 */
 		[actions.ACTION_SEARCH_VIDEO_HISTORY]: use(
 			$catch(() => socket.emit("searchHistoryResults", [])),
 			$auth(actions.ACTION_SEARCH_VIDEO_HISTORY),
-			function (_, data) {
+			$notAsync,
+			function (_, data, context) {
 				var sql = "select * from videos_history where videotitle like ? order by date_added desc limit 50";
 				mysql.query(sql, ['%' + encodeURI(data.search).replace('%', '\\%') + '%'], function (err, result, fields) {
 					if (err) {
-						DefaultLog.error(events.EVENT_DB_QUERY, "query \"{sql}\" failed", { sql }, err);
+						rejectContext(context, err);
 						return;
 					}
 					for (var i = 0; i < result.length; ++i) {
@@ -2588,9 +2673,15 @@ io.sockets.on('connection', function (socket) {
 						} catch (e) { o.meta = {}; }
 					}
 					socket.emit('searchHistoryResults', result);
+					completeContext(context);
 				});
 			}),
 
+		/**
+		 * Clears the videos_history table of all videos matching data.videoid.
+		 * @param {any} _ Ignored.
+		 * @param {VideoId} data.videoid The the video to clear the history of.
+		 */
 		[actions.ACTION_DELETE_VIDEO_HISTORY]: use(
 			$auth(actions.ACTION_DELETE_VIDEO_HISTORY),
 			$autoLog(levels.DISABLED),
@@ -2613,6 +2704,9 @@ io.sockets.on('connection', function (socket) {
 				});
 			}),
 
+		/**
+		 * Randomizes the order of each video in the playlist.
+		 */
 		[actions.ACTION_RANDOMIZE_PLAYLIST]: use(
 			$auth(actions.ACTION_RANDOMIZE_PLAYLIST),
 			$log(events.EVENT_ADMIN_RANDOMIZED_PLAYLIST, () => [
@@ -2637,6 +2731,9 @@ io.sockets.on('connection', function (socket) {
 				io.sockets.emit("recvNewPlaylist", SERVER.PLAYLIST.toArray());
 			}),
 
+		/**
+		 * Obsolete?
+		 */
 		[actions.ACTION_SET_CHATONLY]: use(
 			$auth(actions.ACTION_SET_CHATONLY),
 			$autoLog(levels.LEVEL_ERROR),
@@ -2644,6 +2741,9 @@ io.sockets.on('connection', function (socket) {
 				socket.set("mode", MODE_CHATONLY);
 			}),
 
+		/**
+		 * Forces a client to re-receive to the current video and video location.
+		 */
 		[actions.ACTION_SET_PLAYLIST_IS_INITIALIZED]: use(
 			$auth(actions.ACTION_SET_PLAYLIST_IS_INITIALIZED),
 			$autoLog(levels.LEVEL_ERROR),
@@ -2651,6 +2751,9 @@ io.sockets.on('connection', function (socket) {
 				sendStatus("createPlayer", socket);
 			}),
 
+		/**
+		 * Forces a client to re-receive to the current video and video location.
+		 */
 		[actions.ACTION_RENEW_POSITION]: use(
 			$auth(actions.ACTION_RENEW_POSITION),
 			$autoLog(levels.LEVEL_ERROR),
@@ -2658,6 +2761,9 @@ io.sockets.on('connection', function (socket) {
 				sendStatus("renewPos", socket);
 			}),
 
+		/**
+		 * Forces a client to re-receive to the current video and video location.
+		 */
 		[actions.ACTION_REFRESH_VIDEO]: use(
 			$auth(actions.ACTION_REFRESH_VIDEO),
 			$autoLog(levels.LEVEL_ERROR),
@@ -2665,6 +2771,9 @@ io.sockets.on('connection', function (socket) {
 				sendStatus("forceVideoChange", socket);
 			}),
 
+		/**
+		 * Forces a client to re-receive the entire playlist.
+		 */
 		[actions.ACTION_REFRESH_PLAYLIST]: use(
 			$auth(actions.ACTION_REFRESH_PLAYLIST),
 			$autoLog(levels.LEVEL_ERROR),
@@ -2672,194 +2781,159 @@ io.sockets.on('connection', function (socket) {
 				socket.emit("recvNewPlaylist", SERVER.PLAYLIST.toArray());
 			}),
 
+		/**
+		 * Sends a chat message.
+		 * @param {any} _ Ignored.
+		 * @param {IChatMessage} message The message to dispatch on behalf of the instigating socket.
+		 */
 		[actions.ACTION_CHAT]: use(
 			$auth(actions.ACTION_CHAT),
-			$autoLog(levels.LEVEL_ERROR),
-			(_, data) => {
-				// can't use $log middleware until this function is made async
-				ifCanChat(socket, function (meta) { // Permissions check
-					ifChatMsgIsOk(socket, data, function () { // check length, et al
+			$log(events.EVENT_CHAT, (_, data) => [
+				"user {nick} on ip {ip} sent message {message}",
+				{ nick: getSocketName(socket), ip: getAddress(socket), message: String(data.msg) }]),
+			async (_, data) => {
+				if (!("msg" in data))
+					throw new Error("Chat message did not contain a msg property.");
 
-						var ip = getAddress(socket);
-						if (!ip) return false;
-						DefaultLog.info(events.EVENT_CHAT, "user {nick} on ip {ip} sent message {message}", { ip, nick: meta.nick, message: data.msg });
-						sendChat(meta.nick, meta.type, data, socket);
+				if (!getAddress(socket))
+					throw new Error("Cannot verify socket's ip address");
 
-					}, function () {
-						kickForIllegalActivity(socket, "Chat Spam");
-					});
-				}, function () {
-					DefaultLog.info(events.EVENT_CHAT, "user from ip {ip} could not send message {message}", { ip, message: data.msg });
-				});
+				if (!(await handleSpamChecks(socket))) {
+					kickForIllegalActivity(socket, "chat spam");
+					throw new Error("Chat spam");
+				}
+				
+				const nick = await getSocketPropAsync(socketProps.PROP_NICK);
+				const type = await getSocketPropAsync(socketProps.PROP_TYPE);
+				_sendChat(nick, type, data, socket);
 			}
 		),
 
+		/**
+		 * Registers a new nick.
+		 * @param {any} _ Ignored.
+		 * @param {INickRegistration} registration The registration attempt on behalf of the socket.
+		 */
 		[actions.ACTION_REGISTER]: use(
 			$auth(actions.ACTION_REGISTER),
-			$autoLog(levels.LEVEL_ERROR),
-			function (_, data) {
-				const logData = { ip: getAddress(socket), nick: data.nick };
-
+			$catch(err => {
+				const message = String(err.message || err);
+				socket.emit("loginError", { message });
+			}),
+			$log(events.EVENT_REGISTER, (_, data) => [
+				"{nick} registered from ip {ip}",
+				{ nick: data.nick, ip: getAddress(socket) }]),
+			async function (_, registration) {
 				var i = SERVER.RECENTLY_REGISTERED.length;
 				var ip = getAddress(socket);
-				if (!ip) return false;
+				if (!ip)
+					throw new Error("Cannot verify socket's ip address");
+
+				const logData = { nick: registration.nick, ip };
 				var now = new Date();
+
 				// Backwards to splice on the go
 				const isLocalIp = ip == "172.20.0.1"
 				if (!isLocalIp) {
 					while (--i >= 0) {
-						if (now - SERVER.RECENTLY_REGISTERED[i].time > SERVER.settings.core.register_cooldown) {
+						if (now - SERVER.RECENTLY_REGISTERED[i].time > SERVER.settings.core.register_cooldown)
 							SERVER.RECENTLY_REGISTERED.splice(i, 1);
-						}
-						else if (SERVER.RECENTLY_REGISTERED[i].ip == ip) {
-							onRegisterError("You are registering too many usernames, try again later.");
-							return;
-						}
+						else if (SERVER.RECENTLY_REGISTERED[i].ip == ip)
+							throw new Error("You are registering too many usernames, try again later.");
 					}
 				}
-				if (!data.pass || data.pass.length <= 5) {
-					onRegisterError("Invalid password. Must be at least 6 characters long.");
-					return;
-				}
-				if (data.pass != data.pass2) {
-					onRegisterError("Passwords do not match.");
-					return;
-				}
-				if (!data.nick || data.nick.length <= 0 || data.nick.length > 15) {
-					onRegisterError("Username must be under 15 characters.");
-					return;
-				}
-				if (!data.nick.match(/^[0-9a-zA-Z_]+$/ig)) {
-					onRegisterError("Username must contain only letters, numbers and underscores.");
-					return;
-				}
-				if (!toggleService.get(toggles.isRegistrationEnabled)) {
-					onRegisterError("Registrations are currently Closed. Sorry for the inconvenience!");
-					return;
-				}
-				if (SERVER.nick_blacklist.has(data.nick.toLowerCase())) {
-					onRegisterError("Username not available.");
-					return;
+				if (!registration.pass || registration.pass.length <= 5)
+					throw new Error("Invalid password. Must be at least 6 characters long.");
+
+				if (registration.pass != registration.pass2)
+					throw new Error("Passwords do not match.");
+
+				if (!registration.nick || registration.nick.length <= 0 || registration.nick.length > 15)
+					throw new Error("Username must be under 15 characters.");
+
+				if (!registration.nick.match(/^[0-9a-zA-Z_]+$/ig))
+					throw new Error("Username must contain only letters, numbers and underscores.");
+
+				if (!toggleService.get(toggles.isRegistrationEnabled))
+					throw new Error("Registrations are currently Closed. Sorry for the inconvenience!");
+
+				if (SERVER.nick_blacklist.has(registration.nick.toLowerCase()))
+					throw new Error("Username not available.");
+
+				const { result } = await query`select * from users where name like ${registration.nick}`;
+
+				if (result.length >= 1) {
+					// already registered, try logging in using the password we have.
+					await userLoginAsync(socket, registration);
+				} else {
+					// new user, register, then login
+					const hashed = await bcryptAsync(registration.pass);
+					await query`INSERT INTO users (name, pass, type) VALUES (${registration.nick}, ${hashed}, ${0})`
+					await userLoginAsync(socket, registration);
 				}
 
-				var sql = 'select * from users where name like ?';
-				mysql.query(sql, [data.nick], function (err, result, fields) {
-					if (err) {
-						DefaultLog.error(events.EVENT_DB_QUERY, "query \"{sql}\" failed", { sql: q }, err);
-						return;
-					}
-
-					if (result.length >= 1) {
-						// Already registered, try logging in using the password we have.
-						userLogin(socket, data,
-							function () {
-								DefaultLog.info(events.EVENT_LOGIN, "{nick} logged in on ip {ip}", logData);
-							},
-							function (err) {
-								socket.emit("loginError", { message: "Username is already taken!" });
-								DefaultLog.error(events.EVENT_LOGIN, "{nick} could not log from ip {ip}", logData, err);
-							});
-					}
-					else {
-						bcrypt.hash(data.pass, SERVER.settings.core.bcrypt_rounds, function (err, hash) {
-							if (err) {
-								DefaultLog.error(events.EVENT_REGISTER, "{nick} could not register from ip {ip}", logData, err);
-								DefaultLog.error(events.EVENT_GENERAL, "Failed to bcrypt for {nick}'s password", { nick: data.nick }, err)
-								return;
-							}
-							var sql = 'INSERT INTO users (name, pass, type) VALUES (?,?,?)';
-							mysql.query(sql, [data.nick, hash, 0], function (err, result, fields) {
-								if (err) {
-									DefaultLog.error(events.EVENT_REGISTER, "{nick} could not register from ip {ip}", logData, err);
-									DefaultLog.error(events.EVENT_DB_QUERY, "query \"{sql}\" failed", { sql }, err);
-									return;
-								}
-
-								// Registered, log em in.
-								userLogin(socket, data,
-									function () {
-										DefaultLog.info(events.EVENT_REGISTER, "{nick} registered from ip {ip}", logData);
-										DefaultLog.info(events.EVENT_LOGIN, "newly registered {nick} logged in on ip {ip}", logData);
-										SERVER.RECENTLY_REGISTERED.push({ ip: ip, time: new Date() });
-									},
-									function (err) {
-										DefaultLog.error(events.EVENT_LOGIN, "newly registered {nick} could not log from ip {ip}", logData, err);
-									});
-							});
-						});
-					}
-				});
-
-				function onRegisterError(err) {
-					DefaultLog.error(events.EVENT_REGISTER, "{nick} could not register from ip {ip}", logData, err);
-					socket.emit("loginError", { message: err });
-				}
+				DefaultLog.info(events.EVENT_LOGIN, "newly registered {nick} logged in on ip {ip}", logData);
 			}),
 
+		/**
+		 * Changes the password of an existing nick.
+		 * @param {any} _ Ignored.
+		 * @param {IChangePassword} data The change password request.
+		 */
 		[actions.ACTION_CHANGE_PASSWORD]: use(
 			$auth(actions.ACTION_CHANGE_PASSWORD),
-			$autoLog(levels.LEVEL_ERROR),
+			$catch(err => {
+				const message = String(err.message || err);
+				socket.emit("loginError", { message });
+			}),
+			$log(events.EVENT_USER_CHANGED_PASSWORD, () => [
+				"{nick} changed password from ip {ip}",
+				{ nick: getSocketName(socket), ip: getAddress(socket) }]),
 			function (_, data) {
-				socket.get('nick', function (err, nick) {
-					if (err || !nick) {
-						DefaultLog.error(events.EVENT_GENERAL, "Failed to get nick from socket on ip {ip}", { ip: getAddress(socket) })
-						return;
-					}
+				const nick = await getSocketPropAsync(socket, socketProps.PROP_NICK);
+				if (!nick)
+					throw new Error("You must be logged in to change your password");
 
-					const logData = { ip: getAddress(socket), nick };
-					if (!data.pass || data.pass.length <= 5) {
-						const err = "Invalid password. Must be at least 6 characters long.";
-						DefaultLog.error(events.EVENT_USER_CHANGED_PASSWORD, "{nick} could not change password from ip {ip}", logData, err);
-						socket.emit("loginError", { message: err });
-						return;
-					}
+				if (!data.pass || !data.pass.length <= 5)
+					throw new Error("Invalid password. Must be at least 6 characters long.");
 
-					bcrypt.hash(data.pass, SERVER.settings.core.bcrypt_rounds, function (err, hash) {
-						if (err) {
-							DefaultLog.error(events.EVENT_GENERAL, "Failed to bcrypt for {nick}'s password", { nick }, e);
-							DefaultLog.error(events.EVENT_USER_CHANGED_PASSWORD, "{nick} could not change password from ip {ip}", logData, err);
-							return;
-						}
-
-						const sql = "UPDATE users SET pass = ? WHERE name = ?";
-						mysql.query(sql, [hash, nick], function (err) {
-							if (err) {
-								DefaultLog.error(events.EVENT_DB_QUERY, "query \"{sql}\" failed", { sql }, err);
-								DefaultLog.error(events.EVENT_USER_CHANGED_PASSWORD, "{nick} could not change password from ip {ip}", logData, err);
-								return;
-							}
-
-							DefaultLog.info(events.EVENT_USER_CHANGED_PASSWORD, "{nick} changed password from ip {ip}", logData, err);
-							socket.emit('forceRefresh');
-						});
-					});
-				});
+				const hashed = await bcryptAsync(registration.pass);
+				await query`UPDATE users SET pass = ${hashed} WHERE name = ${nick}`;
 			}),
 
-		[actions.ACTION_SET_NICK]: use(
-			$auth(actions.ACTION_SET_NICK),
+		/**
+		 * Logins in to a user.
+		 * @param {any} _ Ignored.
+		 * @param {ISetNick} data The set nick request.
+		 */
+		[actions.ACTION_LOGIN]: use(
+			$auth(actions.ACTION_LOGIN),
 			$autoLog(levels.LEVEL_ERROR),
 			function (_, data) {
-				ghostBustUser(socket, data, function () {
-					const logData = { ip: getAddress(socket), nick: data.nick };
-					ifNickFree(data.nick, function (meta) {
-						userLogin(socket, data,
-							function () {
-								DefaultLog.info(events.EVENT_LOGIN, "{nick} logged in on ip {ip}", logData);
-							},
-							function (err) {
-								socket.emit("loginError", { message: "Invalid Login." });
-								DefaultLog.error(events.EVENT_LOGIN, "{nick} could not log from ip {ip}", logData, err);
-							});
-					}, function () {
-						DefaultLog.error(events.EVENT_LOGIN, "{nick} could not log from ip {ip} because it is already taken", logData, "Nick already taken");
-						socket.emit("loginError", { message: "Nick already taken." });
-					});
-				});
+				const ip = getAddress(socket);
+				
+				if (data.ghostBust && ip) {
+					otherSocket = await getSocketOfNickAndIPAsync(data.nick, ip);
+					if (otherSocket != null) {
+						kickUser(otherSocket, "Ghosted", { ghosted: true });
+					}
+				}
+
+				const logData = { ip: getAddress(socket), nick: data.nick };
+				const isNickFree = await isNickFreeAsync(data.nick);
+
+				if (!isNickFree)
+					throw new Error("Nick already taken");
+
+				await userLoginAsync(socket, data);
+				DefaultLog.info(events.EVENT_LOGIN, "{nick} logged in on ip {ip}", logData);
 			}),
 
-		[actions.ACTION_PLAY_NEXT]: use(
-			$auth(actions.ACTION_PLAY_NEXT),
+		/**
+		 * Skips to the next video.
+		 */
+		[actions.ACTION_SKIP_VIDEO]: use(
+			$auth(actions.ACTION_SKIP_VIDEO),
 			$log(events.EVENT_ADMIN_SKIPPED_VIDEO, (_, d) => [
 				"{mod} skipped video on {type}",
 				{ mod: getSocketName(socket), type: "playlist" }]),
@@ -2867,8 +2941,13 @@ io.sockets.on('connection', function (socket) {
 				playNext();
 			}),
 
-		[actions.ACTION_SORT_PLAYLIST]: use(
-			$auth(actions.ACTION_SORT_PLAYLIST),
+		/**
+		 * Moves a video from one location to another.
+		 * @param {any} _ Ignored.
+		 * @param {IPlaylistSort} data The set nick request.
+		 */
+		[actions.ACTION_MOVE_VIDEO]: use(
+			$auth(actions.ACTION_MOVE_VIDEO),
 			$autoLog(levels.LEVEL_ERROR),
 			(_, data) => {
 				if (data.from == data.to) return; //wat.
@@ -2904,10 +2983,17 @@ io.sockets.on('connection', function (socket) {
 					{ mod: getSocketName(socket), title: decodeURIComponent(fromelem.videotitle), type: "playlist" })
 			}),
 
-		[actions.ACTION_FORCE_VIDEO_CHANGE]: use(
-			$auth(actions.ACTION_FORCE_VIDEO_CHANGE),
-			$autoLog(levels.LEVEL_ERROR),
-			function (_, data) {
+		/**
+		 * Forces a different video on the playlist to begin playing.
+		 * @param {any} _ Ignored.
+		 * @param {ISetCurrentVideo} data The set nick request.
+		 */
+		[actions.ACTION_PLAY_VIDEO]: use(
+			$auth(actions.ACTION_PLAY_VIDEO),
+			$log(events.EVENT_ADMIN_FORCED_VIDEO_CHANGE, (_, d) => [
+				"{mod} forced video change on {type}",
+				{ mod: getSocketName(socket), type: "playlist" }]),
+			async function (_, data) {
 				var elem = SERVER.PLAYLIST.first;
 				var delme = -1;
 				if (SERVER.ACTIVE.volat) {
@@ -2924,7 +3010,7 @@ io.sockets.on('connection', function (socket) {
 					var elem = SERVER.PLAYLIST.first;
 					for (var i = 0; i < SERVER.PLAYLIST.length; i++) {
 						if (elem == SERVER.ACTIVE) {
-							setVideoColorTag(i, false, false);
+							await setVideoColorTagAsync(i, false, false);
 							break;
 						}
 						elem = elem.next;
@@ -2934,7 +3020,8 @@ io.sockets.on('connection', function (socket) {
 				elem = SERVER.PLAYLIST.first;
 				for (var i = 0; i < SERVER.PLAYLIST.length; i++) {
 					if (i == data.index) {
-						if (data.sanityid && elem.videoid != data.sanityid) return doorStuck(socket);
+						if (data.sanityid && elem.videoid != data.sanityid) 
+							return doorStuck(socket);
 						SERVER.ACTIVE = elem;
 						SERVER.ACTIVE.position = i;
 						break;
@@ -2942,90 +3029,108 @@ io.sockets.on('connection', function (socket) {
 					elem = elem.next;
 				}
 
-				DefaultLog.info(events.EVENT_ADMIN_FORCED_VIDEO_CHANGE,
-					"{mod} forced video change on {type}",
-					{ mod: getSocketName(socket), type: "playlist" })
-
 				handleNewVideoChange();
 				sendStatus("forceVideoChange", io.sockets);
 
-				if (delme > -1) {
-					delVideo({ index: delme });
-				}
+				if (delme > -1)
+					await delVideoAsync({ index: delme })
 			}),
 
+		/**
+		 * Deletes a video from the playlist.
+		 * @param {any} _ Ignored.
+		 * @param {IDeleteVideo} data The set nick request.
+		 */
 		[actions.ACTION_DELETE_VIDEO]: use(
 			$auth(actions.ACTION_DELETE_VIDEO),
 			function (_, data) {
-				delVideo(data, socket);
+				return delVideoAsync(data, socket);
 			}),
 
+		/**
+		 * Adds a video to the playlist.
+		 * @param {any} _ Ignored.
+		 * @param {IAddVideo} data The set nick request.
+		 */
 		[actions.ACTION_ADD_VIDEO]: use(
 			$auth(actions.ACTION_ADD_VIDEO),
 			$autoLog(levels.LEVEL_ERROR),
 			function (_, data) {
 				const logData = { mod: getSocketName(socket), type: "playlist", title: data.videotitle, provider: data.videotype };
+				return new Promise((res, rej) => {
+					if (data.videotype == "yt")
+						addVideoYT(socket, data, meta, onVideoAddSuccess, onVideoAddError);
+					else if (data.videotype == "vimeo")
+						addVideoVimeo(socket, data, meta, onVideoAddSuccess, onVideoAddError)
+					else if (data.videotype == "soundcloud")
+						addVideoSoundCloud(socket, data, meta, onVideoAddSuccess, onVideoAddError);
+					else if (data.videotype == "file")
+						addVideoFile(socket, data, meta, onVideoAddSuccess, onVideoAddError);
+					else if (data.videotype == "dash")
+						addVideoDash(socket, data, meta, onVideoAddSuccess, onVideoAddError);
+					else if (data.videotype == "twitch")
+						addVideoTwitch(socket, data, meta, onVideoAddSuccess, onVideoAddError);
+					else if (data.videotype == "twitchclip")
+						addVideoTwitchClip(socket, data, meta, onVideoAddSuccess, onVideoAddError);
+					else {
+						// Okay, so, it wasn't vimeo and it wasn't youtube, assume it's a livestream and just queue it.
+						// This requires a videotitle and a videotype that the client understands.
+						data.videotype = "livestream";
+						addLiveVideo(data, meta, onVideoAddSuccess, onVideoAddError)
+					}
 
-				if (data.videotype == "yt")
-					addVideoYT(socket, data, meta, onVideoAddSuccess, onVideoAddError);
-				else if (data.videotype == "vimeo")
-					addVideoVimeo(socket, data, meta, onVideoAddSuccess, onVideoAddError)
-				else if (data.videotype == "soundcloud")
-					addVideoSoundCloud(socket, data, meta, onVideoAddSuccess, onVideoAddError);
-				else if (data.videotype == "file")
-					addVideoFile(socket, data, meta, onVideoAddSuccess, onVideoAddError);
-				else if (data.videotype == "dash")
-					addVideoDash(socket, data, meta, onVideoAddSuccess, onVideoAddError);
-				else if (data.videotype == "twitch")
-					addVideoTwitch(socket, data, meta, onVideoAddSuccess, onVideoAddError);
-				else if (data.videotype == "twitchclip")
-					addVideoTwitchClip(socket, data, meta, onVideoAddSuccess, onVideoAddError);
-				else {
-					// Okay, so, it wasn't vimeo and it wasn't youtube, assume it's a livestream and just queue it.
-					// This requires a videotitle and a videotype that the client understands.
-					data.videotype = "livestream";
-					addLiveVideo(data, meta, onVideoAddSuccess, onVideoAddError)
-				}
+					function onVideoAddSuccess(details) {
+						logData.title = details.title;
+						DefaultLog.info( events.EVENT_ADMIN_ADDED_VIDEO, "{mod} added {provider} video {title} on {type}", logData);
+						res();
+					}
 
-				function onVideoAddSuccess(details) {
-					logData.title = details.title;
-					DefaultLog.info(
-						events.EVENT_ADMIN_ADDED_VIDEO,
-						"{mod} added {provider} video {title} on {type}",
-						logData);
-				}
-
-				function onVideoAddError(error) {
-					DefaultLog.error(
-						events.EVENT_ADMIN_ADDED_VIDEO,
-						"{mod} could not add {provider} video {title} on {type}",
-						logData,
-						error);
-
-					socket.emit("dupeAdd");
-				}
+					function onVideoAddError(error) {
+						DefaultLog.error(events.EVENT_ADMIN_ADDED_VIDEO, "{mod} could not add {provider} video {title} on {type}", logData, error);
+						socket.emit("dupeAdd");
+						rej(error);
+					}
+				});
 			}),
 
-		[actions.ACTION_FORCE_STATE_CHANGE]: use(
-			$auth(actions.ACTION_FORCE_STATE_CHANGE),
+		/**
+		 * Plays or pauses a video.
+		 * @param {any} _ Ignored.
+		 * @param {ISetVideoState} data The set nick request.
+		 */
+		[actions.ACTION_SET_VIDEO_STATE]: use(
+			$auth(actions.ACTION_SET_VIDEO_STATE),
 			function (_, data) {
+				if (data.state < 1 || data.state > 2)
+					throw new Error(`Invalid state change.`);
+				
 				SERVER.STATE = data.state;
 				sendStatus("hbVideoDetail", io.sockets);
 			}),
 
-		[actions.ACTION_VIDEO_SEEK]: use(
-			$auth(actions.ACTION_VIDEO_SEEK),
+		/**
+		 * Changes the currently playing position of a video.
+		 * @param {any} _ Ignored.
+		 * @param {VideoPosition} data The set nick request.
+		 */
+		[actions.ACTION_SEEK_VIDEO]: use(
+			$auth(actions.ACTION_SEEK_VIDEO),
 			function (_, data) {
-				SERVER.TIME = data;
+				SERVER.TIME = Number(data);
 				sendStatus("hbVideoDetail", io.sockets);
 			}),
 
+		/**
+		 * Gives or gives up berry.
+		 * @param {any} _ Ignored.
+		 * @param {LeaderTarget} target Who to give leader.
+		 */
 		[actions.ACTION_MOVE_LEADER]: use(
 			$auth((_, data) => data === "Server"
-				? actions.ACTION_GIVE_UP_LEADER
+				? actions.ACTION_UNSET_LEADER
 				: actions.ACTION_SET_LEADER),
-			function (_, data) {
-				if (data === "Server") {
+			function (_, target) {
+				if (target === "Server") {
 					setBpAsLeader();
 					return;
 				}
@@ -3034,7 +3139,7 @@ io.sockets.on('connection', function (socket) {
 				for (var i = 0; i < cl.length; i++) {
 					(function (i) {
 						cl[i].get("nick", function (err, nick) {
-							if (nick == data) {
+							if (nick == target) {
 								reassignLeader(cl[i]);
 							}
 						});
@@ -3042,12 +3147,22 @@ io.sockets.on('connection', function (socket) {
 				}
 			}),
 
+		/**
+		 * Boots a user.
+		 * @param {any} _ Ignored.
+		 * @param {IKickUser} data Kickage details.
+		 */
 		[actions.ACTION_KICK_USER]: use(
 			$auth(actions.ACTION_KICK_USER),
 			function (_, data) {
 				kickUserByNick(socket, data.nick, data.reason);
 			}),
 
+		/**
+		 * Shadow bans a user.
+		 * @param {any} _ Ignored.
+		 * @param {IShadowbanUser} data Ban details.
+		 */
 		[actions.ACTION_SHADOW_BAN]: use(
 			$auth(actions.ACTION_SHADOW_BAN),
 			function (_, data) {
@@ -3263,3 +3378,5 @@ io.sockets.on('connection', function (socket) {
 	services.forEach(s => s.onSocketConnected(socket));
 });
 /* vim: set noexpandtab : */
+
+function noop() { }

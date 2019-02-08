@@ -2,14 +2,45 @@ const { events, getAutoLogLevel, levels } = require("./log");
 const { AuthException } = require("./auth/middleware");
 const { getSocketName } = require("./socket");
 
+const _resolve = Symbol("#resolve");
+const _reject = Symbol("#reject");
+
+exports.completeContext = (context, arg = null) => {
+	const res = context[_resolve];
+	if (!res) throw new Error(`You can only invoke completeContext on a context that has passed though a $notAsync middleware`);
+	res(arg);
+}
+
+exports.rejectContext = (context, error) => {
+	const rej = context[_reject];
+	if (!rej) throw new Error(`You can only invoke rejectContext on a context that has passed though a $notAsync middleware`);
+	rej(error);
+}
+
 exports.$catch = handler => async (next, socket, actionArg, context, actionName) => {
 	try {
 		return await next(actionArg);
 	} catch (e) {
-		return handler(socket, actionArg, e);
+		return handler(e, socket, actionArg, context, actionName);
 	}
 }
 
+exports.$notAsync = () => async (next, socket, actionArg, context, actionName) => {
+	return new Promise((res, rej) => {
+		if (context.hasOwnProperty(_resolve))
+			throw new Error("Do not nest $notAsync middlewares.");
+
+		context[_resolve] = res;
+		context[_reject] = rej;
+
+		const ret = next(actionArg);
+		if (ret && ret.then)
+			throw new Error("You are a dirty liar. If you opt out of async supprot, downstream handlers are no longer allowed to return promises.");
+		
+		delete context[_resolve];
+		delete context[_reject];
+	});
+}
 
 exports.use = (...middlewares) => {
 	if (!middlewares.length)

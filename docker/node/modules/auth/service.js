@@ -1,5 +1,5 @@
 const { ServiceBase } = require("../base");
-const { getSocketPropAsync } = require("../socket");
+const { getSocketPropAsync, socketProps } = require("../socket");
 const { actions } = require("./actions");
 
 const getTypeAsync = async socket => parseInt(await getSocketPropAsync(socket, "type"));
@@ -10,6 +10,11 @@ exports.AuthService = class extends ServiceBase {
         this.isLeader = services.isLeader;
 
         const anyone = () => Promise.resolve(true);
+
+        const hasNick = async socket => {
+            const nick = getSocketPropAsync(socket, socketProps.PROP_NICK);
+            return typeof(nick) === "string";
+        }
 
         const leaderOrMod = async socket =>
             this.isLeader(socket) || (await getTypeAsync(socket) > 0);
@@ -28,29 +33,30 @@ exports.AuthService = class extends ServiceBase {
         
         this.rules = {
             [actions.ACTION_CHANGE_PASSWORD]: anyone,
-            [actions.ACTION_CHAT]: anyone,
             [actions.ACTION_REFRESH_PLAYLIST]: anyone,
             [actions.ACTION_REFRESH_VIDEO]: anyone,
             [actions.ACTION_REGISTER]: anyone,
             [actions.ACTION_RENEW_POSITION]: anyone,
             [actions.ACTION_SET_CHATONLY]: anyone,
-            [actions.ACTION_SET_NICK]: anyone,
+            [actions.ACTION_LOGIN]: anyone,
             [actions.ACTION_SET_PLAYLIST_IS_INITIALIZED]: anyone,
             [actions.ACTION_VOTE_POLL]: anyone,
 
-            [actions.ACTION_FORCE_STATE_CHANGE]: canControlVideo,
-            [actions.ACTION_VIDEO_SEEK]: canControlVideo,
+            [actions.ACTION_CHAT]: hasNick,
+
+            [actions.ACTION_SET_VIDEO_STATE]: canControlVideo,
+            [actions.ACTION_SEEK_VIDEO]: canControlVideo,
 
             [actions.ACTION_CLOSE_POLL]: canControlPolls,
             [actions.ACTION_CREATE_POLL]: canControlPolls,
             [actions.CAN_SEE_OBSCURED_POLLS]: canControlPolls,
 
             [actions.ACTION_ADD_VIDEO]: canControlPlaylist,
-            [actions.ACTION_FORCE_VIDEO_CHANGE]: canControlPlaylist,
-            [actions.ACTION_PLAY_NEXT]: canControlPlaylist,
-            [actions.ACTION_SORT_PLAYLIST]: canControlPlaylist,
+            [actions.ACTION_PLAY_VIDEO]: canControlPlaylist,
+            [actions.ACTION_SKIP_VIDEO]: canControlPlaylist,
+            [actions.ACTION_MOVE_VIDEO]: canControlPlaylist,
 
-            [actions.ACTION_GIVE_UP_LEADER]: leaderOrMod,
+            [actions.ACTION_UNSET_LEADER]: leaderOrMod,
 
             [actions.ACTION_DELETE_VIDEO_HISTORY]: mod,
             [actions.ACTION_DELETE_VIDEO]: mod,

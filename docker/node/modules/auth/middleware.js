@@ -10,6 +10,10 @@ exports.$auth = (acceptedActionList, kickOnFail = true) =>
     async (next, socket, actionArg, context, actionName) => {
         let isAllowed = false;
 
+        if (typeof(acceptedActionList) === "function") {
+            acceptedActionList = acceptedActionList(socket, actionArg);
+        }
+        
         if (Array.isArray(acceptedActionList)) {
             for (const action of acceptedActionList)
                 isAllowed = await context.auth.canDoAsync(socket, action);
