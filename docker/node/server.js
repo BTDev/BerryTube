@@ -1357,6 +1357,11 @@ function _sendChat(nick,type,incoming,socket){
 	//
 }
 function handleSpamChecks(x){
+	if (isLocalSocket(x.socket)) {
+		x.callback(x.nick,x.type,x.incoming,x.socket);
+		return;
+	}
+	
 	x.socket.get("lastmsg",function(err,lasttime){
 		x.socket.get("chathp",function(err,hp){
 			if(typeof lasttime == "undefined" || lasttime == null){	lasttime = new Date().getTime() - SERVER.settings.core.spamhp; }
@@ -2931,8 +2936,7 @@ io.sockets.on('connection', function (socket) {
 		if(!ip) return false;
 		var now = new Date();
 		// Backwards to splice on the go
-		const isLocalIp = ip == "172.20.0.1"
-		if (!isLocalIp) {
+		if (!isLocalSocket(socket)) {
 			while(--i >= 0) {
 				if(now - SERVER.RECENTLY_REGISTERED[i].time > SERVER.settings.core.register_cooldown){
 					SERVER.RECENTLY_REGISTERED.splice(i, 1);
@@ -3532,4 +3536,9 @@ io.sockets.on('connection', function (socket) {
 			{ ip: getAddress(socket), nick: getSocketName(socket) });
 	});
 });
+
+function isLocalSocket(socket) {
+	return getAddress(socket) == "172.20.0.1";
+}
+
 /* vim: set noexpandtab : */

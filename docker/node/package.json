@@ -5,12 +5,15 @@
   "main": "server.js",
   "dependencies": {
     "bcrypt": "^3.0.0",
+    "deep-equal": "^1.0.1",
     "elementtree": "^0.1.7",
     "get-video-duration": "^0.3.0",
     "i18n-iso-countries": "^3.7.8",
     "iso8601-duration": "^1.1.1",
+    "lodash": "^4.17.11",
     "mysql": "^2.15.0",
     "node-fetch": "^2.1.2",
+    "shallow-equal": "^1.1.0",
     "socket.io": "^0.9.19"
   },
   "devDependencies": {
@@ -22,6 +25,7 @@
   "private": true,
   "scripts": {
     "test": "mocha \"./modules/**/*.test.js\"",
+    "test-intergration": "mocha \"./tests/intergration/**/*.test.js\"",
     "test-w": "mocha --watch --reporter min \"./modules/**/*.test.js\""
   }
 }

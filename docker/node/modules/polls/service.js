@@ -123,7 +123,7 @@ exports.PollService = class extends ServiceBase {
 
 		const ipAddress = getAddress(socket);
 		if (ipAddress != "172.20.0.1" && (!ipAddress || this.votedIpAddressMap.hasOwnProperty(ipAddress)))
-			throw new Error("IP has already voted");
+			throw new Error(`IP ${ipAddress} has already voted`);
 
 		const existingVote = await propVoteData.get(socket)
 		if (existingVote && existingVote.isComplete) 
