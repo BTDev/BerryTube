@@ -51,6 +51,7 @@ function videoPaused(){
 }
 
 socket.on("createPlayer",function(data){
+    console.log('createPlayer', data);
 	INIT_TIME=data.time;
 	setPlaylistPosition(data);
 	var tag = document.createElement('script');
