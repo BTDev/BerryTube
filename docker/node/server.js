@@ -2518,6 +2518,7 @@ io.sockets.on('connection', function (socket) {
 		sendChatList(socket);
 		sendDrinks(socket);
 		sendAreas(socket);
+		sendToggleables(socket);
 		for(var i in SERVER.OUTBUFFER['main'])	{
 			emitChat(socket,SERVER.OUTBUFFER['main'][i],true);
 		}

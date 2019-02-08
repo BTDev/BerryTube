@@ -30,7 +30,7 @@ exports.ToggleService = class extends ServiceBase {
 		return {
 			[actions.ACTION_SET_TOGGLEABLE]: use(
 				$auth([actions.ACTION_SET_TOGGLEABLE]),
-				$log(events.EVENT_ADMIN_CREATED_POLL, (socket, data) => [
+				$log(events.EVENT_ADMIN_SET_TOGGLEABLE, (socket, data) => [
 					"{mod} set {toggleable} to {state} on {type}",
                     { mod: getSocketName(socket), toggleable: data.name, type: "site", state: Boolean(data.state) }
 				]),
