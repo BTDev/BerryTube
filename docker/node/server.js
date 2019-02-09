@@ -3212,7 +3212,6 @@ io.sockets.on('connection', function (socket) {
 			else {
 				// Okay, so, it wasn't vimeo and it wasn't youtube, assume it's a livestream and just queue it.
 				// This requires a videotitle and a videotype that the client understands.
-				data.videotype = "livestream";
 				addLiveVideo(data, meta, onVideoAddSuccess, onVideoAddError)
 			}
 

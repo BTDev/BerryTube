@@ -159,15 +159,13 @@ exports.PollService = class extends ServiceBase {
 	/**
 	 * Publishes poll data to every client.
 	 */
-	async publishToAll(eventName, sendClearPoll = true) {
+	async publishToAll(eventName) {
 		if (!this.currentPoll) {
-			if (sendClearPoll);
-				this.io.sockets.emit("clearPoll", { options: [], votes: [] });
 			return;
 		}
 
 		if (this.currentPoll.isObscured)
-			await Promise.all(this.io.sockets.clients().map(c => this.publishTo(c, eventName, sendClearPoll)));
+			await Promise.all(this.io.sockets.clients().map(c => this.publishTo(c, eventName)));
 		else
 			this.io.sockets.emit(eventName, this.currentPoll.state);
 	}
@@ -176,11 +174,9 @@ exports.PollService = class extends ServiceBase {
 	 * Publishes poll data to the specified socket
 	 * @param {*} socket the socket.io socket to send poll data to
 	 */
-	async publishTo(socket, eventName, sendClearPoll = true) {
+	async publishTo(socket, eventName) {
 		if (!this.currentPoll) {
-			if (sendClearPoll);
-				socket.emit("clearPoll", { options: [], votes: [] });
-			return
+			return;
 		}
 
 		const canSeeVotes = !this.currentPoll.isObscured || (await this.auth.canDoAsync(socket, actions.CAN_SEE_OBSCURED_POLLS));
@@ -192,12 +188,12 @@ exports.PollService = class extends ServiceBase {
 
 	onSocketConnected(socket) {
 		super.onSocketConnected(socket);
-		this.publishTo(socket, "newPoll", false);
+		this.publishTo(socket, "newPoll");
 	}
 
 	onSocketAuthenticated(socket, type) {
 		super.onSocketAuthenticated(socket);
 		if (this.currentPoll && this.currentPoll.isObscured && type >= 1)
-			this.publishTo(socket, "newPoll", false);
+			this.publishTo(socket, "newPoll");
 	}
 }
