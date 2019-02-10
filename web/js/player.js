@@ -411,7 +411,7 @@ window.PLAYERS.file = {
         }
         var player = $("<video>", {
             "style" : "width:100%;height:100%",
-            "id" : "vjs_player",
+            "id": "vjs_player",
             "data-setup" : '{ "autoplay": true, "controls": true }',
             "class" : "video-js vjs-default-skin"
         });
