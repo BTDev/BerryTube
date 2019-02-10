@@ -30,16 +30,16 @@ exports.parseFormat = function(format, onMatch) {
  */
 exports.parseRawFileUrl = function(rawFileUrl) {
     const parts = url.parse(rawFileUrl);
-    const { pathname } = parts
+    const { pathname } = parts;
 
-    const match = pathname.match(rawLinkRegex)
+    const match = pathname.match(rawLinkRegex);
     if (!match)
         return { didSucceed: false };
 
-    const [, , title] = match
+    const [, , title] = match;
         
     return { 
         title,
         didSucceed: true
-    }
+    };
 }
