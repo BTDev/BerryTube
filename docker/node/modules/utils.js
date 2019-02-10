@@ -26,7 +26,7 @@ exports.parseFormat = function(format, onMatch) {
 /**
  * Parses a url to a raw file, and returns information about it.
  * @param { string } rawFileUrl the full URL to the raw file
- * @returns { { title: string, didSucceed: boolean } }
+ * @returns { { title: string } | null }
  */
 exports.parseRawFileUrl = function(rawFileUrl) {
     const parts = url.parse(rawFileUrl);
@@ -34,12 +34,11 @@ exports.parseRawFileUrl = function(rawFileUrl) {
 
     const match = pathname.match(rawLinkRegex);
     if (!match)
-        return { didSucceed: false };
+        return null;
 
     const [, , title] = match;
         
     return { 
-        title,
-        didSucceed: true
+        title
     };
 }

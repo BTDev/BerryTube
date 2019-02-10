@@ -77,47 +77,41 @@ describe("parseFormat", function() {
 describe("parseRawFileUrl", function() {
     it("parses link with single level", function() {
         const ret = parseRawFileUrl("https://nlaq.blob.core.windows.net/triangle-THING.mp4");
-        expect(ret.didSucceed).to.be.true;
         expect(ret.title).to.equal("triangle-THING");
     });
     
     it("parses link with single level with empty querystring", function() {
         const ret = parseRawFileUrl("https://nlaq.blob.core.windows.net/triangle-THING.mp4?");
-        expect(ret.didSucceed).to.be.true;
         expect(ret.title).to.equal("triangle-THING");
     });
     
     it("parses link with single level with non-empty querystring", function() {
         const ret = parseRawFileUrl("https://nlaq.blob.core.windows.net/triangle-THING.mp4?stuff=whoa&and=hey");
-        expect(ret.didSucceed).to.be.true;
         expect(ret.title).to.equal("triangle-THING");
     });
     
     it("parses link with azure SAS token", function() {
         const ret = parseRawFileUrl("https://nlaq.blob.core.windows.net/media/triangle-THING.mp4?sp=r&st=2019-02-10T10:41:13Z&se=2019-02-10T18:41:13Z&spr=https&sv=2018-03-28&sig=HceZIUkAG7VebuEunEJxdBlbk0Zk2Z6nDNP5u8fP%2FS4%3D&sr=b");
-        expect(ret.didSucceed).to.be.true;
         expect(ret.title).to.equal("triangle-THING");
     });
     
     it("parses link without azure SAS token", function() {
         const ret = parseRawFileUrl("https://nlaq.blob.core.windows.net/media/triangle-THING.mp4");
-        expect(ret.didSucceed).to.be.true;
         expect(ret.title).to.equal("triangle-THING");
     });
     
     it("parses link with empty querystring", function() {
         const ret = parseRawFileUrl("https://nlaq.blob.core.windows.net/media/triangle-THING.mp4?");
-        expect(ret.didSucceed).to.be.true;
         expect(ret.title).to.equal("triangle-THING");
     });
     
     it("rejects an invalid url", function() {
         const ret = parseRawFileUrl("https://nlaq.blob.core.windows.net/media/there-is-no-mp4-here!");
-        expect(ret.didSucceed).to.be.false;
+        expect(ret).to.be.null;
     });
     
     it("rejects a completely invalid url", function() {
         const ret = parseRawFileUrl("THIS IS NOT EVEN CLOSE TO BEING A url.mp4 !!");
-        expect(ret.didSucceed).to.be.false;
+        expect(ret).to.be.null;
     });
 });

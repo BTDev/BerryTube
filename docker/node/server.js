@@ -1992,7 +1992,7 @@ async function addVideoFile(socket, data, meta, successCallback, failureCallback
 	}
 
 	const rawVideoInfo = parseRawFileUrl(videoid);
-	if (!rawVideoInfo.didSucceed) {
+	if (!rawVideoInfo) {
 		failureCallback("could not parse raw file information");
 		return;
 	}
