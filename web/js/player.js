@@ -404,22 +404,29 @@ window.PLAYERS.soundcloud = {
     }
 };
 
+const fileExtensionRegex = /(mp4|webm)([^/]*)$/;
+
 window.PLAYERS.file = {
     loadPlayer: function (src, to, volume) {
         if (volume === false){
             volume = 1;
         }
+
         var player = $("<video>", {
             "style" : "width:100%;height:100%",
-            "id" : "vjs_player",
+            "id": "vjs_player",
             "data-setup" : '{ "autoplay": true, "controls": true }',
             "class" : "video-js vjs-default-skin"
         });
 
-        const parts = src.split('.');
+        const fileExtensionMatch = fileExtensionRegex.exec(src);
+        const fileExtension = fileExtensionMatch
+            ? fileExtensionMatch[1]
+            : "mp4";
+
         var source = $("<source>", {
             "src" : src,
-            "type" : "video/" + parts[parts.length - 1]
+            "type" : `video/${fileExtension}`
         });
 
         player.append(source);
