@@ -1,14 +1,19 @@
-const {PollInstance} = require("./poll-base");
+const { PollInstance } = require("./poll-base");
 
 exports.NormalPoll = class extends PollInstance {
 	get state() {
 		return {
-            ...super.state,
+			creator: this.options.creator,
+			title: this.options.title,
+			obscure: this.options.isObscured,
+			ghost: false,
+			pollType: this.options.pollType,
+			options: this.options.options.map(o => o.isTwoThirds ? `${o.text} (2/3ds)` : o.text),
 			votes: this.votes.reduce(
 				(arr, vote) => {
 					arr[vote.optionIndex]++
 					return arr
-				}, 
+				},
 				this.options.options.map(_ => 0))
 		};
 	}
@@ -25,8 +30,8 @@ exports.NormalPoll = class extends PollInstance {
 		this.votes = [];
 	}
 
-	castVote({op}) {
-		const vote = {optionIndex: op, isComplete: true};
+	castVote({ op }) {
+		const vote = { optionIndex: op, isComplete: true };
 		this.votes.push(vote);
 		return vote;
 	}

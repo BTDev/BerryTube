@@ -3,6 +3,7 @@ const { AuthService } = require("./modules/auth")
 const { sanitize, getAddress } = require("./modules/security")
 const { DefaultLog, events, levels, consoleLogger, createStreamLogger } = require("./modules/log");
 const { getSocketName } = require("./modules/socket");
+const { parseRawFileUrl } = require("./modules/utils");
 
 // Include the SERVER.settings
 var SERVER = {};
@@ -1530,6 +1531,15 @@ function delVideo(data, socket){
 		}
 	}
 }
+
+function rawAddVideoAsync(data) {
+	return new Promise((res, rej) => {
+		rawAddVideo(data,
+			arg => res(arg),
+			err => rej(err));
+	});
+}
+
 function rawAddVideo(d,successCallback,failureCallback){
 
 	// Check for any existing metadata
@@ -1978,41 +1988,46 @@ function addVideoSoundCloud(socket,data,meta,successCallback,failureCallback){
 	}, failureCallback);
 }
 
-function addVideoFile(socket,data,meta,successCallback,failureCallback){
-	var videoid = data.videoid.trim();
-	if(videoid.length==0)
-	{
+async function addVideoFile(socket, data, meta, successCallback, failureCallback) {
+	const videoid = data.videoid.trim();
+
+	if (videoid.length == 0) {
 		failureCallback();
 		return;
 	}
-	getDuration(videoid).then(duration => {
-		duration = Math.ceil(duration || 0);
+
+	const rawVideoInfo = parseRawFileUrl(videoid);
+	if (!rawVideoInfo) {
+		failureCallback("could not parse raw file information");
+		return;
+	}
+
+	try {
+		const duration = Math.ceil((await getDuration(videoid)) || 0);
 		if (duration <= 0) {
-			failureCallback('no duration');
+			failureCallback("no duration");
 			return;
 		}
+		
+		const isVolatile = meta.type > 0
+			? (data.volat || false)
+			: true;
 
-		var volat = data.volat;
-		if(meta.type <= 0) volat = true;
-		if(volat === undefined) volat = false;
-		const parts = videoid.split('/');
-		rawAddVideo({
+		await rawAddVideoAsync({
 			pos: SERVER.PLAYLIST.length,
 			videoid: videoid,
-			videotitle: parts[parts.length-1],
+			videotitle: rawVideoInfo.title,
 			videolength: duration,
 			videotype: "file",
 			who: meta.nick,
 			queue: data.queue,
-			volat: volat
-		}, function () {
-			if (successCallback)successCallback({ title: parts[parts.length-1] });
-		}, function (err) {
-			if (failureCallback)failureCallback(err);
+			volat: isVolatile
 		});
-	}).catch(err => {
-		failureCallback(err);
-	});
+
+		successCallback({ title: rawVideoInfo.title });
+	} catch(e) {
+		failureCallback(e);
+	}
 }
 
 function addVideoDash(socket,data,meta,successCallback,failureCallback){

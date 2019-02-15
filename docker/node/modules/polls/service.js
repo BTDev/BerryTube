@@ -144,13 +144,17 @@ exports.PollService = class extends ServiceBase {
 	 * @param {*} socket socket.io to unset votes for
 	 */
 	async clearVote(socket) {
+		const ipAddress = getAddress(socket);
+		if (ipAddress)
+			delete this.votedIpAddressMap[ipAddress];
+
 		const voteData = await propVoteData.get(socket);
 		if (!voteData)
 			return;
 
 		if (!this.currentPoll)
 			return;
-
+			
 		this.currentPoll.clearVote(voteData);
 		await propVoteData.set(socket, null);
 		await this.publishToAll("updatePoll");

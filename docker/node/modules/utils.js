@@ -1,4 +1,7 @@
+const url = require("url");
+
 const formatRegex = /\{(\w+)\}/g;
+const rawLinkRegex = /(\/)?([^/]*?)\.(mp4|webm)$/
 
 /**
  * @argument {string} format the format string; ex: "this is a constant, this is a {match} and {another}"
@@ -18,4 +21,24 @@ exports.parseFormat = function(format, onMatch) {
 
     if (lastIndex < format.length - 1)
         onMatch("constant", format.substring(lastIndex))
+}
+
+/**
+ * Parses a url to a raw file, and returns information about it.
+ * @param { string } rawFileUrl the full URL to the raw file
+ * @returns { { title: string } | null }
+ */
+exports.parseRawFileUrl = function(rawFileUrl) {
+    const parts = url.parse(rawFileUrl);
+    const { pathname } = parts;
+
+    const match = pathname.match(rawLinkRegex);
+    if (!match)
+        return null;
+
+    const [, , title] = match;
+        
+    return { 
+        title
+    };
 }

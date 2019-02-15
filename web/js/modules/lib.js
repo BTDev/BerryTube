@@ -36,84 +36,86 @@ export function clear(element) {
  * @returns {HTMLElement}
  */
 export function createElement(name, ...rest) {
-	let attributes = {}, children = []
+	let attributes = {}, children = [];
 
 	if (rest.length) {
 		if (rest[0] instanceof HTMLElement) {
-			attributes = {}
-			children = rest
+			attributes = {};
+			children = rest;
 		} else {
-			[attributes, ...children] = rest
+			[attributes, ...children] = rest;
 		}
 	}
 	
-    const type = typeof name
-    const isFunction = type === "function"
-    const hasRef = attributes && typeof attributes["ref"] === "function"
+    const type = typeof name;
+    const isFunction = type === "function";
+    const hasRef = attributes && typeof attributes["ref"] === "function";
 
     if (isFunction)
-        return name({ ...attributes, children })
+        return name({ ...attributes, children });
 
-    const element = document.createElement(name)
+    const element = document.createElement(name);
 
     if (attributes)
         for (const attribute in attributes) {
-            let value = attributes[attribute]
+            let value = attributes[attribute];
 
-            const event = EVENT_MAP[attribute]
+            const event = EVENT_MAP[attribute];
             if (event) {
-                element.addEventListener(event, value)
-                continue
+                element.addEventListener(event, value);
+                continue;
             }
 
             if (attribute == "class" && Array.isArray(value)) {
-                element.classList.add(...value)
-                continue
+                element.classList.add(...value);
+                continue;
 			}
 			
 			if (attribute == "style") {
 				for (const styleProp in value) {
-					element.style[styleProp] = value[styleProp]
+					element.style[styleProp] = value[styleProp];
 				}
-			} else
-	            element[attribute] = value
+			} else if (attribute.startsWith("data-"))
+				element.setAttribute(attribute, value);
+			else 
+				element[attribute] = value;
         }
 
     if (hasRef)
-        attributes.ref(element)
+        attributes.ref(element);
 
     if (name.toLowerCase() == "image") {
         if (!attributes["width"])
-            element.removeAttribute("width")
+            element.removeAttribute("width");
         if (!attributes["height"])
-            element.removeAttribute("height")
+            element.removeAttribute("height");
     }
     
-    const childElements = []
-    collectChildren(children, childElements)
+    const childElements = [];
+    collectChildren(children, childElements);
     for (let i = 0; i < childElements.length; i++)
-        element.appendChild(childElements[i])
+        element.appendChild(childElements[i]);
 
-    return element
+    return element;
 }
 
 function collectChildren(children, result) {
     if (children == null)
-        return
+        return;
 
     if (typeof (children) == "string" || typeof (children) == "number") {
-        result.push(document.createTextNode(children))
-        return
+        result.push(document.createTextNode(children));
+        return;
     }
 
     if (Array.isArray(children)) {
         for (let i = 0; i < children.length; i++)
-            collectChildren(children[i], result)
+            collectChildren(children[i], result);
 
-        return
+        return;
     }
 
-    result.push(children)
+    result.push(children);
 }
 
 /**
@@ -186,4 +188,4 @@ export const EVENT_MAP = {
 	onAnimationEnd: "animationend",
 	onAnimationIteration: "animationiteration",
 	onTransitionEnd: "transitionend"
-}
+};
