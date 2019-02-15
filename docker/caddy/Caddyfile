@@ -82,7 +82,7 @@ https://www.{$DOMAIN}:{$HTTPS_PORT} {
 https://{$DOMAIN}:{$HTTPS_PORT} {
     import common
 
-    index index.php
+    index index.php index.html
     fastcgi / php:9000 php
 
     header /api/migrate_frame.html -X-Frame-Options

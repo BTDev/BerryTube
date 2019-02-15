@@ -2003,7 +2003,7 @@ async function addVideoFile(socket, data, meta, successCallback, failureCallback
 			failureCallback("no duration");
 			return;
 		}
-		
+
 		const isVolatile = meta.type > 0
 			? (data.volat || false)
 			: true;
@@ -3453,7 +3453,7 @@ io.sockets.on('connection', function (socket) {
 
 									DefaultLog.info(events.EVENT_ADMIN_SET_NOTE,
 										"{mod} set {nick}'s note to '{note}' on {type}",
-										{ mod: getSocketName(socket), type: "user", area: areaname, nick: d.nick, note: d.note});
+										{ mod: getSocketName(socket), type: "user", nick: d.nick, note: d.note});
 
 									forModminSockets(function(sc){
 										sc.emit('fondleUser', data);
