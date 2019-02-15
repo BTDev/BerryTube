@@ -1697,9 +1697,27 @@ function initDrinkCounter(under){
 	var v = $('<div/>').attr('id','v').appendTo(drink);
 	counter.appendTo(drink);
 }
-function addPollOpt(to,amt){
-	for(var i=0;i<amt;i++)
-		$('<input/>').attr('type','text').addClass("option").appendTo($('<div/>').addClass("optionWrap").appendTo(to));
+function addPollOpt(to, optionCount) {
+	for (let i = 0; i < optionCount; i++) {
+		$("<div>")
+			.addClass("optionWrap")
+			.append(
+				$("<input />")
+				.attr("type", "text")
+				.addClass("option"))
+			.append(
+				$("<label />")
+				.addClass("optionWrap__two-thirds")
+				.append($("<span />").addClass("optionWrap__two-thirds-text"))
+				.append($("<input />")
+					.attr("type", "checkbox")
+					.addClass("optionWrap__two-thirds-checkbox")
+					.change(function() {
+						const parent = getClosest(this, ".optionWrap__two-thirds");
+						parent.classList.toggle("is-checked", this.checked);
+					})))
+			.appendTo(to);
+	}
 }
 function initPolls(under){
 	$("#pollpane").remove()
@@ -1792,9 +1810,9 @@ function initPolls(under){
 		addPollOpt(optionContainer,5);
 	})
 	
-	createPollBtn.click(() => doCreatePoll("normal"));
-	
-	createRankedPollBtn.click(() => doCreatePoll("ranked"))
+	createPollBtn.click(() => createPoll("normal"));
+
+	createRankedPollBtn.click(() => createPoll("ranked"))
 
 	createRunoffBtn.click(function() {
 		if (canCreatePoll()) {
@@ -1830,29 +1848,40 @@ function initPolls(under){
 
 	$('<div/>').css("clear",'both').appendTo(pollControl);
 
-	function doCreatePoll(pollType) {
+	function createPoll(pollType = "normal") {
 		if (!canCreatePoll())
 			return
-		
-		const ops = canvas.find(".option")
-		const data = []
-
-		for (var i = 0; i < ops.length; i++)
-			data.push($(ops[i]).val());
 
 		socket.emit("newPoll", {
 			title: $(newPollTitle).val(),
 			obscure: newPollObscure.is(":checked"),
-			ops: data,
+			ops: getOptions(),
 			pollType
 		});
 
-		newPollTitle.val('');
-		runoffThreshold.val('');
-		ops.parent().remove();
-		addPollOpt(optionContainer,5);
+		newPollTitle.val("");
+		runoffThreshold.val("");
+		canvas.find(".option").parent().remove();
+		addPollOpt(optionContainer, 5);
 		newPollObscure.prop('checked', true);
 		newPollBtn.click();
+	}
+
+	function getOptions() {
+		const opWraps = canvas[0].querySelectorAll(".optionWrap");
+		const ret = [];
+
+		for (const opWrap of opWraps) {
+			const textInput = opWrap.querySelector(".option")
+			if (!textInput)
+				continue;
+
+			const text = textInput.value;
+			const isTwoThirds = opWrap.querySelector(".optionWrap__two-thirds-checkbox").checked;
+			ret.push({ text, isTwoThirds });
+		}
+
+		return ret;
 	}
 }
 function initAreas(){
@@ -2069,3 +2098,12 @@ $(function(){
 		}
 	}
 });
+
+function getClosest(elem, selector) {
+    for (; elem && elem !== document; elem = elem.parentNode) {
+        if (elem.matches(selector))
+            return elem
+    }
+
+    return null
+}

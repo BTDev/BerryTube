@@ -12,18 +12,28 @@ exports.RankedPoll = class extends PollInstance {
 	
 	get state() {
 		return {
-			...super.state,
+			// legacy protocol
+			// @TODO: version protocols properly
+			creator: this.options.creator,
+			title: this.options.title,
+			obscure: this.options.isObscured,
+			ghost: false,
+			pollType: this.options.pollType,
+			options: this.options.options.map(o => o.isTwoThirds ? `${o.text} (2/3ds)` : o.text),
 			votes: [],
-			rankedVotes: this.votes,
-			results: this.results
+
+			extended: {
+				options: this.options.options,
+				results: this.results,
+				votes: this.votes
+			}
 		};
 	}
 
 	get obscuredState() {
 		return {
 			...this.state,
-			rankedVotes: "[](/lpno1)",
-			results: "[](/lpno1)"
+			extended: { options: this.options.options }
 		};
 	}
 
@@ -35,21 +45,23 @@ exports.RankedPoll = class extends PollInstance {
 	}
 
 	castVote({ optionIndex, rank }, existingVote) {
-		const sanitizedIndex = parseInt(optionIndex);
+		const vote = existingVote || { optionIndicies: [] };
 		const sanitizedRank = parseInt(rank);
 
 		if (sanitizedRank < 0 || sanitizedRank >= 3)
 			throw new Error(`rank must be between 0 and 3`);
 
+		const sanitizedIndex = parseInt(optionIndex);
 		if (sanitizedIndex < 0 || sanitizedIndex >= this.options.options.length)
 			throw new Error(`optionIndex must be a valid option index`);
 
-		const vote = existingVote || { optionIndicies: [] };
-		if (vote.optionIndicies.includes(optionIndex))
-			throw new Error(`You cannot vote for an option twice`);
+		if (optionIndex !== null) {
+			const existingIndex = vote.optionIndicies.findIndex(o => o == optionIndex);
+			if (existingIndex != -1 && existingIndex != rank)
+				throw new Error(`You cannot vote for an option twice`);
+		}
 
 		vote.optionIndicies[rank] = optionIndex;
-		vote.isComplete = vote.optionIndicies.length >= 3;
 
 		if (existingVote)
 			this.votes[this.votes.indexOf(existingVote)] = vote;
@@ -72,15 +84,25 @@ exports.RankedPoll = class extends PollInstance {
 	calculateResults() {
 		const { options: { options }, votes } = this;
 
-		const finalVoteCounts = options.map((_, i) => ({votes: 0, index: i, isExcluded: false, rankDistribution: [0, 0, 0], opacity: .2}));
-		const hasApplied = this.votes.map(() => [false, false, false]);
+		const finalVoteCounts = options.map((_, i) => ({
+			votes: 0, 
+			index: i, 
+			isExcluded: false, 
+			rankDistribution: [0, 0, 0], 
+			opacity: .2
+		}));
+		
+		const hasApplied = this.votes.map(v => v.optionIndicies.map(() => false));
+
+		const finalResultsOrder = [];
+
 		let finalMaxVote;
 		
 		if (votes.length == 0)
 			return finalVoteCounts;
 
-		// first, exclude everything that has 0 votes everywhere
 		const optionVoteTotalCount = options.map(() => 0);
+
 		for (const vote of this.votes) {
 			for (let rank = 0; rank < vote.optionIndicies.length; rank++) {
 				const optionIndex = vote.optionIndicies[rank];
@@ -90,29 +112,20 @@ exports.RankedPoll = class extends PollInstance {
 				optionVoteTotalCount[optionIndex]++;
 			}
 		}
-		
-		for (let i = 0; i < optionVoteTotalCount.length; i++) {
-			if (optionVoteTotalCount[i])
-				continue;
-
-			finalVoteCounts[i].isExcluded = true;
-		}
 
 		let round = 0;
 
 		while (true) {
 			// tally up all votes, except for ones that are excluded
 			const votesForOption = options.map((_, i) => ({votes: 0, index: i}));
-
-			let minVote = 50000;
-			let maxVote = 0;
+			let totalVotesCast = 0;
 			const hasVoted = this.votes.map(f => false);
 			
 			for (let voteIndex = 0; voteIndex < this.votes.length; voteIndex++) {
 				const vote = this.votes[voteIndex];
 				for (let rank = 0; rank < vote.optionIndicies.length; rank++) {
 					const optionIndex = vote.optionIndicies[rank];
-					if (typeof(optionIndex) === "undefined")
+					if (typeof(optionIndex) === "undefined" || optionIndex === null)
 						continue;
 					
 					const finalVoteObject = finalVoteCounts[optionIndex];
@@ -125,67 +138,71 @@ exports.RankedPoll = class extends PollInstance {
 						continue;
 
 					if (!hasVoted[voteIndex]) {
+						totalVotesCast++;
 						votesForOption[optionIndex].votes++;
 						hasVoted[voteIndex] = true;
 					}
 				}
 			}
 
+			let minVote = 50000;
+			let maxVote = 0;
+			let maxEligableVote = 0;
+			const twoThirdsCutoff = (2 / 3) * totalVotesCast;
+
 			for (let i = 0; i < votesForOption.length; i++) {
 				if (finalVoteCounts[i].isExcluded)
 					continue;
 
 				const count = votesForOption[i].votes;
-				minVote = Math.max(count, 1);
+				minVote = Math.min(minVote, count);
 				maxVote = Math.max(maxVote, count);
+
+				const isEligable = 
+					!options[i].isTwoThirds
+					|| count >= twoThirdsCutoff
+
+				if (isEligable)
+					maxEligableVote = Math.max(maxEligableVote, count);
 			}
 
 			finalMaxVote = maxVote;
 
 			// copy in the latest vote data into our finalVoteCounts
+			let choppingBlock = [];
 			for (let i = 0; i < votesForOption.length; i++) {
 				const option = votesForOption[i];
 				const finalData = finalVoteCounts[i];
-				
-				if (option.votes == 0) {
-					// clear out 0 votes
-					if (!finalData.isExcluded) {
-						finalData.isExcluded = true;
-					}
-
-					continue;
-				}
 
 				if (finalData.isExcluded)
 					continue;
 
-				if (option.votes == minVote) {
-					// exclude the first minVote
-					// when we exclude, record how many votes this did have
-					finalData.votes = option.votes;
-					if (!finalData.isExcluded) {
-						finalData.isExcluded = true;
-					}
-				} else
-					finalData.votes = option.votes;
+				// record the highest votes that an option ever got
+				finalData.votes = Math.max(finalData.votes, option.votes);
+
+				if (option.votes == maxEligableVote)
+					continue;
+				
+				choppingBlock.push({ index: i, votes: option.votes });
 			}
 
-			// we are done if there are only maxes left
-			var finished = true;
-			for (let i = 0; i < finalVoteCounts.length; i++) {
-				const option = finalVoteCounts[i];
-				if (option.isExcluded)
-					continue;
+			// we are done if nothing was eliminated
+			if (!choppingBlock.length) {
+				// before we break, add our winners to the top of the result set
+				for (let i = 0; i < votesForOption.length; i++) {
+					if (finalVoteCounts[i].isExcluded)
+						continue;
 
-				if (option.votes == maxVote)
-					continue;
-
-				finished = false;
+					finalResultsOrder.push(i);
+				}
+				
 				break;
 			}
 
-			if (finished)
-				break;
+			// choose an item to elimiate... prefer non-two third options
+			const toEliminateIndex = choppingBlock.sort((l, r) => l.votes - r.votes)[0].index;
+			finalResultsOrder.push(toEliminateIndex);
+			finalVoteCounts[toEliminateIndex].isExcluded = true;
 
 			// as a safegarud...
 			if (++round > 300) {
@@ -193,14 +210,12 @@ exports.RankedPoll = class extends PollInstance {
 				throw new Error("Too much loop");
 			}
 		}
-
-		finalVoteCounts.sort((l, r) => r.votes - l.votes);
 		
 		// pre-calculate the target opacity
 		for (let i = 0; i < finalVoteCounts.length; i++) {
 			finalVoteCounts[i].opacity = Math.max(finalVoteCounts[i].votes / finalMaxVote, .2);
 		}
 
-		return finalVoteCounts;
+		return finalResultsOrder.reverse().map(i => finalVoteCounts[i]);
 	}
 }

@@ -10,11 +10,12 @@ export class RankedPoll {
         addPollMessage(state.creator, state.title)
 
         const optionRows = this.optionRows = []
+        const { extended: { options, results }, title } = state;
 
         this.isActive = true
         const pollElement = this.pollElement = createElement(
             "div",
-            { className: `poll active ranked-poll ${state.results == "[](/lpno1)" ? "ranked-poll--is-obscured" : ""}` },
+            { className: `poll active ranked-poll ${results == "[](/lpno1)" ? "ranked-poll--is-obscured" : ""}` },
             createElement(
                 "div",
                 { className: "btn close", innerText: "X", onClick: this._onHideClick }),
@@ -23,7 +24,7 @@ export class RankedPoll {
                 { className: "title ranked-poll__title" },
                 createElement(
                     "span",
-                    { innerText: state.title }),
+                    { innerText: title }),
                 createElement(
                     "span",
                     { className: "ranked-poll__vote-count", ref: e => this.voteCount = e })
@@ -37,26 +38,34 @@ export class RankedPoll {
                     createElement(
                         "div",
                         { className: "ranked-poll__option-list" },
-                        state.options.map((option, i) =>
-                            createElement(
-                                "div",
-                                { className: "label ranked-poll__option", ref: e => optionRows.push(e) },
-                                createElement(
-                                    "button",
-                                    { innerText: "1", onClick: () => rankChoice(i, 0), className: "ranked-poll__1st-button", disabled: true }
-                                ),
-                                createElement(
-                                    "button",
-                                    { innerText: "2", onClick: () => rankChoice(i, 1), className: "ranked-poll__2nd-button", disabled: true }
-                                ),
-                                createElement(
-                                    "button",
-                                    { innerText: "3", onClick: () => rankChoice(i, 2), className: "ranked-poll__3rd-button", disabled: true }
-                                ),
+                        [
+                            ...options.map((option, i) =>
                                 createElement(
                                     "div",
-                                    { innerText: option, className: "ranked-poll__option-text" }
-                                ))))),
+                                    { className: "label ranked-poll__option", ref: e => optionRows.push(e) },
+                                    createElement(
+                                        "button",
+                                        { innerText: "1", onClick: () => rankChoice(this, i, 0), className: "ranked-poll__button ranked-poll__1st-button", "data-rank": "0", "data-option-index": i }
+                                    ),
+                                    createElement(
+                                        "button",
+                                        { innerText: "2", onClick: () => rankChoice(this, i, 1), className: "ranked-poll__button ranked-poll__2nd-button", "data-rank": "1", "data-option-index": i, disabled: true }
+                                    ),
+                                    createElement(
+                                        "button",
+                                        { innerText: "3", onClick: () => rankChoice(this, i, 2), className: "ranked-poll__button ranked-poll__3rd-button", "data-rank": "2", "data-option-index": i, disabled: true }
+                                    ),
+                                    option.isTwoThirds
+                                        ? createElement(
+                                            "div",
+                                            { className: "ranked-poll__option-text is-two-thirds", innerText: option.text }
+                                        )
+                                        : createElement(
+                                            "div",
+                                            { className: "ranked-poll__option-text", innerText: option.text }
+                                        ))),
+                            createElement("button", { innerText: "clear votes", onClick: () => clearVotes(this), ref: e => this.clearVotedButton = e, disabled: true, className: "ranked-poll__clear-button" })
+                        ])),
                 createElement(
                     "div",
                     { className: "ranked-poll__results-panel", ref: e => this.resultsPanel = e })))
@@ -66,56 +75,50 @@ export class RankedPoll {
                 return
 
             prependElement(pane, this.pollElement)
-
-            // enable the first rank
-            setRank(0, true)
-
             this.update(state)
         })
 
-        function setRank(rank, isEnabled) {
-            for (const button of pollElement.querySelectorAll(`.ranked-poll__option button:nth-of-type(${rank + 1})`)) {
-                if (button.classList.contains("ranked-poll--not-chosen"))
-                    continue
+        const ourChoices = [-1, -1, -1];
 
-                button.disabled = !isEnabled
-
-                if (!isEnabled)
-                    button.classList.add("ranked-poll--not-chosen")
-            }
+        function rankChoice(that, optionIndex, rank) {
+            ourChoices[rank] = optionIndex;
+            window.socket.emit("votePoll", { optionIndex, rank });
+            refreshDisabled(that);
         }
 
-        function rankChoice(optionIndex, rank) {
-            // enable next rank
-            if (rank < 2)
-                setRank(rank + 1, true)
-
-            // disable this rank
-            setRank(rank, false)
-
-            // mark our row and button as selected....
-            const optionRow = optionRows[optionIndex]
-            optionRow.classList.add("ranked-poll--is-chosen")
-
-            const selectedButton = optionRow.querySelector(`button:nth-of-type(${rank + 1})`)
-            selectedButton.classList.add("ranked-poll--is-chosen")
-            selectedButton.classList.remove("ranked-poll--not-chosen")
-
-            // disable all of our buttons so a person can't select twice
-            for (const button of optionRow.querySelectorAll("button")) {
-                if (button != selectedButton)
-                    button.classList.add("ranked-poll--not-chosen")
-
-                button.disabled = true
+        function clearVotes(that) {
+            for (let i = 0; i < ourChoices.length; i++) {
+                window.socket.emit("votePoll", { optionIndex: null, rank: i });
+                ourChoices[i] = -1;
             }
 
-            // finally, dispatch our vote to the server!
-            window.socket.emit("votePoll", { optionIndex, rank });
+            refreshDisabled(that);
+        }
+
+        function refreshDisabled(that) {
+            let maxVotedRank = -1;
+            for (let rank = 0; rank < ourChoices.length; rank++) {
+                if (ourChoices[rank] < 0)
+                    continue;
+
+                maxVotedRank = rank;
+            }
+            
+            that.clearVotedButton.disabled = maxVotedRank == -1;
+            
+            for (const button of pollElement.querySelectorAll(`.ranked-poll__button`)) {
+                const optionIndex = parseInt(button.dataset.optionIndex);
+                const rankIndex = parseInt(button.dataset.rank);
+                button.disabled = ourChoices.includes(optionIndex) || (maxVotedRank < (rankIndex - 1));
+                button.classList.toggle("is-selected", ourChoices[rankIndex] == optionIndex);
+            }
         }
     }
 
     update(state) {
-        if (typeof(state.results) !== "object") {
+        const { extended: { options, results, votes } } = state;
+        
+        if (typeof(results) !== "object") {
             this.pollElement.classList.add("ranked-poll--is-obscured");
             this.pollElement.classList.remove("ranked-poll--is-visible");
             return;
@@ -123,12 +126,13 @@ export class RankedPoll {
 
         this.pollElement.classList.remove("ranked-poll--is-obscured");
         this.pollElement.classList.add("ranked-poll--is-visible");
-        this.voteCount.innerText = ` (${state.rankedVotes.length} vote${state.rankedVotes.length != 1 ? "s" : ""})`;
+        this.voteCount.innerText = ` (${votes.length} vote${votes.length != 1 ? "s" : ""})`;
         clear(this.resultsPanel);
 
-        state.results
-            .map(({votes, index, rankDistribution, opacity}) =>
-                createElement(
+        results
+            .map(({votes, index, rankDistribution, opacity}) => {
+                const option = options[index];
+                return createElement(
                     "div",
                     { className: "ranked-poll__poll-option-result" },
                     createElement(
@@ -150,10 +154,16 @@ export class RankedPoll {
                         "div",
                         { className: "ranked-poll__poll-option-votes", innerText: votes, style: { "opacity": opacity } }
                     ),
-                    createElement(
-                        "div",
-                        { className: "ranked-poll__poll-option-text", innerText: state.options[index] }
-                    )))
+                    option.isTwoThirds
+                        ? createElement(
+                            "div",
+                            { className: "ranked-poll__poll-option-text is-two-thirds", innerText: option.text }
+                        )
+                        : createElement(
+                            "div",
+                            { className: "ranked-poll__poll-option-text", innerText: option.text }
+                        ));
+            })
             .forEach(e => this.resultsPanel.appendChild(e));
     }
 
