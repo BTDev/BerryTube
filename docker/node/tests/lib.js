@@ -71,7 +71,7 @@ const Socket = exports.Socket = class {
 
     async connectAsync() {
         this.socket = await new Promise((res, rej) => {
-            const socket = require("socket.io-client").connect(process.env.SOCKET_ORIGIN, {
+            const socket = require("socket.io-client").connect(process.env.SOCKET_ORIGIN || "https://socket.localhost:12002", {
                 "connect timeout": 4500 + Math.random() * 1000,
                 "reconnect": true,
                 "reconnection delay": 500 + Math.random() * 1000,
