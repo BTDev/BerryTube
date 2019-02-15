@@ -10,14 +10,7 @@ exports.PollInstance = class {
 	}
 	
 	get state() {
-		return {
-			creator: this.options.creator,
-			title: this.options.title,
-			options: this.options.options,
-			obscure: this.options.isObscured,
-			ghost: false,
-			pollType: this.options.pollType
-		};
+		return { };
 	}
 
 	get obscuredState() {
@@ -30,7 +23,17 @@ exports.PollInstance = class {
 			creator: sanitize(creator),
 			title: sanitize(title), 
 			isObscured: !!isObscured,
-			options: options.map(sanitize).filter(f => f),
+			options: options.map(op => {
+				if (typeof(op) === "string")
+					op = { text: op, isTwoThirds: false };
+				
+				op.text = sanitize(op.text);
+				if (!op.text)
+					return null;
+
+				op.isTwoThirds = Boolean(op.isTwoThirds);
+				return op;
+			}).filter(f => f),
 			pollType
 		};
 	}
