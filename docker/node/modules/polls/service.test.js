@@ -297,5 +297,72 @@ describe("modules", function () {
                     { index: 2, votes: 1 }
                 ]);
         });
+
+        it("wtf why", async function () {
+            await this.simulatePoll(
+                ["admin", "create", {
+                    ops: [
+                        { text: "Abusen - But it's Ralph Breaks the Internet, but you have to live through an episode of Drumsy (VR Chat guy)" },
+                        { text: "Abusen - But it's furabusen with a 50/50 chance of Ducktales/Looney Tunes" },
+                        { text: "Abusen - This is a 100% random episode of horse, but it's an edit" }
+                    ], obscure: true, pollType: "ranked"
+                }],
+
+                // 0, 1, 2
+                ["user1A", "cast", { optionIndex: 0, rank: 0 }], ["user1A", "cast", { optionIndex: 1, rank: 1 }], ["user1A", "cast", { optionIndex: 2, rank: 2 }],
+                ["user2A", "cast", { optionIndex: 0, rank: 0 }], ["user2A", "cast", { optionIndex: 1, rank: 1 }], ["user2A", "cast", { optionIndex: 2, rank: 2 }],
+                ["user3A", "cast", { optionIndex: 0, rank: 0 }], ["user3A", "cast", { optionIndex: 1, rank: 1 }], ["user3A", "cast", { optionIndex: 2, rank: 2 }],
+                ["user4A", "cast", { optionIndex: 0, rank: 0 }], ["user4A", "cast", { optionIndex: 1, rank: 1 }], ["user4A", "cast", { optionIndex: 2, rank: 2 }],
+                ["user5A", "cast", { optionIndex: 0, rank: 0 }], ["user5A", "cast", { optionIndex: 1, rank: 1 }], ["user5A", "cast", { optionIndex: 2, rank: 2 }],
+                ["user6A", "cast", { optionIndex: 0, rank: 0 }], ["user6A", "cast", { optionIndex: 1, rank: 1 }], ["user6A", "cast", { optionIndex: 2, rank: 2 }],
+                
+                // 1, 0, 2
+                ["user7A", "cast", { optionIndex: 1, rank: 0 }], ["user7A", "cast", { optionIndex: 0, rank: 1 }], ["user7A", "cast", { optionIndex: 2, rank: 2 }],
+                ["user8A", "cast", { optionIndex: 1, rank: 0 }], ["user8A", "cast", { optionIndex: 0, rank: 1 }], ["user8A", "cast", { optionIndex: 2, rank: 2 }],
+                ["user9A", "cast", { optionIndex: 1, rank: 0 }], ["user9A", "cast", { optionIndex: 0, rank: 1 }], ["user9A", "cast", { optionIndex: 2, rank: 2 }],
+                ["user1B", "cast", { optionIndex: 1, rank: 0 }], ["user1B", "cast", { optionIndex: 0, rank: 1 }], ["user1B", "cast", { optionIndex: 2, rank: 2 }],
+                
+                // 1, 2, 0
+                ["user2B", "cast", { optionIndex: 1, rank: 0 }], ["user2B", "cast", { optionIndex: 2, rank: 1 }], ["user2B", "cast", { optionIndex: 0, rank: 2 }],
+                ["user3B", "cast", { optionIndex: 1, rank: 0 }], ["user3B", "cast", { optionIndex: 2, rank: 1 }], ["user3B", "cast", { optionIndex: 0, rank: 2 }],
+                ["user4B", "cast", { optionIndex: 1, rank: 0 }], ["user4B", "cast", { optionIndex: 2, rank: 1 }], ["user4B", "cast", { optionIndex: 0, rank: 2 }],
+                ["user5B", "cast", { optionIndex: 1, rank: 0 }], ["user5B", "cast", { optionIndex: 2, rank: 1 }], ["user5B", "cast", { optionIndex: 0, rank: 2 }],
+                ["user6B", "cast", { optionIndex: 1, rank: 0 }], ["user6B", "cast", { optionIndex: 2, rank: 1 }], ["user6B", "cast", { optionIndex: 0, rank: 2 }],
+
+                // 2, 0, 1
+                ["user7B", "cast", { optionIndex: 2, rank: 0 }], ["user7B", "cast", { optionIndex: 0, rank: 1 }], ["user7B", "cast", { optionIndex: 1, rank: 2 }],
+                ["user8B", "cast", { optionIndex: 2, rank: 0 }], ["user8B", "cast", { optionIndex: 0, rank: 1 }], ["user8B", "cast", { optionIndex: 1, rank: 2 }],
+                ["user9B", "cast", { optionIndex: 2, rank: 0 }], ["user9B", "cast", { optionIndex: 0, rank: 1 }], ["user9B", "cast", { optionIndex: 1, rank: 2 }],
+
+                // 2, 1, 0
+                ["user1C", "cast", { optionIndex: 2, rank: 0 }], ["user1C", "cast", { optionIndex: 1, rank: 1 }], ["user1C", "cast", { optionIndex: 0, rank: 2 }],
+                ["user2C", "cast", { optionIndex: 2, rank: 0 }], ["user2C", "cast", { optionIndex: 1, rank: 1 }], ["user2C", "cast", { optionIndex: 0, rank: 2 }],
+                ["user3C", "cast", { optionIndex: 2, rank: 0 }], ["user3C", "cast", { optionIndex: 1, rank: 1 }], ["user3C", "cast", { optionIndex: 0, rank: 2 }],
+                ["user4C", "cast", { optionIndex: 2, rank: 0 }], ["user4C", "cast", { optionIndex: 1, rank: 1 }], ["user4C", "cast", { optionIndex: 0, rank: 2 }]
+            );
+
+            const state = this.service.currentPoll.state;
+            const results = state.extended.results.map((r, i) => ({ name: state.extended.options[r.index].text, index: r.index, votes: r.votes, distribution: r.rankDistribution }));
+
+            expect(results).to.deep
+                .equal([
+                    { 
+                        name: "Abusen - But it's furabusen with a 50/50 chance of Ducktales/Looney Tunes",
+                        index: 1,
+                        votes: 22,
+                        distribution: [ 9, 10, 3 ]
+                    }, { 
+                        name: "Abusen - This is a 100% random episode of horse, but it's an edit",
+                        index: 2,
+                        votes: 7,
+                        distribution: [ 7, 5, 10 ]
+                    }, { 
+                        name: "Abusen - But it's Ralph Breaks the Internet, but you have to live through an episode of Drumsy (VR Chat guy)",
+                        index: 0,
+                        votes: 6,
+                        distribution: [ 6, 7, 9 ]
+                    } 
+                ]);
+        });
     });
 });
