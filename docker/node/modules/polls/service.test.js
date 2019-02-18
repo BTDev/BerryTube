@@ -71,7 +71,7 @@ describe("modules", function () {
             const state = this.service.currentPoll.state
 
             expect(state.options).to.deep
-                .equal(["op1 (2/3ds)", "op2", "op3", "op4"])
+                .equal(["op1 (⅔ required)", "op2", "op3", "op4"])
 
             expect(state.votes).to.deep
                 .equal([2, 1, 1, 0])
@@ -105,7 +105,7 @@ describe("modules", function () {
                 ]);
                 
             expect(state.options).to.deep
-                .equal(["op1 (2/3ds)", "op2", "op3", "op4"])
+                .equal(["op1 (⅔ required)", "op2", "op3", "op4"])
 
             expect(results).to.deep
                 .equal([

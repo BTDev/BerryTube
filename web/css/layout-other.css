@@ -563,7 +563,7 @@ body {
 }
 
 .optionWrap__two-thirds-text::before {
-    content: "2/3";
+    content: "⅔";
 }
 
 #pollControl .options table input[type="text"] {
@@ -872,10 +872,9 @@ button.ranked-poll__button.is-selected:disabled {
 }
 
 .ranked-poll__option-text.is-two-thirds::before, .ranked-poll__poll-option-text.is-two-thirds::before {
-    content: "2/3ds";
-    font-size: 9px;
+    content: "⅔ required";
+    font-size: 12px;
     color: #ddd;
-    margin-bottom: 2px;
 }
 
 .ranked-poll__submit-row {

@@ -19,7 +19,7 @@ exports.RankedPoll = class extends PollInstance {
 			obscure: this.options.isObscured,
 			ghost: false,
 			pollType: this.options.pollType,
-			options: this.options.options.map(o => o.isTwoThirds ? `${o.text} (2/3ds)` : o.text),
+			options: this.options.options.map(o => o.isTwoThirds ? `${o.text} (⅔ required)` : o.text),
 			votes: [],
 
 			extended: {
