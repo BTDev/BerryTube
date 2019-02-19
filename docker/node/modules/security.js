@@ -8,7 +8,11 @@ exports.sanitize = function (string) {
     return string;
 }
 
-exports.getAddress = function (socket) {
+exports.setAddress = (socket, ipAddress) => {
+    socket.handshake.headers["x-forwarded-for"] = ipAddress;
+}
+
+exports.getAddress = (socket) => {
     try {
         return socket.handshake.headers["x-forwarded-for"];
     }

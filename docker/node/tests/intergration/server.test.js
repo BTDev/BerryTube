@@ -11,20 +11,20 @@ describe("an admin, a mod, and six users walk into a bar", function () {
     before(async function () {
         this.timeout(10000);
 
-        this.admin = new Socket("AdminPerson", "AdminPersonAdminPerson");
-        this.mod = new Socket("ModPerson", "ModPersonModPerson");
+        this.admin = new Socket("10.0.0.2", "AdminPerson", "AdminPersonAdminPerson");
+        this.mod = new Socket("10.0.0.3", "ModPerson", "ModPersonModPerson");
 
         // anon
-        this.userAnon1 = new Socket();
-        this.userAnon2 = new Socket();
+        this.userAnon1 = new Socket("10.0.0.4");
+        this.userAnon2 = new Socket("10.0.0.5");
 
         // gray name
-        this.userGray1 = new Socket("GrayPerson1");
-        this.userGray2 = new Socket("GrayPerson2");
+        this.userGray1 = new Socket("10.0.0.6", "GrayPerson1");
+        this.userGray2 = new Socket("10.0.0.7", "GrayPerson2");
 
         // registered user
-        this.userReg1 = new Socket("UserPerson1", "UserPerson1UserPerson1");
-        this.userReg2 = new Socket("UserPerson2", "UserPerson2UserPerson2");
+        this.userReg1 = new Socket("10.0.0.8", "UserPerson1", "UserPerson1UserPerson1");
+        this.userReg2 = new Socket("10.0.0.9", "UserPerson2", "UserPerson2UserPerson2");
 
         this.users = [
             this.admin,

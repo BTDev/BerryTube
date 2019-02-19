@@ -13,6 +13,9 @@ COPY package.json ./
 RUN npm install && \
     apk --no-cache del build-dependencies
 
+# this is set _after_ the npm install intentionally
+ENV NODE_ENV=${NODE_ENV}
+
 COPY bt_data/ ./bt_data/
 COPY modules/ ./modules/
 COPY server.js entrypoint.sh ./

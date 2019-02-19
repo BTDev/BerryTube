@@ -86,6 +86,7 @@ services:
         init: true
         environment:
             - MYSQL_PASSWORD
+            - NODE_ENV
         expose:
             - '8344'
         networks:

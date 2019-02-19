@@ -54,14 +54,15 @@ const events = exports.events = [
     "debugDump"
 ];
 
-const delayAsync = exports.delayAsync = function(milliseconds) {
+exports.delayAsync = function(milliseconds) {
     return new Promise(res => {
         setTimeout(res, milliseconds);
     })
 }
 
-const Socket = exports.Socket = class {
-    constructor(nick = null, password = null) {
+exports.Socket = class {
+    constructor(ip, nick = null, password = null) {
+        this.ip = ip;
         this.eventBuffer = {};
         this.nick = nick;
         this.password = password;
@@ -94,14 +95,13 @@ const Socket = exports.Socket = class {
                 socket.removeListener("error", onError);
                 socket.removeListener("connect", onConnect);
                 socket.emit("myPlaylistIsInited");
+                socket.emit("#setIpAddress", this.ip);
                 res(socket);
             }
         });
 
         for (const event of events) {
             this.socket.on(event, (...args) => {
-//                console.log(`${this.logPrefix}: ${event}: ${args[0]}}`)
-                
                 const list = (this.eventBuffer[event] || (this.eventBuffer[event] = []));
                 list.push(args);
 

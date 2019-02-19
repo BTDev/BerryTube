@@ -1,6 +1,6 @@
 const { PollService } = require("./modules/polls")
 const { AuthService } = require("./modules/auth")
-const { sanitize, getAddress } = require("./modules/security")
+const { sanitize, getAddress, setAddress } = require("./modules/security")
 const { DefaultLog, events, levels, consoleLogger, createStreamLogger } = require("./modules/log");
 const { getSocketName } = require("./modules/socket");
 const { parseRawFileUrl } = require("./modules/utils");
@@ -295,8 +295,12 @@ const services = [
 	authService
 ]
 
-var MODE_VIDEOCHAT = 0;
-var MODE_CHATONLY = 1;
+const IS_DEV = SERVER.settings.core.isDevelopment;
+if (IS_DEV)
+	DefaultLog.error(events.EVENT_DEBUG_WARNING, "THE SERVER IS IN DEBUG MODE - IF YOU SEE THIS IN PRODUCTION SHUT EVERYTHING DOWN");
+
+const MODE_VIDEOCHAT = 0;
+const MODE_CHATONLY = 1;
 
 function initPlaylist(callback) {
 	var sql = `select * from ${SERVER.dbcon.video_table} order by position`;
@@ -2781,6 +2785,15 @@ io.sockets.on('connection', function (socket) {
 			reassignLeader(socket);
 		}
 
+		if (IS_DEV)
+			emitChat(socket, {
+				nick: "server",
+				emote: "server",
+				metadata: { channel: "main" },
+				msg: "THE SERVER IS CURRENTLY IN DEVELOPMENT MODE",
+				timestamp: new Date().getTime()
+			}, true);
+
 		socket.on('disconnect', function () {
 			sendConnectedUsers(-1);
 			if(isLeader(socket))
@@ -2792,6 +2805,15 @@ io.sockets.on('connection', function (socket) {
 			DefaultLog.info(events.EVENT_USER_LEFT, "user left from ip {ip}, total users: {userCount}", { ip, userCount: io.sockets.clients().length - 1 });
 		});
 	});
+
+	if (IS_DEV) {
+		socket.on("#setIpAddress", ipAddress => {
+			setAddress(socket, ipAddress);
+			DefaultLog.info(events.EVENT_DEBUG_WARNING, 
+				"Socket {nick} set their IP to {ip}", 
+				{ nick: getSocketName(socket), ip: ipAddress });
+		});
+	}
 
 	socket.on("setOverrideCss",function(data){
 		ifCanSetOverrideCss(socket,function(){

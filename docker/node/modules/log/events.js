@@ -40,6 +40,7 @@ exports.events = {
     EVENT_REPL: "EVENT_REPL",
     EVENT_GENERAL: "EVENT_GENERAL", // <- general debug, info or error, not otherwise specified
     EVENT_SERVER_STATUS: "EVENT_SERVER_STATUS",
+    EVENT_DEBUG_WARNING: "EVENT_DEBUG_WARNING",
 
     // site
     EVENT_ADMIN_APPLY_FILTERS: "EVENT_ADMIN_APPLY_FILTERS",
