@@ -1,18 +1,18 @@
 import { ensureExists, addPollMessage } from "./bt.js";
 import { createElement, prependElement, removeElements, $, clear } from "./lib.js";
 
-const rankColors = ["#4b830d", "#005cb2", "#29434e"]
+const rankColors = ["#4b830d", "#005cb2", "#29434e"];
 
 export class RankedPoll {
     constructor(state) {
-        this._onHideClick = this._onHideClick.bind(this)
+        this._onHideClick = this._onHideClick.bind(this);
 
-        addPollMessage(state.creator, state.title)
+        addPollMessage(state.creator, state.title);
 
-        const optionRows = this.optionRows = []
+        const optionRows = this.optionRows = [];
         const { extended: { options, results }, title } = state;
 
-        this.isActive = true
+        this.isActive = true;
         const pollElement = this.pollElement = createElement(
             "div",
             { className: `poll active ranked-poll ${results == "[](/lpno1)" ? "ranked-poll--is-obscured" : ""}` },
@@ -68,15 +68,15 @@ export class RankedPoll {
                         ])),
                 createElement(
                     "div",
-                    { className: "ranked-poll__results-panel", ref: e => this.resultsPanel = e })))
+                    { className: "ranked-poll__results-panel", ref: e => this.resultsPanel = e })));
 
         ensureExists("#pollpane").then(pane => {
             if (!this.isActive)
-                return
+                return;
 
-            prependElement(pane, this.pollElement)
-            this.update(state)
-        })
+            prependElement(pane, this.pollElement);
+            this.update(state);
+        });
 
         const ourChoices = [-1, -1, -1];
 
@@ -168,17 +168,17 @@ export class RankedPoll {
     }
 
     close() {
-        this.isActive = false
-        this.pollElement.classList.add("ranked-poll--is-closed")
-        this._disable()
+        this.isActive = false;
+        this.pollElement.classList.add("ranked-poll--is-closed");
+        this._disable();
     }
 
     _onHideClick() {
-        removeElements(this.pollElement)
-        this._disable()
+        removeElements(this.pollElement);
+        this._disable();
     }
 
     _disable() {
-        this.pollElement.classList.add("ranked-poll--is-voted")
+        this.pollElement.classList.add("ranked-poll--is-voted");
     }
 }

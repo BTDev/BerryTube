@@ -390,7 +390,7 @@ window.PLAYERS.soundcloud = {
                 if (paused) {
                     self.PLAYER.play();
                 }
-            })
+            });
         }, 1000);
     },
     getVideoState: function () {

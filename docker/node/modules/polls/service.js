@@ -47,7 +47,7 @@ exports.PollService = class extends ServiceBase {
 		if (!(await this.auth.canDoAsync(socket, actions.ACTION_CREATE_POLL)))
 			throw new Error("unauthoirzed");
 
-		const PollType = pollTypes[options.pollType]
+		const PollType = pollTypes[options.pollType];
 		if (!PollType)
 			throw new Error("bad poll type");
 
@@ -92,14 +92,14 @@ exports.PollService = class extends ServiceBase {
 		} catch(e) {
 			// Under some circumstances, publishToAll may fail. We don't want that preventing the poll from being closed, otherwise poisoned polls will prevent new polls
 			// from being created until a server restart.
-			this.log.error(events.EVENT_GENERAL, "{mod} closed poll {title} on {type}, but there were some errors when we published clearPoll", logData, e)
+			this.log.error(events.EVENT_GENERAL, "{mod} closed poll {title} on {type}, but there were some errors when we published clearPoll", logData, e);
 		}
 		
 		try {
 			await Promise.all(this.io.sockets.clients().map(c => propVoteData.set(c, null)));
 		} catch (e) {
 			// make sure potential errors above don't prevent us from closing the poll for reals
-			this.log.error(events.EVENT_GENERAL, "{mod} closed poll {title} on {type}, but there were some errors when we cleard socket data", logData, e)
+			this.log.error(events.EVENT_GENERAL, "{mod} closed poll {title} on {type}, but there were some errors when we cleard socket data", logData, e);
 		}
 		
 		this.currentPoll = null;
@@ -125,7 +125,7 @@ exports.PollService = class extends ServiceBase {
 		if (ipAddress != "172.20.0.1" && (!ipAddress || this.votedIpAddressMap.hasOwnProperty(ipAddress)))
 			throw new Error("IP has already voted");
 
-		const existingVote = await propVoteData.get(socket)
+		const existingVote = await propVoteData.get(socket);
 		if (existingVote && existingVote.isComplete) 
 			throw new Error("socket has already voted");
 
@@ -200,4 +200,4 @@ exports.PollService = class extends ServiceBase {
 		if (this.currentPoll && this.currentPoll.isObscured && type >= 1)
 			this.publishTo(socket, "newPoll");
 	}
-}
+};

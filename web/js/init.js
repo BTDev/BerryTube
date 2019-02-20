@@ -6,7 +6,7 @@ if(typeof localStorage != "undefined"){
 function dbg(...things) { if(DEBUG) console.debug(...things); }
 function setDebugMode(mode) {
 	DEBUG = !!mode;
-	localStorage.setItem("BT_DEBUG", mode ? "true" : "false")
+	localStorage.setItem("BT_DEBUG", mode ? "true" : "false");
 }
 
 // VIDEO OBJECT
@@ -29,7 +29,7 @@ Video.prototype.pack = function(){
 		videotype : this.videotype,
 		volat : this.volat,
 		meta : this.meta
-	}
+	};
 };
 
 // CREATE THE LINKED LIST DATATYPE
@@ -87,7 +87,7 @@ LinkedList.Circular.prototype.remove = function(node) {
   this.length--;
 };
 LinkedList.Circular.prototype.toArray = function(){
-	var elem = this.first
+	var elem = this.first;
 	var out = [];
 	for(var i=0;i<this.length;i++)
 	{
@@ -108,11 +108,11 @@ var btEvents = (function(){
     once = !!once || false;
     hooks[evt] = hooks[evt] || [];
     hooks[evt].push({fn:fn,once:once});
-  }
+  };
 
   self.once = function(evt,fn){
     return self.on(evt,fn,true);
-  }
+  };
 
   self.emit = function(evt,data){
     hooks[evt] = hooks[evt] || [];
@@ -123,7 +123,7 @@ var btEvents = (function(){
         hooks[evt].splice(i,1);
       }
     }
-  }
+  };
 
   Object.freeze(self);
 
@@ -298,7 +298,7 @@ function addRequeue(entry){
 }
 function doRequeue(entry){
 	if(getVal("sorting") == true) return;
-	setVal("sorting",true)
+	setVal("sorting",true);
 	console.log("Called doRequeue()");
 	if(controlsPlaylist())
 	{
@@ -312,11 +312,11 @@ function doRequeue(entry){
 			from: from,
 			to: to,
             sanityid: id
-		}
+		};
 		dbg(data);
 		socket.emit("sortPlaylist",data);
 	}
-	setVal("sorting",false)
+	setVal("sorting",false);
 }
 function addVolatile(entry){
 	if(canToggleVolatile() && $('> .setVolatile', entry).length == 0){
@@ -343,7 +343,7 @@ function doVolatile(entry){
 				volat:volat
 			},
             sanityid: id
-		}
+		};
 		dbg(data);
 		socket.emit("fondleVideo",data);
 	}
@@ -364,7 +364,7 @@ function doColorTag(entry,tag,volat){
 				volat:volat
 			},
             sanityid: id
-		}
+		};
 		dbg(data);
 		socket.emit("fondleVideo",data);
 	}
@@ -375,37 +375,37 @@ function sortUserList(){
 	var listitems = mylist.children('li.admin').get();
 	listitems.sort(function(a, b) {
 	   return $(a).text().toUpperCase().localeCompare($(b).text().toUpperCase());
-	})
+	});
 	$.each(listitems, function(idx, itm) { if($(itm).data('nick') != NAME) mylist.append(itm); });
 
 	var listitems = mylist.children('li.user.gilded, li.assistant.gilded').get();
 	listitems.sort(function(a, b) {
 	   return $(a).text().toUpperCase().localeCompare($(b).text().toUpperCase());
-	})
+	});
 	$.each(listitems, function(idx, itm) { if($(itm).data('nick') != NAME) mylist.append(itm); });
 
 	var listitems = mylist.children('li.user.leader, li.assistant.leader').get();
         listitems.sort(function(a, b) {
            return $(a).text().toUpperCase().localeCompare($(b).text().toUpperCase());
-        })
+        });
         $.each(listitems, function(idx, itm) { if($(itm).data('nick') != NAME) mylist.append(itm); });
 
 	var listitems = mylist.children('li.user:not(.gilded,.leader), li.assistant:not(.gilded,.leader)').get();
 	listitems.sort(function(a, b) {
 	   return $(a).text().toUpperCase().localeCompare($(b).text().toUpperCase());
-	})
+	});
 	$.each(listitems, function(idx, itm) { if($(itm).data('nick') != NAME) mylist.append(itm); });
 
 	var listitems = mylist.children('li.anon').get();
 	listitems.sort(function(a, b) {
 	   return $(a).text().toUpperCase().localeCompare($(b).text().toUpperCase());
-	})
+	});
 	$.each(listitems, function(idx, itm) { if($(itm).data('nick') != NAME) mylist.append(itm); });
 
 	var listitems = mylist.children('li.nobody').get();
 	listitems.sort(function(a, b) {
 	   return $(a).text().toUpperCase().localeCompare($(b).text().toUpperCase());
-	})
+	});
 	$.each(listitems, function(idx, itm) { if($(itm).data('nick') != NAME) mylist.append(itm); });
 
 	dbg("sorting");
@@ -491,7 +491,7 @@ function showConfigMenu(on){
 		scrollable:true
 	});
 
-	var cmds = $("<div/>").attr('id','settingsGui').prependTo(settWin)
+	var cmds = $("<div/>").attr('id','settingsGui').prependTo(settWin);
 	var optWrap = $("<ul/>").prependTo(cmds);
 
 	var configOps = $('<fieldset/>').appendTo($('<li/>').appendTo(optWrap));
@@ -513,7 +513,7 @@ function showConfigMenu(on){
 	$('<span/>').text("Sync within").appendTo(row);
 	var syncAccuracy = $('<input/>').attr('type','text').val(getStorage('syncAccuracy')).addClass("small").appendTo(row);
 	syncAccuracy.keyup(function(){ //
-		setStorage('syncAccuracy',parseInt(syncAccuracy.val()))
+		setStorage('syncAccuracy',parseInt(syncAccuracy.val()));
 	});
 	$('<span/>').text("seconds.").appendTo(row);
 	//----------------------------------------
@@ -523,9 +523,9 @@ function showConfigMenu(on){
 	if(getStorage('notifyMute') == 0) notifyMute.prop('checked', true);
 	notifyMute.change(function(){ //
 		if($(this).is(":checked")){
-			setStorage('notifyMute',0)
+			setStorage('notifyMute',0);
 		} else {
-			setStorage('notifyMute',1)
+			setStorage('notifyMute',1);
 		}
 	});
 	//----------------------------------------
@@ -547,9 +547,9 @@ function showConfigMenu(on){
 	if(getStorage("legacyPlayer") == 1) {useLegacyPlayer.prop('checked', true); }
 	useLegacyPlayer.change(function(){ //
 		if($(this).is(":checked")){
-			setStorage('legacyPlayer',1)
+			setStorage('legacyPlayer',1);
 		} else {
-			setStorage('legacyPlayer',0)
+			setStorage('legacyPlayer',0);
 		}
 	});
 	//----------------------------------------
@@ -560,10 +560,10 @@ function showConfigMenu(on){
 	showChatTimestamps.change(function(){ //
 		if($(this).is(":checked")){
 			$('body').addClass('showTimestamps');
-			setStorage('showTimestamps',1)
+			setStorage('showTimestamps',1);
 		} else {
 			$('body').removeClass('showTimestamps');
-			setStorage('showTimestamps',0)
+			setStorage('showTimestamps',0);
 		}
 	});
 	//----------------------------------------
@@ -574,10 +574,10 @@ function showConfigMenu(on){
 	showChatFlair.change(function(){
 		if($(this).is(":checked")){
 			$('body').removeClass('hideChatFlair');
-			setStorage('showChatflair',1)
+			setStorage('showChatflair',1);
 		} else {
 			$('body').addClass('hideChatFlair');
-			setStorage('showChatflair',0)
+			setStorage('showChatflair',0);
 		}
 	});
 	//----------------------------------------
@@ -587,9 +587,9 @@ function showConfigMenu(on){
 	if(getStorage("plFolAcVid") == 1) plFolAcVid.prop('checked', true);
 	plFolAcVid.change(function(){ //
 		if($(this).is(":checked")){
-			setStorage('plFolAcVid',1)
+			setStorage('plFolAcVid',1);
 		} else {
-			setStorage('plFolAcVid',0)
+			setStorage('plFolAcVid',0);
 		}
 	});
 	//----------------------------------------
@@ -597,7 +597,7 @@ function showConfigMenu(on){
 	$('<span/>').text("Keep").appendTo(row);
 	var keepPolls = $('<input/>').attr('type','text').val(getStorage("keeppolls")).addClass("small").appendTo(row);
 	keepPolls.keyup(function(){ //
-		setStorage('keeppolls',parseInt(keepPolls.val()))
+		setStorage('keeppolls',parseInt(keepPolls.val()));
 	});
 	$('<span/>').text("old polls.").appendTo(row);
 	//----------------------------------------
@@ -680,10 +680,10 @@ function showConfigMenu(on){
 		showShadowChatter.change(function(){ //
 			if($(this).is(":checked")){
 				$('body').addClass('showSBChatter');
-				setStorage('sbchatter',1)
+				setStorage('sbchatter',1);
 			} else {
 				$('body').removeClass('showSBChatter');
-				setStorage('sbchatter',0)
+				setStorage('sbchatter',0);
 			}
 		});
 
@@ -765,21 +765,21 @@ function showUserActions(who){
 		option.click(function(){
 			socket.emit("moveLeader",target);
 			cmds.window.close();
-		})
+		});
 	}
 	if(LEADER && target == NAME){
 		var option = $('<li/>').text("Give server berry").addClass('btn').appendTo(optWrap);
 		option.click(function(){
 			socket.emit("moveLeader",false);
 			cmds.window.close();
-		})
+		});
 	}
 	if(canKickUser() && target != NAME){
 		var option = $('<li/>').text("Kick user").addClass('btn').appendTo(optWrap);
 		option.click(function(){
 			socket.emit("kickUser", { nick:target });
 			cmds.window.close();
-		})
+		});
 	}
 	if(IGNORELIST.indexOf(target) == -1 && target != NAME){
 		var option = $('<li/>').text("Ignore user").addClass('btn').appendTo(optWrap);
@@ -788,7 +788,7 @@ function showUserActions(who){
 			localStorage.setItem('ignoreList', JSON.stringify(IGNORELIST));
 			who.addClass('ignored');
 			cmds.window.close();
-		})
+		});
 	}
 	if(IGNORELIST.indexOf(target) != -1 && target != NAME){
 		var option = $('<li/>').text("Unignore user").addClass('btn').appendTo(optWrap);
@@ -797,7 +797,7 @@ function showUserActions(who){
 			localStorage.setItem('ignoreList', JSON.stringify(IGNORELIST));
 			who.removeClass('ignored');
 			cmds.window.close();
-		})
+		});
 	}
 
 	if(canShadowBan() && target != NAME){
@@ -805,7 +805,7 @@ function showUserActions(who){
 		ban.click(function(){
 			socket.emit("shadowBan",{nick:target,sban:true,temp:false});
 			cmds.window.close();
-		})
+		});
 	}
 
 	if(canTempShadowBan() && target != NAME){
@@ -814,11 +814,11 @@ function showUserActions(who){
 		tban.click(function(){
 			socket.emit("shadowBan",{nick:target,sban:true,temp:true});
 			cmds.window.close();
-		})
+		});
 		uban.click(function(){
 			socket.emit("shadowBan",{nick:target,sban:false,temp:false});
 			cmds.window.close();
-		})
+		});
 	}
 
 	if (canBan() && target != NAME) {
@@ -1143,7 +1143,7 @@ function initRCVOverlay(above){
                             cpy.hide("blind",function(){
                                 cpy.remove();
                             });
-                        })
+                        });
                     })(val.clone());
 				}
 			}
@@ -1300,7 +1300,7 @@ function doPlaylistJump(elem){
 function newPlaylist(plul){
 
 	$(plul).children().remove();
-	var elem = PLAYLIST.first
+	var elem = PLAYLIST.first;
 	for(var i=0;i<PLAYLIST.length;i++)
 	{
 		var entry = $("<li/>").appendTo(plul);
@@ -1429,7 +1429,7 @@ function initFlairOpts(){
 	FLAIR_OPTS[i++].attr('title','Beer');
 }
 function initChatControls(parent){
-	$("#chatControls").remove()
+	$("#chatControls").remove();
 
 	var chatControls = $('<div/>').attr('id','chatControls').appendTo(parent);
 	var _loginAs = $('<div/>').addClass('loginAs').text("Logged in as:").appendTo(chatControls);
@@ -1438,11 +1438,11 @@ function initChatControls(parent){
 		if(TYPE > 1){
 			if($(this).hasClass("flaunt")){
 				NAMEFLAUNT = false;
-				$(this).removeClass("flaunt",100)
+				$(this).removeClass("flaunt",100);
 			} else {
 				NAMEFLAUNT = true;
-				$(this).addClass("level_"+TYPE)
-				$(this).addClass("flaunt",100)
+				$(this).addClass("level_"+TYPE);
+				$(this).addClass("flaunt",100);
 			}
 		}
 	});
@@ -1459,7 +1459,7 @@ function initChatControls(parent){
 					newId = 0;
 				}
 				MY_FLAIR_ID = parseInt(newId);
-				setStorage('myFlairID', MY_FLAIR_ID) // TODO - This used to expire after a day, wat do?
+				setStorage('myFlairID', MY_FLAIR_ID); // TODO - This used to expire after a day, wat do?
 				flairMenuWrap.removeClass().addClass('flair_'+MY_FLAIR_ID);
 			}
 		});
@@ -1475,7 +1475,7 @@ function initChatControls(parent){
 	});
 }
 function initChat(parent){
-	$("#chatpane").remove()
+	$("#chatpane").remove();
 	var chatpane = $('<div id="chatpane"/>').appendTo(parent);
 
 	var chattabs = $('<div id="chattabs"/>').appendTo(chatpane);
@@ -1521,7 +1521,7 @@ function initChat(parent){
 			chatinputbar.attr('aria-label', 'message');
 			clearInterval(tt);
 		}
-	},500)
+	},500);
 	var chatinputbar = $('<input/>').attr('maxlength','400').attr('aria-label', 'nickname').appendTo(chatinput);
 	chatinputbar.keyup(function(e) {
 		if(e.keyCode == 13) {chatinputbar.submit(); }
@@ -1537,12 +1537,12 @@ function initChat(parent){
 			if (objEvent.keyCode == 38) { //pressed up.
 			if(HISTORY_POS < HISTORY.length){
 				HISTORY_POS++;
-				$(this).val(HISTORY[HISTORY_POS])
+				$(this).val(HISTORY[HISTORY_POS]);
 			}
 			} else if (objEvent.keyCode == 40) { //pressed down.
 				if(HISTORY_POS > 0){
 					HISTORY_POS--;
-					$(this).val(HISTORY[HISTORY_POS])
+					$(this).val(HISTORY[HISTORY_POS]);
 				}
 			} else {
 				HISTORY_POS = 0;
@@ -1550,7 +1550,7 @@ function initChat(parent){
 			}
 
 		}
-	})
+	});
 
 	chatinputbar.submit(function(){
 		if(canChat()){
@@ -1570,7 +1570,7 @@ function initChat(parent){
 
 	$('<div/>').addClass("clear").appendTo(chatpane);
 	initPolls(chatpane);
-	initChatControls(chatpane)
+	initChatControls(chatpane);
 }
 function initChatList(data){
 	$("#chatlist ul").children().remove();
@@ -1636,7 +1636,7 @@ function initLoginForm(headbar){
         socket.emit('setNick', data);
         return false;
     });
-    loginbtn.click(function(){loginForm.submit()});
+    loginbtn.click(function(){loginForm.submit();});
     userBar.keyup(function(e) { if(e.keyCode == 13) { loginForm.submit(); } });
     loginBar.keyup(function(e) { if(e.keyCode == 13) { loginForm.submit(); } });
 
@@ -1680,10 +1680,10 @@ function initLoginForm(headbar){
     $('<label><input type="checkbox" checked="checked" class="rememberMe" />Remember Me</label>').appendTo(headbar);
     $('<div/>').addClass('loginError').appendTo(headbar);
 
-    regbtn.click(function(){regForm.submit()});
-    newUserBar.keyup(function(e) { if(e.keyCode == 13) { regForm.submit() } });
-    passBar.keyup(function(e) { if(e.keyCode == 13) { regForm.submit() } });
-    pass2Bar.keyup(function(e) { if(e.keyCode == 13) { regForm.submit() } });
+    regbtn.click(function(){regForm.submit();});
+    newUserBar.keyup(function(e) { if(e.keyCode == 13) { regForm.submit(); } });
+    passBar.keyup(function(e) { if(e.keyCode == 13) { regForm.submit(); } });
+    pass2Bar.keyup(function(e) { if(e.keyCode == 13) { regForm.submit(); } });
     // Autologin.
     if(typeof localStorage != 'undefined'){
         var nick = localStorage.getItem('nick');
@@ -1724,7 +1724,7 @@ function addPollOpt(to, optionCount) {
 	}
 }
 function initPolls(under){
-	$("#pollpane").remove()
+	$("#pollpane").remove();
 	var chatpane = $('<div id="pollpane"/>').insertAfter(under);
 
 	// Poll Controls
@@ -1812,11 +1812,11 @@ function initPolls(under){
 	});
 	newOptionManyBtn.click(function(){
 		addPollOpt(optionContainer,5);
-	})
+	});
 	
 	createPollBtn.click(() => createPoll("normal"));
 
-	createRankedPollBtn.click(() => createPoll("ranked"))
+	createRankedPollBtn.click(() => createPoll("ranked"));
 
 	createRunoffBtn.click(function() {
 		if (canCreatePoll()) {
@@ -1854,7 +1854,7 @@ function initPolls(under){
 
 	function createPoll(pollType = "normal") {
 		if (!canCreatePoll())
-			return
+			return;
 
 		socket.emit("newPoll", {
 			title: $(newPollTitle).val(),
@@ -1876,7 +1876,7 @@ function initPolls(under){
 		const ret = [];
 
 		for (const opWrap of opWraps) {
-			const textInput = opWrap.querySelector(".option")
+			const textInput = opWrap.querySelector(".option");
 			if (!textInput)
 				continue;
 
@@ -1937,7 +1937,7 @@ function initMailbox() {
 			$('<div id="mailButtonDiv"/>').html('<img src="' + CDN_ORIGIN + '/images/envelope.png" alt="mail"></img>').click(toggleMailDiv)));
 }
 $(function(){
-	dbg("page loaded, firing onload scripts")
+	dbg("page loaded, firing onload scripts");
 	$("body").keypress(function(event) {
 		if(event.keyCode == 27){ event.preventDefault(); } // Stop escape killing connection in firefox.
 	});
@@ -2044,7 +2044,7 @@ $(function(){
     });
 	$("body").click(function(){
 		WINDOW_FOCUS = true;
-		windowFocused()
+		windowFocused();
 	});
 
 	document.addEventListener('visibilitychange', function(){
@@ -2059,7 +2059,7 @@ $(function(){
 		.mouseenter(function() { KEEP_BUFFER = false; })
 		.mouseleave(function() { KEEP_BUFFER = true; scrollBuffersToBottom(); });
 
-	setVal("INIT_FINISHED", true)
+	setVal("INIT_FINISHED", true);
 
 	//Init plugin manager stuff
 	for (var i in scriptNodes) {
@@ -2106,8 +2106,8 @@ $(function(){
 function getClosest(elem, selector) {
     for (; elem && elem !== document; elem = elem.parentNode) {
         if (elem.matches(selector))
-            return elem
+            return elem;
     }
 
-    return null
+    return null;
 }

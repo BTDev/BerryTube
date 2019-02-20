@@ -1,7 +1,7 @@
 export function ensureExists(selector) {
     return new Promise(res => {
-        window.whenExists(selector, el => res(el[0]))
-    })
+        window.whenExists(selector, el => res(el[0]));
+    });
 }
 
 export function addPollMessage(creator, title) {
@@ -15,5 +15,5 @@ export function addPollMessage(creator, title) {
             metadata: false
         },
         ghost: false
-    }, "#chatbuffer")
+    }, "#chatbuffer");
 }
