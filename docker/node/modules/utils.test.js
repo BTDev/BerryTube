@@ -4,7 +4,7 @@ const { parseFormat, parseRawFileUrl } = require("./utils");
 
 describe("parseFormat", function() {
     it("parses: left {middle} right", function() {
-        let parts = []
+        let parts = [];
         parseFormat("left {middle} right", (...args) => parts.push(args));
         expect(parts).to.eql([
             ["constant", "left "],
@@ -14,7 +14,7 @@ describe("parseFormat", function() {
     });
     
     it("parses: {left} right", function() {
-        let parts = []
+        let parts = [];
         parseFormat("{left} right", (...args) => parts.push(args));
         expect(parts).to.eql([
             ["match", "left"],
@@ -23,7 +23,7 @@ describe("parseFormat", function() {
     });
     
     it("parses: {left}{left2} right", function() {
-        let parts = []
+        let parts = [];
         parseFormat("{left}{left2} right", (...args) => parts.push(args));
         expect(parts).to.eql([
             ["match", "left"],
@@ -33,7 +33,7 @@ describe("parseFormat", function() {
     });
     
     it("parses: {left} {left2} right", function() {
-        let parts = []
+        let parts = [];
         parseFormat("{left} {left2} right", (...args) => parts.push(args));
         expect(parts).to.eql([
             ["match", "left"],
@@ -44,7 +44,7 @@ describe("parseFormat", function() {
     });
     
     it("parses: left {right}", function() {
-        let parts = []
+        let parts = [];
         parseFormat("left {right}", (...args) => parts.push(args));
         expect(parts).to.eql([
             ["constant", "left "],
@@ -53,7 +53,7 @@ describe("parseFormat", function() {
     });
     
     it("parses: left {right}{right2}", function() {
-        let parts = []
+        let parts = [];
         parseFormat("left {right}{right2}", (...args) => parts.push(args));
         expect(parts).to.eql([
             ["constant", "left "],
@@ -63,7 +63,7 @@ describe("parseFormat", function() {
     });
     
     it("parses: left {right} {right2}", function() {
-        let parts = []
+        let parts = [];
         parseFormat("left {right} {right2}", (...args) => parts.push(args));
         expect(parts).to.eql([
             ["constant", "left "],

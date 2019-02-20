@@ -5,12 +5,12 @@ function setRuleTitle(titleBar, myData) {
 
 function onModuleLoaded(callback) {
 	if (window.isModuleLoaded) {
-		callback()
-		return
+		callback();
+		return;
 	}
 
 	(window.moduleLoadedCallbacks = (window.moduleLoadedCallbacks || []))
-		.push(callback)
+		.push(callback);
 }
 
 function showAdminFilterWindow(){
@@ -43,7 +43,7 @@ function showAdminFilterWindow(){
 			actionSelector:'none',
 			enable:true,
             name:""
-		}
+		};
 		for(var i in data){
 			myData[i] = data[i];
 		}
@@ -162,12 +162,12 @@ function showAdminFilterWindow(){
 		addRule();
 	});
 
-	var testBar = $('<div/>').appendTo(mainOptWrap)
+	var testBar = $('<div/>').appendTo(mainOptWrap);
 	/* Test Field */
 	var testName = $('<input/>').attr('type','text').addClass("small").appendTo(testBar);
 	$('<span/>').appendTo(testBar).text(":");
 	var testChat = $('<input/>').attr('type','text').appendTo(testBar);
-	var exampleArea = $('<div/>').appendTo(mainOptWrap)
+	var exampleArea = $('<div/>').appendTo(mainOptWrap);
 
 	/* Save Button */
 	var saveBtn = $('<div/>').addClass('button').appendTo(controlBar);
@@ -410,7 +410,7 @@ function showCssOverrideWindow(){
 	});
 
 	var mainOptWrap = $('<div/>').appendTo(parent).addClass('controlWindow');
-	var warning = "Ok, so this will let you force a CSS include on everyone who connects. the source of the file can be remote, but please, please, please use the test button first, and make sure everything looks good before committing, because it could cause parts of the site to break if done badly. These changes are sent to everyone IMMEDIATELY."
+	var warning = "Ok, so this will let you force a CSS include on everyone who connects. the source of the file can be remote, but please, please, please use the test button first, and make sure everything looks good before committing, because it could cause parts of the site to break if done badly. These changes are sent to everyone IMMEDIATELY.";
 	$('<p>').appendTo(mainOptWrap).text(warning).css("width","500px");
 	$('<p>').appendTo(mainOptWrap).text("Clear and save to unset the override.").css("width","500px");
 	var cssOv = $('<input/>').appendTo(mainOptWrap).val(curOverride);
@@ -418,12 +418,12 @@ function showCssOverrideWindow(){
 	$('<span/>').appendTo(testBtn).text("Test CSS Include Locally");
 	testBtn.click(function(){
 		setColorTheme(cssOv.val());
-	})
+	});
 	var commitBtn = $('<div/>').addClass('button').appendTo(mainOptWrap);
 	$('<span/>').appendTo(commitBtn).text("Save and Propogate");
 	commitBtn.confirmClick(function(){
 		socket.emit("setOverrideCss",cssOv.val());
-	})
+	});
 
 	parent.window.center();
 
@@ -747,7 +747,7 @@ function secToTime(seconds){
 	if(hours > 0)
 	{
 		hours = addZero(hours);
-		disp = hours+":"+disp
+		disp = hours+":"+disp;
 	}
 	return disp;
 }
@@ -795,7 +795,7 @@ function setToggleable(name,state,label){
 		TOGGLEABLES[name] = {
 			state:state,
 			label:label
-		}
+		};
 	}
 	dbg(TOGGLEABLES);
 	dbg(opt);
@@ -908,7 +908,7 @@ function handleACL(){
 									from: PLAYLIST_DRAGFROM,
 									to: PLAYLIST_DRAGTO,
                                     sanityid: PLAYLIST_DRAGSANITY
-								}
+								};
 								dbg(data);
 								socket.emit("sortPlaylist",data);
 							}
@@ -1292,19 +1292,19 @@ function manageDrinks(dd){
 			whenExists("#v",function(v){
 				if(dd == 0){
 					if(dw.is(":visible"))
-						 dw.hide("blind")
+						 dw.hide("blind");
 				} else {
 					if(dw.is(":hidden"))
-						 dw.show("blind")
+						 dw.show("blind");
 				}
 
 				if(dd > 9000){
 					if(v.is(":hidden"))
-						 v.show()
+						 v.show();
 				}
 				if(dd <= 9000){
 					if(v.is(":visible"))
-						 v.hide()
+						 v.hide();
 				}
 
 				//console.log(dd);
@@ -1317,9 +1317,9 @@ function manageDrinks(dd){
 				DRINKS = dd;
 				dc.text(DRINKS);
 				//console.log(DRINKS);
-			})
-		})
-	})
+			});
+		});
+	});
 }
 function handleNumCount(data){
 	CONNECTED = data.num;
@@ -1331,30 +1331,30 @@ function handleNumCount(data){
 }
 function closePoll(data){
 	if (data.pollType == "ranked") {
-		onModuleLoaded(() => window.rankedPolls.closeRankedPoll())
-		return
+		onModuleLoaded(() => window.rankedPolls.closeRankedPoll());
+		return;
 	} else {
 		//unbind old buttons
-		var existing = $(".poll.active")
+		var existing = $(".poll.active");
 		existing.find(".btn").each(function(key, val) {
 			if ($(val).hasClass("close")) 
-				return
+				return;
 
-			$(val).unbind('click')
-		})
+			$(val).unbind('click');
+		});
 
-		existing.removeClass("active")
+		existing.removeClass("active");
 	}
 
 	// remove old polls...
-	var keep = getStorage("keeppolls")
-	var polls = $("#pollpane").children(".poll")
+	var keep = getStorage("keeppolls");
+	var polls = $("#pollpane").children(".poll");
 	for (var i=0; i < polls.length; i++) {
 		if ($(polls[i]).hasClass("active")) 
-			continue
+			continue;
 
 		if (--keep < 0)
-			$(polls[i]).remove()
+			$(polls[i]).remove();
 	}
 }
 function toggleChatMode(){
@@ -1464,8 +1464,8 @@ function plSearch(term){
 }
 function newPoll(data){
 	if (data.pollType == "ranked") {
-		onModuleLoaded(() => window.rankedPolls.createRankedPoll(data))
-		return
+		onModuleLoaded(() => window.rankedPolls.createRankedPoll(data));
+		return;
 	}
 	
 	if (data.ghost && IGNORE_GHOST_MESSAGES) {
@@ -1540,13 +1540,13 @@ function newPoll(data){
                 POLL_OPTIONS.push(t);
 			}
             title.text(getPollTitle(votes));
-		})
+		});
 	}
 }
 function updatePoll(data){
 	if (data.pollType == "ranked") {
-		onModuleLoaded(() => window.rankedPolls.updateRankedPoll(data))
-		return
+		onModuleLoaded(() => window.rankedPolls.updateRankedPoll(data));
+		return;
 	}
 	
 	var votes = data.votes;
@@ -1653,7 +1653,7 @@ function attachAreaEdit(elem,name){
 	if(canSetAreas())
 	{
 		var orig = $(elem);
-		dbg(orig)
+		dbg(orig);
 		var editbtn = $('<button>Edit</button>').addClass("editBtn").insertAfter(orig);
 
 		editbtn.hover(function(){
@@ -1962,7 +1962,7 @@ function secondsToString(seconds){
        seconds = seconds.toString();
     }
 
-	return days + ":"+hours+":"+minutes+":"+seconds
+	return days + ":"+hours+":"+minutes+":"+seconds;
 }
 function isMainGameOn(){
 	TIME = new Date();
@@ -1992,24 +1992,24 @@ function timeToMainGame(){
         if(day>=7)day=0;
     }
 
-    console.log(TIME.getUTCDate() + dayOffset)
+    console.log(TIME.getUTCDate() + dayOffset);
     GAME.setUTCDate(TIME.getUTCDate() + dayOffset);
-    GAME.setUTCHours(startHr)
-    GAME.setUTCMinutes(0)
-    GAME.setUTCSeconds(-1)
+    GAME.setUTCHours(startHr);
+    GAME.setUTCMinutes(0);
+    GAME.setUTCSeconds(-1);
 
     var timeUntilGameStarts = (GAME.getTime() / 1000) - (TIME.getTime() / 1000);
-    if(timeUntilGameStarts < 0) timeUntilGameStarts += WEEK
+    if(timeUntilGameStarts < 0) timeUntilGameStarts += WEEK;
 
-    GAME.setUTCHours(stopHr)
+    GAME.setUTCHours(stopHr);
 
     var timeUntilGameStops = (GAME.getTime() / 1000) - (TIME.getTime() / 1000);
-    if(timeUntilGameStops < 0) timeUntilGameStops += WEEK
+    if(timeUntilGameStops < 0) timeUntilGameStops += WEEK;
 
     return {
         start:timeUntilGameStarts,
         stop:timeUntilGameStops
-    }
+    };
 }
 /*function isMainGameOn(){
 	TIME = new Date();
@@ -2085,7 +2085,7 @@ function tabComplete(elem) {
 			for (var i in result) {
 				var x = chat.replace(endword, result[i].nick);
 				if (chat.match(onlyword)) {
-					x += ": "
+					x += ": ";
 				}
 				else {
 					x += " ";
@@ -2117,9 +2117,9 @@ function highlight(elem){
 function scrollToPlEntry(index){
   var scrollbar = $('#playlist').data("plugin_tinyscrollbar");
 	try{
-		var t = $("#playlist ul").children(":not(.search-hidden)")[index]
-		var vph = $("#playlist .overview").height()
-		var plh = $("#playlist .viewport").height()
+		var t = $("#playlist ul").children(":not(.search-hidden)")[index];
+		var vph = $("#playlist .overview").height();
+		var plh = $("#playlist .viewport").height();
 		var o = $(t).position().top;
 		if(o + plh > vph){
       scrollbar.update("bottom");
@@ -2143,15 +2143,15 @@ function smartRefreshScrollbar(){
 	}catch(e){}
 }
 function getVideoIdOfLongUrl(url){
-	var id = url.match(/v=([^&]+)/)
+	var id = url.match(/v=([^&]+)/);
 	if(id == null) return false;
 	var id = url.match(/v=([^&]+)/)[1];
 	return id;
 }
 function realignPosHelper(){
 	try{
-		var avgpos = ACTIVE.domobj.position().top + (ACTIVE.domobj.height() / 2)
-		var barloc = Math.round(100*(avgpos / $("#playlist .overview").height()))
+		var avgpos = ACTIVE.domobj.position().top + (ACTIVE.domobj.height() / 2);
+		var barloc = Math.round(100*(avgpos / $("#playlist .overview").height()));
 		$("#playlist .track").css('background-position','0px '+barloc+'%');
 	}catch(e){}
 }
@@ -2165,7 +2165,7 @@ function setPlaylistPosition(to){
 		if(typeof ACTIVE.domobj != "undefined")
 			ACTIVE.domobj.removeClass("active");
 
-		var elem = PLAYLIST.first
+		var elem = PLAYLIST.first;
 		ACTIVE = PLAYLIST.first;
 		for(var i=0;i<PLAYLIST.length;i++)
 		{

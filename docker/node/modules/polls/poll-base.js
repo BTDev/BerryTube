@@ -18,7 +18,7 @@ exports.PollInstance = class {
 	}
 	
 	constructor(pollService, {title, options, isObscured, creator, pollType}) {
-		this.service = pollService
+		this.service = pollService;
         this.options = {
 			creator: sanitize(creator),
 			title: sanitize(title), 

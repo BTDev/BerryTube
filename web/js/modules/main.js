@@ -1,38 +1,38 @@
 import { RankedPoll } from "./ranked-poll.js";
 
 // ranked poll API
-let activePoll = null
+let activePoll = null;
 
 window.rankedPolls = { 
     createRankedPoll(state) {
         if (activePoll)
-            activePoll.close()
+            activePoll.close();
 
-        activePoll = new RankedPoll(state)
+        activePoll = new RankedPoll(state);
     },
     updateRankedPoll(state) {
         if (!activePoll) {
-            console.error("Could not set ranked poll because there is no active ranked poll object?")
-            return
+            console.error("Could not set ranked poll because there is no active ranked poll object?");
+            return;
         }
     
-        activePoll.update(state)
+        activePoll.update(state);
     },
 
     closeRankedPoll() {
         if (!activePoll) {
-            console.error("Could not close ranked poll because there is no active ranked poll object?")
-            return
+            console.error("Could not close ranked poll because there is no active ranked poll object?");
+            return;
         }
     
-        activePoll.close()
-        activePoll = null
+        activePoll.close();
+        activePoll = null;
     }
-}
+};
 
-window.isModuleLoaded = true
+window.isModuleLoaded = true;
 
 if (window.moduleLoadedCallbacks) {
-    window.moduleLoadedCallbacks.forEach(a => a())
-    window.moduleLoadedCallbacks = null
+    window.moduleLoadedCallbacks.forEach(a => a());
+    window.moduleLoadedCallbacks = null;
 }

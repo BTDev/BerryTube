@@ -6,7 +6,7 @@ exports.sanitize = function (string) {
         string = string.replace(/>/g, "&gt;");
     }
     return string;
-}
+};
 
 exports.getAddress = function (socket) {
     try {
@@ -15,4 +15,4 @@ exports.getAddress = function (socket) {
     catch (e) {
         return false;
     }
-}
+};

@@ -35,7 +35,7 @@ function videoPlaying(){
 			}
 			SEEK_FROM = 0;
 			forceStateChange();
-			dbg("PLAYING")
+			dbg("PLAYING");
 		});
 	}
 }
@@ -45,7 +45,7 @@ function videoPaused(){
 		videoGetTime(function(time){
 			if(SEEK_FROM == 0) SEEK_FROM=time;
 			forceStateChange();
-			dbg("PAUSED")
+			dbg("PAUSED");
 		});
 	}
 }
@@ -67,7 +67,7 @@ socket.on("recvNewPlaylist",function(data){
 	PLAYLIST = new LinkedList.Circular();
 	for(var i in data)
 	{
-		PLAYLIST.append(data[i])
+		PLAYLIST.append(data[i]);
 	}
 	newPlaylist($("#plul"));
 	socket.emit("renewPos");
@@ -76,7 +76,7 @@ socket.on("recvPlaylist",function(data){
 	PLAYLIST = new LinkedList.Circular();
 	for(var i in data)
 	{
-		PLAYLIST.append(data[i])
+		PLAYLIST.append(data[i]);
 	}
 	whenExists("#leftpane",function(obj){
 		initPlaylist($(obj));
@@ -86,9 +86,9 @@ socket.on("recvPlaylist",function(data){
 socket.on("hbVideoDetail",function(data){
 
 	//if(videoGetState() == -1 || videoGetState() == 3 ) return;
-	if(controlsVideo()) return
-	dbg('hbVideoDetail data')
-	dbg(data)
+	if(controlsVideo()) return;
+	dbg('hbVideoDetail data');
+	dbg(data);
 	//Check if video ID is the same as ours.
 	if(ACTIVE.videoid != data.video.videoid)
 	{
@@ -175,7 +175,7 @@ socket.on("setAreas",function(data){
 				$("a:not([rel])", area).attr("rel", "noopener noreferrer");
 				$("img:not([alt])", area).attr("alt", "");
 			});
-		})(i)
+		})(i);
 	}
 });
 socket.on("addVideo",function(data){
@@ -278,7 +278,7 @@ socket.on("leaderIs",function(data){
 				$("#chatlist ul li").removeClass("leader");
 				$(val).addClass("leader");
 			}
-		})
+		});
 	});
 
 	if(sortUserList)sortUserList();

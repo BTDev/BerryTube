@@ -1,7 +1,7 @@
 export function $(...args) {
-	const ret = document.querySelectorAll(...args)
-	ret.map = Array.prototype.map.bind(ret)
-	return ret
+	const ret = document.querySelectorAll(...args);
+	ret.map = Array.prototype.map.bind(ret);
+	return ret;
 }
 
 /**
@@ -10,7 +10,7 @@ export function $(...args) {
  * @param {HTMLElement} element 
  */
 export function prependElement(parent, element) {
-	parent.insertBefore(element, parent.firstChild)
+	parent.insertBefore(element, parent.firstChild);
 }
 
 /**
@@ -19,7 +19,7 @@ export function prependElement(parent, element) {
  */
 export function removeElements(...elements) {
 	for (const element of elements)
-		element.parentNode.removeChild(element)
+		element.parentNode.removeChild(element);
 }
 
 /**
@@ -28,7 +28,7 @@ export function removeElements(...elements) {
  */
 export function clear(element) {
 	while (element.firstChild)
-		element.removeChild(element.firstChild)
+		element.removeChild(element.firstChild);
 }
 
 /**

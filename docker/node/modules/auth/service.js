@@ -23,4 +23,4 @@ exports.AuthService = class extends ServiceBase {
 
         throw new Error(`Invalid action passed into canDoAsync: ${action}`);
     }
-}
+};
