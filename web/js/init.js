@@ -4,6 +4,11 @@ if(typeof localStorage != "undefined"){
     DEBUG = localStorage.getItem('BT_DEBUG') === "true";
 }
 function dbg(anything) { if(DEBUG) console.debug(anything); }
+function setDebugMode(mode) {
+	mode = !!mode;
+	DEBUG = mode;
+	localStorage.setItem("BT_DEBUG", mode ? "true" : "false")
+}
 
 // VIDEO OBJECT
 function Video() {}

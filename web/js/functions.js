@@ -996,28 +996,44 @@ function sendChatMsg(msg,elem){
 		});
 	}
 }
-function handleSpamChecks(callback){
-	var spamhp = 15000; var spamcompare = 3100;
-	var lasttime = getVal("lasttime"); var hp = getVal("chathp");
-	if(typeof lasttime == "undefined" || lasttime == null){	lasttime = new Date().getTime() - spamhp; }
-	if(typeof hp == "undefined" || hp == null){ hp = spamhp; }
 
-	var nowtime = new Date().getTime();
-	var dTime = nowtime - lasttime;
-	var dHp = dTime - spamcompare;
-	hp = Math.min(hp + dHp,spamhp); // apply damage/healing.
+function handleSpamChecks(callback) {
+	const defaultHtp = 15000;
+	const spamShift = 3100;
+	
+	let lastTime = getVal("lasttime");
+	let currentHp = getVal("chathp");
 
-	if(hp < 0){
+	if (typeof lastTime == "undefined" || lastTime == null)
+		lastTime = new Date().getTime() - defaultHtp;
+
+	if (typeof currentHp == "undefined" || currentHp == null)
+		currentHp = defaultHtp;
+
+	const nowTime = new Date().getTime();
+	const timeDelta = nowTime - lastTime;
+	const damageToApply = timeDelta - spamShift;
+	currentHp = Math.min(currentHp + damageToApply, defaultHtp);
+
+	if (currentHp < 0) {
+		dbg(`SPAMCHECK: message rejected: ${Object.entries({ 
+			currentHp, 
+			timeDelta, 
+			damageToApply 
+		}).map(([key, val]) => `${key}: ${val}`).join(", ")}`);
+
 		$("#chatinput input").addClass("loading");
-		setTimeout(function(){
+		setTimeout(function () {
 			$("#chatinput input").removeClass("loading");
-		},(hp*-1));
+		}, (currentHp * -1));
 	} else {
+		dbg(`SPAMCHECK: ${damageToApply < 0 ? `we took ${Math.abs(damageToApply)} chat damage` : `we healed ${damageToApply}`} - current hp: ${currentHp}, timeDelta: ${timeDelta}`)
 		callback();
-		setVal("chathp",hp);
-		setVal("lasttime",nowtime);
+		setVal("chathp", currentHp);
+		setVal("lasttime", nowTime);
 	}
 }
+
 function addLogMsg(data, to){
 	if (to.length == 0) return;
 	if (IGNORE_GHOST_MESSAGES && data.ghost) return;
