@@ -3,10 +3,9 @@ var DEBUG = false;
 if(typeof localStorage != "undefined"){
     DEBUG = localStorage.getItem('BT_DEBUG') === "true";
 }
-function dbg(anything) { if(DEBUG) console.debug(anything); }
+function dbg(...things) { if(DEBUG) console.debug(...things); }
 function setDebugMode(mode) {
-	mode = !!mode;
-	DEBUG = mode;
+	DEBUG = !!mode;
 	localStorage.setItem("BT_DEBUG", mode ? "true" : "false")
 }
 

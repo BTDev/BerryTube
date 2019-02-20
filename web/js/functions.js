@@ -1015,19 +1015,20 @@ function handleSpamChecks(callback) {
 	const damageToApply = timeDelta - spamShift;
 	currentHp = Math.min(currentHp + damageToApply, defaultHtp);
 
+	dbg("SPAMCHECK", {
+		currentHp,
+		timeDelta,
+		damageToApply
+	});
+
 	if (currentHp < 0) {
-		dbg(`SPAMCHECK: message rejected: ${Object.entries({ 
-			currentHp, 
-			timeDelta, 
-			damageToApply 
-		}).map(([key, val]) => `${key}: ${val}`).join(", ")}`);
+		dbg("SPAMCHECK: message rejected");
 
 		$("#chatinput input").addClass("loading");
 		setTimeout(function () {
 			$("#chatinput input").removeClass("loading");
 		}, (currentHp * -1));
 	} else {
-		dbg(`SPAMCHECK: ${damageToApply < 0 ? `we took ${Math.abs(damageToApply)} chat damage` : `we healed ${damageToApply}`} - current hp: ${currentHp}, timeDelta: ${timeDelta}`)
 		callback();
 		setVal("chathp", currentHp);
 		setVal("lasttime", nowTime);
