@@ -4,31 +4,15 @@ import { createElement, prependElement, removeElements, $, clear } from "./lib.j
 const rankColors = ["#4b830d", "#005cb2", "#29434e"];
 
 export class RankedPoll {
-    constructor(state) {
+    constructor(state, parent) {
         this._onHideClick = this._onHideClick.bind(this);
 
         addPollMessage(state.creator, state.title);
 
-        const optionRows = this.optionRows = [];
-        const { extended: { options, results }, title } = state;
+        const { extended: { options } } = state;
 
         this.isActive = true;
-        const pollElement = this.pollElement = createElement(
-            "div",
-            { className: `poll active ranked-poll ${results == "[](/lpno1)" ? "ranked-poll--is-obscured" : ""}` },
-            createElement(
-                "div",
-                { className: "btn close", innerText: "X", onClick: this._onHideClick }),
-            createElement(
-                "div",
-                { className: "title ranked-poll__title" },
-                createElement(
-                    "span",
-                    { innerText: title }),
-                createElement(
-                    "span",
-                    { className: "ranked-poll__vote-count", ref: e => this.voteCount = e })
-            ),
+        const pollElement = this.pollElement =
             createElement(
                 "div",
                 { className: "ranked-poll__split" },
@@ -42,7 +26,7 @@ export class RankedPoll {
                             ...options.map((option, i) =>
                                 createElement(
                                     "div",
-                                    { className: "label ranked-poll__option", ref: e => optionRows.push(e) },
+                                    { className: "ranked-poll__option" },
                                     createElement(
                                         "button",
                                         { innerText: "1", onClick: () => rankChoice(this, i, 0), className: "ranked-poll__button ranked-poll__1st-button", "data-rank": "0", "data-option-index": i }
@@ -62,21 +46,16 @@ export class RankedPoll {
                                         )
                                         : createElement(
                                             "div",
-                                            { className: "ranked-poll__option-text", innerText: option.text }
+                                            { className: "ranked-poll__option-text label", innerText: option.text }
                                         ))),
                             createElement("button", { innerText: "clear votes", onClick: () => clearVotes(this), ref: e => this.clearVotedButton = e, disabled: true, className: "ranked-poll__clear-button" })
                         ])),
                 createElement(
                     "div",
-                    { className: "ranked-poll__results-panel", ref: e => this.resultsPanel = e })));
+                    { className: "ranked-poll__results-panel", ref: e => this.resultsPanel = e }));
 
-        ensureExists("#pollpane").then(pane => {
-            if (!this.isActive)
-                return;
-
-            prependElement(pane, this.pollElement);
-            this.update(state);
-        });
+        parent.appendChild(pollElement);
+        this.update(state)
 
         const ourChoices = [-1, -1, -1];
 
@@ -126,7 +105,6 @@ export class RankedPoll {
 
         this.pollElement.classList.remove("ranked-poll--is-obscured");
         this.pollElement.classList.add("ranked-poll--is-visible");
-        this.voteCount.innerText = ` (${votes.length} vote${votes.length != 1 ? "s" : ""})`;
         clear(this.resultsPanel);
 
         results

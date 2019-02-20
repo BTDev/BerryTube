@@ -3,12 +3,7 @@ const { PollInstance } = require("./poll-base");
 exports.NormalPoll = class extends PollInstance {
 	get state() {
 		return {
-			creator: this.options.creator,
-			title: this.options.title,
-			obscure: this.options.isObscured,
-			ghost: false,
-			pollType: this.options.pollType,
-			options: this.options.options.map(o => o.isTwoThirds ? `${o.text} (⅔ required)` : o.text),
+			...super.state,
 			votes: this.votes.reduce(
 				(arr, vote) => {
 					arr[vote.optionIndex]++;

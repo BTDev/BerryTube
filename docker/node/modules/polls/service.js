@@ -37,11 +37,13 @@ exports.PollService = class extends ServiceBase {
 	 * @param {any} rawOptions the options to create this poll with
 	 */
 	async createPoll(socket, rawOptions) {
+		const closePollInSeconds = parseInt(rawOptions.closePollInSeconds || 0)
 		const options = {
 			title: rawOptions.title || "",
 			options: rawOptions.ops || [],
 			isObscured: !!rawOptions.obscure,
-			pollType: rawOptions.pollType || "normal"
+			pollType: rawOptions.pollType || "normal",
+			closePollInSeconds
 		};
 		
 		if (!(await this.auth.canDoAsync(socket, actions.ACTION_CREATE_POLL)))
@@ -64,10 +66,11 @@ exports.PollService = class extends ServiceBase {
 
 		this.log.info(
 			events.EVENT_ADMIN_CREATED_POLL, 
-			"{mod} opened poll {title} on {type}", { 
+			`{mod} opened poll {title} on {type} ${closePollInSeconds > 0 ? "(will close in {pollTimeout} seconds)" : ""}`, { 
 				mod: await getSocketName(socket), 
 				title: options.title,
-				type: "site"});
+				type: "site",
+				pollTimeout: closePollInSeconds});
 	}
 
 	/**
@@ -79,7 +82,7 @@ exports.PollService = class extends ServiceBase {
 		if (!this.currentPoll)
 			return;
 
-		if (!(await this.auth.canDoAsync(socket, actions.ACTION_CLOSE_POLL)))
+		if (socket && !(await this.auth.canDoAsync(socket, actions.ACTION_CLOSE_POLL)))
 			throw new Error("unauthoirzed");
 
 		const title = this.currentPoll.options.title;
@@ -188,6 +191,13 @@ exports.PollService = class extends ServiceBase {
 		socket.emit(eventName, canSeeVotes
 			? this.currentPoll.state
 			: this.currentPoll.obscuredState);
+	}
+
+	onTick(elapsedMilliseconds) {
+		if (!this.currentPoll)
+			return;
+
+		this.currentPoll.onTick(elapsedMilliseconds);
 	}
 
 	onSocketConnected(socket) {

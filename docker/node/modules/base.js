@@ -17,6 +17,8 @@ exports.ServiceBase = class {
             this._socketActions[actionName] = actions[actionName];
         }
     }
+
+    onTick(elapsedMilliseconds) { }
     
     onSocketConnected(socket) { 
         for (const actionName in this._socketActions) {

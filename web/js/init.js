@@ -1762,10 +1762,10 @@ function initPolls(under){
 
 	var td = $('<td/>').appendTo(row);
 	var x = $('<div/>').appendTo(td).addClass("optionWrap");
-	newPollTitle = $('<input/>').attr('type','text').appendTo(x);
+	const newPollTitle = $('<input/>').attr('type','text').appendTo(x);
 
 	var td = $('<td/>').appendTo(row);
-	newPollObscure = $('<input/>').addClass("cb").attr('type','checkbox').attr("title","Obscure votes until poll closes.").prop('checked', true).appendTo(td);
+	const newPollObscure = $('<input/>').addClass("cb").attr('type','checkbox').attr("title","Obscure votes until poll closes.").prop('checked', true).appendTo(td);
 
 	// Options Row Container
 	var row = $('<tr/>').appendTo(table);
@@ -1784,16 +1784,44 @@ function initPolls(under){
 	var newOptionManyBtn = $('<div/>').addClass("btn").text("+5").appendTo(td);
 
 	// Submit Row
-	var row = $('<tr/>').appendTo(table);
+	row = $('<tr/>').appendTo(table);
 	$('<td/>').appendTo(row);
-	var td = $('<td/>').appendTo(row);
-	var createPollBtn = $('<div/>').addClass("btn").text("Create Poll").appendTo(td);
+	td = $('<td/>').addClass("c-split-btn-row").appendTo(row);
+
+	const createPollBtn = $('<div/>')
+		.addClass("btn")
+		.addClass("c-split-btn-row__button")
+		.text("Normal Poll")
+		.appendTo(td);
 
 	// Ranked Row
-	var row = $('<tr/>').appendTo(table);
-	$('<td/>').appendTo(row);
-	var td = $('<td/>').appendTo(row);
-	var createRankedPollBtn = $('<div/>').addClass("btn").text("Create Ranked Poll").appendTo(td);
+	var createRankedPollBtn = $('<div/>')
+		.addClass("btn")
+		.addClass("c-split-btn-row__button")
+		.text("Ranked Poll")
+		.appendTo(td);
+
+	// Automatic Close Row
+	const automaticClose = $("<select />")
+		.addClass("c-poll-select__select")
+		.append([
+			[0, "Don't Close Automaticly"],
+			[30, "Close in 30 seconds"],
+			[60, "Close in 1 minute"],
+			[60 * 2, "Close in 2 minutes"],
+			[60 * 5, "Close in 5 minutes"],
+			[60 * 10, "Close in 10 minutes"]
+		].map(([time, title]) => $(`<option />`)
+			.attr("selected", time === 0)
+			.text(title)
+			.attr("value", time)))
+		.appendTo(td);
+
+	$("<tr />")
+		.addClass("c-poll-select")
+		.append($("<td />"))
+		.append($("<td />").append(automaticClose))
+		.appendTo(table);
 
 	// Runoff row
 	var row = $('<tr/>').appendTo(table);
@@ -1860,7 +1888,8 @@ function initPolls(under){
 			title: $(newPollTitle).val(),
 			obscure: newPollObscure.is(":checked"),
 			ops: getOptions(),
-			pollType
+			pollType,
+			closePollInSeconds: parseInt(automaticClose.val())
 		});
 
 		newPollTitle.val("");
@@ -1869,6 +1898,7 @@ function initPolls(under){
 		addPollOpt(optionContainer, 5);
 		newPollObscure.prop('checked', true);
 		newPollBtn.click();
+		automaticClose.val(0);
 	}
 
 	function getOptions() {

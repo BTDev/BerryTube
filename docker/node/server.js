@@ -420,28 +420,28 @@ function initFilters(callback){
 }
 function initTimer(){
 	SERVER._TIME = new Date().getTime();
-	setInterval(function(){
-		if(SERVER.ACTIVE != null)
-		{
-			var d = new Date();
-			var curtime = d.getTime();
-			if(Math.ceil(SERVER.TIME+1) >= (SERVER.ACTIVE.videolength + SERVER.settings.vc.tail_time))
-			{
-				playNext();
-			}
-			else if(SERVER.STATE != 2)
-			{
-				var mod = (curtime - SERVER._TIME) / 1000;
-				if(isTrackingTime()){
-					SERVER.TIME += mod;
-				} else {
-					resetTime();
-				}
-			}
+	setInterval(function() {
+		if (SERVER.ACTIVE == null)
+			return;
+		
+		const timestamp = (new Date()).getTime();
+		const elapsedMilliseconds = (timestamp - SERVER._TIME);
+		const elapsedSeconds = elapsedMilliseconds / 1000;
+		SERVER._TIME = timestamp;
 
-			SERVER._TIME = curtime;
+		for (const service of services)
+			service.onTick(elapsedMilliseconds);
+
+		if (Math.ceil(SERVER.TIME + 1) >= (SERVER.ACTIVE.videolength + SERVER.settings.vc.tail_time)) {
+			playNext();
+		} else if (SERVER.STATE != 2) {
+			if (isTrackingTime()) {
+				SERVER.TIME += elapsedSeconds;
+			} else {
+				resetTime();
+			}
 		}
-	},1000);
+	}, 1000);
 
 	setInterval(function(){
 		if(isTrackingTime()){
