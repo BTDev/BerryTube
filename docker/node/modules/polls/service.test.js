@@ -94,7 +94,7 @@ describe("modules", function () {
             );
 
             const state = this.service.currentPoll.state
-            const results = state.extended.results.map(r => ({ index: r.index, votes: r.votes }));
+            const results = state.extended.results.map(r => ({ index: r.index }));
 
             expect(state.extended.options).to.deep
                 .equal([
@@ -103,16 +103,16 @@ describe("modules", function () {
                     { text: "op3", isTwoThirds: false },
                     { text: "op4", isTwoThirds: false }
                 ]);
-                
+
             expect(state.options).to.deep
                 .equal(["op1 (⅔ required)", "op2", "op3", "op4"])
 
             expect(results).to.deep
                 .equal([
-                    { index: 2, votes: 1 },
-                    { index: 1, votes: 1 },
-                    { index: 0, votes: 2 },
-                    { index: 3, votes: 0 }
+                    { index: 2 },
+                    { index: 1 },
+                    { index: 0 },
+                    { index: 3 }
                 ]);
         });
 
@@ -136,14 +136,14 @@ describe("modules", function () {
             );
 
             const state = this.service.currentPoll.state;
-            const results = state.extended.results.map(r => ({ index: r.index, votes: r.votes }));
+            const results = state.extended.results.map(r => ({ index: r.index }));
 
             expect(results).to.deep
                 .equal([
-                    { index: 2, votes: 4 },
-                    { index: 3, votes: 3 },
-                    { index: 1, votes: 1 },
-                    { index: 0, votes: 1 }
+                    { index: 2 },
+                    { index: 3 },
+                    { index: 0 },
+                    { index: 1 }
                 ]);
         });
 
@@ -167,12 +167,12 @@ describe("modules", function () {
             );
 
             const state = this.service.currentPoll.state;
-            const results = state.extended.results.map(r => ({ index: r.index, votes: r.votes }));
+            const results = state.extended.results.map(r => ({ index: r.index }));
 
             expect(results).to.deep
                 .equal([
-                    { index: 1, votes: 4 },
-                    { index: 0, votes: 5 }
+                    { index: 1 },
+                    { index: 0 }
                 ]);
         });
 
@@ -196,12 +196,12 @@ describe("modules", function () {
             );
 
             const state = this.service.currentPoll.state;
-            const results = state.extended.results.map(r => ({ index: r.index, votes: r.votes }));
+            const results = state.extended.results.map(r => ({ index: r.index }));
 
             expect(results).to.deep
                 .equal([
-                    { index: 0, votes: 6 },
-                    { index: 1, votes: 3 }
+                    { index: 0 },
+                    { index: 1 }
                 ]);
         });
 
@@ -226,12 +226,12 @@ describe("modules", function () {
             );
 
             const state = this.service.currentPoll.state;
-            const results = state.extended.results.map(r => ({ index: r.index, votes: r.votes }));
+            const results = state.extended.results.map(r => ({ index: r.index }));
 
             expect(results).to.deep
                 .equal([
-                    { index: 0, votes: 6 },
-                    { index: 1, votes: 3 }
+                    { index: 0 },
+                    { index: 1 }
                 ]);
         });
 
@@ -256,13 +256,13 @@ describe("modules", function () {
             );
 
             const state = this.service.currentPoll.state;
-            const results = state.extended.results.map(r => ({ index: r.index, votes: r.votes }));
+            const results = state.extended.results.map(r => ({ index: r.index }));
 
             expect(results).to.deep
                 .equal([
-                    { index: 0, votes: 6 },
-                    { index: 1, votes: 3 },
-                    { index: 2, votes: 1 }
+                    { index: 0 },
+                    { index: 1 },
+                    { index: 2 }
                 ]);
         });
 
@@ -288,13 +288,13 @@ describe("modules", function () {
             );
 
             const state = this.service.currentPoll.state;
-            const results = state.extended.results.map(r => ({ index: r.index, votes: r.votes }));
+            const results = state.extended.results.map(r => ({ index: r.index }));
 
             expect(results).to.deep
                 .equal([
-                    { index: 1, votes: 4 },
-                    { index: 0, votes: 6 },
-                    { index: 2, votes: 1 }
+                    { index: 1 },
+                    { index: 0 },
+                    { index: 2 }
                 ]);
         });
 
@@ -315,13 +315,13 @@ describe("modules", function () {
                 ["user4A", "cast", { optionIndex: 0, rank: 0 }], ["user4A", "cast", { optionIndex: 1, rank: 1 }], ["user4A", "cast", { optionIndex: 2, rank: 2 }],
                 ["user5A", "cast", { optionIndex: 0, rank: 0 }], ["user5A", "cast", { optionIndex: 1, rank: 1 }], ["user5A", "cast", { optionIndex: 2, rank: 2 }],
                 ["user6A", "cast", { optionIndex: 0, rank: 0 }], ["user6A", "cast", { optionIndex: 1, rank: 1 }], ["user6A", "cast", { optionIndex: 2, rank: 2 }],
-                
+
                 // 1, 0, 2
                 ["user7A", "cast", { optionIndex: 1, rank: 0 }], ["user7A", "cast", { optionIndex: 0, rank: 1 }], ["user7A", "cast", { optionIndex: 2, rank: 2 }],
                 ["user8A", "cast", { optionIndex: 1, rank: 0 }], ["user8A", "cast", { optionIndex: 0, rank: 1 }], ["user8A", "cast", { optionIndex: 2, rank: 2 }],
                 ["user9A", "cast", { optionIndex: 1, rank: 0 }], ["user9A", "cast", { optionIndex: 0, rank: 1 }], ["user9A", "cast", { optionIndex: 2, rank: 2 }],
                 ["user1B", "cast", { optionIndex: 1, rank: 0 }], ["user1B", "cast", { optionIndex: 0, rank: 1 }], ["user1B", "cast", { optionIndex: 2, rank: 2 }],
-                
+
                 // 1, 2, 0
                 ["user2B", "cast", { optionIndex: 1, rank: 0 }], ["user2B", "cast", { optionIndex: 2, rank: 1 }], ["user2B", "cast", { optionIndex: 0, rank: 2 }],
                 ["user3B", "cast", { optionIndex: 1, rank: 0 }], ["user3B", "cast", { optionIndex: 2, rank: 1 }], ["user3B", "cast", { optionIndex: 0, rank: 2 }],
@@ -342,27 +342,23 @@ describe("modules", function () {
             );
 
             const state = this.service.currentPoll.state;
-            const results = state.extended.results.map((r, i) => ({ name: state.extended.options[r.index].text, index: r.index, votes: r.votes, distribution: r.rankDistribution }));
+            const results = state.extended.results.map((r, i) => ({ name: state.extended.options[r.index].text, index: r.index, distribution: r.rankDistribution }));
 
             expect(results).to.deep
-                .equal([
-                    { 
-                        name: "Abusen - But it's furabusen with a 50/50 chance of Ducktales/Looney Tunes",
-                        index: 1,
-                        votes: 22,
-                        distribution: [ 9, 10, 3 ]
-                    }, { 
-                        name: "Abusen - This is a 100% random episode of horse, but it's an edit",
-                        index: 2,
-                        votes: 7,
-                        distribution: [ 7, 5, 10 ]
-                    }, { 
-                        name: "Abusen - But it's Ralph Breaks the Internet, but you have to live through an episode of Drumsy (VR Chat guy)",
-                        index: 0,
-                        votes: 6,
-                        distribution: [ 6, 7, 9 ]
-                    } 
-                ]);
+                .equal([{
+                    name: "Abusen - But it's Ralph Breaks the Internet, but you have to live through an episode of Drumsy (VR Chat guy)",
+                    index: 0,
+                    distribution: [6, 7, 9]
+                },
+                {
+                    name: "Abusen - But it's furabusen with a 50/50 chance of Ducktales/Looney Tunes",
+                    index: 1,
+                    distribution: [9, 10, 3]
+                }, {
+                    name: "Abusen - This is a 100% random episode of horse, but it's an edit",
+                    index: 2,
+                    distribution: [7, 5, 10]
+                }]);
         });
     });
 });
