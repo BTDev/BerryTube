@@ -7,9 +7,9 @@ exports.getSocketPropAsync = function(socket, prop) {
 	return new Promise((res, rej) => {
 		socket.get(prop, (err, value) => {
 			if (err) {
-				rej(err)
-				return
-			};
+				rej(err);
+				return;
+			}
 
 			res(value);
 		});

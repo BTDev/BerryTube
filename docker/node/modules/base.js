@@ -6,7 +6,7 @@ exports.ServiceBase = class {
     constructor({log = DefaultLog}) {
         this.log = log;
         this._socketActions = {};
-        this.onSocketConnected = this.onSocketConnected.bind(this)
+        this.onSocketConnected = this.onSocketConnected.bind(this);
     }
     
     exposeSocketActions(actions) {
@@ -37,10 +37,10 @@ exports.ServiceBase = class {
                             },
                             error);
                     } catch (e) {
-                        console.error("The error handler threw an error! How embarrassing.")
+                        console.error("The error handler threw an error! How embarrassing.");
                         
                         if (e)
-                            console.error(e.stack || e)
+                            console.error(e.stack || e);
                     }
                 }
             });

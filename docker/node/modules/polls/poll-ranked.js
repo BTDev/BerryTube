@@ -75,7 +75,7 @@ exports.RankedPoll = class extends PollInstance {
 	clearVote(vote) {
 		const index = this.votes.indexOf(vote);
 		if (index == -1)
-			return
+			return;
 
 		this.votes.splice(index, 1);
 		this[resultCache] = null;
@@ -105,4 +105,4 @@ exports.RankedPoll = class extends PollInstance {
 
 		return finalResults;
 	}
-}
+};

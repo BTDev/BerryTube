@@ -61,7 +61,7 @@
 					$(btn).css('width','');
 					$(btn).children("span").text(origText);
 				});
-			}
+			};
 			$(btn).dblclick(function(){
 				if(callback)callback();
 				btn.revert();
@@ -100,7 +100,7 @@
 				});
 			});
 
-			var t = on.offset().top// + on.outerHeight(true)
+			var t = on.offset().top;// + on.outerHeight(true)
 			var l = on.offset().left;
 			dropDown.css({
 				position:"absolute",
@@ -133,7 +133,7 @@
 			toolBox:false,
 			initialLoading:false,
 			scrollable:false
-		}
+		};
 		for(var i in data){
 			myData[i] = data[i];
 		}
@@ -192,9 +192,9 @@
 				var newval = (highestWindowZ+1);
 				$(this).css('z-index',newval);
 			}
-		}
+		};
 		newWindow.mousedown(function(){
-			newWindow.winFocus()
+			newWindow.winFocus();
 		});
 
 		windows.push(newWindow);
@@ -259,13 +259,13 @@ jQuery.fn.center = function () {
     this.css("top", Math.max(0, (($(window).height() - this.outerHeight()) / 2) + $(window).scrollTop()) + "px");
     this.css("left", Math.max(0, (($(window).width() - this.outerWidth()) / 2) + $(window).scrollLeft()) + "px");
     return this;
-}
+};
 
 function whenExists(objSelector,callback){
 	var guy = $(objSelector);
 	if(guy.length <= 0){
 		setTimeout(function(){
-			whenExists(objSelector,callback)
+			whenExists(objSelector,callback);
 		},100);
 	} else {
 		callback(guy);
@@ -283,7 +283,7 @@ function waitForFlag(flagname,callback){
 	var flag = getVal(flagname);
 	if(!flag){
 		setTimeout(function(){
-			waitForFlag(flagname,callback)
+			waitForFlag(flagname,callback);
 		},100);
 	} else {
 		callback();

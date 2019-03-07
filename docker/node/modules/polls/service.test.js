@@ -43,13 +43,13 @@ describe("modules", function () {
                 ["user4", "cast", { op: 2 }]
             );
 
-            const state = this.service.currentPoll.state
+            const state = this.service.currentPoll.state;
 
             expect(state.options).to.deep
-                .equal(["op1", "op2", "op3", "op4"])
+                .equal(["op1", "op2", "op3", "op4"]);
 
             expect(state.votes).to.deep
-                .equal([2, 1, 1, 0])
+                .equal([2, 1, 1, 0]);
         });
 
         it("create normal poll with new fancy options", async function () {
@@ -68,13 +68,13 @@ describe("modules", function () {
                 ["user4", "cast", { op: 2 }]
             );
 
-            const state = this.service.currentPoll.state
+            const state = this.service.currentPoll.state;
 
             expect(state.options).to.deep
-                .equal(["op1 (⅔ required)", "op2", "op3", "op4"])
+                .equal(["op1 (⅔ required)", "op2", "op3", "op4"]);
 
             expect(state.votes).to.deep
-                .equal([2, 1, 1, 0])
+                .equal([2, 1, 1, 0]);
         });
 
         it("create ranked poll with new fancy options", async function () {
@@ -105,7 +105,7 @@ describe("modules", function () {
                 ]);
 
             expect(state.options).to.deep
-                .equal(["op1 (⅔ required)", "op2", "op3", "op4"])
+                .equal(["op1 (⅔ required)", "op2", "op3", "op4"]);
 
             expect(results).to.deep
                 .equal([
