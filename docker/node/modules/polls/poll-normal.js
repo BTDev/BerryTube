@@ -1,3 +1,4 @@
+const { sanitize } = require("../security");
 const { PollInstance } = require("./poll-base");
 
 exports.NormalPoll = class extends PollInstance {
@@ -26,7 +27,13 @@ exports.NormalPoll = class extends PollInstance {
 	}
 
 	constructor(pollService, options) {
-		super(pollService, options);
+		super(pollService, {
+			...options,
+			options: options.ops.map(o => typeof(o) === "string" 
+				? sanitize(o)
+				: { text: sanitize(o.text), isTwoThirds: !!o.isTwoThirds })
+		});
+
 		this.votes = [];
 	}
 

@@ -1,5 +1,3 @@
-const { sanitize } = require("../security");
-
 exports.PollInstance = class {
 	set isObscured(value) {
 		this.options.isObscured = value;
@@ -17,25 +15,9 @@ exports.PollInstance = class {
 		return this.state;
 	}
 	
-	constructor(pollService, {title, options, isObscured, creator, pollType}) {
+	constructor(pollService, options) {
 		this.service = pollService;
-        this.options = {
-			creator: sanitize(creator),
-			title: sanitize(title), 
-			isObscured: !!isObscured,
-			options: options.map(op => {
-				if (typeof(op) === "string")
-					op = { text: op, isTwoThirds: false };
-				
-				op.text = sanitize(op.text);
-				if (!op.text)
-					return null;
-
-				op.isTwoThirds = Boolean(op.isTwoThirds);
-				return op;
-			}).filter(f => f),
-			pollType
-		};
+        this.options = options;
 	}
 
 	castVote(options, existingVote = null) {
