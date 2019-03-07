@@ -1,5 +1,7 @@
 const { PollInstance } = require("./poll-base");
+const { sanitize } = require("../security");
 const { events } = require("../log");
+const schulze = require("schulze-method");
 
 const resultCache = Symbol();
 exports.RankedPoll = class extends PollInstance {
@@ -9,7 +11,7 @@ exports.RankedPoll = class extends PollInstance {
 
 		return this[resultCache];
 	}
-	
+
 	get state() {
 		return {
 			// legacy protocol
@@ -23,9 +25,10 @@ exports.RankedPoll = class extends PollInstance {
 			votes: [],
 
 			extended: {
+				maxRankCount: this.options.maxRankCount,
 				options: this.options.options,
 				results: this.results,
-				votes: this.votes
+				voteCount: this.votes.length
 			}
 		};
 	}
@@ -33,38 +36,46 @@ exports.RankedPoll = class extends PollInstance {
 	get obscuredState() {
 		return {
 			...this.state,
-			extended: { options: this.options.options }
+			extended: { 
+				options: this.options.options,
+				maxRankCount: this.options.maxRankCount
+			}
 		};
 	}
 
 	constructor(pollService, options, log) {
-		super(pollService, options);
+		super(pollService, { 
+			...options, 
+			options: options.ops.map(o => ({ 
+				text: sanitize(o.text), 
+				isTwoThirds: !!o.isTwoThirds 
+			})),
+			maxRankCount: 4
+		});
+
 		this.votes = [];
 		this.log = log;
 		this[resultCache] = null;
 	}
 
-	castVote({ optionIndex, rank }, existingVote) {
-		const vote = existingVote || { optionIndicies: [] };
-		const sanitizedRank = parseInt(rank);
+	castVote({ ballot }, existingVote) {
+		const { options: { options, maxRankCount } } = this;
+		const abstainedRank = maxRankCount + 1;
+		
+		if (!Array.isArray(ballot))
+			throw new Error(`Invalid ballot: expected array`);
+		
+		if (ballot.length != options.length)
+			throw new Error(`Invalid ballot: expected ${options.length} rankings, but received: ${ballot.length}`);
 
-		if (sanitizedRank < 0 || sanitizedRank >= 3)
-			throw new Error(`rank must be between 0 and 3`);
+		const vote = { ballot: ballot.map(Number) };
+		for (const ranking of vote.ballot)
+			if (ranking < 1 || ranking > abstainedRank)
+				throw new Error(`Invalid ballot: all rankings in the ballot must be between 1 and ${abstainedRank}`)
 
-		const sanitizedIndex = parseInt(optionIndex);
-		if (sanitizedIndex < 0 || sanitizedIndex >= this.options.options.length)
-			throw new Error(`optionIndex must be a valid option index`);
-
-		if (optionIndex !== null) {
-			const existingIndex = vote.optionIndicies.findIndex(o => o == optionIndex);
-			if (existingIndex != -1 && existingIndex != rank)
-				throw new Error(`You cannot vote for an option twice`);
-		}
-
-		vote.optionIndicies[rank] = optionIndex;
-
-		if (existingVote)
-			this.votes[this.votes.indexOf(existingVote)] = vote;
+		const existingIndex = this.votes.indexOf(existingVote);
+		if (existingIndex !== -1)
+			this.votes[existingIndex] = vote;
 		else
 			this.votes.push(vote);
 
@@ -82,27 +93,41 @@ exports.RankedPoll = class extends PollInstance {
 	}
 
 	calculateResults() {
-		const { options: { options }, votes } = this;
-		const finalOptions = options
+		const { options: { options, maxRankCount }, votes } = this;
+
+		const initialDistribution = new Array(maxRankCount + 1);
+		for (let rank = 0; rank < initialDistribution.length; rank++)
+			initialDistribution[rank] = 0;
+
+		const finalResults = options
 			.map((_, i) => ({
-				index: i, 
-				isExcluded: false, 
-				rankDistribution: [0, 0, 0],
-				opacity: .2
+				index: i,
+				isExcluded: false,
+				ballots: initialDistribution.slice(),
+				rank: maxRankCount + 1
 			}));
 
 		for (let voteIndex = 0; voteIndex < votes.length; voteIndex++) {
-			const vote = votes[voteIndex];
-			for (let rankIndex = 0; rankIndex < vote.optionIndicies.length; rankIndex++) {
-				const optionIndex = vote.optionIndicies[rankIndex];
-				if (typeof(optionIndex) !== "undefined") {
-					finalOptions[optionIndex].rankDistribution[rankIndex]++;
-				}
+			const ballot = votes[voteIndex].ballot;
+			for (let optionIndex = 0; optionIndex < ballot.length; optionIndex++) {
+				const rank = ballot[optionIndex];
+				if (rank != maxRankCount)
+					finalResults[optionIndex].ballots[rank]++;
 			}
 		}
-		
-		
 
+		const ballots = this.votes.map(v => v.ballot);
+		const results = schulze.run(options.length, ballots);
+
+		for (let finalRank = 0; finalRank < results.length; finalRank++) {
+			const optionsInThisRank = results[finalRank].indexes;
+			for (let i = 0; i < optionsInThisRank.length; i++) {
+				const optionIndex = optionsInThisRank[i];
+				finalResults[optionIndex].rank = finalRank;
+			}
+		}
+
+		finalResults.sort((l, r) => l.rank - r.rank);
 		return finalResults;
 	}
 };
