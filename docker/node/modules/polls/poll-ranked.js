@@ -211,18 +211,22 @@ exports.RankedPoll = class extends PollInstance {
 			if (twoThirdsResultIndex === -1) {
 				// there were some two-third options in the rank of 1, but non are elgiable
 				// so stuff the losing two-third options into a new rank all by themselves
-				let firstNonTwoThirdsOptionIndex = 0;
+				let firstNonTwoThirdsOptionRank = -1;
+
 				for (let i = 0; i < finalResults.length; i++) {
-					if (options[finalResults[i].index].isTwoThirds)
+					const res = finalResults[i];
+					if (options[res.index].isTwoThirds)
 						continue;
 
-					firstNonTwoThirdsOptionIndex = i;
-					break;
+					if (firstNonTwoThirdsOptionRank == -1)
+						firstNonTwoThirdsOptionRank = res.rank;
+					else if (firstNonTwoThirdsOptionRank != res.rank)
+						break;
 				}
 
 				for (let i = 0; i < finalResults.length; i++) {
-					if (i <= firstNonTwoThirdsOptionIndex && !options[finalResults[i].index].isTwoThirds)
-						finalResults[i].rank--;
+					if (finalResults[i].rank <= firstNonTwoThirdsOptionRank && !options[finalResults[i].index].isTwoThirds)
+						finalResults[i].rank = 0;
 					else
 						finalResults[i].rank++;
 				}
