@@ -119,8 +119,11 @@ exports.PollService = class extends ServiceBase {
 			throw new Error("unauthoirzed");
 
 		const ipAddress = getAddress(socket);
+		// Temporarily allow multiple votes to workaround ranked poll issues
+		/*
 		if (ipAddress != "172.20.0.1" && (!ipAddress || this.votedIpAddressMap.hasOwnProperty(ipAddress)))
 			throw new Error("IP has already voted");
+		*/
 
 		const existingVote = await propVoteData.get(socket);
 		if (existingVote && existingVote.isComplete) 
