@@ -1,3 +1,5 @@
+// this comment is a temporary caching workaround
+
 import { RankedPoll } from "./ranked-poll.js";
 
 // ranked poll API
