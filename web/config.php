@@ -2,14 +2,27 @@
 
 	require_once('api/apiconfig.php');
 
+	function sha1_dir($dirname) {
+		$hashes = '';
+		$iter = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($dirname, FilesystemIterator::SKIP_DOTS));
+		foreach ($iter as $fname) {
+			$hashes .= sha1_file($fname, true);
+		}
+		return sha1($hashes, true);
+	}
+
 	function cdn($fname) {
 		if (NO_CDN) {
 			return $fname;
 		}
 		$fname = ltrim($fname, '/');
-		$hash = @sha1_file(__DIR__ . '/' . $fname, true);
+		if (substr($fname, 0, 11) == 'js/modules/') {
+			$hash = sha1_dir(__DIR__ . '/js/modules');
+		} else {
+			$hash = @sha1_file(__DIR__ . '/' . $fname, true);
+		}
 		if ($hash) {
-			$hash = rtrim(strtr(base64_encode($hash), '+/', '-_'), '=');
+			$hash = strtr(rtrim(base64_encode($hash), '='), '+/', '-_');
 			return CDN_ORIGIN . "/sha1/$hash/$fname";
 		} else {
 			return $fname;
