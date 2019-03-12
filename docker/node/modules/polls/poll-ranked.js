@@ -1,5 +1,7 @@
 const { PollInstance } = require("./poll-base");
+const { sanitize } = require("../security");
 const { events } = require("../log");
+const schulze = require("schulze-method");
 
 const resultCache = Symbol();
 exports.RankedPoll = class extends PollInstance {
@@ -9,7 +11,7 @@ exports.RankedPoll = class extends PollInstance {
 
 		return this[resultCache];
 	}
-	
+
 	get state() {
 		return {
 			// legacy protocol
@@ -23,9 +25,10 @@ exports.RankedPoll = class extends PollInstance {
 			votes: [],
 
 			extended: {
+				maxRankCount: this.options.maxRankCount,
 				options: this.options.options,
 				results: this.results,
-				votes: this.votes
+				voteCount: this.votes.length
 			}
 		};
 	}
@@ -33,40 +36,53 @@ exports.RankedPoll = class extends PollInstance {
 	get obscuredState() {
 		return {
 			...this.state,
-			extended: { options: this.options.options }
+			extended: {
+				options: this.options.options,
+				maxRankCount: this.options.maxRankCount
+			}
 		};
 	}
 
 	constructor(pollService, options, log) {
-		super(pollService, options);
+		super(pollService, {
+			...options,
+			options: options.ops.map(o => ({
+				text: sanitize(o.text),
+				isTwoThirds: !!o.isTwoThirds
+			})),
+			maxRankCount: 4
+		});
+
 		this.votes = [];
 		this.log = log;
 		this[resultCache] = null;
 	}
 
-	castVote({ optionIndex, rank }, existingVote) {
-		const vote = existingVote || { optionIndicies: [] };
-		const sanitizedRank = parseInt(rank);
+	castVote({ ballot }, existingVote) {
+		const { options: { options, maxRankCount } } = this;
+		const abstainedRank = maxRankCount;
 
-		if (sanitizedRank < 0 || sanitizedRank >= 3)
-			throw new Error(`rank must be between 0 and 3`);
+		if (!Array.isArray(ballot))
+			throw new Error(`Invalid ballot: expected array`);
 
-		const sanitizedIndex = parseInt(optionIndex);
-		if (sanitizedIndex < 0 || sanitizedIndex >= this.options.options.length)
-			throw new Error(`optionIndex must be a valid option index`);
+		if (ballot.length != options.length)
+			throw new Error(`Invalid ballot: expected ${options.length} rankings, but received: ${ballot.length}`);
 
-		if (optionIndex !== null) {
-			const existingIndex = vote.optionIndicies.findIndex(o => o == optionIndex);
-			if (existingIndex != -1 && existingIndex != rank)
-				throw new Error(`You cannot vote for an option twice`);
-		}
+		const vote = { ballot: ballot.map(Number) };
+		for (const ranking of vote.ballot)
+			if (ranking < 1 || ranking > abstainedRank)
+				throw new Error(`Invalid ballot: all rankings in the ballot must be between 1 and ${abstainedRank}`)
 
-		vote.optionIndicies[rank] = optionIndex;
+		const existingIndex = this.votes.indexOf(existingVote);
+		const isBallotEmpty = vote.ballot.every(b => b == abstainedRank);
 
-		if (existingVote)
-			this.votes[this.votes.indexOf(existingVote)] = vote;
-		else
-			this.votes.push(vote);
+		if (!isBallotEmpty) {
+			if (existingIndex !== -1)
+				this.votes[existingIndex] = vote;
+			else
+				this.votes.push(vote);
+		} else if (existingIndex !== -1)
+			this.votes.splice(existingIndex, 1);
 
 		this[resultCache] = null;
 		return vote;
@@ -82,140 +98,158 @@ exports.RankedPoll = class extends PollInstance {
 	}
 
 	calculateResults() {
-		const { options: { options }, votes } = this;
+		const { options: { options, maxRankCount }, votes } = this;
 
-		const finalVoteCounts = options.map((_, i) => ({
-			votes: 0, 
-			index: i, 
-			isExcluded: false, 
-			rankDistribution: [0, 0, 0], 
-			opacity: .2
-		}));
-		
-		const hasApplied = this.votes.map(v => v.optionIndicies.map(() => false));
+		if (!options.length)
+			return [];
 
-		const finalResultsOrder = [];
+		const initialDistribution = new Array(maxRankCount + 1);
+		for (let rank = 0; rank < initialDistribution.length; rank++)
+			initialDistribution[rank] = 0;
 
-		let finalMaxVote;
-		
-		if (votes.length == 0)
-			return finalVoteCounts;
+		const finalResults = options
+			.map((_, i) => ({
+				index: i,
+				isExcluded: false,
+				ballots: initialDistribution.slice(),
+				rank: maxRankCount + 1
+			}));
 
-		const optionVoteTotalCount = options.map(() => 0);
-
-		for (const vote of this.votes) {
-			for (let rank = 0; rank < vote.optionIndicies.length; rank++) {
-				const optionIndex = vote.optionIndicies[rank];
-				if (typeof(optionIndex) === "undefined")
-					continue;
-
-				optionVoteTotalCount[optionIndex]++;
+		const ballots = new Array(votes.length);
+		for (let voteIndex = 0; voteIndex < votes.length; voteIndex++) {
+			const ballot = ballots[voteIndex] = votes[voteIndex].ballot;
+			for (let optionIndex = 0; optionIndex < ballot.length; optionIndex++) {
+				const rank = ballot[optionIndex];
+				if (rank != maxRankCount)
+					finalResults[optionIndex].ballots[rank]++;
 			}
 		}
 
-		let round = 0;
+		const results = schulze.run(options.length, ballots);
 
-		while (true) {
-			// tally up all votes, except for ones that are excluded
-			const votesForOption = options.map((_, i) => ({votes: 0, index: i}));
-			let totalVotesCast = 0;
-			const hasVoted = this.votes.map(f => false);
-			
-			for (let voteIndex = 0; voteIndex < this.votes.length; voteIndex++) {
-				const vote = this.votes[voteIndex];
-				for (let rank = 0; rank < vote.optionIndicies.length; rank++) {
-					const optionIndex = vote.optionIndicies[rank];
-					if (typeof(optionIndex) === "undefined" || optionIndex === null)
-						continue;
+		for (let finalRank = 0; finalRank < results.length; finalRank++) {
+			const optionsInThisRank = results[finalRank].indexes;
+			for (let i = 0; i < optionsInThisRank.length; i++) {
+				const optionIndex = optionsInThisRank[i];
+				finalResults[optionIndex].rank = finalRank;
+			}
+		}
+
+		finalResults.sort((l, r) => l.rank - r.rank);
+
+		if (votes.length > 0 && applyTwoThirdsMod()) {
+			finalResults.sort((l, r) => l.rank - r.rank);
+
+			// the ranks may have gotten out of sequence, so fix that...
+			let currentRank = finalResults[0].rank;
+			let lastRank = currentRank;
+			for (let i = 0; i < finalResults.length; i++) {
+				const res = finalResults[i];
+
+				if (res.rank != lastRank) {
+					currentRank++;
+					lastRank = currentRank;
+				}
 					
-					const finalVoteObject = finalVoteCounts[optionIndex];
-					if (!hasApplied[voteIndex][rank]) {
-						finalVoteObject.rankDistribution[rank]++;
-						hasApplied[voteIndex][rank] = true;
-					}
-
-					if (finalVoteObject.isExcluded)
-						continue;
-
-					if (!hasVoted[voteIndex]) {
-						totalVotesCast++;
-						votesForOption[optionIndex].votes++;
-						hasVoted[voteIndex] = true;
-					}
-				}
-			}
-
-			let minVote = 50000;
-			let maxVote = 0;
-			let maxEligableVote = 0;
-			const twoThirdsCutoff = (2 / 3) * totalVotesCast;
-
-			for (let i = 0; i < votesForOption.length; i++) {
-				if (finalVoteCounts[i].isExcluded)
-					continue;
-
-				const count = votesForOption[i].votes;
-				minVote = Math.min(minVote, count);
-				maxVote = Math.max(maxVote, count);
-
-				const isEligable = 
-					!options[i].isTwoThirds
-					|| count >= twoThirdsCutoff;
-
-				if (isEligable)
-					maxEligableVote = Math.max(maxEligableVote, count);
-			}
-
-			finalMaxVote = maxVote;
-
-			// copy in the latest vote data into our finalVoteCounts
-			let choppingBlock = [];
-			for (let i = 0; i < votesForOption.length; i++) {
-				const option = votesForOption[i];
-				const finalData = finalVoteCounts[i];
-
-				if (finalData.isExcluded)
-					continue;
-
-				// record the highest votes that an option ever got
-				finalData.votes = Math.max(finalData.votes, option.votes);
-
-				if (option.votes == maxEligableVote)
-					continue;
-				
-				choppingBlock.push({ index: i, votes: option.votes });
-			}
-
-			// we are done if nothing was eliminated
-			if (!choppingBlock.length) {
-				// before we break, add our winners to the top of the result set
-				for (let i = 0; i < votesForOption.length; i++) {
-					if (finalVoteCounts[i].isExcluded)
-						continue;
-
-					finalResultsOrder.push(i);
-				}
-				
-				break;
-			}
-
-			// choose an item to elimiate... prefer non-two third options
-			const toEliminateIndex = choppingBlock.sort((l, r) => l.votes - r.votes)[0].index;
-			finalResultsOrder.push(toEliminateIndex);
-			finalVoteCounts[toEliminateIndex].isExcluded = true;
-
-			// as a safegarud...
-			if (++round > 300) {
-				this.log.error(events.EVENT_RUNAWAY_CODE, "we spent {rounds} rounds on this poll :(", { round });
-				throw new Error("Too much loop");
+				res.rank = currentRank;
 			}
 		}
+
+		this.service.log.info(events.EVENT_POLL_RESULTS_AVAILABLE, "Poll: {title}, votes: {votes}, options: {options}, results: {results}", {
+			title: this.options.title,
+			options: JSON.stringify(this.options.options.map(o => `${o.text}${o.isTwoThirds ? " (⅔)" : ""}`)),
+			votes: JSON.stringify(this.votes.map(v => v.ballot)),
+			results: JSON.stringify(finalResults.map(r => ([ r.rank, r.index ])))
+		});
 		
-		// pre-calculate the target opacity
-		for (let i = 0; i < finalVoteCounts.length; i++) {
-			finalVoteCounts[i].opacity = Math.max(finalVoteCounts[i].votes / finalMaxVote, .2);
-		}
+		return finalResults;
 
-		return finalResultsOrder.reverse().map(i => finalVoteCounts[i]);
+		function applyTwoThirdsMod() {
+			// Two thirds is not really a built in feature of the schulze ranking method... so we're gonna fake it:
+			// 
+			// if a two thirds option made it to first place:
+			//   move to 2nd place if fewer than 2/3rds of voters voted for the option in any rank
+			//   move to 1st place if more than 2/3rds of voters voted for the option in any rank
+
+			// It's possible that multiple two-thirds options make it to the top, so we're going to pick the "best" one
+			// based off of how much interest was shown. If equal interest is shown, it's basically a coinflip \\lpshrug
+			const twoThirdsCutoff = (2 / 3) * votes.length;
+			const twoThirdResultIndicies = [];
+
+			let twoThirdsResultIndex = -1;
+			let twoThirdsInterest = 0;
+
+			for (let i = 0; i < finalResults.length; i++) {
+				const res = finalResults[i];
+				if (res.rank >= 1)
+					break;
+
+				if (!options[res.index].isTwoThirds)
+					continue;
+
+				twoThirdResultIndicies.push(i);
+				const interest = count(votes, ({ ballot }) => ballot[res.index] < maxRankCount);
+
+				if (interest < twoThirdsCutoff || interest < twoThirdsInterest) {
+					continue;
+				}
+
+				twoThirdsResultIndex = i;
+				twoThirdsInterest = interest;
+			}
+
+			if (!twoThirdResultIndicies.length) {
+				// there were no two-thirds option in the rank of 1
+				return false;
+			}
+
+			if (twoThirdResultIndicies.length == finalResults.length) {
+				// nothing to do because _everything_ is two thirds!
+				return false;
+			}
+
+			if (twoThirdsResultIndex === -1) {
+				// there were some two-third options in the rank of 1, but non are elgiable
+				// so stuff the losing two-third options into a new rank all by themselves
+				let firstNonTwoThirdsOptionRank = -1;
+
+				for (let i = 0; i < finalResults.length; i++) {
+					const res = finalResults[i];
+					if (options[res.index].isTwoThirds)
+						continue;
+
+					if (firstNonTwoThirdsOptionRank == -1)
+						firstNonTwoThirdsOptionRank = res.rank;
+					else if (firstNonTwoThirdsOptionRank != res.rank)
+						break;
+				}
+
+				for (let i = 0; i < finalResults.length; i++) {
+					if (finalResults[i].rank <= firstNonTwoThirdsOptionRank && !options[finalResults[i].index].isTwoThirds)
+						finalResults[i].rank = 0;
+					else
+						finalResults[i].rank++;
+				}
+
+				for (const res of finalResults) {
+					if (res.rank <= 1)
+						continue;
+
+					res.rank++;
+				}
+
+				return true;
+			}
+
+			for (const res of finalResults)
+				res.rank++;
+
+			finalResults[twoThirdsResultIndex].rank = 0;
+			return true;
+		}
 	}
 };
+
+function count(arr, predicate) {
+	return arr.reduce((a, c) => a + (predicate(c) ? 1 : 0), 0);
+}

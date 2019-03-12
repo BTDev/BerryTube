@@ -1,7 +1,9 @@
 import { ensureExists, addPollMessage } from "./bt.js";
 import { createElement, prependElement, removeElements, $, clear } from "./lib.js";
 
-const rankColors = ["#4b830d", "#005cb2", "#29434e"];
+const rankColors = ["#4b830d", "#005cb2", "#29434e", "#444"];
+
+// the amount of ranks to let the user select
 
 export class RankedPoll {
     constructor(state) {
@@ -10,9 +12,10 @@ export class RankedPoll {
         addPollMessage(state.creator, state.title);
 
         const optionRows = this.optionRows = [];
-        const { extended: { options, results }, title } = state;
+        const { extended: { options, results, maxRankCount }, title } = state;
 
         this.isActive = true;
+        let clearVotedButton;
         const pollElement = this.pollElement = createElement(
             "div",
             { className: `poll active ranked-poll ${results == "[](/lpno1)" ? "ranked-poll--is-obscured" : ""}` },
@@ -39,99 +42,102 @@ export class RankedPoll {
                         "div",
                         { className: "ranked-poll__option-list" },
                         [
-                            ...options.map((option, i) =>
+                            ...options.map((option, optionIndex) =>
                                 createElement(
                                     "div",
                                     { className: "label ranked-poll__option", ref: e => optionRows.push(e) },
-                                    createElement(
-                                        "button",
-                                        { innerText: "1", onClick: () => rankChoice(this, i, 0), className: "ranked-poll__button ranked-poll__1st-button", "data-rank": "0", "data-option-index": i }
-                                    ),
-                                    createElement(
-                                        "button",
-                                        { innerText: "2", onClick: () => rankChoice(this, i, 1), className: "ranked-poll__button ranked-poll__2nd-button", "data-rank": "1", "data-option-index": i, disabled: true }
-                                    ),
-                                    createElement(
-                                        "button",
-                                        { innerText: "3", onClick: () => rankChoice(this, i, 2), className: "ranked-poll__button ranked-poll__3rd-button", "data-rank": "2", "data-option-index": i, disabled: true }
-                                    ),
-                                    option.isTwoThirds
-                                        ? createElement(
-                                            "div",
-                                            { className: "ranked-poll__option-text is-two-thirds", innerText: option.text }
-                                        )
-                                        : createElement(
-                                            "div",
-                                            { className: "ranked-poll__option-text", innerText: option.text }
-                                        ))),
-                            createElement("button", { innerText: "clear votes", onClick: () => clearVotes(this), ref: e => this.clearVotedButton = e, disabled: true, className: "ranked-poll__clear-button" })
+                                    [
+                                        ...range(maxRankCount).map(rank => {
+                                            const isAbstain = rank + 1 == maxRankCount;
+                                            const el = createElement("button", {
+                                                innerText: !isAbstain ? (rank + 1).toString() : "-",
+                                                onClick: onRankButtonClicked,
+                                                className: `ranked-poll__button ${isAbstain ? "is-abstain" : ""}`,
+                                                "data-rank": rank,
+                                                "data-option-index": optionIndex
+                                            });
+                                            el.style.setProperty("--rank-color", rankColors[rank]);
+                                            return el;
+                                        }),
+                                        createElement("div", { className: `ranked-poll__option-text ${option.isTwoThirds && "is-two-thirds"}`, innerText: option.text })
+                                    ])),
+                            createElement("button", { innerText: "clear votes", onClick: clearVotes, ref: e => clearVotedButton = e, disabled: true, className: "ranked-poll__clear-button" })
                         ])),
                 createElement(
                     "div",
-                    { className: "ranked-poll__results-panel", ref: e => this.resultsPanel = e })));
+                    { className: "ranked-poll__results-panel", ref: e => this.resultsPanel = e })))
 
         ensureExists("#pollpane").then(pane => {
             if (!this.isActive)
                 return;
 
             prependElement(pane, this.pollElement);
+            refreshDisabled();
             this.update(state);
         });
 
-        const ourChoices = [-1, -1, -1];
+        const ballot = new Array(options.length).fill(maxRankCount, 0, options.length);
 
-        function rankChoice(that, optionIndex, rank) {
-            ourChoices[rank] = optionIndex;
-            window.socket.emit("votePoll", { optionIndex, rank });
-            refreshDisabled(that);
+        function onRankButtonClicked() {
+            const optionIndex = parseInt(this.dataset.optionIndex);
+            const rank = parseInt(this.dataset.rank);
+            ballot[optionIndex] = rank + 1;
+            window.socket.emit("votePoll", { ballot });
+            refreshDisabled();
         }
 
-        function clearVotes(that) {
-            for (let i = 0; i < ourChoices.length; i++) {
-                window.socket.emit("votePoll", { optionIndex: null, rank: i });
-                ourChoices[i] = -1;
-            }
+        function clearVotes() {
+            for (let i = 0; i < ballot.length; i++)
+                ballot[i] = maxRankCount;
 
-            refreshDisabled(that);
+            window.socket.emit("votePoll", { ballot });
+            refreshDisabled();
         }
 
-        function refreshDisabled(that) {
-            let maxVotedRank = -1;
-            for (let rank = 0; rank < ourChoices.length; rank++) {
-                if (ourChoices[rank] < 0)
+        function refreshDisabled() {
+            let maxVotedRank = 0;
+            for (let i = 0; i < ballot.length; i++) {
+                const rank = ballot[i];
+                if (rank == maxRankCount)
                     continue;
 
-                maxVotedRank = rank;
+                maxVotedRank = Math.max(maxVotedRank, rank);
             }
-            
-            that.clearVotedButton.disabled = maxVotedRank == -1;
-            
+
+            clearVotedButton.disabled = !ballot.some(b => b != maxRankCount);
+
             for (const button of pollElement.querySelectorAll(`.ranked-poll__button`)) {
                 const optionIndex = parseInt(button.dataset.optionIndex);
                 const rankIndex = parseInt(button.dataset.rank);
-                button.disabled = ourChoices.includes(optionIndex) || (maxVotedRank < (rankIndex - 1));
-                button.classList.toggle("is-selected", ourChoices[rankIndex] == optionIndex);
+                button.disabled = !(rankIndex <= maxVotedRank)
+                button.classList.toggle("is-selected", ballot[optionIndex] - 1 == rankIndex);
             }
         }
     }
 
     update(state) {
-        const { extended: { options, results, votes } } = state;
-        
-        if (typeof(results) !== "object") {
-            this.pollElement.classList.add("ranked-poll--is-obscured");
-            this.pollElement.classList.remove("ranked-poll--is-visible");
+        const { extended: { options, results, voteCount } } = state;
+
+        if (typeof (results) !== "object") {
+            this.pollElement.classList.add("is-obscured");
             return;
         }
 
-        this.pollElement.classList.remove("ranked-poll--is-obscured");
-        this.pollElement.classList.add("ranked-poll--is-visible");
-        this.voteCount.innerText = ` (${votes.length} vote${votes.length != 1 ? "s" : ""})`;
+        let maxRank = 0;
+        for (let i = 0; i < results.length; i++) {
+            maxRank = Math.max(maxRank, results[i].rank + 1);
+        }
+
+        this.pollElement.classList.remove("is-obscured");
+        this.voteCount.innerText = ` (${voteCount} vote${voteCount != 1 ? "s" : ""})`;
+
         clear(this.resultsPanel);
 
         results
-            .map(({votes, index, rankDistribution, opacity}) => {
+            .map(({ index, ballots, rank }) => {
+                const opacity = 1 - (rank / maxRank);
                 const option = options[index];
+
                 return createElement(
                     "div",
                     { className: "ranked-poll__poll-option-result" },
@@ -140,36 +146,31 @@ export class RankedPoll {
                         { className: "ranked-poll__visualizer" },
                         createElement(
                             "div",
-                            { className: "ranked-poll__votes", innerText: rankDistribution.reduce((c, v) => c + v, 0) }
+                            { className: "ranked-poll__votes", innerText: ballots.reduce((c, v) => c + v, 0) }
                         ),
                         createElement(
                             "div",
                             { className: "ranked-poll__visual-cells" },
-                            rankDistribution.map((amount, rank) => 
+                            ballots.map((amount, rank) =>
                                 createElement(
                                     "div",
-                                    { className: "ranked-poll__visual-cell", style: { flexGrow: amount, backgroundColor: rankColors[rank] } })))
+                                    { className: "ranked-poll__visual-cell", style: { flexGrow: amount, backgroundColor: rankColors[rank - 1] } })))
                     ),
                     createElement(
                         "div",
-                        { className: "ranked-poll__poll-option-votes", innerText: votes, style: { "opacity": opacity } }
+                        { className: "ranked-poll__poll-option-votes", innerText: (rank + 1), style: { opacity } }
                     ),
-                    option.isTwoThirds
-                        ? createElement(
-                            "div",
-                            { className: "ranked-poll__poll-option-text is-two-thirds", innerText: option.text }
-                        )
-                        : createElement(
-                            "div",
-                            { className: "ranked-poll__poll-option-text", innerText: option.text }
-                        ));
+                    createElement(
+                        "div",
+                        { className: `ranked-poll__poll-option-text ${option.isTwoThirds && "is-two-thirds"}`, innerText: option.text }
+                    ));
             })
             .forEach(e => this.resultsPanel.appendChild(e));
     }
 
     close() {
         this.isActive = false;
-        this.pollElement.classList.add("ranked-poll--is-closed");
+        this.pollElement.classList.add("is-closed");
         this._disable();
     }
 
@@ -181,4 +182,12 @@ export class RankedPoll {
     _disable() {
         this.pollElement.classList.add("ranked-poll--is-voted");
     }
+}
+
+function range(count) {
+    const arr = new Array(count);
+    for (let i = 0; i < count; i++)
+        arr[i] = i;
+
+    return arr;
 }

@@ -1,4 +1,4 @@
-const { getAddress } = require("../security");
+const { getAddress, sanitize } = require("../security");
 const { actions } = require("../auth");
 const { getSocketPropAsync, setSocketPropAsync, socketProps, getSocketName } = require("../socket");
 const { ServiceBase } = require("../base");
@@ -38,8 +38,8 @@ exports.PollService = class extends ServiceBase {
 	 */
 	async createPoll(socket, rawOptions) {
 		const options = {
-			title: rawOptions.title || "",
-			options: rawOptions.ops || [],
+			...rawOptions,
+			title: sanitize(rawOptions.title || ""),
 			isObscured: !!rawOptions.obscure,
 			pollType: rawOptions.pollType || "normal"
 		};
@@ -52,9 +52,6 @@ exports.PollService = class extends ServiceBase {
 			throw new Error("bad poll type");
 
 		await this.closeCurrentPoll(socket);
-
-		if (!options.options.length)
-			throw new Error("no options");
 
 		options.creator = await getSocketPropAsync(socket, socketProps.PROP_NICK);
 		options.creator = options.creator || "some guy";
@@ -132,9 +129,7 @@ exports.PollService = class extends ServiceBase {
 		const newVote = this.currentPoll.castVote(options, existingVote);
 		await propVoteData.set(socket, newVote);
 
-		if (newVote.isComplete)
-			this.votedIpAddressMap[ipAddress] = true;
-
+		this.votedIpAddressMap[ipAddress] = true;
 		await this.publishToAll("updatePoll");
 	}
 

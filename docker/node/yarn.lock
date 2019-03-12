@@ -643,6 +643,11 @@ sax@^1.2.4:
   resolved "https://registry.yarnpkg.com/sax/-/sax-1.2.4.tgz#2816234e2378bddc4e5354fab5caa895df7100d9"
   integrity sha512-NqVDv9TpANUjFm0N8uM5GxL36UgKi9/atZw+x7YFnQ8ckwFGKrl4xX4yWtrey3UJm5nP1kUbnYgLopqWNSRhWw==
 
+schulze-method@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/schulze-method/-/schulze-method-2.0.0.tgz#d3aea83070165bfd51ea62b979c9ccefee954365"
+  integrity sha512-Z6KFx+rm37KLoIQ/hh4e09LX+sCHEvpD8d7WPc+5P2/sFqqMTQvGc9OqHPaDP2UunNbyJKW9F/PitwwlaFNLHw==
+
 semver@^5.3.0, semver@^5.5.0:
   version "5.6.0"
   resolved "https://registry.yarnpkg.com/semver/-/semver-5.6.0.tgz#7e74256fbaa49c75aa7c7a205cc22799cac80004"

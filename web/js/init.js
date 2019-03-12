@@ -1881,6 +1881,9 @@ function initPolls(under){
 				continue;
 
 			const text = textInput.value;
+			if (!text.trim().length)
+				continue;
+			
 			const isTwoThirds = opWrap.querySelector(".optionWrap__two-thirds-checkbox").checked;
 			ret.push({ text, isTwoThirds });
 		}
