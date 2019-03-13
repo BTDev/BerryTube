@@ -1,0 +1,15 @@
+{
+  "name": "berry-agent",
+  "version": "1.0.0",
+  "description": "Does things on other servers on berrytube's behalf.",
+  "main": "src/server.js",
+  "license": "UNLICENSED",
+  "private": true,
+  "dependencies": {
+    "socket.io": "0.9.19"
+  },
+  "devDependencies": {
+    "eslint": "^5.15.1",
+    "eslint-config-recommended": "^4.0.0"
+  }
+}

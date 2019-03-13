@@ -1,0 +1,20 @@
+version: "3.7"
+
+services:
+  agent:
+    build: ./docker/berry-agent
+    volumes:
+      - berry_agent_modules:/packages/berry_agent/node_modules
+      - ./docker/berry-agent/out:/out
+    environment:
+      - BT_URL=http://node:8344
+    networks: 
+      - other_compose_file
+
+volumes:
+  berry_agent_modules:
+
+networks:
+  other_compose_file:
+    external:
+      name: berrytube_net

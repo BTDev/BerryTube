@@ -46,6 +46,10 @@ exports.ServiceBase = class {
             });
         }
     }
+
+    onAgentConnected(socket) {
+        this.onSocketConnected(socket);
+    }
     
     onSocketAuthenticated(socket, type) { }
 };

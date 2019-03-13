@@ -7,3 +7,5 @@
 /database/
 /docker-compose.override.yml
 yarn.error
+
+/web/node_modules
