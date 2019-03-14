@@ -119,11 +119,11 @@ exports.PollService = class extends ServiceBase {
 			throw new Error("unauthoirzed");
 
 		const ipAddress = getAddress(socket);
-		// Temporarily allow multiple votes to workaround ranked poll issues
-		/*
-		if (ipAddress != "172.20.0.1" && (!ipAddress || this.votedIpAddressMap.hasOwnProperty(ipAddress)))
+		if (!ipAddress)
+			throw new Error("Could not determine IP address of socket");
+
+		if (ipAddress != "172.20.0.1" && this.votedIpAddressMap.hasOwnProperty(ipAddress) && this.votedIpAddressMap[ipAddress] != socket.id)
 			throw new Error("IP has already voted");
-		*/
 
 		const existingVote = await propVoteData.get(socket);
 		if (existingVote && existingVote.isComplete) 
@@ -132,7 +132,7 @@ exports.PollService = class extends ServiceBase {
 		const newVote = this.currentPoll.castVote(options, existingVote);
 		await propVoteData.set(socket, newVote);
 
-		this.votedIpAddressMap[ipAddress] = true;
+		this.votedIpAddressMap[ipAddress] = socket.id;
 		await this.publishToAll("updatePoll");
 	}
 
