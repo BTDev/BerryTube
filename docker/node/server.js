@@ -2486,15 +2486,6 @@ function userLogin(socket,data,truecallback,falsecallback){
 	var qpass = data.pass ? crypto.createHash('md5').update(data.pass).digest("hex") : null;
 	if(typeof(qnick) == "undefined"){ return; }
 
-	// do a cursory bancheck
-	var bancheck = { ips:[getAddress(socket)], nicks:[qnick] };
-	var existing = isUserBanned(bancheck);
-	if(existing){
-		bancheck.duration = existing.duration;
-		banUser(bancheck);
-		kickUser(socket, "You have been banned.");
-	}
-
 	if(
 		qnick.match(/^[0-9a-zA-Z_]+$/) != null &&
 		qnick.length >= 1  &&
@@ -2512,6 +2503,9 @@ function userLogin(socket,data,truecallback,falsecallback){
 				return false;
 			}
 
+	       	     	var bancheck = { ips:[getAddress(socket)], nicks:[qnick] };
+	       	     	var existingBan = isUserBanned(bancheck);
+
 			// If nobody has already registered the name...
 			if(result.length == 0) {
 				if (SERVER.nick_blacklist.has(qnick.toLowerCase())) {
@@ -2519,11 +2513,23 @@ function userLogin(socket,data,truecallback,falsecallback){
 					if(falsecallback) falsecallback("Username blacklisted");
 					return;
 				}
-				addUserToChat(socket, {nick:qnick,type:-1, meta:{}},truecallback);
+	       	     	      if(existingBan){
+		     	      	       bancheck.duration = existingBan.duration;
+		     	      	       bancheck.nicks = []; // don't allow infecting bystanders
+		     	      	       banUser(bancheck);
+		     	      	       kickUser(socket, "You have been banned.");
+	       	     	      } else {
+				    addUserToChat(socket, {nick:qnick,type:-1, meta:{}},truecallback);
+			      }
 			} else if(result.length == 1) {
 				// Fix case
 				qnick = result[0].name;
 				function onPasswordValid(){
+	       	     	      	    if(existingBan){
+		     	      	       	     bancheck.duration = existingBan.duration;
+		     	      	       	     banUser(bancheck);
+		     	      	       	     kickUser(socket, "You have been banned.");
+	       	     	      	    } else {
 					if(result[0].type >= 1){
 						// Send admin-only detals.
 						socket.join('admin');
@@ -2540,6 +2546,7 @@ function userLogin(socket,data,truecallback,falsecallback){
 					}
 
 					addUserToChat(socket, { nick: qnick, type: result[0].type, meta: meta }, truecallback);
+				    }
 				}
 				if (result[0].pass == qpass) {
 					bcrypt.hash(data.pass, SERVER.settings.core.bcrypt_rounds, function(err, hash){
