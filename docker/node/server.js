@@ -2,7 +2,7 @@ const { PollService } = require("./modules/polls");
 const { AuthService } = require("./modules/auth");
 const { sanitize, getAddress } = require("./modules/security");
 const { DefaultLog, events, levels, consoleLogger, createStreamLogger } = require("./modules/log");
-const { getSocketName } = require("./modules/socket");
+const { getSocketName, getSocketPropAsync } = require("./modules/socket");
 const { parseRawFileUrl } = require("./modules/utils");
 
 // Include the SERVER.settings
@@ -2314,36 +2314,6 @@ function ifCanSetUserNote(socket,truecallback,falsecallback){
 		});
 	});
 }
-function ifCanChat(socket,truecallback,falsecallback){
-	socket.get('nick', function (err, nick){
-		socket.get('type',function(err,type){
-			if(nick == null)
-			{
-				if(falsecallback)falsecallback();
-			}
-			else
-			{
-				var meta = {
-					nick:nick,
-					type:type
-				};
-				if(truecallback)truecallback(meta);
-			}
-		});
-	});
-}
-function ifChatMsgIsOk(socket,data,truecallback,falsecallback){
-	if("msg" in data){
-		if(data.msg.length > SERVER.settings.core.max_chat_size){
-			if(falsecallback)falsecallback();
-		} else {
-			truecallback();
-		}
-	} else {
-		if(falsecallback)falsecallback();
-	}
-}
-
 function ifCanCallDrinks(socket,truecallback,falsecallback){
 	socket.get('type',function(err,type){
 		if(
@@ -2795,6 +2765,19 @@ io.sockets.on('connection', function (socket) {
 		});
 	});
 
+	const oldOn = socket.on.bind(socket);
+
+	socket.on = (eventName, callback) => {
+		oldOn(eventName, async (...args) => {
+			try {
+				await Promise.resolve(callback(...args));
+			} catch (e) {
+				console.error(`Unhandled exception in socket handler of ${eventName}`);
+				console.error(e);
+			}
+		});
+	};
+
 	socket.on("setOverrideCss",function(data){
 		ifCanSetOverrideCss(socket,function(){
 			DefaultLog.info(events.EVENT_ADMIN_SET_CSS,
@@ -2929,22 +2912,42 @@ io.sockets.on('connection', function (socket) {
 	socket.on("refreshMyPlaylist", function(){
 		socket.emit("recvNewPlaylist",SERVER.PLAYLIST.toArray());
 	});
-	socket.on("chat",function(data){
-		ifCanChat(socket,function(meta){ // Permissions check
-			ifChatMsgIsOk(socket,data,function(){ // check length, et al
 
-				var ip = getAddress(socket);
-				if(!ip) return false;
-				DefaultLog.info(events.EVENT_CHAT, "user {nick} on ip {ip} sent message {message}", { ip, nick: meta.nick, message: data.msg });
-				sendChat(meta.nick,meta.type,data,socket);
+	socket.on("chat", async data => {
+		const type = await getSocketPropAsync(socket, "type");
+		const nick = await getSocketPropAsync(socket, "nick");
+		const ip = getAddress(socket);
 
-			},function(){
-				kickForIllegalActivity(socket,"Chat Spam");
-			});
-		},function(){
-			DefaultLog.info(events.EVENT_CHAT, "user from ip {ip} could not send message {message}", { ip, message: data.msg });
-		});
+		if (typeof(nick) !== "string" || !ip)
+			throw kick("You must be logged in to chat");
+		
+		if (typeof(data) !== "object" || typeof(data.msg) !== "string")
+			throw kick("Expected data");
+
+		const { metadata: metaAttempt, msg } = data;
+		if (msg.length > SERVER.settings.core.max_chat_size)
+			throw kick(`Message length exeeds max size of ${SERVER.settings.core.max_chat_size}`);
+
+		const metadata = {
+			nameflaunt: !!metaAttempt.nameflaunt,
+			flair: ["string", "number"].includes(typeof(metaAttempt.flair))
+				? metaAttempt.flair 
+				: "",
+			channel: metaAttempt.channel
+		};
+
+		if (metadata.nameflaunt && type < 1)
+			throw kick(`User ${nick} attempted to flaunt their name, but they are not a mod!`);
+
+		sendChat(nick, type, { msg, metadata }, socket);
+		DefaultLog.info(events.EVENT_CHAT, "user {nick} on ip {ip} sent message {message}", { ip, nick: nick, message: msg });
+
+		function kick(message) {
+			kickForIllegalActivity(socket, "You know what you did.");
+			return new Error(message);
+		}
 	});
+
 	socket.on("registerNick", function(data){
 		const logData = { ip: getAddress(socket), nick: data.nick };
 
