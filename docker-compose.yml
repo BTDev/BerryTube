@@ -26,10 +26,10 @@ services:
             - caddy:/root/.caddy
             - ${EXISTING_CERT_DIR}:/existing-certs:ro
             - ./web:/var/www/html/web:ro
-            - ./berrymotes/data:/var/www/html/web/berrymotes/data:ro
             - ./berrymotes/css:/var/www/html/web/berrymotes/css:ro
-            - ./berrymotes/js:/var/www/html/web/berrymotes/js:ro
+            - ./berrymotes/data:/var/www/html/web/berrymotes/data:ro
             - ./berrymotes/images:/var/www/html/web/berrymotes/images:ro
+            - ./berrymotes/js:/var/www/html/web/berrymotes/js:ro
             - ./berrymotes/single_emotes:/var/www/html/web/berrymotes/single_emotes:ro
             - ${EXTRA_DIR}:/var/www/html/extra:ro
         ports:
@@ -55,9 +55,11 @@ services:
             - MYSQL_PASSWORD
         volumes:
             - ./web:/var/www/html/web:ro
-            - ./berrymotes/data:/var/www/html/berrymotes/data:ro
-            - ./berrymotes/css:/var/www/html/berrymotes/css:ro
-            - ./berrymotes/js:/var/www/html/berrymotes/js:ro
+            - ./berrymotes/css:/var/www/html/web/berrymotes/css:ro
+            - ./berrymotes/data:/var/www/html/web/berrymotes/data:ro
+            - ./berrymotes/images:/var/www/html/web/berrymotes/images:ro
+            - ./berrymotes/js:/var/www/html/web/berrymotes/js:ro
+            - ./berrymotes/single_emotes:/var/www/html/web/berrymotes/single_emotes:ro
         expose:
             - '9000'
         networks:

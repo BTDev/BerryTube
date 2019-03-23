@@ -164,5 +164,8 @@
 	Bem.skip_css = true;
 	Bem.origin = ORIGIN + '/berrymotes';
 	Bem.cdn_origin = CDN_ORIGIN + '/berrymotes';
-	Bem.data_url = '<?= cdn('berrymotes/data/berrymotes_json_data.v2.json') ?>';
+	<?php if (!NO_CDN) { ?>
+		Bem.data_url = '<?= cdn('berrymotes/data/berrymotes_json_data.v2.json') ?>';
+		Bem.worker_url = '<?= cdn('berrymotes/js/berrymotes.worker.js') ?>';
+	<?php } ?>
 </script>
