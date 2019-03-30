@@ -78,6 +78,12 @@ body {
 .flair_5{background: url(/images/flair.png) no-repeat 0 -80px !important;}
 .flair_6{background: url(/images/flair.png) no-repeat 0 -96px !important;}
 .flair_7{background: url(/images/flair.png) no-repeat 0 -112px !important;}
+.flair_8{background: url(/images/flair.png) no-repeat 0 -128px !important;}
+.flair_9{background: url(/images/flair.png) no-repeat 0 -144px !important;}
+.flair_10{background: url(/images/flair.png) no-repeat 0 -160px !important;}
+
+/** https://dribbble.com/shots/2979958-MyLacroix-com-Stickers licensed under CC BY 3.0 US */
+.flair_11{background: url(/images/flair.png) no-repeat 0 -176px !important;}
 .dd-jquery{
 	display:none;
 }
