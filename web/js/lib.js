@@ -84,35 +84,29 @@
 	};
 })(jQuery);
 
-(function($){
-	$.fn.superSelect = function(data) {
-		return this.each(function() {
-			var on = $(this);
-			var dropDown = $('<div/>').attr('id','dd-jquery').appendTo('body');
+(function ($) {
+	$.fn.superSelect = function (data) {
+		return this.each(function () {
+			const $this = $(this);
+			const $dropdown = $("<div/>").attr("id", "dd-jquery").appendTo("body");
 
-			var mhtml = "";
-			$(data.options).each(function(key,val){
-				var op = $(val).clone().appendTo(dropDown);
-				op.css('cursor','pointer');
-				op.click(function(){
-					if(data.callback)data.callback($(val));
-					dropDown.remove();
-				});
+			$(data.options).each(function (_i, $option) {
+				$dropdown.append(
+					$("<div />").addClass("super-select__option").append(
+						$($option)
+							.clone()
+							.click(function () {
+								if (data.callback)
+									data.callback($option);
+		
+								$dropdown.remove();
+							})));
 			});
 
-			var t = on.offset().top;// + on.outerHeight(true)
-			var l = on.offset().left;
-			dropDown.css({
-				position:"absolute",
-				background:"white",
-				height:"100px",
-				overflowY:"scroll",
-				border:"1px solid black",
-				top:t,
-				left:l,
-				zIndex:1000
-			});
-			dropDown.show("blind");
+			$dropdown
+				.addClass("super-select")
+				.css({ top: $this.offset().top, left: $this.offset().left })
+				.show("blind");
 		});
 	};
 })(jQuery);
