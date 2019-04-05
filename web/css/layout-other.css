@@ -945,3 +945,36 @@ button.ranked-poll__submit-button {
 .ranked-poll.is-closed .ranked-poll_input-panel {
     display: none;
 }
+
+.super-select {
+    position: absolute;
+    background: #fff;
+    border: 1px solid black;
+    z-index: 1000;
+    margin-left: -6px;
+    margin-top: -6px;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+}
+
+.super-select__option {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    filter: grayscale(100%);
+    padding: 5px;
+    cursor: pointer;
+}
+
+.super-select__option::before {
+    content: "";
+    display: inline-block;
+    width: 1px;
+    height: 0;
+    padding-bottom: calc(100%);
+    pointer-events: none;
+}
+
+.super-select__option:hover {
+    filter: none;
+}

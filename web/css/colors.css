@@ -46,20 +46,16 @@ body {
 #connectedCountWrapper.wide{
 	background-image:url(/images/expand.png);
 }
-#dd-jquery .drinkflair{
-	margin:3px;
-}
 .drinkflair{
 	height: 16px;
-	width: 16px;
+    width: 16px;
 }
-#flairMenu{
+#flairMenu {
 	border: 1px solid gray;
     float: left;
     height: 16px;
     margin: 1px 0 1px 0;
     width: 16px;
-	background: url(/images/flair.png) no-repeat 0 0;
 }
 .nick .flair {
     display: inline-block;
@@ -70,14 +66,26 @@ body {
     top: 3px;
     width: 16px;
 }
-.flair_0{background: url(/images/flair.png) no-repeat 0 0 !important;}
-.flair_1{background: url(/images/flair.png) no-repeat 0 -16px !important;}
-.flair_2{background: url(/images/flair.png) no-repeat 0 -32px !important;}
-.flair_3{background: url(/images/flair.png) no-repeat 0 -48px !important;}
-.flair_4{background: url(/images/flair.png) no-repeat 0 -64px !important;}
-.flair_5{background: url(/images/flair.png) no-repeat 0 -80px !important;}
-.flair_6{background: url(/images/flair.png) no-repeat 0 -96px !important;}
-.flair_7{background: url(/images/flair.png) no-repeat 0 -112px !important;}
+
+.flair, .drinkflair, #flairMenu {
+    background-image: url(/images/flair.png);
+    background-repeat: no-repeat;
+}
+
+.flair_0 { background-position: 0 0; }
+.flair_1 { background-position: 0 -16px; }
+.flair_2 { background-position: 0 -32px; }
+.flair_3 { background-position: 0 -48px; }
+.flair_4 { background-position: 0 -64px; }
+.flair_5 { background-position: 0 -80px; }
+.flair_6 { background-position: 0 -96px; }
+.flair_7 { background-position: 0 -112px; }
+.flair_8 { background-position: 0 -128px; }
+.flair_9 { background-position: 0 -144px; }
+.flair_10 { background-position: 0 -160px;}
+
+/** https://dribbble.com/shots/2979958-MyLacroix-com-Stickers licensed under CC BY 3.0 US */
+.flair_11{background: url(/images/flair.png) no-repeat 0 -176px !important;}
 .dd-jquery{
 	display:none;
 }

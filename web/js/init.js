@@ -1415,7 +1415,7 @@ function keydownEventHandler(event) {
 
 function initFlairOpts(){
 	var i = 0;
-	for(var i=0;i<7;i++){
+	for(var i=0;i<12;i++){
 		FLAIR_OPTS.push($('<div/>').addClass("drinkflair").addClass("flair_"+i).data('flair_id',i));
 	}
 	// Manual title settings
@@ -1427,6 +1427,11 @@ function initFlairOpts(){
 	FLAIR_OPTS[i++].attr('title','Liquor');
 	FLAIR_OPTS[i++].attr('title','Liquor');
 	FLAIR_OPTS[i++].attr('title','Beer');
+	FLAIR_OPTS[i++].attr('title','Green');
+	FLAIR_OPTS[i++].attr('title','Water');
+	FLAIR_OPTS[i++].attr('title','Coffee');
+	FLAIR_OPTS[i++].attr('title','Sparkling Water');
+	FLAIR_OPTS[i++].attr('title','Tea');
 }
 function initChatControls(parent){
 	$("#chatControls").remove();
