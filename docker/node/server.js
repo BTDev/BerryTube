@@ -2920,7 +2920,7 @@ io.sockets.on('connection', function (socket) {
 
 		if (typeof(nick) !== "string" || !ip)
 			throw kick("You must be logged in to chat");
-		
+
 		if (typeof(data) !== "object" || typeof(data.msg) !== "string")
 			throw kick("Expected data");
 
@@ -2931,7 +2931,7 @@ io.sockets.on('connection', function (socket) {
 		const metadata = {
 			nameflaunt: !!metaAttempt.nameflaunt,
 			flair: ["string", "number"].includes(typeof(metaAttempt.flair))
-				? metaAttempt.flair 
+				? metaAttempt.flair
 				: "",
 			channel: metaAttempt.channel
 		};
@@ -2943,7 +2943,7 @@ io.sockets.on('connection', function (socket) {
 		DefaultLog.info(events.EVENT_CHAT, "user {nick} on ip {ip} sent message {message}", { ip, nick: nick, message: msg });
 
 		function kick(message) {
-			kickForIllegalActivity(socket, "You know what you did.");
+			kickForIllegalActivity(socket);
 			return new Error(message);
 		}
 	});
