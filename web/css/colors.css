@@ -68,7 +68,7 @@ body {
 }
 
 .flair, .drinkflair, #flairMenu {
-    background-image: url(/images/flair.png);
+    background-image: url(/images/flair.png?v2);
     background-repeat: no-repeat;
 }
 
@@ -85,7 +85,7 @@ body {
 .flair_10 { background-position: 0 -160px;}
 
 /** https://dribbble.com/shots/2979958-MyLacroix-com-Stickers licensed under CC BY 3.0 US */
-.flair_11{background: url(/images/flair.png) no-repeat 0 -176px !important;}
+.flair_11{background: url(/images/flair.png?v2) no-repeat 0 -176px !important;}
 .dd-jquery{
 	display:none;
 }
