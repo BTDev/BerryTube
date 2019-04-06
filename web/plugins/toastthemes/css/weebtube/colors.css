@@ -1,0 +1,365 @@
+body {
+  background: url(images/bg.png) repeat #f3d2bf;
+  color: white;
+}
+
+#playlist .thumb .end,
+#playlist .thumb {
+  background-color: #999999;
+}
+
+#countdown-timers {
+  color: black;
+}
+
+.wrapper {
+  background: #ffffff52;
+}
+
+#videobg {
+  background: url(images/videobg.png) no-repeat center center;
+}
+
+.chatbuffer .message.drink {
+  background: url(images/drink.png) no-repeat scroll right center transparent;
+}
+
+#banner {
+  background: url(images/banner.png) no-repeat center;
+  height: 300px;
+  margin: 0 auto;
+  width: 538px;
+}
+
+#chatlist ul .admin,
+.flaunt.level_2 {
+  color: #596BC5;
+}
+
+#chatlist ul .mod,
+.flaunt.level_1 {
+  color: #73A6F6;
+}
+
+#chatlist ul .assistant {
+  color: #8E54CC;
+}
+
+#chatlist ul .anon,
+.flaunt.level_0 {
+  color: #999999;
+}
+
+#chatlist ul .nobody,
+.flaunt.level_-1 {
+  color: lightgray;
+}
+
+#chatlist ul .leader {
+  background: url(images/berry.png) no-repeat scroll left center transparent !important;
+  padding-left: 25px;
+}
+
+.chatbuffer .drinkWrap {
+  border-bottom: 3px solid #999999;
+  border-top: 3px solid #999999;
+}
+
+.chatbuffer .drinkWrap .drink .multi {
+  color: #999999;
+}
+
+#playlist ul li {
+  font-family: Arial;
+  background: none repeat scroll 0 0 #130a0a;
+  border: 1px solid #AAAAAA;
+  cursor: ns-resize;
+  color: #EAEAEA;
+}
+
+#playlist ul li.active {
+  background: none repeat scroll 0 0 #666666;
+  border-color: #EAEAEA;
+  color: #EAEAEA;
+}
+
+#playlist ul li.volatile {
+  background: none repeat scroll 0 0 #130a0a;
+  border-style: dashed;
+}
+
+#playlist ul li.volatile.active {
+  background: none repeat scroll 0 0 #666666;
+  border-color: #EAEAEA;
+  border-style: dashed;
+}
+
+#playlist ul li.volatile.active .title,
+#playlist ul li.volatile .title {
+  font-style: italic;
+}
+
+#playlist ul li .requeue {
+  color: #EAEAEA;
+  border-color: #EAEAEA;
+}
+
+#playlist ul li .delete {
+  color: #999999;
+  border-color: #999999;
+}
+
+#playlist .track {
+  border-left: 1px solid #999999;
+  background: transparent url(images/tracking_dot.png) repeat-x 0 0;
+}
+
+#v {
+  display: none;
+  background: url(images/v.png);
+  width: 604px;
+  height: 340px;
+  margin: 0 auto;
+}
+
+#leftpane {
+  background: transparent url(images/pane_bg.png) repeat !important;
+}
+
+#pollControl {
+  background: none;
+  color: #EAEAEA;
+}
+
+#pollControl .btn {
+  background-color: #666666 !important;
+  color: #EAEAEA !important;
+  border-color: #EAEAEA !important;
+}
+
+#pollpane .poll {
+  background: none repeat scroll 0 0 #422525;
+  color: #EAEAEA;
+  border-color: #EAEAEA;
+  opacity: 0.5;
+}
+
+#pollpane .poll.active {
+  background: none repeat scroll 0 0 #422525;
+  color: #EAEAEA;
+  border-color: #EAEAEA;
+  opacity: 1.0;
+}
+
+.poll .btn.close {
+  background-color: #333333 !important;
+}
+
+.poll.active .btn.disabled {
+  color: gray;
+}
+
+#scBackground {
+  background-image: url(images/scbg.png);
+}
+
+#drinkWrap {
+  background: url(images/drink_back.png) repeat-y center;
+}
+
+#playlistAddControls .note {
+  color: #EAEAEA;
+}
+
+#playlistAddControls .import input,
+#pollControl .options .optionWrap input {
+  background-color: #130a0a;
+  color: #EAEAEA;
+}
+
+#playlistAddControls .impele,
+#pollControl .options .optionWrap {
+  border-color: #EAEAEA !important;
+}
+
+#playlistAddControls .slideBtn,
+form .submit,
+#playlistAddControls .misc.btn,
+#playlistAddControls .impele.btn {
+  background-color: #666666;
+  color: #EAEAEA;
+  border-color: #EAEAEA;
+}
+
+#searchbox input {
+  background-color: #130a0a;
+  color: #EAEAEA;
+  border-color: #EAEAEA;
+}
+
+#dyn_header,
+#dyn_footer,
+.wrapper {
+  color: black !important;
+}
+
+#dyn_header a,
+#dyn_footer a,
+.wrapper a {
+  color: black !important;
+}
+
+#dyn_motd {
+  background-color: #422525;
+  border-color: #EAEAEA;
+  color: #EAEAEA;
+}
+
+#dyn_motd a {
+  color: #BBBBBB;
+}
+
+#drinkWrap span {
+  font-size: 0;
+  visibility: hidden;
+}
+
+#drinkCounter:after {
+  content: " drinks.";
+}
+
+#drinkCounter:before {
+  content: "Current video has ";
+}
+
+#drinkCounter {
+  font-size: 40px !important;
+  visibility: visible !important;
+}
+
+#chatpane {
+  color: #EAEAEA;
+  background: #422525;
+}
+
+#chatControls {
+  color: #EAEAEA !important;
+}
+
+#chatControls a {
+  color: #EAEAEA;
+}
+
+#connectedCountWrapper {
+  color: #EAEAEA !important;
+  background: url(images/collapse.png) no-repeat 2px center;
+}
+
+#connectedCountWrapper.wide {
+  background-image: url(images/expand.png);
+}
+
+#chatControls #flairArrow {
+  background: url(images/flairow.png) no-repeat scroll left center transparent;
+}
+
+#chatlist {
+  background-color: #130a0a;
+  border-left-color: #BBBBBB !important;
+  border-top-color: #BBBBBB !important;
+  color: #EAEAEA;
+}
+
+.chatbuffer {
+  color: #DDDDDD;
+  background-color: #130a0a !important;
+  border-bottom-color: #BBBBBB !important;
+  border-top-color: #BBBBBB !important;
+}
+
+.chatbuffer:hover {
+  background-color: #422525 !important;
+}
+
+.chatbuffer a,
+#rcvOverlay a {
+  color: #73A6F6 !important;
+}
+
+.chatbuffer a:visited,
+#rcvOverlay a:visited {
+  color: #0AA89D !important;
+}
+
+.chatbuffer .message.request {
+  color: #73A6F6;
+  font-style: italic;
+  font-weight: bold;
+}
+
+.chatbuffer .pollNote {
+  color: #999999 !important;
+}
+
+.msg .green {
+  color: #6AE6D3 !important;
+}
+
+.spoiler .msg * {
+  color: black !important;
+}
+
+.spoiler .msg:hover * {
+  color: white !important;
+}
+
+.chatbuffer .message.rcv,
+#rcvOverlay .message.rcv {
+  color: #09B2A1 !important;
+}
+
+#chatinput input {
+  background-color: #422525;
+  color: #EAEAEA;
+}
+
+.chatbuffer .highlight {
+  background: url(images/beep.png);
+}
+
+#rcvOverlay {
+  background-color: #130a0a !important;
+  border-color: #BBBBBB !important;
+}
+
+#chattabs {
+  background-color: #130a0a;
+}
+
+#chattabs .tab {
+  display: inline-block;
+  color: #EAEAEA;
+  padding: 0px 5px;
+  margin: 3px 1px;
+  border: 1px solid #BBBBBB;
+  background-color: #999999;
+  cursor: pointer;
+}
+
+#chattabs .active {
+  background-color: #130a0a;
+}
+
+#chattabs .newmsg {
+  color: #596BC5;
+  border-color: #596BC5;
+}
+
+#chatpane.squee * {
+  border-color: #09B2A1 !important;
+}
+
+#chattabs .newmsg.squee {
+  color: #09B2A1 !important;
+  border-color: #09B2A1 !important;
+}

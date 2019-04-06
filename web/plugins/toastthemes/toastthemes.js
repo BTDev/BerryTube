@@ -263,6 +263,7 @@ function initToastThemes(data, textStatus, jqxhr) {
 	nonPonyGroup.addButton(new ThemeButton('beeButton', 'BeeTube', 'plugins/toastthemes/cdncss.php?theme=bee', '', false, false));
     nonPonyGroup.addButton(new ThemeButton('pokemonButton', 'PokeTube', 'plugins/toastthemes/cdncss.php?theme=pokemon', '', false, false));
     nonPonyGroup.addButton(new ThemeButton('spoopyButton', 'SpoopyTube', 'plugins/toastthemes/cdncss.php?theme=spoopy', '', false, false));
+    nonPonyGroup.addButton(new ThemeButton('weebtubeButton', 'WeebTube', 'plugins/toastthemes/cdncss.php?theme=weebtube', '', false, false));
 
 	fourthPartyGroup.addButton(new ThemeButton('sovietButton', 'RedTube', 'https://s3.amazonaws.com/Berrytube/Soviet+Style/berry-soviet.css', 'Created by SovietSparkle (yes, it\'s SFW)', false, false));
 	//fourthPartyGroup.addButton(new ThemeButton('kurtisFlutterButton', 'FlutterTube', 'http://dl.dropboxusercontent.com/u/135755256/colours.css', 'Created by Kurtis', false, false));
