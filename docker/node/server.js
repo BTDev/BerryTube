@@ -4,6 +4,7 @@ const { sanitize, getAddress } = require("./modules/security");
 const { DefaultLog, events, levels, consoleLogger, createStreamLogger } = require("./modules/log");
 const { getSocketName, getSocketPropAsync } = require("./modules/socket");
 const { parseRawFileUrl } = require("./modules/utils");
+const fetchYoutubeVideoInfo = require("youtube-info");
 
 // Include the SERVER.settings
 var SERVER = {};
@@ -1730,162 +1731,198 @@ function addVideoYT(socket,data,meta,successCallback,failureCallback){
 		host: 'www.googleapis.com',
 		port: 443,
 		method: 'GET',
-		path: '/youtube/v3/videos?id='+encodeURIComponent(videoid.toString())+'&key=AIzaSyBBM2fo32Pzrcf0GHO5LnEHxjYd1T1li-Q&part=snippet%2CcontentDetails%2Cstatus'
+		path: '/youtube/v3/videos?id='+encodeURIComponent(videoid.toString())+'&key=AIzaSyBO_K6jvQgbNcnje3b3lVJ_v3zdD9CXEIg&part=snippet%2CcontentDetails%2Cstatus'
 	};
 
-	var parseDuration = function(duration){
-		var matches = duration.match(/[0-9]+[DHMS]/g);
-		var seconds = 0;
-		matches.forEach(function (part) {
-			var unit = part.charAt(part.length-1);
-			var amount = parseInt(part.slice(0,-1));
-			switch (unit) {
-				case 'D':
-					seconds += amount*60*60*12;
-					break;
-				case 'H':
-					seconds += amount*60*60;
-					break;
-				case 'M':
-					seconds += amount*60;
-					break;
-				case 'S':
-					seconds += amount;
-					break;
-				default:
-					// noop
-			}
+	fetchYoutubeVideoInfo(videoid, (err, videoData) => {
+		if (err) {
+			DefaultLog.error(events.EVENT_ADMIN_ADDED_VIDEO, "could not add youtube video {videoId}: {error}", { videoId: videoid, error: err}, err);
+			failureCallback(err)
+			return
+		}
+
+		const { title, duration } = videoData
+		var pos = SERVER.PLAYLIST.length;
+		var volat = data.volat;
+
+		if(meta.type <= 0) volat = true;
+		if(volat === undefined) volat = false;
+
+		rawAddVideo({
+			pos: pos,
+			videoid: videoid,
+			videotitle: encodeURI(title),
+			videolength: duration,
+			videotype: "yt",
+			who: meta.nick,
+			queue: data.queue,
+			volat: volat
+		}, function() {
+			if (successCallback)
+				successCallback({ title });
+		}, function(err) {
+			if (failureCallback)
+				failureCallback(err);
 		});
+	})
 
-		return seconds;
-	};
+	// var parseDuration = function(duration){
+	// 	var matches = duration.match(/[0-9]+[DHMS]/g);
+	// 	var seconds = 0;
+	// 	matches.forEach(function (part) {
+	// 		var unit = part.charAt(part.length-1);
+	// 		var amount = parseInt(part.slice(0,-1));
+	// 		switch (unit) {
+	// 			case 'D':
+	// 				seconds += amount*60*60*12;
+	// 				break;
+	// 			case 'H':
+	// 				seconds += amount*60*60;
+	// 				break;
+	// 			case 'M':
+	// 				seconds += amount*60;
+	// 				break;
+	// 			case 'S':
+	// 				seconds += amount;
+	// 				break;
+	// 			default:
+	// 				// noop
+	// 		}
+	// 	});
 
-	var recievedBody = "";
-	var maybeError = null;
+	// 	return seconds;
+	// };
 
-	var req = https.request(options, function(res) {
-		res.setEncoding('utf8');
-		res.on('data', function (chunk) {
-			recievedBody += chunk;
-		});
+	// var recievedBody = "";
+	// var maybeError = null;
 
-		res.on('end', function(){ //7zLNB9z_AI4
-			try {
-				var vidObj = JSON.parse(recievedBody);
-			} catch (e) {
-				maybeError = e;
-				return;
-			}
+	// var req = https.request(options, function(res) {
+	// 	res.setEncoding('utf8');
+	// 	res.on('data', function (chunk) {
+	// 		recievedBody += chunk;
+	// 	});
 
-			if(vidObj && vidObj.items && vidObj.items.length > 0){
-				vidObj = vidObj.items[0];
-			} else {
-				maybeError = "bad json response";
-				return;
-			}
+	// 	res.on('end', function(){ //7zLNB9z_AI4
+	// 		try {
+	// 			var vidObj = JSON.parse(recievedBody);
+	// 		} catch (e) {
+	// 			maybeError = e;
+	// 			DefaultLog.error(events.EVENT_ADMIN_ADDED_VIDEO, "could not add youtube video {videoId}: {error}", { videoId: videoid, error: e.message || e }, err);
+	// 			failureCallback(e)
+	// 			return;
+	// 		}
 
-			var formattedTitle = "Cades fucked it up";
-			var formattedTime = "fucked";
-			var restricted = [];
-			var embeddable = true;
+	// 		if(vidObj && vidObj.items && vidObj.items.length > 0){
+	// 			vidObj = vidObj.items[0];
+	// 		} else {
+	// 			maybeError = "bad json response";
+	// 			DefaultLog.error(events.EVENT_ADMIN_ADDED_VIDEO, "could not add youtube video {videoId}: {response}", { videoId: videoid, response: JSON.stringify(vidObj) });
+	// 			failureCallback(e)
+	// 			return;
+	// 		}
 
-			if(
-				vidObj &&
-				vidObj.snippet &&
-				vidObj.snippet.title
-			) formattedTitle = vidObj.snippet.title;
+	// 		var formattedTitle = "Cades fucked it up";
+	// 		var formattedTime = "fucked";
+	// 		var restricted = [];
+	// 		var embeddable = true;
 
-			if(
-				vidObj &&
-				vidObj.contentDetails &&
-				vidObj.contentDetails.duration
-			) formattedTime = parseDuration(vidObj.contentDetails.duration);
+	// 		if(
+	// 			vidObj &&
+	// 			vidObj.snippet &&
+	// 			vidObj.snippet.title
+	// 		) formattedTitle = vidObj.snippet.title;
 
-			if(
-				vidObj &&
-				vidObj.status
-			) embeddable = !!vidObj.status.embeddable;
+	// 		if(
+	// 			vidObj &&
+	// 			vidObj.contentDetails &&
+	// 			vidObj.contentDetails.duration
+	// 		) formattedTime = parseDuration(vidObj.contentDetails.duration);
 
-			var restrictReasons = {};
+	// 		if(
+	// 			vidObj &&
+	// 			vidObj.status
+	// 		) embeddable = !!vidObj.status.embeddable;
 
-			if(!data.force &&
-				vidObj.contentDetails.regionRestriction &&
-				(vidObj.contentDetails.regionRestriction.allowed || vidObj.contentDetails.regionRestriction.blocked)){
-				// Country restrctions
-				var countryRestriction = vidObj.contentDetails.regionRestriction.blocked;
-				var countryAllow = vidObj.contentDetails.regionRestriction.allowed;
+	// 		var restrictReasons = {};
 
-				if(countryRestriction) {
-					var ignored = SERVER.settings.core.country_restriction_ignored;
-					for(var i=0;i<ignored.length;++i){
-						var idx = countryRestriction.indexOf(ignored[i]);
-						if(idx > -1) {
-							countryRestriction.splice(idx, 1);
-						}
-					}
-					if(countryRestriction.length > 0){
-						restrictReasons.countries = countryRestriction[1];
-						maybeError = "video has country restrictions";
-					}
-				}
-				if(countryAllow) {
-					var required = SERVER.settings.core.country_allow_required || ['GB', 'CA', 'US'];
-					for(var i=0;i<required.length;++i) {
-						if(countryAllow.indexOf(required[i]) <= -1) {
-							restricted.push(required[i]);
-						}
-					}
-					if(restricted.length > 0){
-						restrictReasons.countries = restricted;
-						maybeError = "video has country restrictions";
-					}
-				}
-				if(!embeddable) {
-					restrictReasons.noembed = true;
-					maybeError = "video cannot be embedded";
-				}
-			}
+	// 		if(!data.force &&
+	// 			vidObj.contentDetails.regionRestriction &&
+	// 			(vidObj.contentDetails.regionRestriction.allowed || vidObj.contentDetails.regionRestriction.blocked)){
+	// 			// Country restrctions
+	// 			var countryRestriction = vidObj.contentDetails.regionRestriction.blocked;
+	// 			var countryAllow = vidObj.contentDetails.regionRestriction.allowed;
 
-			for(var hasProperties in restrictReasons) break;
-			if(hasProperties) {
-				resolveRestrictCountries(restrictReasons);
-				socket.emit("videoRestriction", restrictReasons);
-			}
+	// 			if(countryRestriction) {
+	// 				var ignored = SERVER.settings.core.country_restriction_ignored;
+	// 				for(var i=0;i<ignored.length;++i){
+	// 					var idx = countryRestriction.indexOf(ignored[i]);
+	// 					if(idx > -1) {
+	// 						countryRestriction.splice(idx, 1);
+	// 					}
+	// 				}
+	// 				if(countryRestriction.length > 0){
+	// 					restrictReasons.countries = countryRestriction[1];
+	// 					maybeError = "video has country restrictions";
+	// 				}
+	// 			}
+	// 			if(countryAllow) {
+	// 				var required = SERVER.settings.core.country_allow_required || ['GB', 'CA', 'US'];
+	// 				for(var i=0;i<required.length;++i) {
+	// 					if(countryAllow.indexOf(required[i]) <= -1) {
+	// 						restricted.push(required[i]);
+	// 					}
+	// 				}
+	// 				if(restricted.length > 0){
+	// 					restrictReasons.countries = restricted;
+	// 					maybeError = "video has country restrictions";
+	// 				}
+	// 			}
+	// 			if(!embeddable) {
+	// 				restrictReasons.noembed = true;
+	// 				maybeError = "video cannot be embedded";
+	// 			}
+	// 		}
 
-			var pos = SERVER.PLAYLIST.length;
+	// 		for(var hasProperties in restrictReasons) break;
+	// 		if(hasProperties) {
+	// 			resolveRestrictCountries(restrictReasons);
+	// 			socket.emit("videoRestriction", restrictReasons);
+	// 		}
 
-			if (!maybeError) {
-				var volat = data.volat;
-				if(meta.type <= 0) volat = true;
-				if(volat === undefined) volat = false;
+	// 		var pos = SERVER.PLAYLIST.length;
 
-				rawAddVideo({
-					pos:pos,
-					videoid:videoid,
-					videotitle:encodeURI(formattedTitle),
-					videolength:formattedTime,
-					videotype:"yt",
-					who:meta.nick,
-					queue:data.queue,
-					volat:volat
-				},function(){
-					if(successCallback)successCallback({ title: formattedTitle });
-				},function(err){
-					if(failureCallback)
-						failureCallback(err);
-				});
-			}else{
-				if (failureCallback)
-					failureCallback(maybeError);
-			}
-		});
-	});
+	// 		if (!maybeError) {
+	// 			var volat = data.volat;
+	// 			if(meta.type <= 0) volat = true;
+	// 			if(volat === undefined) volat = false;
 
-	req.on('error', function(e) {
-		if(failureCallback)failureCallback(e);
-	});
+	// 			rawAddVideo({
+	// 				pos:pos,
+	// 				videoid:videoid,
+	// 				videotitle:encodeURI(formattedTitle),
+	// 				videolength:formattedTime,
+	// 				videotype:"yt",
+	// 				who:meta.nick,
+	// 				queue:data.queue,
+	// 				volat:volat
+	// 			},function(){
+	// 				if(successCallback)successCallback({ title: formattedTitle });
+	// 			},function(err){
+	// 				if(failureCallback)
+	// 					failureCallback(err);
+	// 			});
+	// 		}else{
+	// 			if (failureCallback)
+	// 				failureCallback(maybeError);
+	// 		}
+	// 	});
+	// });
 
-	req.end();
+	// req.on('error', function(e) {
+	// 	if(failureCallback)failureCallback(e);
+	// });
+
+	// req.end();
 }
 
 function followRedirect(options, successCallback,failureCallback){
