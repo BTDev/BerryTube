@@ -4,6 +4,7 @@ const { sanitize, getAddress } = require("./modules/security");
 const { DefaultLog, events, levels, consoleLogger, createStreamLogger } = require("./modules/log");
 const { getSocketName, getSocketPropAsync } = require("./modules/socket");
 const { parseRawFileUrl } = require("./modules/utils");
+const fetchYoutubeVideoInfo = require("youtube-info");
 
 // Include the SERVER.settings
 var SERVER = {};
@@ -1730,7 +1731,8 @@ function addVideoYT(socket,data,meta,successCallback,failureCallback){
 		host: 'www.googleapis.com',
 		port: 443,
 		method: 'GET',
-		path: '/youtube/v3/videos?id='+encodeURIComponent(videoid.toString())+'&key=AIzaSyBBM2fo32Pzrcf0GHO5LnEHxjYd1T1li-Q&part=snippet%2CcontentDetails%2Cstatus'
+		// FIXME: THIS IS A KEY FROM NLAQS GOOGLE DEVELOPER ACCOUNT PLS REPLACE WITH OFFICAL KEY ASAP
+		path: '/youtube/v3/videos?id='+encodeURIComponent(videoid.toString())+'&key=AIzaSyAf7MI65xHB46X-TP4Io-Bn9xIz2uep3Kg&part=snippet%2CcontentDetails%2Cstatus'
 	};
 
 	var parseDuration = function(duration){
@@ -1774,6 +1776,8 @@ function addVideoYT(socket,data,meta,successCallback,failureCallback){
 				var vidObj = JSON.parse(recievedBody);
 			} catch (e) {
 				maybeError = e;
+				DefaultLog.error(events.EVENT_ADMIN_ADDED_VIDEO, "could not add youtube video {videoId}: {error}... trying fallback", { videoId: videoid, error: e.message || e }, err);
+				addYoutubeVideoFallback()
 				return;
 			}
 
@@ -1781,6 +1785,8 @@ function addVideoYT(socket,data,meta,successCallback,failureCallback){
 				vidObj = vidObj.items[0];
 			} else {
 				maybeError = "bad json response";
+				DefaultLog.error(events.EVENT_ADMIN_ADDED_VIDEO, "could not add youtube video {videoId}: {response}... trying fallback", { videoId: videoid, response: JSON.stringify(vidObj) });
+				addYoutubeVideoFallback()
 				return;
 			}
 
@@ -1882,10 +1888,44 @@ function addVideoYT(socket,data,meta,successCallback,failureCallback){
 	});
 
 	req.on('error', function(e) {
-		if(failureCallback)failureCallback(e);
+		addYoutubeVideoFallback()
 	});
 
 	req.end();
+
+	function addYoutubeVideoFallback() {
+		fetchYoutubeVideoInfo(videoid, (err, videoData) => {
+			if (err) {
+				DefaultLog.error(events.EVENT_ADMIN_ADDED_VIDEO, "could not add youtube video {videoId}: {error}", { videoId: videoid, error: err}, err);
+				failureCallback(err)
+				return
+			}
+	
+			const { title, duration } = videoData
+			var pos = SERVER.PLAYLIST.length;
+			var volat = data.volat;
+	
+			if(meta.type <= 0) volat = true;
+			if(volat === undefined) volat = false;
+	
+			rawAddVideo({
+				pos: pos,
+				videoid: videoid,
+				videotitle: encodeURI(title),
+				videolength: duration,
+				videotype: "yt",
+				who: meta.nick,
+				queue: data.queue,
+				volat: volat
+			}, function() {
+				if (successCallback)
+					successCallback({ title });
+			}, function(err) {
+				if (failureCallback)
+					failureCallback(err);
+			});
+		})
+	}
 }
 
 function followRedirect(options, successCallback,failureCallback){
