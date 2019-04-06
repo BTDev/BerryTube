@@ -1726,13 +1726,11 @@ function addVideoYT(socket,data,meta,successCallback,failureCallback){
 			failureCallback("no title specified");
 		return;
 	}
-	//https://www.googleapis.com/youtube/v3/videos?id=QIFn0wqZx7Y&key=AIzaSyBBM2fo32Pzrcf0GHO5LnEHxjYd1T1li-Q&part=snippet%2CcontentDetails
 	var options = {
 		host: 'www.googleapis.com',
 		port: 443,
 		method: 'GET',
-		// FIXME: THIS IS A KEY FROM NLAQS GOOGLE DEVELOPER ACCOUNT PLS REPLACE WITH OFFICAL KEY ASAP
-		path: '/youtube/v3/videos?id='+encodeURIComponent(videoid.toString())+'&key=AIzaSyAf7MI65xHB46X-TP4Io-Bn9xIz2uep3Kg&part=snippet%2CcontentDetails%2Cstatus'
+		path: '/youtube/v3/videos?id='+encodeURIComponent(videoid.toString())+'&key=AIzaSyCDFjje-fdPM2jid7K1xW2IRRvsKVceUHA&part=snippet%2CcontentDetails%2Cstatus'
 	};
 
 	var parseDuration = function(duration){
