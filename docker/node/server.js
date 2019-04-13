@@ -3263,7 +3263,15 @@ io.sockets.on('connection', function (socket) {
 			else if (data.videotype == "file")
 				addVideoFile(socket, data, meta, onVideoAddSuccess, onVideoAddError);
 			else if (data.videotype == "dash")
-				addVideoDash(socket, data, meta, onVideoAddSuccess, onVideoAddError);
+				addVideoDash(socket, data, meta, onVideoAddSuccess, function (error) {
+				    // TODO: less hax
+				    if (error === 'no duration') {
+				       if (!data.videotitle) data.videotitle = "~ Raw Livestream ~";
+				       addLiveVideo(data, meta, onVideoAddSuccess, onVideoAddError);
+				    } else {
+				       onVideoAddError(error);
+				    }
+				});
 			else if (data.videotype == "twitch")
 				addVideoTwitch(socket, data, meta, onVideoAddSuccess, onVideoAddError);
 			else if (data.videotype == "twitchclip")
