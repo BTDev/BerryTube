@@ -1720,6 +1720,7 @@ function addPollOpt(to, optionCount) {
 				.append($("<span />").addClass("optionWrap__two-thirds-text"))
 				.append($("<input />")
 					.attr("type", "checkbox")
+					.attr("tabindex", "-1")
 					.addClass("optionWrap__two-thirds-checkbox")
 					.change(function() {
 						const parent = getClosest(this, ".optionWrap__two-thirds");
@@ -1818,7 +1819,7 @@ function initPolls(under){
 	newOptionManyBtn.click(function(){
 		addPollOpt(optionContainer,5);
 	});
-	
+
 	createPollBtn.click(() => createPoll("normal"));
 
 	createRankedPollBtn.click(() => createPoll("ranked"));
@@ -1888,7 +1889,7 @@ function initPolls(under){
 			const text = textInput.value;
 			if (!text.trim().length)
 				continue;
-			
+
 			const isTwoThirds = opWrap.querySelector(".optionWrap__two-thirds-checkbox").checked;
 			ret.push({ text, isTwoThirds });
 		}
