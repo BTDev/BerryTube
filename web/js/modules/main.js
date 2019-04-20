@@ -4,11 +4,11 @@ import { RankedPoll } from "./ranked-poll.js";
 let activePoll = null;
 
 window.rankedPolls = { 
-    createRankedPoll(state) {
+    createRankedPoll(state, mountElement) {
         if (activePoll)
             activePoll.close();
 
-        activePoll = new RankedPoll(state);
+        activePoll = new RankedPoll(state, mountElement);
     },
     updateRankedPoll(state) {
         if (!activePoll) {

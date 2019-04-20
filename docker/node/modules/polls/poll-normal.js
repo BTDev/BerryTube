@@ -4,6 +4,7 @@ const { PollInstance } = require("./poll-base");
 exports.NormalPoll = class extends PollInstance {
 	get state() {
 		return {
+			...super.state,
 			creator: this.options.creator,
 			title: this.options.title,
 			obscure: this.options.isObscured,

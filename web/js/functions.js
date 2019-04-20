@@ -1,3 +1,42 @@
+let lastPollCountdown = null;
+
+class Countdown {
+	constructor(totalTimeInSeconds, timeStartInSeconds, handlers) {
+		this.isEnabled = true;
+		this.handlers = handlers;
+		
+		const start = new Date().getTime() - (timeStartInSeconds * 1000);
+		const tick = () => {
+			if (!this.isEnabled)
+				return;
+			
+			const now = new Date().getTime();
+			const elapsedInSeconds = (now - start) / 1000;
+			const timeLeftInSeconds = Math.max(0, totalTimeInSeconds - elapsedInSeconds);
+
+			this.handlers.onTick({
+				timeLeftInSeconds,
+				percent: Math.max(0, timeLeftInSeconds / totalTimeInSeconds)
+			});
+
+			if (timeLeftInSeconds <= 0) {
+				this.dispose();
+			}
+		};
+		
+		this.interval = window.setInterval(tick, 500);
+		tick();
+	}
+
+	dispose() {
+		this.isEnabled = false;
+		window.clearInterval(this.interval);
+
+		if (this.handlers.onDispose)
+			this.handlers.onDispose();
+	}
+}
+
 /* MAIN */
 function setRuleTitle(titleBar, myData) {
     titleBar.html(['<span class="name">', myData.name, '</span> <span class="code">',  myData.chatMatch, ' => ', myData.chatReplace.replace(/</g, '&lt;').replace(/>/g, '&gt'), '</span>'].join(''));
@@ -1329,10 +1368,16 @@ function handleNumCount(data){
 		area.text(CONNECTED);
 	});
 }
-function closePoll(data){
+function closePoll(data) {
+	if (lastPollCountdown) {
+		lastPollCountdown.dispose();
+		lastPollCountdown = null;
+	}
+
+	$("#pollpane .poll-auto-close").remove();
+
 	if (data.pollType == "ranked") {
 		onModuleLoaded(() => window.rankedPolls.closeRankedPoll());
-		return;
 	} else {
 		//unbind old buttons
 		var existing = $(".poll.active");
@@ -1462,12 +1507,7 @@ function plSearch(term){
 		realignPosHelper();
     }
 }
-function newPoll(data){
-	if (data.pollType == "ranked") {
-		onModuleLoaded(() => window.rankedPolls.createRankedPoll(data));
-		return;
-	}
-	
+function newPoll(data){	
 	if (data.ghost && IGNORE_GHOST_MESSAGES) {
 		// Ghost poll on a reconnect; just revote, don't redisplay it
 		var vote = $('.voted');
@@ -1476,8 +1516,7 @@ function newPoll(data){
 			// should handle making sure the numbers are all correct
 			socket.emit('votePoll', { op:vote.data('op') });
 		}
-	}
-	else {
+	} else {
 		// New poll, or ghost poll on an initial connection
 		addChatMsg({
 			msg:{
@@ -1491,85 +1530,148 @@ function newPoll(data){
 			ghost:false
 		},'#chatbuffer');
 
-		var options = data.options;
-		var votes = data.votes;
-		var pollTitle = data.title;
-		var obscure = data.obscure;
-
 		closePoll({});
 
-		// New time.
-		whenExists("#pollpane",function(stack){
-            POLL_TITLE_FORMAT = pollTitle;
+		whenExists("#pollpane", (stack) => {			
+            POLL_TITLE_FORMAT = data.title;
             POLL_OPTIONS.splice(0, POLL_OPTIONS.length);
 
-			var newpoll = $('<div/>').addClass("poll").addClass("active").prependTo(stack);
-			var closeBtn = $('<div/>').addClass("btn").addClass("close").text("X").appendTo(newpoll);
-			closeBtn.click(function(){
-				newpoll.hide("blind");
-			});
-			var title = $('<div/>').addClass("title").appendTo(newpoll);
-			var optionwrap = $('<ul/>').appendTo(newpoll);
-			for(var i=0;i<options.length;i++)
-			{
-				var t = options[i].replace("&gt;",">").replace("&lt;","<");
-				var iw = $('<li/>').appendTo(optionwrap);
-				var row = $('<tr/>').appendTo($('<table/>').appendTo(iw));
-				var optionBtn = $('<div/>').addClass("btn").text(votes[i]).appendTo($('<td/>').appendTo(row));
-				if(obscure)optionBtn.addClass("obscure");
-				var optionLbl = $('<div/>').addClass("label").text(t).appendTo($('<td/>').appendTo(row));
-				$('<div/>').addClass("clear").appendTo(iw);
+			const $poll = $('<div/>').addClass("poll").addClass("active").prependTo(stack);
+			const $closeButton = $('<div/>').addClass("btn").addClass("close").text("X").appendTo($poll);
+			const $title = $('<div/>').addClass("title").text(getPollTitle(data)).appendTo($poll);
 
-				optionBtn.data("op",i);
-				optionBtn.data("disabled",false);
-				optionBtn.click(function(){
-					var $this = $(this);
-					if(!$this.is('.disabled')){
-						$(this).addClass('voted');
-					}
-					var d = $this.data("disabled");
-					if(!d){
-						socket.emit("votePoll",{
-							op:$this.data("op")
-						});
-						$this.data("disabled",true);
-						optionwrap.find(".btn").addClass("disabled");
+			$closeButton.click(() => $poll.hide("blind"));
+
+			if (data.pollType == "ranked") {
+				$poll.addClass("ranked-poll");
+				onModuleLoaded(() => {
+					window.rankedPolls.createRankedPoll(data, $poll[0]);
+					updateRankedPollEmotes();
+				});
+			} else {
+				const votes = data.votes;
+				var optionwrap = $('<ul/>').appendTo($poll);
+				const options = data.options;
+				for(var i = 0; i < options.length; i++) {
+					var t = options[i].replace("&gt;",">").replace("&lt;","<");
+					var iw = $('<li/>').appendTo(optionwrap);
+					var row = $('<tr/>').appendTo($('<table/>').appendTo(iw));
+					var optionBtn = $('<div/>').addClass("btn").text(votes[i]).appendTo($('<td/>').appendTo(row));
+
+					if(data.obscure)
+						optionBtn.addClass("obscure");
+						
+					$('<div/>').addClass("label").text(t).appendTo($('<td/>').appendTo(row));
+					$('<div/>').addClass("clear").appendTo(iw);
+
+					optionBtn.data("op",i);
+					optionBtn.data("disabled",false);
+					optionBtn.click(function(){
+						var $this = $(this);
+						if(!$this.is('.disabled')){
+							$(this).addClass('voted');
+						}
+						var d = $this.data("disabled");
+						if(!d){
+							socket.emit("votePoll",{
+								op:$this.data("op")
+							});
+							$this.data("disabled",true);
+							optionwrap.find(".btn").addClass("disabled");
+						}
+					});
+
+					POLL_OPTIONS.push(t);
+				}
+			}
+
+			if (data.closePollInSeconds > 0) {
+				const $progress = $("<div />")
+					.addClass("poll-auto-close__progress-bar-inner");
+
+				const $timeLeft = $("<div />")
+					.addClass("poll-auto-close__time-left");
+
+				$("<div />")
+					.addClass("poll-auto-close")
+					.append(
+						$timeLeft, 
+						$("<div />")
+							.addClass("poll-auto-close__progress-bar")
+							.append($progress))
+					.appendTo($poll);
+
+				lastPollCountdown = new Countdown(data.closePollInSeconds, data.timeElapsedInSeconds, {
+					onTick({timeLeftInSeconds, percent}) {
+						$timeLeft.text(timeLeftInSeconds >= 1 ? `closing in ${secondsToHuman(timeLeftInSeconds)}` : "closing poll...");
+						$progress.css("width", `${percent * 100}%`);
+					},
+					onDispose() {
+						$timeLeft.text("closing poll...");
+						$progress.css("width", "0px");
 					}
 				});
-
-                POLL_OPTIONS.push(t);
 			}
-            title.text(getPollTitle(votes));
 		});
 	}
 }
 function updatePoll(data){
+	const hasBem = typeof Bem !== 'undefined';
+	const $poll = $(".poll.active");
+	const $title = $poll.find('.title');
+    let pollTitle = getPollTitle(data);
+
+    if (typeof Bem !== 'undefined') {
+    	pollTitle = pollTitle.replace(/\\\\([\w-]+)/i, '[](/$1)');
+        $title.html(Bem.applyEmotesToStr(pollTitle));
+        Bem.postEmoteEffects($title);
+    } else {
+        $title.text(pollTitle);
+    }
+
 	if (data.pollType == "ranked") {
-		onModuleLoaded(() => window.rankedPolls.updateRankedPoll(data));
+		onModuleLoaded(() => {
+			window.rankedPolls.updateRankedPoll(data);
+			updateRankedPollEmotes();
+		});
+	} else {
+		const votes = data.votes;
+		$poll.find(".btn").each(function(key, val){
+			$(val).text(votes[$(val).data("op")]);
+		});
+	}
+}
+function updateRankedPollEmotes() {
+	if (typeof Bem === 'undefined') {
 		return;
 	}
-	
-	var votes = data.votes;
-	var thepoll = $(".poll.active");
-	thepoll.find(".btn").each(function(key,val){
-		$(val).text(votes[$(val).data("op")]);
+
+	const $poll = $(".poll.active");
+
+	// the ranked poll module code re-creates the results DOM
+	// so we have to re-apply our emotes when it is updated
+	$poll.find(".render-emotes").each(function() {
+		const $this = $(this);
+		if ($this.data("bem-processed")) {
+			return
+		}
+		
+		$this.data("bem-processed", true);
+		$this.html(Bem.applyEmotesToStr($this[0].innerText));
+		Bem.postEmoteEffects($this);
 	});
-    var titleStr = getPollTitle(votes);
-    var titleLbl = thepoll.find('.title');
-    if (typeof Bem !== 'undefined') {
-    	titleStr = titleStr.replace(/\\\\([\w-]+)/i, '[](/$1)');
-        titleLbl.html(Bem.applyEmotesToStr(titleStr));
-        Bem.postEmoteEffects(titleLbl);
-    }
-    else {
-        titleLbl.text(titleStr);
-    }
 }
-function getPollTitle(votes) {
-    var title = POLL_TITLE_FORMAT;
+function getPollTitle({ votes, extended }) {
+	var title = POLL_TITLE_FORMAT;
+	
     for (var i = 0; i < votes.length; i++) {
         title = title.replace(new RegExp('\\{' + i + '\\}', 'g'), new Array(votes[i] + 1).join(POLL_OPTIONS[i]));
-    }
+	}
+
+	if (typeof(extended) !== "undefined" && typeof(extended.voteCount) !== "undefined") {
+		return `${title} (${extended.voteCount} vote${extended.voteCount !== 1 ? "s" : ""})`
+	}
+	
     return title;
 }
 function setStorage(key,value){
@@ -2392,4 +2494,16 @@ function unfuckPlaylist() {
 function refreshDebugDumps() {
 	DEBUG_DUMPS = [];
 	socket.emit('debugDump');
+}
+
+function secondsToHuman(seconds) {
+	seconds = parseInt(seconds);
+	
+	if (seconds > 60) {
+		const minutes = Math.floor(seconds / 60);
+		const finalSeconds = seconds - (minutes * 60);
+		return `${minutes.toString().padStart(2, "0")}:${finalSeconds.toString().padStart(2, "0")}`;
+	}
+
+	return `${seconds} second${seconds != 1 ? "s" : ""}`;
 }
