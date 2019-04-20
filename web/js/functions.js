@@ -1393,7 +1393,7 @@ function toggleMailDiv() {
 	}
 }
 function addNewMailMessage(nick, msg) {
-	if (!WINDOW_FOCUS) {
+	if (!WINDOW_FOCUS || getStorageToggle("storeAllSquees")) {
 		var newMsg = $('<div/>').addClass('mail');
 		var now = new Date();
 		newMsg.append(
@@ -1589,6 +1589,15 @@ function setCookie(c_name,value,exdays){
 function getStorage(key){
 	return localStorage.getItem(key);
 }
+
+function setStorageToggle(key, value) {
+	localStorage.setItem(key, value ? "true" : "false")
+}
+
+function getStorageToggle(key) {
+	return localStorage.getItem(key) === "true"
+}
+
 function getCookie(c_name){
 	// Kept for backwards compatability. Update references when found.
 	console.log("Old getCookie ref, update please!");
