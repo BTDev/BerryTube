@@ -42,3 +42,7 @@ exports.parseRawFileUrl = function(rawFileUrl) {
         title
     };
 };
+
+exports.now = function() {
+	return new Date().getTime();
+};

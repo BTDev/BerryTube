@@ -1,3 +1,8 @@
+const { now } = require("../utils")
+
+// fudge the close time, so the UIs close before the server does
+const fudgeFactorInSeconds = 1
+
 exports.PollInstance = class {
 	set isObscured(value) {
 		this.options.isObscured = value;
@@ -8,7 +13,11 @@ exports.PollInstance = class {
 	}
 	
 	get state() {
-		return { };
+		const timeElapsedInSeconds = (now() - this.startedAt) / 1000;
+		return { 
+			closePollInSeconds: this.options.closePollInSeconds || 0,
+			timeElapsedInSeconds
+		};
 	}
 
 	get obscuredState() {
@@ -16,6 +25,11 @@ exports.PollInstance = class {
 	}
 	
 	constructor(pollService, options) {
+		const { closePollInSeconds } = options;
+		this.timeLeftInSeconds = closePollInSeconds + fudgeFactorInSeconds;
+		this.isTimedPoll = closePollInSeconds > 0;
+		this.startedAt = this.isTimedPoll ? now() : 0;
+		
 		this.service = pollService;
         this.options = options;
 	}
@@ -25,5 +39,18 @@ exports.PollInstance = class {
 	}
 
 	clearVote(vote) {
+	}
+
+	onTick(elapsedMilliseconds) {
+		if (!this.isTimedPoll) {
+			return;
+		}
+
+		this.timeLeftInSeconds -= (elapsedMilliseconds / 1000);
+		if (this.timeLeftInSeconds > 0) {
+			return;
+		}
+
+		this.service.closeCurrentPoll();
 	}
 };

@@ -6,32 +6,18 @@ const rankColors = ["#4b830d", "#005cb2", "#29434e", "#444"];
 // the amount of ranks to let the user select
 
 export class RankedPoll {
-    constructor(state) {
+    constructor(state, mountElement) {
+        console.log(state);
         this._onHideClick = this._onHideClick.bind(this);
 
         addPollMessage(state.creator, state.title);
 
         const optionRows = this.optionRows = [];
-        const { extended: { options, results, maxRankCount }, title } = state;
+        const { extended: { options, maxRankCount } } = state;
 
         this.isActive = true;
         let clearVotedButton;
-        const pollElement = this.pollElement = createElement(
-            "div",
-            { className: `poll active ranked-poll ${results == "[](/lpno1)" ? "ranked-poll--is-obscured" : ""}` },
-            createElement(
-                "div",
-                { className: "btn close", innerText: "X", onClick: this._onHideClick }),
-            createElement(
-                "div",
-                { className: "title ranked-poll__title" },
-                createElement(
-                    "span",
-                    { innerText: title }),
-                createElement(
-                    "span",
-                    { className: "ranked-poll__vote-count", ref: e => this.voteCount = e })
-            ),
+        const pollElement = this.pollElement =
             createElement(
                 "div",
                 { className: "ranked-poll__split" },
@@ -45,7 +31,7 @@ export class RankedPoll {
                             ...options.map((option, optionIndex) =>
                                 createElement(
                                     "div",
-                                    { className: "label ranked-poll__option", ref: e => optionRows.push(e) },
+                                    { className: "ranked-poll__option", ref: e => optionRows.push(e) },
                                     [
                                         ...range(maxRankCount).map(rank => {
                                             const isAbstain = rank + 1 == maxRankCount;
@@ -59,24 +45,19 @@ export class RankedPoll {
                                             el.style.setProperty("--rank-color", rankColors[rank]);
                                             return el;
                                         }),
-                                        createElement("div", { className: `ranked-poll__option-text ${option.isTwoThirds && "is-two-thirds"}`, innerText: option.text })
+                                        createElement("div", { className: `ranked-poll__option-text label ${option.isTwoThirds && "is-two-thirds"}`, innerText: option.text })
                                     ])),
                             createElement("button", { innerText: "clear votes", onClick: clearVotes, ref: e => clearVotedButton = e, disabled: true, className: "ranked-poll__clear-button" })
                         ])),
                 createElement(
                     "div",
-                    { className: "ranked-poll__results-panel", ref: e => this.resultsPanel = e })))
-
-        ensureExists("#pollpane").then(pane => {
-            if (!this.isActive)
-                return;
-
-            prependElement(pane, this.pollElement);
-            updateButtons();
-            this.update(state);
-        });
+                    { className: "ranked-poll__results-panel", ref: e => this.resultsPanel = e }));
 
         const ballot = new Array(options.length).fill(maxRankCount, 0, options.length);
+
+        mountElement.appendChild(pollElement);
+        refreshDisabled();
+        this.update(state)
 
         function onRankButtonClicked() {
             const optionIndex = parseInt(this.dataset.optionIndex);
@@ -135,7 +116,6 @@ export class RankedPoll {
         }
 
         this.pollElement.classList.remove("is-obscured");
-        this.voteCount.innerText = ` (${voteCount} vote${voteCount != 1 ? "s" : ""})`;
 
         clear(this.resultsPanel);
 
@@ -168,7 +148,7 @@ export class RankedPoll {
                     ),
                     createElement(
                         "div",
-                        { className: `ranked-poll__poll-option-text ${option.isTwoThirds && "is-two-thirds"}`, innerText: option.text }
+                        { className: `ranked-poll__poll-option-text render-emotes ${option.isTwoThirds && "is-two-thirds"}`, innerText: option.text }
                     ));
             })
             .forEach(e => this.resultsPanel.appendChild(e));

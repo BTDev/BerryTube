@@ -37,11 +37,13 @@ exports.PollService = class extends ServiceBase {
 	 * @param {any} rawOptions the options to create this poll with
 	 */
 	async createPoll(socket, rawOptions) {
+		const closePollInSeconds = parseInt(rawOptions.closePollInSeconds || 0);
 		const options = {
 			...rawOptions,
 			title: sanitize(rawOptions.title || ""),
 			isObscured: !!rawOptions.obscure,
-			pollType: rawOptions.pollType || "normal"
+			pollType: rawOptions.pollType || "normal",
+			closePollInSeconds
 		};
 		
 		if (!(await this.auth.canDoAsync(socket, actions.ACTION_CREATE_POLL)))
@@ -61,10 +63,11 @@ exports.PollService = class extends ServiceBase {
 
 		this.log.info(
 			events.EVENT_ADMIN_CREATED_POLL, 
-			"{mod} opened poll {title} on {type}", { 
+			`{mod} opened poll {title} on {type} ${closePollInSeconds > 0 ? "(will close in {pollTimeout} seconds)" : ""}`, { 
 				mod: await getSocketName(socket), 
 				title: options.title,
-				type: "site"});
+				type: "site",
+				pollTimeout: closePollInSeconds});
 	}
 
 	/**
@@ -72,15 +75,16 @@ exports.PollService = class extends ServiceBase {
 	 * Invoked via the "closePoll" socket action
 	 * @param {*} socket socket.io socket that requested that this poll be closed
 	 */
-	async closeCurrentPoll(socket) {
+	async closeCurrentPoll(socket = null) {
 		if (!this.currentPoll)
 			return;
 
-		if (!(await this.auth.canDoAsync(socket, actions.ACTION_CLOSE_POLL)))
+		if (socket && !(await this.auth.canDoAsync(socket, actions.ACTION_CLOSE_POLL)))
 			throw new Error("unauthoirzed");
 
 		const title = this.currentPoll.options.title;
-		const logData = { mod: await getSocketName(socket), title, type: "site" };
+		const mod = socket ? await getSocketName(socket) : "[system]"
+		const logData = { mod, title, type: "site" };
 
 		this.currentPoll.isObscured = false;
 		
@@ -186,6 +190,14 @@ exports.PollService = class extends ServiceBase {
 		socket.emit(eventName, canSeeVotes
 			? this.currentPoll.state
 			: this.currentPoll.obscuredState);
+	}
+
+	onTick(elapsedMilliseconds) {
+		if (!this.currentPoll) {
+			return;
+		}
+
+		this.currentPoll.onTick(elapsedMilliseconds);
 	}
 
 	onSocketConnected(socket) {

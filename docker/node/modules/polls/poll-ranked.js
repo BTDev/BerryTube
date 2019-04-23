@@ -14,6 +14,7 @@ exports.RankedPoll = class extends PollInstance {
 
 	get state() {
 		return {
+			...super.state,
 			// legacy protocol
 			// @TODO: version protocols properly
 			creator: this.options.creator,
