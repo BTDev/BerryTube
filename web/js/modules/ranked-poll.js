@@ -72,7 +72,7 @@ export class RankedPoll {
                 return;
 
             prependElement(pane, this.pollElement);
-            refreshDisabled();
+            updateButtons();
             this.update(state);
         });
 
@@ -81,9 +81,16 @@ export class RankedPoll {
         function onRankButtonClicked() {
             const optionIndex = parseInt(this.dataset.optionIndex);
             const rank = parseInt(this.dataset.rank);
-            ballot[optionIndex] = rank + 1;
+            const targetRank = rank + 1
+            
+            if (ballot[optionIndex] !== targetRank) {
+                ballot[optionIndex] = rank + 1;
+            } else {
+                ballot[optionIndex] = maxRankCount
+            }
+
             window.socket.emit("votePoll", { ballot });
-            refreshDisabled();
+            updateButtons();
         }
 
         function clearVotes() {
@@ -91,10 +98,10 @@ export class RankedPoll {
                 ballot[i] = maxRankCount;
 
             window.socket.emit("votePoll", { ballot });
-            refreshDisabled();
+            updateButtons();
         }
 
-        function refreshDisabled() {
+        function updateButtons() {
             let maxVotedRank = 0;
             for (let i = 0; i < ballot.length; i++) {
                 const rank = ballot[i];
@@ -109,7 +116,6 @@ export class RankedPoll {
             for (const button of pollElement.querySelectorAll(`.ranked-poll__button`)) {
                 const optionIndex = parseInt(button.dataset.optionIndex);
                 const rankIndex = parseInt(button.dataset.rank);
-                button.disabled = !(rankIndex <= maxVotedRank)
                 button.classList.toggle("is-selected", ballot[optionIndex] - 1 == rankIndex);
             }
         }

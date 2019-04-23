@@ -782,7 +782,7 @@ button.ranked-poll__button.is-selected {
     opacity: 1;
     border: 2px solid #AF70CC;
     background: #9A4ABE;
-    cursor: default;
+    cursor: not-allowed;
 }
 
 button.ranked-poll__button.is-abstain {
