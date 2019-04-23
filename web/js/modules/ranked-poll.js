@@ -56,8 +56,8 @@ export class RankedPoll {
         const ballot = new Array(options.length).fill(maxRankCount, 0, options.length);
 
         mountElement.appendChild(pollElement);
-        refreshDisabled();
-        this.update(state)
+        updateButtons();
+        this.update(state);
 
         function onRankButtonClicked() {
             const optionIndex = parseInt(this.dataset.optionIndex);
