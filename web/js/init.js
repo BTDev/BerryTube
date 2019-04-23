@@ -529,6 +529,15 @@ function showConfigMenu(on){
 		}
 	});
 	//----------------------------------------
+	$("<div />")
+		.appendTo(configOps)
+		.append($("<span />").text("Store all squees in inbox:"))
+		.append($("<input />").attr("type", "checkbox")
+			.prop("checked", getStorageToggle("storeAllSquees"))
+			.change(function() {
+				setStorageToggle("storeAllSquees", $(this).is(":checked"))
+			}));
+	//----------------------------------------
 	var row = $('<div/>').appendTo(configOps);
 	$('<span/>').text("Enable drink sound:").appendTo(row);
 	var notifyDrink = $('<input/>').attr('type','checkbox').appendTo(row);
@@ -2022,6 +2031,7 @@ $(function(){
 	if(getStorage('syncAtAll') == null){setStorage('syncAtAll',1);}
 	if(getStorage('syncAccuracy') == null){setStorage('syncAccuracy',2);}
 	if(getStorage('notifyMute') == null){setStorage('notifyMute',0);}
+	if(getStorage("storeAllSquees") === null) { setStorage("storeAllSquees", 1); }
 	if(getStorage('drinkNotify') == null){setStorage('drinkNotify',0);}
 	if(getStorage('legacyPlayer') == null){setStorage('legacyPlayer',0);}
 	if(getStorage('showTimestamps') == null){setStorage('showTimestamps',0);}
