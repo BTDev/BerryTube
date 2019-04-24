@@ -14,7 +14,87 @@ function removeCurrentPlayer() {
 	setVal("DMPLAYERREADY", false);
 }
 
-window.PLAYERS.dm = {};
+window.PLAYERS.dm = {
+    playVideo: function(id, at) {
+        this.PLAYER.load(id, {
+            autoplay: false,
+            start: Math.max(at, 0)
+        });
+        if (at < 0) {
+            setTimeout(() => {
+                this.play();
+            }, at * -1000);
+        } else {
+            this.play();
+        }
+    },
+    loadPlayer: function(id, at, volume) {
+        const preloadTime = Date.now();
+
+        if (volume === false){
+            volume = 1;
+        }
+
+        this.PLAYER = window.DM.player('ytapiplayer', {
+            video: id,
+            width: '100%',
+            height: '100%',
+            params: {
+                autoplay: false,
+                start: Math.max(at, 0),
+                'queue-autoplay-next': false,
+                'queue-enable': false,
+                'sharing-enable': false,
+                'ui-highlight': 'c600ad',
+                'ui-logo': false,
+                'ui-start-screen-info': false
+            }
+        });
+
+        this.PLAYER.addEventListener('apiready', onceFunction(() => {
+            this.PLAYER.setVolume(volume);
+
+            // adjust in case loading the player took a while
+            at += (Date.now() - preloadTime) / 1000;
+
+            if (at < 0) {
+                setTimeout(() => {
+                    this.play();
+                }, at * -1000);
+            } else {
+                this.play();
+            }
+        }));
+    },
+    pause: function() {
+        if (this.PLAYER) {
+            this.PLAYER.pause();
+        }
+    },
+    play: function(){
+        if (this.PLAYER) {
+            this.PLAYER.play();
+        }
+    },
+    seek: function(pos) {
+        if (this.PLAYER) {
+            this.PLAYER.seek(pos);
+        }
+    },
+    getVideoState: function () {
+        return 1;
+    },
+    getTime: function(callback) {
+        if (callback && this.PLAYER && this.PLAYER.currentTime) {
+            callback(this.PLAYER.currentTime);
+        }
+    },
+    getVolume: function(callback) {
+        if (callback && this.PLAYER && this.PLAYER.currentTime) {
+            callback(this.PLAYER.volume);
+        }
+    }
+};
 
 window.PLAYERS.yt = {
     playVideo: function (id, at) {
@@ -284,7 +364,7 @@ function osmfEventHandler(playerId, event, data) {
 }
 
 window.PLAYERS.osmf = {
-    loadPlayer: function (src, to, volume) {
+    loadPlayer: function (src, at, volume) {
         if (volume === false){
             volume = 1;
         }
@@ -407,7 +487,7 @@ window.PLAYERS.soundcloud = {
 const fileExtensionRegex = /(mp4|webm)([^/]*)$/;
 
 window.PLAYERS.file = {
-    loadPlayer: function (src, to, volume) {
+    loadPlayer: function (src, at, volume) {
         if (volume === false){
             volume = 1;
         }
@@ -463,7 +543,7 @@ window.PLAYERS.file = {
 };
 
 window.PLAYERS.dash = {
-    loadPlayer: function (src, to, volume) {
+    loadPlayer: function (src, at, volume) {
         if (volume === false){
             volume = 1;
         }
@@ -514,7 +594,7 @@ window.PLAYERS.dash = {
 };
 
 window.PLAYERS.hls = {
-    loadPlayer: function (src, to, volume) {
+    loadPlayer: function (src, at, volume) {
         if (volume === false){
             volume = 1;
         }
@@ -548,7 +628,7 @@ window.PLAYERS.hls = {
 
 var twitchplayer = null;
 window.PLAYERS.twitch = {
-    loadPlayer: function (src, to, volume) {
+    loadPlayer: function (src, at, volume) {
         if (volume === false){
             volume = 1;
         }
@@ -606,7 +686,7 @@ window.PLAYERS.twitch = {
 };
 
 window.PLAYERS.twitchclip = {
-    loadPlayer: function (src, to, volume) {
+    loadPlayer: function (src, at, volume) {
         if (volume === false){
             volume = 1;
         }

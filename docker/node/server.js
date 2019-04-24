@@ -425,7 +425,7 @@ function initTimer(){
 		if (SERVER.ACTIVE == null) {
 			return;
 		}
-		
+
 		const timestamp = (new Date()).getTime();
 		const elapsedMilliseconds = (timestamp - SERVER._TIME);
 		const elapsedSeconds = elapsedMilliseconds / 1000;
@@ -1732,7 +1732,7 @@ function addVideoYT(socket,data,meta,successCallback,failureCallback){
 		host: 'www.googleapis.com',
 		port: 443,
 		method: 'GET',
-		path: '/youtube/v3/videos?id='+encodeURIComponent(videoid.toString())+'&key=AIzaSyCDFjje-fdPM2jid7K1xW2IRRvsKVceUHA&part=snippet%2CcontentDetails%2Cstatus'
+		path: '/youtube/v3/videos?id='+encodeURIComponent(videoid.toString())+'&key='+SERVER.settings.apikeys.youtube+'&part=snippet%2CcontentDetails%2Cstatus'
 	};
 
 	var parseDuration = function(duration){
@@ -1900,14 +1900,14 @@ function addVideoYT(socket,data,meta,successCallback,failureCallback){
 				failureCallback(err)
 				return
 			}
-	
+
 			const { title, duration } = videoData
 			var pos = SERVER.PLAYLIST.length;
 			var volat = data.volat;
-	
+
 			if(meta.type <= 0) volat = true;
 			if(volat === undefined) volat = false;
-	
+
 			rawAddVideo({
 				pos: pos,
 				videoid: videoid,
@@ -2218,6 +2218,56 @@ function addVideoTwitchClip(socket,data,meta,successCallback,failureCallback){
 		if (failureCallback) failureCallback(error);
 	});
 }
+
+async function dailymotionApi(path, params={}) {
+    if (Array.isArray(path)) {
+        path = path.join('/');
+    }
+    params = Object.keys(params)
+        .map(key => encodeURIComponent(key) + '=' + encodeURIComponent(params[key]))
+		.join('&');
+
+	const response = await fetch('https://api.dailymotion.com/' + path + (params ? ('?' + params) : ''), {
+        headers: {
+            'Accept': 'application/json'
+        }
+    });
+
+	if (!response.ok) {
+		const data = await response.json();
+		throw new Error(`${data.error}: ${data.message}`);
+	}
+
+	return response.json();
+}
+
+function addVideoDailymotion(socket,data,meta,successCallback,failureCallback){
+	var volat = data.volat;
+	if(meta.type <= 0) volat = true;
+	if(volat === undefined) volat = false;
+
+	dailymotionApi(['video', data.videoid.trim()], {
+		fields: 'id,title,duration'
+	}).then(response => {
+		rawAddVideo({
+			pos: SERVER.PLAYLIST.length,
+			videoid: response.id,
+			videotitle: encodeURI(response.title),
+			videolength: response.duration,
+			videotype: "dm",
+			who: meta.nick,
+			queue: data.queue,
+			volat: volat
+		}, function () {
+			if (successCallback)successCallback({ title: response.title });
+		}, function (err) {
+			if (failureCallback)failureCallback(err);
+		});
+	}).catch(error => {
+		if (failureCallback) failureCallback(error);
+	});
+}
+
 
 function ifCanSetFilters(socket,truecallback,falsecallback){
 	socket.get('type',function(err,type){
@@ -3258,6 +3308,8 @@ io.sockets.on('connection', function (socket) {
 
 			if (data.videotype == "yt")
 				addVideoYT(socket, data, meta, onVideoAddSuccess, onVideoAddError);
+			else if (data.videotype == "dm")
+				addVideoDailymotion(socket, data, meta, onVideoAddSuccess, onVideoAddError);
 			else if (data.videotype == "vimeo")
 				addVideoVimeo(socket, data, meta, onVideoAddSuccess, onVideoAddError);
 			else if (data.videotype == "soundcloud")

@@ -4,6 +4,7 @@ settings.core = {};
 settings.toggles = {};
 settings.mysql = {};
 settings.vc = {};
+settings.apikeys = {};
 
 // Init Core settings
 settings.core.version = "2.1.0";
@@ -37,5 +38,8 @@ settings.toggles.spaceaids = [true,'Bans are Contagious'];
 // Init Videocontrol settings
 settings.vc.tail_time = 2; // seconds
 settings.vc.head_time = 3; // seconds
+
+// Init API keys
+settings.apikeys.youtube = process.env.YOUTUBE_APIKEY;
 
 module.exports = settings;

@@ -88,6 +88,7 @@ services:
         init: true
         environment:
             - MYSQL_PASSWORD
+            - YOUTUBE_APIKEY
         expose:
             - '8344'
         networks:
