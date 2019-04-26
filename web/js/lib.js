@@ -98,7 +98,7 @@
 							.click(function () {
 								if (data.callback)
 									data.callback($option);
-		
+
 								$dropdown.remove();
 							})));
 			});
@@ -294,4 +294,14 @@ function waitForNegativeFlag(flagname, callback) {
 	else {
 		callback();
 	}
+}
+
+function onceFunction(fn) {
+	let called = false;
+	return function(){
+		if (!called) {
+			called = true;
+			fn.apply(this, arguments);
+		}
+	};
 }
