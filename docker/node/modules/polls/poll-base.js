@@ -14,22 +14,28 @@ exports.PollInstance = class {
 	
 	get state() {
 		const timeElapsedInSeconds = (now() - this.startedAt) / 1000;
-		return { 
+		return {
+			id: this.id,
+			isObscured: false,
 			closePollInSeconds: this.options.closePollInSeconds || 0,
 			timeElapsedInSeconds
 		};
 	}
 
 	get obscuredState() {
-		return this.state;
+		return {
+			...this.state,
+			isObscured: true
+		};
 	}
 	
-	constructor(pollService, options) {
+	constructor(pollService, id, options) {
 		const { closePollInSeconds } = options;
 		this.timeLeftInSeconds = closePollInSeconds + fudgeFactorInSeconds;
 		this.isTimedPoll = closePollInSeconds > 0;
 		this.startedAt = this.isTimedPoll ? now() : 0;
 		
+		this.id = id
 		this.service = pollService;
         this.options = options;
 	}
