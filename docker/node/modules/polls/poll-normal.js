@@ -23,12 +23,13 @@ exports.NormalPoll = class extends PollInstance {
 	get obscuredState() {
 		return {
 			...this.state,
+			isObscured: true,
 			votes: this.options.options.map(_ => "?")
 		};
 	}
 
-	constructor(pollService, options) {
-		super(pollService, {
+	constructor(pollService, id, options) {
+		super(pollService, id, {
 			...options,
 			options: options.ops.map(o => typeof(o) === "string" 
 				? sanitize(o)

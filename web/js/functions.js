@@ -1517,6 +1517,17 @@ function newPoll(data){
 			socket.emit('votePoll', { op:vote.data('op') });
 		}
 	} else {
+		const $existingPoll = $(".poll.active");
+		if ($existingPoll.length) {
+			const pollId = $existingPoll.data("id");
+			if (pollId === data.id) {
+				updatePoll(data);
+				return;
+			}
+			
+			closePoll({});
+		}
+
 		// New poll, or ghost poll on an initial connection
 		addChatMsg({
 			msg:{
@@ -1529,14 +1540,17 @@ function newPoll(data){
 			},
 			ghost:false
 		},'#chatbuffer');
-
-		closePoll({});
-
-		whenExists("#pollpane", (stack) => {			
+		
+		whenExists("#pollpane", stack => {			
             POLL_TITLE_FORMAT = data.title;
             POLL_OPTIONS.splice(0, POLL_OPTIONS.length);
 
-			const $poll = $('<div/>').addClass("poll").addClass("active").prependTo(stack);
+			const $poll = $("<div />")
+				.addClass("poll")
+				.addClass("active")
+				.data("id", data.id)
+				.prependTo(stack);
+
 			const $closeButton = $('<div/>').addClass("btn").addClass("close").text("X").appendTo($poll);
 			const $title = $('<div/>').addClass("title").text(getPollTitle(data)).appendTo($poll);
 
