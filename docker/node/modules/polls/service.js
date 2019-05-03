@@ -17,6 +17,7 @@ const propVoteData = {
 exports.PollService = class extends ServiceBase {
 	constructor({ auth, io, log }) {
 		super({ log, log });
+		this.nextPollId = 1
 		this.currentPoll = null;
 		this.auth = auth;
 		this.votedIpAddressMap = {};
@@ -57,7 +58,7 @@ exports.PollService = class extends ServiceBase {
 
 		options.creator = await getSocketPropAsync(socket, socketProps.PROP_NICK);
 		options.creator = options.creator || "some guy";
-		this.currentPoll = new PollType(this, options, this.log);
+		this.currentPoll = new PollType(this, this.nextPollId++, options, this.log);
 		this.votedIpAddressMap = {};
 		await this.publishToAll("newPoll");
 
@@ -137,7 +138,7 @@ exports.PollService = class extends ServiceBase {
 		await propVoteData.set(socket, newVote);
 
 		this.votedIpAddressMap[ipAddress] = socket.id;
-		await this.publishToAll("updatePoll");
+		await this.publishToAll("updatePoll", true);
 	}
 
 	/**
@@ -165,13 +166,20 @@ exports.PollService = class extends ServiceBase {
 	/**
 	 * Publishes poll data to every client.
 	 */
-	async publishToAll(eventName) {
+	async publishToAll(eventName, publishOnlyToAuthorizedSockets = false) {
 		if (!this.currentPoll) {
 			return;
 		}
 
-		if (this.currentPoll.isObscured)
-			await Promise.all(this.io.sockets.clients().map(c => this.publishTo(c, eventName)));
+		if (this.currentPoll.isObscured) {
+			await Promise.all(this.io.sockets.clients().map(async socket => {
+				const doPublish = !this.currentPoll.isObscured 
+					|| !publishOnlyToAuthorizedSockets 
+					|| (await this.auth.canDoAsync(socket, actions.CAN_SEE_OBSCURED_POLLS));
+
+				return doPublish ? this.publishTo(socket, eventName) : Promise.resolve();
+			}))
+		}
 		else
 			this.io.sockets.emit(eventName, this.currentPoll.state);
 	}

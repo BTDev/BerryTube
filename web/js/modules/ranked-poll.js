@@ -1,4 +1,3 @@
-import { ensureExists, addPollMessage } from "./bt.js";
 import { createElement, prependElement, removeElements, $, clear } from "./lib.js";
 
 const rankColors = ["#4b830d", "#005cb2", "#29434e", "#444"];
@@ -9,8 +8,6 @@ export class RankedPoll {
     constructor(state, mountElement) {
         console.log(state);
         this._onHideClick = this._onHideClick.bind(this);
-
-        addPollMessage(state.creator, state.title);
 
         const optionRows = this.optionRows = [];
         const { extended: { options, maxRankCount } } = state;

@@ -37,6 +37,7 @@ exports.RankedPoll = class extends PollInstance {
 	get obscuredState() {
 		return {
 			...this.state,
+			isObscured: true,
 			extended: {
 				options: this.options.options,
 				maxRankCount: this.options.maxRankCount
@@ -44,8 +45,8 @@ exports.RankedPoll = class extends PollInstance {
 		};
 	}
 
-	constructor(pollService, options, log) {
-		super(pollService, {
+	constructor(pollService, id, options, log) {
+		super(pollService, id, {
 			...options,
 			options: options.ops.map(o => ({
 				text: sanitize(o.text),
@@ -155,13 +156,6 @@ exports.RankedPoll = class extends PollInstance {
 				res.rank = currentRank;
 			}
 		}
-
-		this.service.log.info(events.EVENT_POLL_RESULTS_AVAILABLE, "Poll: {title}, votes: {votes}, options: {options}, results: {results}", {
-			title: this.options.title,
-			options: JSON.stringify(this.options.options.map(o => `${o.text}${o.isTwoThirds ? " (⅔)" : ""}`)),
-			votes: JSON.stringify(this.votes.map(v => v.ballot)),
-			results: JSON.stringify(finalResults.map(r => ([ r.rank, r.index ])))
-		});
 		
 		return finalResults;
 
