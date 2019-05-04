@@ -4,12 +4,12 @@ class Countdown {
 	constructor(totalTimeInSeconds, timeStartInSeconds, handlers) {
 		this.isEnabled = true;
 		this.handlers = handlers;
-		
+
 		const start = new Date().getTime() - (timeStartInSeconds * 1000);
 		const tick = () => {
 			if (!this.isEnabled)
 				return;
-			
+
 			const now = new Date().getTime();
 			const elapsedInSeconds = (now - start) / 1000;
 			const timeLeftInSeconds = Math.max(0, totalTimeInSeconds - elapsedInSeconds);
@@ -23,7 +23,7 @@ class Countdown {
 				this.dispose();
 			}
 		};
-		
+
 		this.interval = window.setInterval(tick, 500);
 		tick();
 	}
@@ -1039,7 +1039,7 @@ function sendChatMsg(msg,elem){
 function handleSpamChecks(callback) {
 	const defaultHtp = 15000;
 	const spamShift = 3100;
-	
+
 	let lastTime = getVal("lasttime");
 	let currentHp = getVal("chathp");
 
@@ -1079,7 +1079,7 @@ function addLogMsg(data, to){
 	if (IGNORE_GHOST_MESSAGES && data.ghost) return;
 	const timestampDate = new Date(data.logEvent.createdAt);
 
-	const 
+	const
 		hh = addZero(timestampDate.getHours()),
 		mm = addZero(timestampDate.getMinutes()),
 		ss = addZero(timestampDate.getSeconds()),
@@ -1090,7 +1090,7 @@ function addLogMsg(data, to){
 			? data.logEvent.event.substring(12)
 			: data.logEvent.event;
 
-	var newmsg = 
+	var newmsg =
 		$("<tr />")
 			.addClass("message")
 			.addClass(data.nick)
@@ -1382,7 +1382,7 @@ function closePoll(data) {
 		//unbind old buttons
 		var existing = $(".poll.active");
 		existing.find(".btn").each(function(key, val) {
-			if ($(val).hasClass("close")) 
+			if ($(val).hasClass("close"))
 				return;
 
 			$(val).unbind('click');
@@ -1395,7 +1395,7 @@ function closePoll(data) {
 	var keep = getStorage("keeppolls");
 	var polls = $("#pollpane").children(".poll");
 	for (var i=0; i < polls.length; i++) {
-		if ($(polls[i]).hasClass("active")) 
+		if ($(polls[i]).hasClass("active"))
 			continue;
 
 		if (--keep < 0)
@@ -1507,7 +1507,7 @@ function plSearch(term){
 		realignPosHelper();
     }
 }
-function newPoll(data){	
+function newPoll(data){
 	if (data.ghost && IGNORE_GHOST_MESSAGES) {
 		// Ghost poll on a reconnect; just revote, don't redisplay it
 		var vote = $('.voted');
@@ -1574,7 +1574,7 @@ function newPoll(data){
 
 					if(data.obscure)
 						optionBtn.addClass("obscure");
-						
+
 					$('<div/>').addClass("label").text(t).appendTo($('<td/>').appendTo(row));
 					$('<div/>').addClass("clear").appendTo(iw);
 
@@ -1609,7 +1609,7 @@ function newPoll(data){
 				$("<div />")
 					.addClass("poll-auto-close")
 					.append(
-						$timeLeft, 
+						$timeLeft,
 						$("<div />")
 							.addClass("poll-auto-close__progress-bar")
 							.append($progress))
@@ -1669,7 +1669,7 @@ function updateRankedPollEmotes() {
 		if ($this.data("bem-processed")) {
 			return
 		}
-		
+
 		$this.data("bem-processed", true);
 		$this.html(Bem.applyEmotesToStr($this[0].innerText));
 		Bem.postEmoteEffects($this);
@@ -1677,7 +1677,7 @@ function updateRankedPollEmotes() {
 }
 function getPollTitle({ votes, extended }) {
 	var title = POLL_TITLE_FORMAT;
-	
+
     for (var i = 0; i < votes.length; i++) {
         title = title.replace(new RegExp('\\{' + i + '\\}', 'g'), new Array(votes[i] + 1).join(POLL_OPTIONS[i]));
 	}
@@ -1685,7 +1685,7 @@ function getPollTitle({ votes, extended }) {
 	if (typeof(extended) !== "undefined" && typeof(extended.voteCount) !== "undefined") {
 		return `${title} (${extended.voteCount} vote${extended.voteCount !== 1 ? "s" : ""})`
 	}
-	
+
     return title;
 }
 function setStorage(key,value){
@@ -2029,6 +2029,8 @@ function parseVideoURL(url,callback){
 	console.log(url);
 	var m = url.match(new RegExp("youtube\\.com/watch.*?[&?]v=([a-zA-Z0-9_-]{11})")); if(m){	callback(m[1],"yt"); return;}
 	var m = url.match(new RegExp("youtu\\.be/([a-zA-Z0-9_-]{11})")); if(m){ callback(m[1],"yt"); return;}
+	var m = url.match(new RegExp("dailymotion.com/video/([a-zA-Z0-9]+)")); if(m){ callback(m[1],"dm"); return;}
+	var m = url.match(new RegExp("dai.ly/([a-zA-Z0-9]+)")); if(m){ callback(m[1],"dm"); return;}
 	var m = url.match(new RegExp("clips\\.twitch\\.tv/([A-Za-z0-9]+)")); if(m){	callback(m[1],"twitchclip",m[1]); return;}
 	var m = url.match(new RegExp("twitch\\.tv/[A-Za-z0-9]+/clip/([A-Za-z0-9]+)")); if(m){	callback(m[1],"twitchclip",m[1]); return;}
 	var m = url.match(new RegExp("twitch\\.tv/((?:videos/)?[A-Za-z0-9]+)")); if(m){	callback(m[1],"twitch",m[1]); return;}
@@ -2512,7 +2514,7 @@ function refreshDebugDumps() {
 
 function secondsToHuman(seconds) {
 	seconds = parseInt(seconds);
-	
+
 	if (seconds > 60) {
 		const minutes = Math.floor(seconds / 60);
 		const finalSeconds = seconds - (minutes * 60);
