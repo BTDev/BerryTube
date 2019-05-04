@@ -2902,19 +2902,19 @@ io.sockets.on('connection', function (socket) {
 		
 		const pattern = '%' + encodeURI(data.search).replace('%', '\\%') + '%'
 		const { result } = await query`select * from videos_history where videotitle like ${pattern} order by date_added desc limit 50`
-		for (var i = 0; i < result.length; ++i) {
-			const historyItem = result[i];
-			try {
-				historyItem.meta = JSON.parse(historyItem.meta);
-				if (typeof historyItem.meta != "object") {
-					historyItem.meta = {};
-				}
-			} catch (e) { 
-				historyItem.meta = {}; 
-			}
-		}
 
-		socket.emit("searchHistoryResults", result);
+		socket.emit("searchHistoryResults", 
+			result.map(res => {
+				let meta = null;
+				try {
+					meta = JSON.parse(res.meta);
+				} catch { }
+
+				return {
+					...res,
+					meta: typeof(meta) === "object" ? meta : {}
+				}
+			}));
 	});
 	socket.on("delVideoHistory", function(data){
 		const logData = { mod: getSocketName(socket), type: "playlist", id: data.videoid};
