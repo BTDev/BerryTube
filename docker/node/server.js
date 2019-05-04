@@ -1,5 +1,5 @@
 const { PollService } = require("./modules/polls");
-const { AuthService } = require("./modules/auth");
+const { AuthService, actions } = require("./modules/auth");
 const { sanitize, getAddress } = require("./modules/security");
 const { DefaultLog, events, levels, consoleLogger, createStreamLogger } = require("./modules/log");
 const { getSocketName, getSocketPropAsync } = require("./modules/socket");
@@ -96,6 +96,21 @@ function dbInit(){
 	});
 
 	mysql.query(`use ${SERVER.dbcon.database}`);
+}
+
+function query(queryParts, ...params) {
+	return new Promise((res, rej) => {
+		const sql = queryParts.join(" ? ");
+		mysql.query(sql, params, (err, result, fields) => {
+			if (err) {
+				rej(err);
+				DefaultLog.error(events.EVENT_DB_QUERY, "query \"{sql}\" failed", { sql }, err);
+				return;
+			}
+
+			res({result, fields});
+		});
+	});
 }
 
 dbInit();
@@ -2252,17 +2267,6 @@ function ifCanGetFilters(socket,truecallback,falsecallback){
 		}
 	});
 }
-function ifCanSearchHistory(socket,truecallback,falsecallback){
-	socket.get('type',function(err,type){
-		if(
-			parseInt(type) >= 1
-		){
-			if(truecallback)truecallback();
-		}else{
-			if(falsecallback)falsecallback();
-		}
-	});
-}
 function ifCanAnnounce(socket,truecallback,falsecallback){
 	socket.get('type',function(err,type){
 		socket.get('nick',function(err,nick){
@@ -2836,32 +2840,31 @@ io.sockets.on('connection', function (socket) {
 				{ mod: getSocketName(socket), type: "site" });
 
 			SERVER.FILTERS = data;
-		},function(){
+		},function(){ 
 			kickForIllegalActivity(socket,"You cannot set the Filters");
 		});
 	});
-	socket.on("searchHistory", function(data){
-		ifCanSearchHistory(socket, function(){
-			var sql = "select * from videos_history where videotitle like ? order by date_added desc limit 50";
-			mysql.query(sql, ['%'+encodeURI(data.search).replace('%', '\\%')+'%'], function(err, result, fields){
-				if (err) {
-					DefaultLog.error(events.EVENT_DB_QUERY, "query \"{sql}\" failed", { sql }, err);
-					return;
+	socket.on("searchHistory", async function(data) {
+		if (!await authService.canDoAsync(socket, actions.ACTION_SEARCH_HISTORY)) {
+			socket.emit("searchHistoryResults", []);
+			return;
+		}
+		
+		const pattern = '%' + encodeURI(data.search).replace('%', '\\%') + '%'
+		const { result } = await query`select * from videos_history where videotitle like ${pattern} order by date_added desc limit 50`
+		for (var i = 0; i < result.length; ++i) {
+			const historyItem = result[i];
+			try {
+				historyItem.meta = JSON.parse(historyItem.meta);
+				if (typeof historyItem.meta != "object") {
+					historyItem.meta = {};
 				}
-				for(var i=0;i<result.length;++i) {
-					var o = result[i];
-					try {
-						o.meta = JSON.parse(o.meta);
-						if(typeof o.meta != "object"){
-							o.meta = {};
-						}
-					} catch(e) { o.meta={}; }
-				}
-				socket.emit('searchHistoryResults', result);
-			});
-		}, function(){
-			socket.emit('searchHistoryResults', []);
-		});
+			} catch (e) { 
+				historyItem.meta = {}; 
+			}
+		}
+
+		socket.emit("searchHistoryResults", result);
 	});
 	socket.on("delVideoHistory", function(data){
 		const logData = { mod: getSocketName(socket), type: "playlist", id: data.videoid};
