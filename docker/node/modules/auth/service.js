@@ -20,6 +20,8 @@ exports.AuthService = class extends ServiceBase {
             return true;
         else if (action == actions.CAN_SEE_OBSCURED_POLLS)
             return type > 0 || leader;
+        else if (action == actions.ACTION_SEARCH_HISTORY)
+            return type > 0 || leader;
 
         throw new Error(`Invalid action passed into canDoAsync: ${action}`);
     }

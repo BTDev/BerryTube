@@ -1475,7 +1475,7 @@ function plSearch(term){
 		scrollToPlEntry(ACTIVE.domobj.index());
 		realignPosHelper();
     } else {
-		if (TYPE >= 1) {
+		if (TYPE >= 1 || LEADER) {
 			socket.emit('searchHistory', {search:term});
 		}
 
