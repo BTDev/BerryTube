@@ -9,7 +9,7 @@
     line-height: 26px;
 }
 body {
-    background: url(/images/stain.png) no-repeat fixed center top #421C52;
+    background: url(/images/stain.webp) no-repeat fixed center top #421C52;
     color: white;
     font-family: arial;
 	margin:0;
@@ -31,7 +31,7 @@ body {
 #playlist .thumb .end,
 #playlist .thumb { background-color: #732C7B; }
 #videobg {
-	background: url(/images/player_back.png) no-repeat center center;
+	background: url(/images/player_back.webp) no-repeat center center;
 }
 .chatbuffer .message.drink {
     background: url(/images/bp_tiny.png) no-repeat scroll right center transparent;
@@ -146,7 +146,7 @@ body {
 	background:white;
 }
 #banner {
-    background: url(/images/banner.png) no-repeat center;
+    background: url(/images/banner.webp) no-repeat center;
     height: 255px;
     margin: 0 auto;
     width: 538px;
