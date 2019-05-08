@@ -443,13 +443,13 @@ function initToastThemes(data, textStatus, jqxhr) {
 	$body.append(effectsContainer);
 
 	// Create the HI! div
-	$body.append($('<div id="hiDiv"/>').html('<img src="' + CDN_ORIGIN + '/plugins/toastthemes/hi.png"></img>'));
+	$body.append($('<div id="hiDiv"/>'));
 
 	// Create the grumpy div
-	$body.append($('<div id="grumpyDiv"/>').html('<img src="' + CDN_ORIGIN + '/plugins/toastthemes/grumpy.png"></img>'));
+	$body.append($('<div id="grumpyDiv"/>'));
 
 	// Create the chainsaw div
-	$body.append($('<div id="chainsawDiv"/>').html('<img src="' + CDN_ORIGIN + '/plugins/toastthemes/chainsaw.png"></img>'));
+	$body.append($('<div id="chainsawDiv"/>'));
 
 	// Rig up the auto-theme method to the correct socket callback
 	socket.on('forceVideoChange', function(data) {
@@ -937,15 +937,15 @@ function fourthWall() {
 		var r = Math.random();
 		if (r >= 0.02) {
 			// In 98% of cases, show [](/seriouslyfourthwall)
-			$('#hiDiv').css('display', 'block');
+			$('#hiDiv').html('<img src="' + CDN_ORIGIN + '/plugins/toastthemes/hi.webp"></img>').css('display', 'block');
 		}
 		else if (r >= 0.002) {
 			// In 1.8% of cases, show [](/grumpypie)
-			$('#grumpyDiv').css('display', 'block');
+			$('#grumpyDiv').html('<img src="' + CDN_ORIGIN + '/plugins/toastthemes/grumpy.webp"></img>').css('display', 'block');
 		}
 		else {
 			// And in the last 0.2%, show [](/ppchainsaw)
-			$('#chainsawDiv').css('display', 'block');
+			$('#chainsawDiv').html('<img src="' + CDN_ORIGIN + '/plugins/toastthemes/chainsaw.webp"></img>').css('display', 'block');
 		}
 		imageVisible = true;
 	}
