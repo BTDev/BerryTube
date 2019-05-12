@@ -2261,12 +2261,13 @@ function addVideoDailymotion(socket,data,meta,successCallback,failureCallback){
 	if(meta.type <= 0) volat = true;
 	if(volat === undefined) volat = false;
 
-	dailymotionApi(['video', data.videoid.trim()], {
+	const videoId = data.videoid.trim()
+	dailymotionApi(['video', videoId], {
 		fields: 'id,title,duration'
 	}).then(response => {
 		rawAddVideo({
 			pos: SERVER.PLAYLIST.length,
-			videoid: response.id,
+			videoid: videoId,
 			videotitle: encodeURI(response.title),
 			videolength: response.duration,
 			videotype: "dm",

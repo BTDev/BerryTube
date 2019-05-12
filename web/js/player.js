@@ -17,7 +17,7 @@ function removeCurrentPlayer() {
 window.PLAYERS.dm = {
     playVideo: function(id, at) {
         this.PLAYER.load(id, {
-            autoplay: false,
+            autoplay: true,
             start: Math.max(at, 0)
         });
         if (at < 0) {
@@ -51,7 +51,7 @@ window.PLAYERS.dm = {
             }
         });
 
-        this.PLAYER.addEventListener('apiready', onceFunction(() => {
+        this.PLAYER.addEventListener('playback_ready', onceFunction(() => {
             this.PLAYER.setVolume(volume);
 
             // adjust in case loading the player took a while
