@@ -2263,7 +2263,7 @@ function addVideoDailymotion(socket,data,meta,successCallback,failureCallback){
 
 	const videoId = data.videoid.trim()
 	dailymotionApi(['video', videoId], {
-		fields: 'id,title,duration'
+		fields: 'title,duration'
 	}).then(response => {
 		rawAddVideo({
 			pos: SERVER.PLAYLIST.length,

@@ -17,15 +17,13 @@ function removeCurrentPlayer() {
 window.PLAYERS.dm = {
     playVideo: function(id, at) {
         this.PLAYER.load(id, {
-            autoplay: true,
+            autoplay: !(at < 0),
             start: Math.max(at, 0)
         });
         if (at < 0) {
             setTimeout(() => {
                 this.play();
             }, at * -1000);
-        } else {
-            this.play();
         }
     },
     loadPlayer: function(id, at, volume) {
@@ -40,7 +38,7 @@ window.PLAYERS.dm = {
             width: '100%',
             height: '100%',
             params: {
-                autoplay: false,
+                autoplay: !(at < 0),
                 start: Math.max(at, 0),
                 'queue-autoplay-next': false,
                 'queue-enable': false,
@@ -61,8 +59,6 @@ window.PLAYERS.dm = {
                 setTimeout(() => {
                     this.play();
                 }, at * -1000);
-            } else {
-                this.play();
             }
         }));
     },
