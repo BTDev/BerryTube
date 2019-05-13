@@ -1,4 +1,4 @@
-FROM php:7-fpm-alpine
+FROM php:7.3.5-fpm-alpine
 
 RUN docker-php-ext-install pdo_mysql mysqli json && \
     curl -SsL "https://github.com/adoy/PHP-FastCGI-Client/archive/master.zip" >/tmp/fcgi-client.zip && \

@@ -1,4 +1,4 @@
-FROM alpine
+FROM alpine:3.9.4
 
 WORKDIR /etc/caddy
 HEALTHCHECK --interval=10s --timeout=3s --start-period=10s CMD curl http://localhost:1234/ping.txt
