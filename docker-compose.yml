@@ -52,6 +52,7 @@ services:
             - DOMAIN
             - HTTPS_PORT
             - NO_CDN
+            - NO_MINIFIED
             - MYSQL_PASSWORD
         volumes:
             - ./web:/var/www/html/web:ro

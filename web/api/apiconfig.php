@@ -8,6 +8,7 @@
     define('SOCKET_ORIGIN', 'https://socket.' . getenv('DOMAIN') . ((getenv('HTTPS_PORT') === '443') ? '' : (':' . getenv('HTTPS_PORT'))));
     define('CDN_ORIGIN', 'https://cdn.' . getenv('DOMAIN') . ((getenv('HTTPS_PORT') === '443') ? '' : (':' . getenv('HTTPS_PORT'))));
     define('NO_CDN', getenv('NO_CDN') === 'true');
+    define('NO_MINIFIED', getenv('NO_MINIFIED') === 'true');
     if (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
         define('CLIENT_IP', $_SERVER['HTTP_X_FORWARDED_FOR']);
     } else {

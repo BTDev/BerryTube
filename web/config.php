@@ -29,6 +29,49 @@
 		}
 	}
 
+	function start_minified_tags() {
+		if (NO_MINIFIED) {
+			ob_start();
+		}
+	}
+
+	function end_minified_tags() {
+		if (NO_MINIFIED) {
+			$source = ob_get_clean();
+			$doc = new DOMDocument();
+			$doc->loadHTML($source, LIBXML_HTML_NODEFDTD);
+
+			function handle_element($el, $link) {
+				if (strpos($link->value, '/socket.io/') !== false || strpos($link->value, '/dashjs/') !== false) {
+					return;
+				}
+
+				$link->value = str_replace('.min.', '.', $link->value);
+
+				$integrity = $el->attributes->getNamedItem('integrity');
+				if ($integrity) {
+					$integrity->value = null;
+				}
+			}
+
+			foreach ($doc->getElementsByTagName('script') as $el) {
+				$link = $el->attributes->getNamedItem('src');
+				if ($link) {
+					handle_element($el, $link);
+				}
+			}
+
+			foreach ($doc->getElementsByTagName('link') as $el) {
+				$link = $el->attributes->getNamedItem('href');
+				if ($link) {
+					handle_element($el, $link);
+				}
+			}
+
+			echo preg_replace('#</?(html|head|body)>#i', '', $doc->saveHTML());
+		}
+	}
+
 	$mysqli = @new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
 	if (mysqli_connect_error()) {
 		die('Server is still restarting, please refresh again in a bit.');
