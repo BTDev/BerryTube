@@ -187,6 +187,36 @@
 				$(this).css('z-index',newval);
 			}
 		};
+		newWindow.refreshWindowOffset = function(){
+			if(myData.center){
+				newWindow.center();
+			} else {
+				const margin = 8;
+		        const offset = myData.offset;
+		        const diaSize = {
+		            height: newWindow.height() + margin,
+		            width: newWindow.width() + margin
+		        };
+
+		        const win = $(window);
+		        const scroll = {
+		            top: win.scrollTop(),
+		            left: win.scrollLeft()
+		        };
+		        const winSize = {
+		            height: win.height(),
+		            width: win.width()
+		        };
+
+		        if ( offset.top + diaSize.height > scroll.top + winSize.height )
+		            offset.top = scroll.top + winSize.height - diaSize.height;
+
+		        if ( offset.left + diaSize.width > scroll.left + winSize.width )
+		            offset.left = scroll.left + winSize.width - diaSize.width;
+
+				newWindow.offset(offset);
+			}
+		};
 		newWindow.mousedown(function(){
 			newWindow.winFocus();
 		});
@@ -230,19 +260,15 @@
 		var contentArea = $('<div/>').appendTo(newWindow).addClass("dialogContent");
 		contentArea.window = newWindow;
 
-		// Position window
-		if(myData.center){
-			newWindow.center();
-		} else {
-			newWindow.offset(myData.offset);
-		}
-
 		// Handle block for loading.
 		if(data.initialLoading){
 			var block = $('<div/>').addClass("loading").prependTo(newWindow);
 		}
 		newWindow.winFocus();
-		newWindow.fadeIn('fast');
+		newWindow.refreshWindowOffset();
+		newWindow.fadeIn('fast', function() {
+			newWindow.refreshWindowOffset();
+		});
 
 		return contentArea;
 	};
