@@ -43,7 +43,7 @@
 
     header / {
         Cache-Control "public, no-cache, must-revalidate"
-        Expect-Ct "enforce; max-age=60; report-uri=\"https://atte.report-uri.com/r/d/ct/enforce\""
+        Expect-Ct "enforce, max-age=60, report-uri=\"https://atte.report-uri.com/r/d/ct/enforce\""
         Expect-Staple "max-age=60; report-uri=\"https://atte.report-uri.com/r/d/staple/reportOnly\"; includeSubDomains"
         Feature-Policy "accelerometer 'none'; ambient-light-sensor 'none'; autoplay *; camera 'none'; encrypted-media *; fullscreen *; geolocation 'none'; gyroscope 'none'; magnetometer 'none'; microphone 'none'; midi 'none'; payment 'none'; picture-in-picture *; speaker 'none'; usb 'none'; vr 'none'"
         NEL "\{\"max_age\":0,\"include_subdomains\":true\}"
