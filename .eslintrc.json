@@ -1,0 +1,23 @@
+{
+	"extends": ["eslint:recommended"],
+	"root": true,
+	"parserOptions": {
+		"sourceType": "module"
+	},
+	"env": {
+		"browser": true,
+		"es6": true,
+		"jasmine": true,
+		"worker": true
+	},
+	"rules": {
+		"no-unused-vars": ["warn", { "argsIgnorePattern": "^_" }],
+		"no-mixed-spaces-and-tabs": 0
+	},
+	"globals": {
+		"IS_DEVELOPMENT": false,
+		"IS_PRODUCTION": false,
+		"module": false,
+		"require": false
+	}
+}
