@@ -11,6 +11,7 @@
 		"worker": true
 	},
 	"rules": {
+		"semi": "error",
 		"no-unused-vars": ["warn", { "argsIgnorePattern": "^_" }],
 		"no-mixed-spaces-and-tabs": 0
 	},

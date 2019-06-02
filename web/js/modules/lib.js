@@ -6,8 +6,8 @@ export function $(...args) {
 
 /**
  * Prepends an html element
- * @param {HTMLElement} parent 
- * @param {HTMLElement} element 
+ * @param {HTMLElement} parent
+ * @param {HTMLElement} element
  */
 export function prependElement(parent, element) {
 	parent.insertBefore(element, parent.firstChild);
@@ -15,11 +15,10 @@ export function prependElement(parent, element) {
 
 /**
  * Removes elements from the dom
- * @param {HTMLElement[]} element 
+ * @param {HTMLElement[]} element
  */
 export function removeElements(...elements) {
-	for (const element of elements)
-		element.parentNode.removeChild(element);
+	for (const element of elements) element.parentNode.removeChild(element);
 }
 
 /**
@@ -27,8 +26,7 @@ export function removeElements(...elements) {
  * @param {HTMLElement} element
  */
 export function clear(element) {
-	while (element.firstChild)
-		element.removeChild(element.firstChild);
+	while (element.firstChild) element.removeChild(element.firstChild);
 }
 
 /**
@@ -36,7 +34,8 @@ export function clear(element) {
  * @returns {HTMLElement}
  */
 export function createElement(name, ...rest) {
-	let attributes = {}, children = [];
+	let attributes = {},
+		children = [];
 
 	if (rest.length) {
 		if (rest[0] instanceof HTMLElement) {
@@ -46,76 +45,70 @@ export function createElement(name, ...rest) {
 			[attributes, ...children] = rest;
 		}
 	}
-	
-    const type = typeof name;
-    const isFunction = type === "function";
-    const hasRef = attributes && typeof attributes["ref"] === "function";
 
-    if (isFunction)
-        return name({ ...attributes, children });
+	const type = typeof name;
+	const isFunction = type === "function";
+	const hasRef = attributes && typeof attributes["ref"] === "function";
 
-    const element = document.createElement(name);
+	if (isFunction) return name({ ...attributes, children });
 
-    if (attributes)
-        for (const attribute in attributes) {
-            let value = attributes[attribute];
+	const element = document.createElement(name);
 
-            const event = EVENT_MAP[attribute];
-            if (event) {
-                element.addEventListener(event, value);
-                continue;
-            }
+	if (attributes)
+		for (const attribute in attributes) {
+			let value = attributes[attribute];
 
-            if (attribute == "class" && Array.isArray(value)) {
-                element.classList.add(...value);
-                continue;
+			const event = EVENT_MAP[attribute];
+			if (event) {
+				element.addEventListener(event, value);
+				continue;
 			}
-			
+
+			if (attribute == "class" && Array.isArray(value)) {
+				element.classList.add(...value);
+				continue;
+			}
+
 			if (attribute == "style") {
 				for (const styleProp in value) {
 					element.style[styleProp] = value[styleProp];
 				}
 			} else if (attribute.startsWith("data-"))
 				element.setAttribute(attribute, value);
-			else 
-				element[attribute] = value;
-        }
+			else element[attribute] = value;
+		}
 
-    if (hasRef)
-        attributes.ref(element);
+	if (hasRef) attributes.ref(element);
 
-    if (name.toLowerCase() == "image") {
-        if (!attributes["width"])
-            element.removeAttribute("width");
-        if (!attributes["height"])
-            element.removeAttribute("height");
-    }
-    
-    const childElements = [];
-    collectChildren(children, childElements);
-    for (let i = 0; i < childElements.length; i++)
-        element.appendChild(childElements[i]);
+	if (name.toLowerCase() == "image") {
+		if (!attributes["width"]) element.removeAttribute("width");
+		if (!attributes["height"]) element.removeAttribute("height");
+	}
 
-    return element;
+	const childElements = [];
+	collectChildren(children, childElements);
+	for (let i = 0; i < childElements.length; i++)
+		element.appendChild(childElements[i]);
+
+	return element;
 }
 
 function collectChildren(children, result) {
-    if (children == null)
-        return;
+	if (children == null) return;
 
-    if (typeof (children) == "string" || typeof (children) == "number") {
-        result.push(document.createTextNode(children));
-        return;
-    }
+	if (typeof children == "string" || typeof children == "number") {
+		result.push(document.createTextNode(children));
+		return;
+	}
 
-    if (Array.isArray(children)) {
-        for (let i = 0; i < children.length; i++)
-            collectChildren(children[i], result);
+	if (Array.isArray(children)) {
+		for (let i = 0; i < children.length; i++)
+			collectChildren(children[i], result);
 
-        return;
-    }
+		return;
+	}
 
-    result.push(children);
+	result.push(children);
 }
 
 /**
@@ -187,5 +180,5 @@ export const EVENT_MAP = {
 	onAnimationStart: "animationstart",
 	onAnimationEnd: "animationend",
 	onAnimationIteration: "animationiteration",
-	onTransitionEnd: "transitionend"
+	onTransitionEnd: "transitionend",
 };
