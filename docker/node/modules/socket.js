@@ -30,7 +30,9 @@ exports.setSocketPropAsync = function(socket, prop, value) {
 };
 
 exports.getSocketName = async function(socket) {
-	if (!socket) return "Server";
+	if (!socket) {
+		return "Server";
+	}
 
 	const currentNick = await exports.getSocketPropAsync(
 		socket,

@@ -11,17 +11,23 @@ exports.ServiceBase = class {
 
 	exposeSocketActions(actions) {
 		for (const actionName in actions) {
-			if (!actions.hasOwnProperty(actionName)) continue;
+			if (!actions.hasOwnProperty(actionName)) {
+				continue;
+			}
 
 			this._socketActions[actionName] = actions[actionName];
 		}
 	}
 
-	onTick(elapsedMilliseconds) {}
+	onTick(_elapsedMilliseconds) {
+		/* */
+	}
 
 	onSocketConnected(socket) {
 		for (const actionName in this._socketActions) {
-			if (!this._socketActions.hasOwnProperty(actionName)) continue;
+			if (!this._socketActions.hasOwnProperty(actionName)) {
+				continue;
+			}
 
 			socket.on(actionName, async data => {
 				try {
@@ -39,16 +45,20 @@ exports.ServiceBase = class {
 							error,
 						);
 					} catch (e) {
+						// eslint-disable-next-line no-console
 						console.error(
 							"The error handler threw an error! How embarrassing.",
 						);
 
-						if (e) console.error(e.stack || e);
+						if (e) {
+							// eslint-disable-next-line no-console
+							console.error(e.stack || e);
+						}
 					}
 				}
 			});
 		}
 	}
 
-	onSocketAuthenticated(socket, type) {}
+	onSocketAuthenticated(_socket, _type) {}
 };

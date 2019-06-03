@@ -1,11 +1,4 @@
-import {
-	createElement,
-	prependElement,
-	removeElements,
-	$,
-	clear,
-	getOrdinal,
-} from "./lib.js";
+import { createElement, removeElements, clear, getOrdinal } from "./lib.js";
 
 const rankColors = ["#4b830d", "#005cb2", "#29434e", "#444"];
 
@@ -13,7 +6,6 @@ const rankColors = ["#4b830d", "#005cb2", "#29434e", "#444"];
 
 export class RankedPoll {
 	constructor(state, mountElement) {
-		console.log(state);
 		this._onHideClick = this._onHideClick.bind(this);
 
 		const optionRows = (this.optionRows = []);
@@ -111,7 +103,9 @@ export class RankedPoll {
 		}
 
 		function clearVotes() {
-			for (let i = 0; i < ballot.length; i++) ballot[i] = maxRankCount;
+			for (let i = 0; i < ballot.length; i++) {
+				ballot[i] = maxRankCount;
+			}
 
 			window.socket.emit("votePoll", { ballot });
 			updateButtons();
@@ -121,7 +115,9 @@ export class RankedPoll {
 			let maxVotedRank = 0;
 			for (let i = 0; i < ballot.length; i++) {
 				const rank = ballot[i];
-				if (rank == maxRankCount) continue;
+				if (rank == maxRankCount) {
+					continue;
+				}
 
 				maxVotedRank = Math.max(maxVotedRank, rank);
 			}
@@ -143,7 +139,7 @@ export class RankedPoll {
 
 	update(state) {
 		const {
-			extended: { options, results, voteCount },
+			extended: { options, results },
 		} = state;
 
 		if (typeof results !== "object") {
@@ -222,7 +218,9 @@ export class RankedPoll {
 
 function range(count) {
 	const arr = new Array(count);
-	for (let i = 0; i < count; i++) arr[i] = i;
+	for (let i = 0; i < count; i++) {
+		arr[i] = i;
+	}
 
 	return arr;
 }

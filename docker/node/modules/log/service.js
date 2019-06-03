@@ -6,7 +6,7 @@ const levels = (exports.levels = {
 	LEVEL_ERROR: 3,
 });
 
-const stackTraceRegex = /\((.*?)\:(\d+)\:\d+/gi;
+const stackTraceRegex = /\((.*?):(\d+):\d+/gi;
 
 exports.LogService = class {
 	constructor(defaultLevel = levels.LEVEL_DEBUG, levelOverrides = {}) {
@@ -32,19 +32,27 @@ exports.LogService = class {
 			level < this.defaultLevel ||
 			(this.levelOverrides.hasOwnProperty(event) &&
 				level < this.levelOverrides[event])
-		)
+		) {
 			return;
+		}
 
-		if (typeof format === "undefined") format = "<undefined>";
-		else if (typeof format !== "string") format = format.toString();
+		if (typeof format === "undefined") {
+			format = "<undefined>";
+		} else if (typeof format !== "string") {
+			format = format.toString();
+		}
 
 		if (data) {
 			// resolve all of the data promises
 			for (const piece in data) {
-				if (!data.hasOwnProperty(piece)) continue;
+				if (!data.hasOwnProperty(piece)) {
+					continue;
+				}
 
 				const value = data[piece];
-				if (!value || !value.then) continue;
+				if (!value || !value.then) {
+					continue;
+				}
 
 				data[piece] = await value;
 			}
@@ -58,9 +66,13 @@ exports.LogService = class {
 			let matchIndex = 0;
 			for (let i = 0; i < trace.length; i++) {
 				const match = stackTraceRegex.exec(trace[i]);
-				if (!match) continue;
+				if (!match) {
+					continue;
+				}
 
-				if (matchIndex++ == 0) continue;
+				if (matchIndex++ == 0) {
+					continue;
+				}
 
 				debugParts.push(`${match[1]}:${match[2]}`);
 			}
@@ -68,8 +80,11 @@ exports.LogService = class {
 			if (debugParts.length) {
 				const debugFrom = debugParts.join(" -> ");
 
-				if (data) data.debugFrom = debugFrom;
-				else data = { debugFrom };
+				if (data) {
+					data.debugFrom = debugFrom;
+				} else {
+					data = { debugFrom };
+				}
 
 				format += " at {debugFrom}";
 			}
@@ -88,7 +103,9 @@ exports.LogService = class {
 			});
 
 			formatted = formattedParts.join("");
-		} else formatted = format;
+		} else {
+			formatted = format;
+		}
 
 		const message = {
 			level,
@@ -99,7 +116,9 @@ exports.LogService = class {
 			formatted,
 			createdAt: this.now(),
 		};
-		for (const logger of this.loggers) logger(message);
+		for (const logger of this.loggers) {
+			logger(message);
+		}
 	}
 
 	debug(...args) {

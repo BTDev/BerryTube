@@ -25,7 +25,7 @@ const propVoteData = {
 
 exports.PollService = class extends ServiceBase {
 	constructor({ auth, io, log }) {
-		super({ log, log });
+		super({ log });
 		this.nextPollId = 1;
 		this.currentPoll = null;
 		this.auth = auth;
@@ -56,11 +56,14 @@ exports.PollService = class extends ServiceBase {
 			closePollInSeconds,
 		};
 
-		if (!(await this.auth.canDoAsync(socket, actions.ACTION_CREATE_POLL)))
+		if (!(await this.auth.canDoAsync(socket, actions.ACTION_CREATE_POLL))) {
 			throw new Error("unauthoirzed");
+		}
 
 		const PollType = pollTypes[options.pollType];
-		if (!PollType) throw new Error("bad poll type");
+		if (!PollType) {
+			throw new Error("bad poll type");
+		}
 
 		await this.closeCurrentPoll(socket);
 
@@ -100,13 +103,16 @@ exports.PollService = class extends ServiceBase {
 	 * @param {*} socket socket.io socket that requested that this poll be closed
 	 */
 	async closeCurrentPoll(socket = null) {
-		if (!this.currentPoll) return;
+		if (!this.currentPoll) {
+			return;
+		}
 
 		if (
 			socket &&
 			!(await this.auth.canDoAsync(socket, actions.ACTION_CLOSE_POLL))
-		)
+		) {
 			throw new Error("unauthoirzed");
+		}
 
 		const title = this.currentPoll.options.title;
 		const mod = socket ? await getSocketName(socket) : "[system]";
@@ -158,25 +164,31 @@ exports.PollService = class extends ServiceBase {
 	 * @param {*} options the vote data to set - this is different depending on the poll type
 	 */
 	async castVote(socket, options) {
-		if (!this.currentPoll) throw new Error("no current poll");
+		if (!this.currentPoll) {
+			throw new Error("no current poll");
+		}
 
-		if (!(await this.auth.canDoAsync(socket, actions.ACTION_VOTE_POLL)))
+		if (!(await this.auth.canDoAsync(socket, actions.ACTION_VOTE_POLL))) {
 			throw new Error("unauthoirzed");
+		}
 
 		const ipAddress = getAddress(socket);
-		if (!ipAddress)
+		if (!ipAddress) {
 			throw new Error("Could not determine IP address of socket");
+		}
 
 		if (
 			ipAddress != "172.20.0.1" &&
 			this.votedIpAddressMap.hasOwnProperty(ipAddress) &&
 			this.votedIpAddressMap[ipAddress] != socket.id
-		)
+		) {
 			throw new Error("IP has already voted");
+		}
 
 		const existingVote = await propVoteData.get(socket);
-		if (existingVote && existingVote.isComplete)
+		if (existingVote && existingVote.isComplete) {
 			throw new Error("socket has already voted");
+		}
 
 		const newVote = this.currentPoll.castVote(options, existingVote);
 		await propVoteData.set(socket, newVote);
@@ -192,12 +204,18 @@ exports.PollService = class extends ServiceBase {
 	 */
 	async clearVote(socket) {
 		const ipAddress = getAddress(socket);
-		if (ipAddress) delete this.votedIpAddressMap[ipAddress];
+		if (ipAddress) {
+			delete this.votedIpAddressMap[ipAddress];
+		}
 
 		const voteData = await propVoteData.get(socket);
-		if (!voteData) return;
+		if (!voteData) {
+			return;
+		}
 
-		if (!this.currentPoll) return;
+		if (!this.currentPoll) {
+			return;
+		}
 
 		this.currentPoll.clearVote(voteData);
 		await propVoteData.set(socket, null);
@@ -228,7 +246,9 @@ exports.PollService = class extends ServiceBase {
 						: Promise.resolve();
 				}),
 			);
-		} else this.io.sockets.emit(eventName, this.currentPoll.state);
+		} else {
+			this.io.sockets.emit(eventName, this.currentPoll.state);
+		}
 	}
 
 	/**
@@ -270,7 +290,8 @@ exports.PollService = class extends ServiceBase {
 
 	onSocketAuthenticated(socket, type) {
 		super.onSocketAuthenticated(socket);
-		if (this.currentPoll && this.currentPoll.isObscured && type >= 1)
+		if (this.currentPoll && this.currentPoll.isObscured && type >= 1) {
 			this.publishTo(socket, "newPoll");
+		}
 	}
 };
