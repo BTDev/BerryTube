@@ -1,6 +1,5 @@
 const { DefaultLog } = require("./log");
 const { events } = require("./log/events");
-const { getSocketName } = require("./socket");
 
 exports.ServiceBase = class {
 	constructor({ log = DefaultLog }) {
@@ -8,6 +7,8 @@ exports.ServiceBase = class {
 		this._socketActions = {};
 		this.onSocketConnected = this.onSocketConnected.bind(this);
 	}
+
+	init() {}
 
 	exposeSocketActions(actions) {
 		for (const actionName in actions) {
@@ -17,7 +18,7 @@ exports.ServiceBase = class {
 		}
 	}
 
-	onTick(elapsedMilliseconds) {}
+	onTick(_elapsedMilliseconds) {}
 
 	onSocketConnected(socket) {
 		for (const actionName in this._socketActions) {
@@ -34,21 +35,23 @@ exports.ServiceBase = class {
 							{
 								action: actionName,
 								message: error.message,
-								nick: await getSocketName(socket),
+								nick: socket.session.systemName,
 							},
 							error,
 						);
 					} catch (e) {
+						// eslint-disable-next-line no-console
 						console.error(
 							"The error handler threw an error! How embarrassing.",
 						);
 
-						if (e) console.error(e.stack || e);
+						if (e) {
+							// eslint-disable-next-line no-console
+							console.error(e.stack || e);
+						}
 					}
 				}
 			});
 		}
 	}
-
-	onSocketAuthenticated(socket, type) {}
 };

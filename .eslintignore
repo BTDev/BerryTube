@@ -1,3 +1,0 @@
-**/*
-!/docker/node/modules/**/*.js
-!/web/js/modules/**/*.js

@@ -1,8 +1,10 @@
 const { PollService } = require("./modules/polls");
 const { AuthService, actions } = require("./modules/auth");
-const { sanitize, getAddress } = require("./modules/security");
+const { sanitize } = require("./modules/security");
 const { DefaultLog, events, levels, consoleLogger, createStreamLogger } = require("./modules/log");
-const { getSocketName, getSocketPropAsync } = require("./modules/socket");
+const { getSocketName } = require("./modules/sessions");
+const { DatabaseService } = require("./modules/database");
+const { SessionService, userTypes } = require("./modules/sessions");
 const { parseRawFileUrl } = require("./modules/utils");
 const fetchYoutubeVideoInfo = require("youtube-info");
 
@@ -13,7 +15,8 @@ SERVER.ponts = require('./bt_data/ponts.js');
 SERVER.dbcon = require('./bt_data/db_info.js');
 SERVER.nick_blacklist = require('./bt_data/nick_blacklist.js');
 
-var io = require('socket.io').listen(SERVER.settings.core.nodeport);
+const io = require('socket.io').listen(SERVER.settings.core.nodeport);
+
 // Configure
 io.enable('browser client minification');  // send minified client
 //io.enable('browser client etag');		   // apply etag caching logic based on SERVER.VERSION number
@@ -26,20 +29,36 @@ io.set('transports', [					   // enable all transports (optional if you want fla
 	, 'xhr-polling'
 	, 'jsonp-polling'
 ]);
+
+// our composition root
+const serviceLocator = {
+	log: DefaultLog,
+	io,
+	isUserBanned,
+	banUser,
+	setServerState
+};
+
+// init all services, circular references in the ctors are not allowed
+const databaseService = serviceLocator.db = new DatabaseService(serviceLocator);
+const authService = serviceLocator.auth = new AuthService(serviceLocator);
+const sessionService = serviceLocator.sessions = new SessionService(serviceLocator);
+const pollService = serviceLocator.polls = new PollService(serviceLocator);
+
+// all registered services receive certain events, so group them up
+const services = [databaseService, authService, pollService, sessionService];
+
 var http = require('http');
 var https = require('https');
 var et = require('elementtree');
 var fs = require('fs');
-var _mysql = require('mysql');
 var util = require('util');
-var crypto = require('crypto');
 var url = require('url');
 const getDuration = require('get-video-duration');
 const isoDuration = require('iso8601-duration');
 const fetch = require('node-fetch');
 const bcrypt = require('bcrypt');
 const isoCountries = require('i18n-iso-countries');
-var mysql = null;
 
 process.on("uncaughtException", function (err) {
 	console.error(`Uncaught ${err.code}: ${err.message}`);
@@ -71,49 +90,8 @@ process.stdin.on('data', function (chunk) {
 	}
 });
 
-/* New DB Init Code Begins Here */
-function dbInit(){
-	DefaultLog.info(events.EVENT_DB_CONNECTION, "starting database connection to {user}@{host}:{port}", {
-		host: SERVER.dbcon.host,
-		port: SERVER.dbcon.post,
-		user: SERVER.dbcon.mysql_user,
-	});
-
-	var config = {
-		host: SERVER.dbcon.host,
-		port: SERVER.dbcon.post,
-		user: SERVER.dbcon.mysql_user,
-		password: SERVER.dbcon.mysql_pass
-	};
-
-	mysql = _mysql.createConnection(config);
-
-	mysql.on("error", function(err) {
-		DefaultLog.error(events.EVENT_DB_CONNECTION, "the database connection threw an error: attempting reconnect", { }, err);
-		setTimeout(function(){
-			dbInit();
-		}, 1000);
-	});
-
-	mysql.query(`use ${SERVER.dbcon.database}`);
-}
-
-function query(queryParts, ...params) {
-	return new Promise((res, rej) => {
-		const sql = queryParts.join(" ? ");
-		mysql.query(sql, params, (err, result, fields) => {
-			if (err) {
-				rej(err);
-				DefaultLog.error(events.EVENT_DB_QUERY, "query \"{sql}\" failed", { sql }, err);
-				return;
-			}
-
-			res({result, fields});
-		});
-	});
-}
-
-dbInit();
+services.forEach(s => s.init());
+const mysql = databaseService.connection;
 
 // Add new feature to socket.io, for granular broadcasts and such
 // This is probably the best solution to sending packets to all people matching x criteria easily.
@@ -127,27 +105,6 @@ io.sockets.each = function(callback){
 	}
 };
 
-// SOCKETLIST OBJECT
-function SocketList() {}
-SocketList.prototype = {
-	sockets:[]
-};
-SocketList.prototype.add = function(socket){
-	this.sockets.push(socket);
-};
-SocketList.prototype.emit = function(eventname,eventdata){
-	var splicers = [];
-	for(var i=0;i<this.sockets.length;i++){
-		if(this.sockets[i].disconnected){
-			splicers.push(i);
-			continue;
-		}
-		this.sockets[i].emit(eventname,eventdata);
-	}
-	for(var i=0;i<splicers.length;i++){
-		this.sockets.splice(splicers[i],1);
-	}
-};
 // VIDEO OBJECT
 function Video() {}
 Video.prototype = {
@@ -243,18 +200,12 @@ SERVER.PLAYLIST = new LinkedList.Circular();
 SERVER.ACTIVE = null;
 SERVER.LIVE_MODE = false;
 SERVER.AREAS = [];
-SERVER.IPLIST = [];
 SERVER.STATE=1;
 SERVER.LOCKDOWN = false;
 SERVER.TIME=0-SERVER.settings.vc.head_time; // referring to time
 SERVER._TIME=0; // Previous tick time.
-SERVER.LEADER=false;
-SERVER.BP_IS_LEADER=true;
-SERVER.CHATLIST=[];
 SERVER.OUTBUFFER={};
-SERVER.SHADOWBANT_IPS={};
 SERVER.BANS=[];
-SERVER.IP_METADATA={};
 SERVER.FILTERS = [];
 SERVER.DRINKS=0;
 SERVER.FAILED_LOGINS=[];
@@ -280,16 +231,12 @@ DefaultLog.addLogger(
 		if (!event.startsWith("EVENT_ADMIN_"))
 			return;
 
-		let isBerry = false;
-		if (SERVER.LEADER)
-			isBerry = (await getSocketName(SERVER.LEADER)) == data.mod;
-
 		const buffer = SERVER.OUTBUFFER["adminLog"] = (SERVER.OUTBUFFER["adminLog"] || []);
 		const adminMessage = {
 			msg: formatted,
 			type: data.type || "site",
 			nick: data.mod,
-			berry: isBerry,
+			berry: sessionService.berrySession && sessionService.berrySession.nick === data.mod,
 			timestamp: Math.round(createdAt.getTime() / 1000),
 			logEvent
 		};
@@ -298,21 +245,8 @@ DefaultLog.addLogger(
 		if (buffer.length > SERVER.settings.core.max_saved_buffer)
 			buffer.shift();
 
-		forModminSockets(socket => socket.emit("adminLog", adminMessage));
+		sessionService.forCan(actions.CAN_SEE_ADMIN_LOG, session => session.emit("adminLog", adminMessage));
 	});
-
-// our composition root
-const authService = new AuthService({ isLeader });
-const pollService = new PollService({ auth: authService, io });
-
-// all registered services receive certain events, so group them up
-const services = [
-	pollService,
-	authService
-];
-
-var MODE_VIDEOCHAT = 0;
-var MODE_CHATONLY = 1;
 
 function initPlaylist(callback) {
 	var sql = `select * from ${SERVER.dbcon.video_table} order by position`;
@@ -401,23 +335,18 @@ function initHardbant(callback){
 	});
 }
 function initShadowbant(callback){
-	getMisc({name:'shadowbant_ips'}, function(ips){
-		if(ips){
+	getMisc({ name: "shadowbant_ips" }, function(ips) {
+		if (ips){
 			var shadowbant = JSON.parse(ips) || [];
-			for(var i=0;i<shadowbant.length;++i){
+			for (var i = 0; i < shadowbant.length; ++i) {
 				var data = shadowbant[i];
-				SERVER.SHADOWBANT_IPS[data.ip] = {temp:data.temp};
-				if(data.temp){
-					// Server restarted while temp sban was set, go ahead and set a new timer to unsban them.
-					(function(ip){
-						SERVER.SHADOWBANT_IPS[ip].timer = setTimeout(function(){
-								unShadowBanIP(ip);
-						},SERVER.settings.core.temp_ban_duration);
-					})(data.ip);
-				}
+				sessionService.setShadowbanForIp(data.ip, true, data.temp);
 			}
 		}
-		if(callback) callback();
+
+		if (callback) {
+			callback();
+		}
 	});
 }
 function initFilters(callback){
@@ -604,29 +533,6 @@ function augmentBan(ban,o){
 	if(o.duration <= 0){ ban.duration = o.duration; }
 	else if(o.duration > ban.duration){ ban.duration = o.duration; }
 }
-function banUser(o){
-
-	var required = ['ips','nicks','duration']; // nick and ip should be arrays, even if single-element
-	o.bannedOn = new Date().getTime();
-	for(elem in required)if(!(required[elem] in o))return;
-
-	var existing = isUserBanned(o);
-
-	if(existing)
-		augmentBan(existing,o);
-	else
-		SERVER.BANS.push(o);
-
-	prepareBans();
-
-	for(i in o.nicks){
-		getSocketOfNick(o.nicks[i],function(s){
-			kickUser(s, "You have been banned.");
-		});
-	}
-
-	//sendBanlist(io.sockets.in('admin'));
-}
 function isUserBanned(o){
 	var required = ['ips','nicks'];
 	for(elem in required)if(!(required[elem] in o))return;
@@ -659,117 +565,12 @@ function sendBanlist(socket){
 	socket.emit("recvBanlist",SERVER.BANS);
 }
 function isUserShadowBanned(socket){
-	try{
-		var ip = getAddress(socket);
-		if(!ip) return false;
-		if(ip in SERVER.SHADOWBANT_IPS)
-			return true;
-		return false;
-	}catch(e){
-		return false;
-	}
-}
-function shadowBanUser(socket,temp){
-	try{
-		var ip = getAddress(socket);
-		if(!ip) return false;
-		return shadowBanIP(ip,temp);
-	}catch(e){
-		return false;
-	}
-}
-function shadowBanIP(ip,temp){
-	try{
-		if(ip in SERVER.SHADOWBANT_IPS){
-			if(SERVER.SHADOWBANT_IPS[ip].timer) {
-				clearTimeout(SERVER.SHADOWBANT_IPS[ip].timer);
-				SERVER.SHADOWBANT_IPS[ip].timer = null;
-			}
-		} else {
-			SERVER.SHADOWBANT_IPS[ip] = { temp:temp };
-		}
-
-		forModminSockets(function(sc){
-			sendShadowBanStatus(sc, ip);
-		});
-		//sendShadowBanStatus(io.sockets.in('admin'), ip);
-
-		if(temp){
-			SERVER.SHADOWBANT_IPS[ip].temp = true;
-			SERVER.SHADOWBANT_IPS[ip].timer = setTimeout(function(){
-				unShadowBanIP(ip);
-			},SERVER.settings.core.temp_ban_duration);
-		}
-	}catch(e){
-		return false;
-	}
-}
-function unShadowBanUser(socket){
-	try{
-		var ip = getAddress(socket);
-		if(!ip) return false;
-		return unShadowBanIP(ip);
-	}catch(e){
-		return false;
-	}
-}
-function unShadowBanIP(ip){
-	try{
-		var sban = SERVER.SHADOWBANT_IPS[ip];
-		if(sban)
-			if(sban.timer) clearTimeout(sban.timer);
-			delete SERVER.SHADOWBANT_IPS[ip];
-		for(var i=0;i<SERVER.IPLIST.length;i++){
-			if(SERVER.IPLIST[i].ip == ip){
-				// This is our guy.
-				var theguy = SERVER.IPLIST[i];
-				// Backwards so splice doesn't mess the loop up
-				for(var j=theguy.sockets.length-1;j>=0;j--){
-					if(theguy.sockets[j].disconnected){
-						theguy.sockets.splice(j,1);
-						continue;
-					}
-					theguy.sockets[j].get('nick', function(err, nick){
-						if(nick){
-							forModminSockets(function(sc){
-								sc.emit('unShadowBan', {'nick': nick});
-							});
-						}
-					});
-				}
-			}
-		}
-		return true;
-   }catch(e){
-		return false;
-	}
-}
-function sendShadowBanStatus(target, ip){
-	for(var i=0;i<SERVER.IPLIST.length;i++){
-		if(SERVER.IPLIST[i].ip == ip){
-			// This is our guy.
-			var theguy = SERVER.IPLIST[i];
-			// Backwards so splice doesn't mess the loop up
-			for(var j=theguy.sockets.length-1;j>=0;j--){
-				if(theguy.sockets[j].disconnected){
-					theguy.sockets.splice(j,1);
-					continue;
-				}
-				theguy.sockets[j].get('nick', function(err, nick){
-					if(nick){
-						target.emit('shadowBan', {'nick': nick, temp: SERVER.SHADOWBANT_IPS[ip].temp});
-					}
-				});
-			}
-		}
-	}
+	return sessionService.getIpEntry(socket.ip).shadowban.is;
 }
 function kickIfUnderLevel(socket,reason,level){
-	socket.get('type',function(err,type){
-		if(parseInt(type) < level){
-			kickUser(socket,reason);
-		}
-	});
+	if(socket.session.type < level){
+		socket.session.kick(reason);
+	}
 }
 function kickForIllegalActivity(socket,reason){
 	DefaultLog.info(events.EVENT_ADMIN_KICKED,
@@ -779,18 +580,8 @@ function kickForIllegalActivity(socket,reason){
 	socket.emit("kicked",reason);
 	socket.disconnect(); // NOT ALLOWED.
 }
-function kickUser(socket,reason,meta){
-	DefaultLog.info(meta && meta.ghosted ? events.EVENT_GHOSTED : events.EVENT_ADMIN_KICKED,
-		"{nick} got kicked on {type} because {reason}",
-		{ nick: getSocketName(socket), type: "user", reason });
-
-	socket.emit("kicked",reason);
-	socket.disconnect();
-}
-function kickUserByNick(socket,nick,reason){
-	getSocketOfNick(nick, function(s) {
-		kickUser(s, reason);
-	});
+function kickUserByNick(socket,nick,reason) {
+	sessionService.forNick(nick, session => session.kick(reason));
 }
 var commit = function(){
 	var elem = SERVER.PLAYLIST.first;
@@ -819,10 +610,19 @@ var commit = function(){
 
 	upsertMisc({name:'filters', value:JSON.stringify(SERVER.FILTERS)});
 
-	var shadowbant = [];
-	for(var i in SERVER.SHADOWBANT_IPS){
-		shadowbant.push({ip:i, temp:SERVER.SHADOWBANT_IPS[i].temp || false});
-	}
+	const shadowbant = Object.values(sessionService.ipAddresses)
+		.reduce((acc, entry) => {
+			if (!entry.isShadowbanned) {
+				return acc;
+			}
+
+			acc.push({
+				ip: entry.ip,
+				temp: this.isTempShadowban
+			});
+
+			return acc;
+		}, []);
 
 	upsertMisc({name:'shadowbant_ips', value:JSON.stringify(shadowbant)});
 	upsertMisc({name:'hardbant_ips', value:JSON.stringify(SERVER.BANS)});
@@ -840,185 +640,8 @@ process.on('SIGTERM', function(signal){
 		process.exit(128 + signal);
 	}, 3000);
 });
-
-function reassignLeader(socket){
-	SERVER.BP_IS_LEADER = false;
-	if(SERVER.LEADER)
-	{
-		SERVER.LEADER.emit("setLeader",false);
-	}
-	SERVER.LEADER=socket;
-	socket.emit("setLeader",true);
-	socket.get('nick', function (err, nick) {
-		if(nick == null) nick = "anonymous";
-		io.sockets.emit("leaderIs",{
-			nick:nick
-		});
-	});
-}
-function setBpAsLeader(){
-	SERVER.BP_IS_LEADER = true;
-	if(SERVER.LEADER)
-	{
-		SERVER.LEADER.emit("setLeader",false);
-	}
-	SERVER.LEADER=false;
-	io.sockets.emit("leaderIs",{
-			nick:false
-	});
-	SERVER.STATE=1;
-}
-function rmUserFromChat(socket){
-	for(var i=0;i<SERVER.CHATLIST.length;i++) {
-		if(SERVER.CHATLIST[i].socket.disconnected || SERVER.CHATLIST[i].socket == socket){
-			var xsoc = SERVER.CHATLIST[i].socket;
-			sendUserPart(xsoc);
-			SERVER.CHATLIST.splice(i,1);
-		}
-	}
-}
-// GIVEAWAYPRIZE
-function isGoldUser(name){
-	if(name == SERVER.GILDNAME) return true;
-	return false;
-}
-function addUserToChat(socket,data,callback){
-	rmUserFromChat(socket);
-	var ip = getAddress(socket);
-	if(!ip) return false;
-
-	var ipMeta = SERVER.IP_METADATA[ip];
-	if(!ipMeta){
-		ipMeta = { "aliases": [], ip:ip };
-		SERVER.IP_METADATA[ip] = ipMeta;
-	}
-	ipMeta.timestamp = new Date();
-	if(ipMeta.aliases.indexOf(data.nick) == -1){
-		ipMeta.aliases.push(data.nick);
-	}
-	socket.set('nick', data.nick, function () {
-		socket.get('gold', function(err, gold){
-			socket.emit('setNick',data.nick);
-			var user = {
-				nick:data.nick,
-				socket:socket,
-				type:data.type,
-				meta:data.meta
-			};
-			if(gold) {
-				user.gold = gold;
-				data.gold = gold;
-			}
-			if(isGoldUser(data.nick)) {
-				user.gold = true;
-				data.gold = true;
-			}
-			SERVER.CHATLIST.push(user);
-			socket.set('type',data.type,function(){
-				socket.emit('setType',data.type);
-				if(ip in SERVER.SHADOWBANT_IPS){
-					if(SERVER.SHADOWBANT_IPS[ip].temp){
-						data.tempshadowbanned = true;
-					}
-					data.shadowbanned = true;
-				}
-				data.meta = mergeObjects(ipMeta, data.meta);
-				sendUserJoin(data);
-				services.forEach(s => s.onSocketAuthenticated(socket, data.type));
-				if(callback)callback();
-
-			});
-		});
-	});
-
-}
-function mergeObjects(one, two){
-	var result = {};
-	for(var item in one) {
-		result[item] = one[item];
-	}
-	for(var item in two) {
-		result[item] = two[item];
-	}
-	return result;
-}
-function sendChatList(socket, type){
-	var out = [];
-	if(type >= 1){
-		for(var i=0;i<SERVER.CHATLIST.length;i++) {
-			var ip = getAddress(SERVER.CHATLIST[i].socket);
-			if(!ip) continue;
-
-			// Merge user meta and ip meta into a single object for broadcasting.
-			var meta = mergeObjects(SERVER.IP_METADATA[ip], SERVER.CHATLIST[i].meta);
-			var user = {
-				nick:SERVER.CHATLIST[i].nick,
-				type:SERVER.CHATLIST[i].type,
-				meta:meta
-			};
-			// APRIL FOOLS
-			if(SERVER.CHATLIST[i].gold){
-				user.gold = SERVER.CHATLIST[i].gold;
-			}
-			if(isGoldUser(SERVER.CHATLIST[i].nick)){
-				user.gold = SERVER.CHATLIST[i].gold;
-			}
-			if(ip in SERVER.SHADOWBANT_IPS){
-				if(SERVER.SHADOWBANT_IPS[ip].temp){
-					user.tempshadowbanned = true;
-				}
-				user.shadowbanned = true;
-			}
-			out.push(user);
-		}
-	} else {
-		for(var i=0;i<SERVER.CHATLIST.length;i++) {
-			var user = {
-				nick:SERVER.CHATLIST[i].nick,
-				type:SERVER.CHATLIST[i].type
-			};
-			// APRIL FOOLS
-			if(SERVER.CHATLIST[i].gold){
-				user.gold = SERVER.CHATLIST[i].gold;
-			}
-			if(isGoldUser(SERVER.CHATLIST[i].nick)){
-				user.gold = SERVER.CHATLIST[i].gold;
-			}
-
-			out.push(user);
-		}
-	}
-	socket.emit("newChatList",out);
-	if(SERVER.LEADER){
-		SERVER.LEADER.get('nick', function (err, nick) {
-			if(nick == null) nick = "anonymous";
-			io.sockets.emit("leaderIs",{nick:nick});
-		});
-	}
-}
-function sendUserJoin(user){
-	io.sockets.each(function(socket){
-		socket.get('type', function(err, type){
-			var data={nick:user.nick, type:user.type};
-			if(parseInt(type)>=1){
-				data.meta = user.meta;
-				data.shadowbanned = user.shadowbanned;
-				data.tempshadowbanned = user.tempshadowbanned;
-			}
-			if(user.gold)
-				data.gold = true;
-
-			socket.emit('userJoin',data);
-		});
-	});
-}
-function sendUserPart(socket,callback){
-	socket.get('nick', function (err, nick) {
-		if(nick == null) return false;
-		io.sockets.emit("userPart",{
-			nick:nick
-		});
-	});
+function setServerState(state) {
+	SERVER.STATE = state;
 }
 function getCommand(msg){
 	var re = new RegExp("^/([a-zA-Z]*)([-0-9]*)\\s*(.*)","i");
@@ -1046,12 +669,6 @@ function handleNewVideoChange() {
 		SERVER.LIVE_MODE = false;
 	}
 }
-function sendConnectedUsers(mod){
-	if(typeof mod == "undefined" || mod == null) mod = 0;
-	io.sockets.emit("numConnected",{
-		num:(io.sockets.clients().length + mod)
-	});
-}
 function sendDrinks(socket){
 	socket.emit("drinkCount",{
 		drinks:SERVER.DRINKS
@@ -1068,7 +685,7 @@ function addDrink(amt,socket,callback){
 	SERVER.DRINKS = (parseInt(SERVER.DRINKS)||0) + parseInt(amt);
 	if(Math.abs(SERVER.DRINKS) > 1000000){
 		SERVER.DRINKS = "lol go fuck yourself";
-		kickUser(socket,"Berry Punch is mad at you");
+		socket.session.kick("Berry Punch is mad at you");
 	}
 	if(callback)callback();
 }
@@ -1144,15 +761,6 @@ function applyPluginFilters(msg,socket){
 
 	return msg;
 }
-function forModminSockets(callback){
-	io.sockets.each(function(sc){
-		sc.get('type',function(err,type){
-			if(parseInt(type) > 0){ // Mod though, so show anyway.
-				callback(sc);
-			}
-		});
-	});
-}
 function setVideoVolatile(socket,pos,isVolat){
 	var elem = SERVER.PLAYLIST.first;
 	for(var i=0;i<pos;i++){
@@ -1204,20 +812,47 @@ function _setVideoColorTag(elem,pos,tag,volat){
 	});
 }
 
+function banUser(data) {
+	var required = ['ips','nicks','duration']; // nick and ip should be arrays, even if single-element
+	data.bannedOn = new Date().getTime();
+	
+	for (const elem in required) {
+		if (!(required[elem] in data)) {
+			return;
+		}
+	}
+
+	var existing = isUserBanned(data);
+
+	if(existing) {
+		augmentBan(existing,data);
+	} else {
+		SERVER.BANS.push(data);
+	}
+
+	prepareBans();
+
+	for (const nick of data.nicks) {
+		sessionService.forNick(nick, s => s.kick("You have been banned."));
+	}
+}
+
 /* ================= */
 function emitChat(socket,data,ghost){
-	if(socket)socket.emit("chatMsg",{msg:data,ghost:ghost});
+	if (socket) {
+		socket.emit("chatMsg", { msg: data, ghost: ghost });
+	}
 }
-function sendChat(nick,type,incoming,socket){
-	// before we do anything else, lets check how long since the last time he spoke.
-	handleSpamChecks({
-		nick:nick, // Who is talking
-		type:type, // Userlevel
-		incoming:incoming, // msg,metadata
-		socket:socket,
-		callback: _sendChat
-	});
+
+function sendChat(nick, type, incoming, socket){
+	if (!socket.doSpamblockedAction()) {
+		kickIfUnderLevel(socket, "Spamming", 1);
+		return;
+	}
+	
+	_sendChat(nick, type, incoming, socket);
 }
+
 function _sendChat(nick,type,incoming,socket){
 	//Sanitize.
 	var msg = sanitize(incoming.msg);
@@ -1297,48 +932,50 @@ function _sendChat(nick,type,incoming,socket){
 	if(action_map.request.indexOf(parsed.command) >= 0){data.emote = "request";}
 	if(action_map.sweetiebot.indexOf(parsed.command) >= 0){data.emote = "sweetiebot";}
 	if(action_map.spoiler.indexOf(parsed.command) >= 0){data.emote = "spoiler";}
-	if(action_map.rcv.indexOf(parsed.command) >= 0){
-		ifCanAnnounce(socket,function(){
+	if(action_map.rcv.indexOf(parsed.command) >= 0) {
+		if (authService.can(socket.session, actions.ACTION_ANNOUNCE)) {
 			data.emote = "rcv";
 			data.msg = parsed.msg; // Specifically not using the fun bits here.
-		});
+		}
 	}
-	if(action_map.drink.indexOf(parsed.command) >= 0){
-		ifCanCallDrinks(socket,function(){
-			data.emote = "drink";
-			if(channel == "main") {
-				addDrink(parsed.multi,socket,function(){
-					sendDrinks(io.sockets);
-				});
-			}
-		});
+	if(action_map.drink.indexOf(parsed.command) >= 0 && authService.can(socket.session, actions.ACTION_CALL_DRINKS)) {
+		data.emote = "drink";
+		if(channel == "main") {
+			addDrink(parsed.multi,socket,function(){
+				sendDrinks(io.sockets);
+			});
+		}
 	}
 	if(action_map.kick.indexOf(parsed.command) >= 0){
-		ifCanKickUser(socket,function(){
-			const parts = parsed.msg.split(' ');
-			if (parts[0]) {
-				kickUserByNick(socket, parts[0], parts.slice(1).join(' ') || undefined);
-			}
-		},function(){
+		if (!authService.can(socket.session, actions.ACTION_KICK_USER)) {
 			kickForIllegalActivity(socket);
-		});
+			return;
+		}
+		
+		const parts = parsed.msg.split(' ');
+		
+		if (parts[0]) {
+			kickUserByNick(socket, parts[0], parts.slice(1).join(' ') || undefined);
+		}
+
 		return;
 	}
 	if(action_map.shitpost.indexOf(parsed.command) >= 0){
-		ifCanShitpost(socket,function(){
-			const parts = parsed.msg.split(' ');
-			if (parts[0]) {
-				DefaultLog.info(events.EVENT_ADMIN_SHATPOST,
-					"{mod} shatpost {title} on {type}",
-					{ mod: nick,  type: "site", title: parts[0] });
-
-				io.sockets.emit('shitpost', {
-					msg: parsed.msg
-				});
-			}
-		},function(){
+		if (!authService.can(socket.session, actions.ACTION_SHITOPST)) {
 			kickForIllegalActivity(socket);
-		});
+			return;
+		}
+
+		const parts = parsed.msg.split(' ');
+		if (parts[0]) {
+			DefaultLog.info(events.EVENT_ADMIN_SHATPOST,
+				"{mod} shatpost {title} on {type}",
+				{ mod: nick,  type: "site", title: parts[0] });
+
+			io.sockets.emit('shitpost', {
+				msg: parsed.msg
+			});
+		}
 		return;
 	}
 
@@ -1346,24 +983,19 @@ function _sendChat(nick,type,incoming,socket){
 	bufferMessage = (!isUserShadowBanned(socket)) && bufferMessage;
 	bufferMessage = (!metadata.graymute) && bufferMessage;
 
-	if(sendMessage){
-
-		if(isUserShadowBanned(socket)){
-			io.sockets.each(function(sc){
-				if(getAddress(sc) == getAddress(socket)){
-					emitChat(sc,data,false);
-				}
-			});
+	if(sendMessage) {
+		if (isUserShadowBanned(socket)) {
+			emitChat(socket, data, false);
 		} else {
-			if(target)emitChat(target,data,false);
+			if (target) { 
+				emitChat(target,data,false);
+			}
 		}
 
 		if(sendToAdmins){
-			forModminSockets(function(sc){
-				emitChat(sc,data,false);
-			});
+			sessionService.forCan(actions.CAN_SEE_SHADOWBANS, 
+				session => emitChat(session, data, false));
 		}
-		//if(sendToAdmins)emitChat(io.sockets.in('admin'),data,false);
 
 		if(bufferMessage){
 			if(!SERVER.OUTBUFFER[channel]) { SERVER.OUTBUFFER[channel] = []; }
@@ -1372,46 +1004,12 @@ function _sendChat(nick,type,incoming,socket){
 				SERVER.OUTBUFFER[channel].shift();
 		}
 	}
-
-	//
 }
-function handleSpamChecks(x){
-	x.socket.get("lastmsg",function(err,lasttime){
-		x.socket.get("chathp",function(err,hp){
-			if(typeof lasttime == "undefined" || lasttime == null){	lasttime = new Date().getTime() - SERVER.settings.core.spamhp; }
-			if(typeof hp == "undefined" || hp == null){ hp = SERVER.settings.core.spamhp; }
-			var nowtime = new Date().getTime();
-			var dTime = nowtime - lasttime;
-			var dHp = dTime - SERVER.settings.core.spamcompare;
-			hp = Math.min(hp + dHp,SERVER.settings.core.spamhp); // apply damage/healing.
-			if(hp < 0){
-				kickIfUnderLevel(x.socket,"Spamming",1);
-			} else {
-				x.callback(x.nick,x.type,x.incoming,x.socket);
-				x.socket.set("chathp",hp);
-				x.socket.set("lastmsg",nowtime);
-			}
-		});
-	});
-}
-
 /* ================= */
 function setOverrideCss(path){
 	upsertMisc({name:"overrideCss", value:path}, function(){
 			io.sockets.emit("overrideCss",path);
 	});
-}
-function sendCovertData(socket, type){
-	sendChatList(socket, type);
-	sendToggleables(socket);
-	for(var i in SERVER.OUTBUFFER['admin'])	{
-		emitChat(socket,SERVER.OUTBUFFER['admin'][i],true);
-	}
-	for(var i in SERVER.OUTBUFFER['adminLog'])	{
-		var data = SERVER.OUTBUFFER['adminLog'][i];
-		data.ghost = true;
-		socket.emit('adminLog', data);
-	}
 }
 function setToggleable(socket, name,state,callback){
 	if(typeof SERVER.settings.toggles[name] == "undefined"){
@@ -1792,7 +1390,7 @@ function addVideoYT(socket,data,meta,successCallback,failureCallback){
 			} catch (e) {
 				maybeError = e;
 				DefaultLog.error(events.EVENT_ADMIN_ADDED_VIDEO, "could not add youtube video {videoId}: {error}... trying fallback", { videoId: videoid, error: e.message || e }, err);
-				addYoutubeVideoFallback()
+				addYoutubeVideoFallback();
 				return;
 			}
 
@@ -1801,7 +1399,7 @@ function addVideoYT(socket,data,meta,successCallback,failureCallback){
 			} else {
 				maybeError = "bad json response";
 				DefaultLog.error(events.EVENT_ADMIN_ADDED_VIDEO, "could not add youtube video {videoId}: {response}... trying fallback", { videoId: videoid, response: JSON.stringify(vidObj) });
-				addYoutubeVideoFallback()
+				addYoutubeVideoFallback();
 				return;
 			}
 
@@ -1903,7 +1501,7 @@ function addVideoYT(socket,data,meta,successCallback,failureCallback){
 	});
 
 	req.on('error', function(e) {
-		addYoutubeVideoFallback()
+		addYoutubeVideoFallback();
 	});
 
 	req.end();
@@ -1912,11 +1510,11 @@ function addVideoYT(socket,data,meta,successCallback,failureCallback){
 		fetchYoutubeVideoInfo(videoid, (err, videoData) => {
 			if (err) {
 				DefaultLog.error(events.EVENT_ADMIN_ADDED_VIDEO, "could not add youtube video {videoId}: {error}", { videoId: videoid, error: err}, err);
-				failureCallback(err)
-				return
+				failureCallback(err);
+				return;
 			}
 
-			const { title, duration } = videoData
+			const { title, duration } = videoData;
 			var pos = SERVER.PLAYLIST.length;
 			var volat = data.volat;
 
@@ -1939,7 +1537,7 @@ function addVideoYT(socket,data,meta,successCallback,failureCallback){
 				if (failureCallback)
 					failureCallback(err);
 			});
-		})
+		});
 	}
 }
 
@@ -2261,7 +1859,7 @@ function addVideoDailymotion(socket,data,meta,successCallback,failureCallback){
 	if(meta.type <= 0) volat = true;
 	if(volat === undefined) volat = false;
 
-	const videoId = data.videoid.trim()
+	const videoId = data.videoid.trim();
 	dailymotionApi(['video', videoId], {
 		fields: 'title,duration'
 	}).then(response => {
@@ -2284,517 +1882,12 @@ function addVideoDailymotion(socket,data,meta,successCallback,failureCallback){
 	});
 }
 
-
-function ifCanSetFilters(socket,truecallback,falsecallback){
-	socket.get('type',function(err,type){
-		if(
-			parseInt(type) >= 2
-		){
-			if(truecallback)truecallback();
-		}else{
-			if(falsecallback)falsecallback();
-		}
-	});
-}
-function ifCanGild(socket,truecallback,falsecallback){
-	socket.get('type',function(err,type){
-		if(
-			parseInt(type) >= 2
-		){
-			if(truecallback)truecallback();
-		}else{
-			if(falsecallback)falsecallback();
-		}
-	});
-}
-function ifCanGetFilters(socket,truecallback,falsecallback){
-	socket.get('type',function(err,type){
-		if(
-			parseInt(type) >= 2
-		){
-			if(truecallback)truecallback();
-		}else{
-			if(falsecallback)falsecallback();
-		}
-	});
-}
-function ifCanAnnounce(socket,truecallback,falsecallback){
-	socket.get('type',function(err,type){
-		socket.get('nick',function(err,nick){
-			if(
-				isLeader(socket) ||
-				parseInt(type) > 0
-			){
-				if(truecallback)truecallback({nick:nick});
-			}else{
-				if(falsecallback)falsecallback({nick:nick});
-			}
-		});
-	});
-}
-function ifCanControlVideo(socket,truecallback,falsecallback){
-	socket.get('type',function(err,type){
-		if(
-			isLeader(socket)
-		){
-			if(truecallback)truecallback();
-		}else{
-			if(falsecallback)falsecallback();
-		}
-	});
-}
-function ifCanControlPlaylist(socket,truecallback,falsecallback){
-	socket.get('type',function(err,type){
-		socket.get('nick',function(err,nick){
-			if(
-				isLeader(socket) ||
-				parseInt(type) > 0
-			){
-				if(truecallback)truecallback({nick:nick,type:parseInt(type)});
-			}else{
-				if(falsecallback)falsecallback({nick:nick,type:parseInt(type)});
-			}
-		});
-	});
-}
-function ifCanDeleteVideo(socket,truecallback,falsecallback){
-	socket.get('type',function(err,type){
-		socket.get('nick',function(err,nick){
-			if(
-				parseInt(type) > 0
-			){
-				if(truecallback)truecallback({nick:nick,type:parseInt(type)});
-			}else{
-				if(falsecallback)falsecallback({nick:nick,type:parseInt(type)});
-			}
-		});
-	});
-}
-function ifCanRandomizeList(socket,truecallback,falsecallback){
-	socket.get('type',function(err,type){
-		socket.get('nick',function(err,nick){
-			if(
-				parseInt(type) > 0
-			){
-				if(truecallback)truecallback({nick:nick,type:parseInt(type)});
-			}else{
-				if(falsecallback)falsecallback({nick:nick,type:parseInt(type)});
-			}
-		});
-	});
-}
-function ifCanSetVideoVolatile(socket,truecallback,falsecallback){
-	socket.get('type',function(err,type){
-		socket.get('nick',function(err,nick){
-			if(
-				parseInt(type) > 0
-			){
-				if(truecallback)truecallback({nick:nick,type:parseInt(type)});
-			}else{
-				if(falsecallback)falsecallback({nick:nick,type:parseInt(type)});
-			}
-		});
-	});
-}
-function ifCanSetUserNote(socket,truecallback,falsecallback){
-	socket.get('type',function(err,type){
-		socket.get('nick',function(err,nick){
-			if(
-				parseInt(type) > 0
-			){
-				if(truecallback)truecallback({nick:nick,type:parseInt(type)});
-			}else{
-				if(falsecallback)falsecallback({nick:nick,type:parseInt(type)});
-			}
-		});
-	});
-}
-function ifCanCallDrinks(socket,truecallback,falsecallback){
-	socket.get('type',function(err,type){
-		if(
-			isLeader(socket) ||
-			parseInt(type) > 0
-		){
-			if(truecallback)truecallback();
-		}else{
-			if(falsecallback)falsecallback();
-		}
-	});
-}
-function ifCanMoveBerry(socket,truecallback,falsecallback){
-	socket.get('type',function(err,type){
-		if(
-			parseInt(type) > 0
-		){
-			if(truecallback)truecallback(true);
-		}else if(
-			isLeader(socket)
-		){
-			if(truecallback)truecallback(false);
-		}else{
-			if(falsecallback)falsecallback();
-		}
-	});
-}
-function ifCanShadowBan(socket,truecallback,falsecallback){
-	socket.get('type',function(err,type){
-		if(parseInt(type) >= 2){
-			if(truecallback)truecallback(false);
-		} else if(parseInt(type) >= 2){
-			if(truecallback)truecallback(true);
-		}else{
-			if(falsecallback)falsecallback();
-		}
-	});
-}
-function ifCanBan(socket,truecallback,falsecallback){
-	socket.get('type',function(err,type){
-		if(parseInt(type) >= 2){
-			if(truecallback)truecallback();
-		}else{
-			if(falsecallback)falsecallback();
-		}
-	});
-}
-function ifCanSetOverrideCss(socket,truecallback,falsecallback){
-	socket.get('type',function(err,type){
-		if(
-			parseInt(type) >= 2
-		){
-			if(truecallback)truecallback();
-		}else{
-			if(falsecallback)falsecallback();
-		}
-	});
-}
-function ifCanForceRefresh(socket,truecallback,falsecallback){
-	socket.get('type',function(err,type){
-		if(parseInt(type) >= 2){
-			if(truecallback)truecallback();
-		}else{
-			if(falsecallback)falsecallback();
-		}
-	});
-}
-function ifCanDebugDump(socket,truecallback,falsecallback){
-	socket.get('type',function(err,type){
-		if(parseInt(type) >= 2){
-			if(truecallback)truecallback();
-		}else{
-			if(falsecallback)falsecallback();
-		}
-	});
-}
-function ifNickFree(nick,truecallback,falsecallback){
-	nick = nick && nick.toLowerCase();
-	for(var i in SERVER.CHATLIST){
-		if(SERVER.CHATLIST[i].nick.toLowerCase() == nick){
-			if(falsecallback)falsecallback();
-			return;
-		}
-	}
-	truecallback();
-}
-function ifCanKickUser(socket,truecallback,falsecallback){
-	socket.get('type',function(err,type){
-		if(
-			parseInt(type) > 1
-		){
-			if(truecallback)truecallback();
-		}else{
-			if(falsecallback)falsecallback();
-		}
-	});
-}
-function ifCanShitpost(socket,truecallback,falsecallback){
-	socket.get('type',function(err,type){
-		if(
-			parseInt(type) >= 2
-		){
-			if(truecallback)truecallback();
-		}else{
-			if(falsecallback)falsecallback();
-		}
-	});
-}
-function ifCanSetAreas(socket,truecallback,falsecallback){
-	socket.get('type',function(err,type){
-		if(
-			parseInt(type) >= 2
-		){
-			if(truecallback)truecallback();
-		}else{
-			if(falsecallback)falsecallback();
-		}
-	});
-}
-function ifCanSetToggleables(socket,truecallback,falsecallback){
-	socket.get('type',function(err,type){
-		if(
-			parseInt(type) >= 2
-		){
-			if(truecallback)truecallback();
-		}else{
-			if(falsecallback)falsecallback();
-		}
-	});
-}
-function userLogin(socket,data,truecallback,falsecallback){
-	if(!ifCanLogin(socket)) {
-		if(falsecallback)
-			falsecallback("Too many failed logins for user");
-
-		socket.emit("loginError", {message:"Too many failed login attempts. Try again later."});
-		return;
-	}
-	var qnick = data.nick;
-	var qpass = data.pass ? crypto.createHash('md5').update(data.pass).digest("hex") : null;
-	if(typeof(qnick) == "undefined"){ return; }
-
-	if(
-		qnick.match(/^[0-9a-zA-Z_]+$/) != null &&
-		qnick.length >= 1  &&
-		qnick.length <= 15
-	){
-		var sql = 'select * from users where name = ?';
-		mysql.query(sql, [qnick], function(err, result, fields) {
-			if (err) {
-				DefaultLog.error(events.EVENT_DB_QUERY, "query \"{sql}\" failed", { sql }, err);
-				return;
-			}
-			var ip = getAddress(socket);
-			if(!ip){
-				if(falsecallback) falsecallback("No ip address for user");
-				return false;
-			}
-
-	       	     	var bancheck = { ips:[getAddress(socket)], nicks:[qnick] };
-	       	     	var existingBan = isUserBanned(bancheck);
-
-			// If nobody has already registered the name...
-			if(result.length == 0) {
-				if (SERVER.nick_blacklist.has(qnick.toLowerCase())) {
-					handleLoginFail(socket);
-					if(falsecallback) falsecallback("Username blacklisted");
-					return;
-				}
-	       	     	      if(existingBan){
-		     	      	       bancheck.duration = existingBan.duration;
-		     	      	       bancheck.nicks = []; // don't allow infecting bystanders
-		     	      	       banUser(bancheck);
-		     	      	       kickUser(socket, "You have been banned.");
-	       	     	      } else {
-				    addUserToChat(socket, {nick:qnick,type:-1, meta:{}},truecallback);
-			      }
-			} else if(result.length == 1) {
-				// Fix case
-				qnick = result[0].name;
-				function onPasswordValid(){
-	       	     	      	    if(existingBan){
-		     	      	       	     bancheck.duration = existingBan.duration;
-		     	      	       	     banUser(bancheck);
-		     	      	       	     kickUser(socket, "You have been banned.");
-	       	     	      	    } else {
-					if(result[0].type >= 1){
-						// Send admin-only detals.
-						socket.join('admin');
-						sendToggleables(io.sockets);
-						sendCovertData(socket, result[0].type);
-					}
-					var meta = {};
-					try {
-						if(result[0].meta)
-							meta = JSON.parse(result[0].meta) || {};
-					} catch(e){
-						DefaultLog.error(events.EVENT_GENERAL, "Failed to parse user meta for {nick}", { nick: name }, e);
-						meta = {};
-					}
-
-					addUserToChat(socket, { nick: qnick, type: result[0].type, meta: meta }, truecallback);
-				    }
-				}
-				if (result[0].pass == qpass) {
-					bcrypt.hash(data.pass, SERVER.settings.core.bcrypt_rounds, function(err, hash){
-						if (err) {
-							DefaultLog.error(events.EVENT_GENERAL, "Failed to bcrypt for {nick}'s password", { nick: name }, e);
-							return;
-						}
-
-						var sql = 'UPDATE users SET pass = ? WHERE name = ?';
-						mysql.query(sql, [hash, qnick], function(err){
-							if (err) {
-								DefaultLog.error(events.EVENT_DB_QUERY, "query \"{sql}\" failed", { sql }, err);
-								return;
-							}
-						});
-					});
-					onPasswordValid();
-				} else if (data.pass) {
-					bcrypt.compare(data.pass, result[0].pass, function(err, matched){
-						if (err) {
-							DefaultLog.error(events.EVENT_GENERAL, "Failed to compare {nick}'s password", { nick: name }, e);
-							return;
-						}
-
-						if (matched) {
-							onPasswordValid();
-						} else {
-							// Don't allow people to spam login attempts
-							handleLoginFail(socket);
-							if (falsecallback)
-								falsecallback("invalid password");
-						}
-					});
-				} else {
-					// Don't allow people to spam login attempts
-					handleLoginFail(socket);
-					if (falsecallback)
-						falsecallback("no password provided");
-				}
-			} else {
-				// Don't allow people to spam login attempts
-				handleLoginFail(socket);
-				if (falsecallback)
-					falsecallback("multiple users found for the same nick!?");
-			}
-		});
-	} else {
-		if (falsecallback)
-			falsecallback("illegal nick");
-	}
-}
-function ifCanLogin(socket){
-	var ip = getAddress(socket);
-	if(!ip) return false;
-	var now = new Date();
-	var i = SERVER.FAILED_LOGINS.length;
-	// Backwards so we can splice on the go
-	while(--i >= 0) {
-		if(now - SERVER.FAILED_LOGINS[i].time > SERVER.settings.core.login_fail_duration){
-			SERVER.FAILED_LOGINS.splice(i, 1);
-		}
-		else if(SERVER.FAILED_LOGINS[i].ip == ip) {
-			fail = SERVER.FAILED_LOGINS[i];
-			if(fail.count > SERVER.settings.core.max_failed_logins) {
-				return false;
-			}
-			return true;
-		}
-	}
-	return true;
-}
-function handleLoginFail(socket){
-	var ip = getAddress(socket);
-	if(!ip) return false;
-	var fail;
-	for(var i = 0; i < SERVER.FAILED_LOGINS.length; ++i) {
-		if(SERVER.FAILED_LOGINS[i].ip == ip) {
-			fail = SERVER.FAILED_LOGINS[i];
-			fail.count++;
-			fail.time = new Date();
-		}
-	}
-	if(!fail){
-		fail = {
-			count: 1,
-			ip: ip,
-			time: new Date()
-		};
-		SERVER.FAILED_LOGINS.push(fail);
-	}
-}
-function isLeader(socket){
-	return (SERVER.LEADER==socket);
-}
 function isTrackingTime(){
 	if(SERVER.LIVE_MODE)
 		return false;
 	return true;
 }
-function ghostBustUser(socket, data, successCallback){
-	if(!data.ghostBust) {
-		successCallback();
-		return;
-	}
-	var ip = getAddress(socket);
-	if(!ip) {
-		successCallback();
-		return;
-	}
-	getSocketOfNickAndIP(data.nick, ip,
-		function(socket) {
-			kickUser(socket, "Ghosted", { ghosted: true });
-			successCallback();
-		},
-		function() {
-			successCallback();
-		});
-}
-function getSocketOfNickAndIP(targetnick,targetip,truecallback,falsecallback){
-	targetnick = targetnick && targetnick.toLowerCase();
-	var found = false;
-	for(var i=0;i<SERVER.IPLIST.length;i++){
-		if(SERVER.IPLIST[i].ip == targetip){
-			var theguy = SERVER.IPLIST[i];
-			var left = theguy.sockets.length;
-			for(var j=theguy.sockets.length-1;j>=0;j--){
-				if(theguy.sockets[j].disconnected){
-					theguy.sockets.splice(j,1);
-					continue;
-				}
-				(function(j){
-					theguy.sockets[j].get("nick",function(err,nick){
-						left--;
-						if(nick && nick.toLowerCase() == targetnick){
-							found = true;
-							if(truecallback)truecallback(theguy.sockets[j]);
-						}
-						else if(left == 0 && found == false){
-							if(falsecallback)falsecallback();
-						}
-					});
-				})(j);
-			}
-		}
-	}
-}
 
-function numConnectionsByIP(socket,over,overcallback,elsecallback){
-	var ip = getAddress(socket);
-	if(!ip){
-		if(overcallback) overcallback();
-		return false;
-	}
-	var concount = 1;
-	var theguy = false;
-	for(var i=0;i<SERVER.IPLIST.length;i++){
-		if(SERVER.IPLIST[i].ip == ip){
-			// This is our guy.
-			theguy = SERVER.IPLIST[i];
-			// Backwards so splice doesn't mess the loop up
-			for(var j=theguy.sockets.length-1;j>=0;j--){
-				if(theguy.sockets[j].disconnected){
-					theguy.sockets.splice(j,1);
-					continue;
-				}
-				concount++;
-			}
-		}
-	}
-	if(concount>over){
-		if(overcallback)overcallback();
-	} else {
-		if(theguy){
-			theguy.sockets.push(socket);
-		} else {
-			SERVER.IPLIST.push({
-				ip:ip,
-				sockets:[socket]
-			});
-		}
-		if(elsecallback)elsecallback();
-	}
-}
 /* RUN ONCE INIT */
 initPlaylist(function(){
 	initResumePosition(function(){
@@ -2822,87 +1915,86 @@ io.configure(function (){
   });
 });
 
-io.sockets.on('connection', function (socket) {
-	// Check for any Autokick reasons
-	// too many connections per IP?
-	numConnectionsByIP(socket,SERVER.settings.core.max_connections_per_ip,function(){
-		socket.disconnect();
-	},function(){
-		socket.set('mode',MODE_VIDEOCHAT);
-		sendConnectedUsers();
-		var ip = getAddress(socket);
-		if(!ip) return false;
-		DefaultLog.info(events.EVENT_SOCKET, "socket joined from ip {ip}, total users: {userCount}", { ip, userCount: io.sockets.clients().length });
-		// Send the SERVER.PLAYLIST, and then the position.
+io.sockets.on('connection', function (ioSocket) {
+	const socket = serviceLocator.sessions.fromIoSocket(ioSocket);
+	if (socket === null) {
+		// the socket connection was rejected
+		ioSocket.disconnect();
+		DefaultLog.error(events.EVENT_GENERAL, "rejecting socket");
+		return;
+	}
+	
+	services.forEach(s => s.onSocketConnected(socket));
+
+	socket.addOnAuthenticatedHandler(() => {
+		if (socket.session.type < userTypes.MODERATOR) {
+			return;
+		}
+		
+		socket.socket.join("admin");
 		sendToggleables(socket);
-		socket.emit("recvPlaylist",SERVER.PLAYLIST.toArray());
-		sendChatList(socket);
-		sendDrinks(socket);
-		sendAreas(socket);
-		for(var i in SERVER.OUTBUFFER['main'])	{
-			emitChat(socket,SERVER.OUTBUFFER['main'][i],true);
+
+		for (var i in SERVER.OUTBUFFER["admin"]) {
+			emitChat(socket, SERVER.OUTBUFFER["admin"][i], true);
 		}
 
-		// If we dont have a leader, then assign one.
-		if(!SERVER.LEADER && !SERVER.BP_IS_LEADER) {
-			reassignLeader(socket);
+		for (var i in SERVER.OUTBUFFER["adminLog"]){
+			var data = SERVER.OUTBUFFER["adminLog"][i];
+			data.ghost = true;
+			socket.emit("adminLog", data);
 		}
-
-		socket.on('disconnect', function () {
-			sendConnectedUsers(-1);
-			if(isLeader(socket))
-			{
-				setBpAsLeader();
-			}
-
-			rmUserFromChat(socket);
-			DefaultLog.info(events.EVENT_USER_LEFT, "user left from ip {ip}, total users: {userCount}", { ip, userCount: io.sockets.clients().length - 1 });
-		});
 	});
-
-	const oldOn = socket.on.bind(socket);
-
-	socket.on = (eventName, callback) => {
-		oldOn(eventName, async (...args) => {
-			try {
-				await Promise.resolve(callback(...args));
-			} catch (e) {
-				console.error(`Unhandled exception in socket handler of ${eventName}`);
-				console.error(e);
-			}
-		});
-	};
+	
+	// Send the SERVER.PLAYLIST, and then the position.
+	sendToggleables(socket);
+	socket.emit("recvPlaylist",SERVER.PLAYLIST.toArray());
+	sendDrinks(socket);
+	sendAreas(socket);
+	for(var i in SERVER.OUTBUFFER['main'])	{
+		emitChat(socket,SERVER.OUTBUFFER['main'][i],true);
+	}
 
 	socket.on("setOverrideCss",function(data){
-		ifCanSetOverrideCss(socket,function(){
-			DefaultLog.info(events.EVENT_ADMIN_SET_CSS,
-				"{mod} set css override to {css} on {type}",
-				{ mod: getSocketName(socket), type: "site", css: data });
+		if (!authService.can(socket.session, actions.ACTION_CAN_SET_CSS)) {
+			kickForIllegalActivity(socket, "You cannot set the CSS");
+			return;		
+		}
 
-			setOverrideCss(data);
-		},function(){
-			kickForIllegalActivity(socket,"You cannot set the CSS");
-		});
+		DefaultLog.info(events.EVENT_ADMIN_SET_CSS,
+			"{mod} set css override to {css} on {type}",
+			{ mod: getSocketName(socket), type: "site", css: data });
+
+		setOverrideCss(data);
 	});
 	socket.on("setFilters",function(data){
-		ifCanSetFilters(socket,function(){
-			DefaultLog.info(events.EVENT_ADMIN_EDITED_FILTERS,
-				"{mod} edited filters on {type}",
-				{ mod: getSocketName(socket), type: "site" });
-
-			SERVER.FILTERS = data;
-		},function(){ 
+		if (!authService.can(socket.session, actions.ACTION_SET_FILTERS)) {
 			kickForIllegalActivity(socket,"You cannot set the Filters");
-		});
+			return;
+		}
+
+		DefaultLog.info(events.EVENT_ADMIN_EDITED_FILTERS,
+			"{mod} edited filters on {type}",
+			{ mod: getSocketName(socket), type: "site" });
+
+		SERVER.FILTERS = data;
 	});
 	socket.on("searchHistory", async function(data) {
-		if (!await authService.canDoAsync(socket, actions.ACTION_SEARCH_HISTORY)) {
+		if (!authService.can(socket.session, actions.ACTION_SEARCH_HISTORY)) {
 			socket.emit("searchHistoryResults", []);
 			return;
 		}
 		
-		const pattern = '%' + encodeURI(data.search).replace('%', '\\%') + '%'
-		const { result } = await query`select * from videos_history where videotitle like ${pattern} order by date_added desc limit 50`
+		const pattern = '%' + encodeURI(data.search).replace('%', '\\%') + '%';
+		const { result } = await databaseService.query`
+			SELECT 
+				* 
+			FROM 
+				videos_history 
+			WHERE 
+				videotitle LIKE ${pattern} 
+			ORDER BY
+				date_added DESC 
+			LIMIT 50`;
 
 		socket.emit("searchHistoryResults", 
 			result.map(res => {
@@ -2914,10 +2006,14 @@ io.sockets.on('connection', function (socket) {
 				return {
 					...res,
 					meta: typeof(meta) === "object" ? meta : {}
-				}
+				};
 			}));
 	});
 	socket.on("delVideoHistory", function(data){
+		if (!authService.can(socket.session, actions.ACTION_DELETE_HISTORY)) {
+			return;
+		}
+		
 		const logData = { mod: getSocketName(socket), type: "playlist", id: data.videoid};
 
 		if(!data.videoid.match(/^[a-zA-Z0-9_ \-#]{3,50}$/)){
@@ -2936,63 +2032,60 @@ io.sockets.on('connection', function (socket) {
 		});
 	});
 	socket.on("randomizeList",function(data){
-		ifCanRandomizeList(socket,function(meta){
-			DefaultLog.info(events.EVENT_ADMIN_RANDOMIZED_PLAYLIST,
-				"{mod} randomized playlist on {type}",
-				{ mod: getSocketName(socket), type: "playlist" }
-			);
+		if (!authService.can(socket.session, actions.ACTION_RANDOMIZE_LIST)) {
+			return;
+		}
+		
+		DefaultLog.info(events.EVENT_ADMIN_RANDOMIZED_PLAYLIST,
+			"{mod} randomized playlist on {type}",
+			{ mod: getSocketName(socket), type: "playlist" }
+		);
 
-			var newSz = SERVER.PLAYLIST.length;
-			var tmp = [];
-			var elem = SERVER.PLAYLIST.first;
-			for(var i=0;i<newSz;i++){
-				tmp.push(elem);
+		var newSz = SERVER.PLAYLIST.length;
+		var tmp = [];
+		var elem = SERVER.PLAYLIST.first;
+		for(var i=0;i<newSz;i++){
+			tmp.push(elem);
 
-				elem = elem.next;
-			}
-			for(var i=0;i<newSz;i++){
-				var x = Math.floor(Math.random() * tmp.length);
-				var newGuy = tmp[x];
-				tmp.splice(x,1);
-				SERVER.PLAYLIST.remove(newGuy);
-				SERVER.PLAYLIST.append(newGuy);
-			}
-			io.sockets.emit("recvNewPlaylist",SERVER.PLAYLIST.toArray());
-		},function(){
-			//kickForIllegalActivity(socket,"You cannot randomize the SERVER.PLAYLIST.");
-		});
+			elem = elem.next;
+		}
+		for(var i=0;i<newSz;i++){
+			var x = Math.floor(Math.random() * tmp.length);
+			var newGuy = tmp[x];
+			tmp.splice(x,1);
+			SERVER.PLAYLIST.remove(newGuy);
+			SERVER.PLAYLIST.append(newGuy);
+		}
+		io.sockets.emit("recvNewPlaylist",SERVER.PLAYLIST.toArray());
 	});
 	socket.on('getFilters',function(){
-		ifCanGetFilters(socket,function(){
-			sendFilters(socket);
-		},function(){
+		if (!authService.can(socket.session, actions.ACTION_GET_FILTERS)) {
 			kickForIllegalActivity(socket);
+			return;
+		}
+
+		sendFilters(socket);
+	});
+	socket.on('setToggleable',function(data) {
+		if (!authService.can(socket.session, actions.ACTION_SET_TOGGLEABLS)) {
+			kickForIllegalActivity(socket);
+			return;
+		}
+		
+		tn = data.name;
+		ts = data.state;
+		setToggleable(socket, tn, ts, function(err) {
+			const logData = { mod: getSocketName(socket), type: "site", name: tn, state: ts ? "on" : "off" };
+
+			if (err) {
+				DefaultLog.error(events.EVENT_ADMIN_SET_TOGGLEABLE, "{mod} could not set {name} to {state} on {type}", logData);
+				return;
+			}
+
+			DefaultLog.info(events.EVENT_ADMIN_SET_TOGGLEABLE, "{mod} set {name} to {state} on {type}", logData);
+			sendToggleables(io.sockets);
 		});
 	});
-	socket.on('chatOnly',function(){
-		socket.set('mode',MODE_CHATONLY);
-	});
-	socket.on('setToggleable',function(data){
-		ifCanSetToggleables(socket,function(){
-			tn = data.name;
-			ts = data.state;
-			setToggleable(socket, tn, ts, function(err) {
-				const logData = { mod: getSocketName(socket), type: "site", name: tn, state: ts ? "on" : "off" };
-
-				if (err) {
-					DefaultLog.error(events.EVENT_ADMIN_SET_TOGGLEABLE, "{mod} could not set {name} to {state} on {type}", logData);
-					return;
-				}
-
-				DefaultLog.info(events.EVENT_ADMIN_SET_TOGGLEABLE, "{mod} set {name} to {state} on {type}", logData);
-				sendToggleables(io.sockets);
-			});
-		},function(){
-			kickForIllegalActivity(socket);
-		});
-	});
-
-	services.forEach(s => s.onSocketConnected(socket));
 
 	socket.on("myPlaylistIsInited",function(data){
 		sendStatus("createPlayer",socket);
@@ -3008,9 +2101,7 @@ io.sockets.on('connection', function (socket) {
 	});
 
 	socket.on("chat", async data => {
-		const type = await getSocketPropAsync(socket, "type");
-		const nick = await getSocketPropAsync(socket, "nick");
-		const ip = getAddress(socket);
+		const { session: { type, nick }, ip } = socket;
 
 		if (typeof(nick) !== "string" || !ip)
 			throw kick("You must be logged in to chat");
@@ -3034,7 +2125,11 @@ io.sockets.on('connection', function (socket) {
 			throw kick(`User ${nick} attempted to flaunt their name, but they are not a mod!`);
 
 		sendChat(nick, type, { msg, metadata }, socket);
-		DefaultLog.info(events.EVENT_CHAT, "user {nick} on ip {ip} sent message {message}", { ip, nick: nick, message: msg });
+		DefaultLog.info(events.EVENT_CHAT, "user {session} on ip {ip} sent message {message}", { 
+			ip, 
+			session: socket.session.systemName, 
+			message: msg 
+		});
 
 		function kick(message) {
 			kickForIllegalActivity(socket);
@@ -3043,10 +2138,10 @@ io.sockets.on('connection', function (socket) {
 	});
 
 	socket.on("registerNick", function(data){
-		const logData = { ip: getAddress(socket), nick: data.nick };
+		const logData = { ip: socket.ip, nick: data.nick };
 
 		var i = SERVER.RECENTLY_REGISTERED.length;
-		var ip = getAddress(socket);
+		var ip = socket.ip;
 		if(!ip) return false;
 		var now = new Date();
 		// Backwards to splice on the go
@@ -3096,14 +2191,7 @@ io.sockets.on('connection', function (socket) {
 
 			if(result.length >= 1){
 				// Already registered, try logging in using the password we have.
-				userLogin(socket, data,
-					function(){
-						DefaultLog.info(events.EVENT_LOGIN, "{nick} logged in on ip {ip}", logData);
-					},
-					function(err) {
-						socket.emit("loginError", {message:"Username is already taken!"});
-						DefaultLog.error(events.EVENT_LOGIN, "{nick} could not log from ip {ip}", logData, err);
-					});
+				return sessionService.login(socket, data);
 			}
 			else {
 				bcrypt.hash(data.pass, SERVER.settings.core.bcrypt_rounds, function(err, hash){
@@ -3121,15 +2209,7 @@ io.sockets.on('connection', function (socket) {
 						}
 
 						// Registered, log em in.
-						userLogin(socket, data,
-							function() {
-								DefaultLog.info(events.EVENT_REGISTER, "{nick} registered from ip {ip}", logData);
-								DefaultLog.info(events.EVENT_LOGIN, "newly registered {nick} logged in on ip {ip}", logData);
-								SERVER.RECENTLY_REGISTERED.push({ip: ip, time: new Date()});
-							},
-							function(err) {
-								DefaultLog.error(events.EVENT_LOGIN, "newly registered {nick} could not log from ip {ip}", logData, err);
-							});
+						return sessionService.login(socket, data);
 					});
 				});
 			}
@@ -3141,361 +2221,352 @@ io.sockets.on('connection', function (socket) {
 		}
 	});
 	socket.on("changePassword",function(data){
-		socket.get('nick', function(err, nick){
-			if (err || !nick) {
-				DefaultLog.error(events.EVENT_GENERAL, "Failed to get nick from socket on ip {ip}", { ip: getAddress(socket) });
-				return;
-			}
+		const nick = socket.session.nick;
+		if (!nick) {
+			DefaultLog.error(events.EVENT_GENERAL, "Failed to get nick from socket on ip {ip}", { ip: socket.ip });
+			return;
+		}
+		
+		const logData = { ip: socket.ip, nick };
+		if (!data.pass || data.pass.length <= 5) {
+			const err = "Invalid password. Must be at least 6 characters long.";
+			DefaultLog.error(events.EVENT_USER_CHANGED_PASSWORD, "{nick} could not change password from ip {ip}", logData, err);
+			socket.emit("loginError", {message: err});
+			return;
+		}
 
-			const logData = { ip: getAddress(socket), nick };
-			if (!data.pass || data.pass.length <= 5) {
-				const err = "Invalid password. Must be at least 6 characters long.";
+		bcrypt.hash(data.pass, SERVER.settings.core.bcrypt_rounds, function(err, hash) {
+			if (err) {
+				DefaultLog.error(events.EVENT_GENERAL, "Failed to bcrypt for {nick}'s password", { nick }, e);
 				DefaultLog.error(events.EVENT_USER_CHANGED_PASSWORD, "{nick} could not change password from ip {ip}", logData, err);
-				socket.emit("loginError", {message: err});
 				return;
 			}
 
-			bcrypt.hash(data.pass, SERVER.settings.core.bcrypt_rounds, function(err, hash) {
+			const sql = "UPDATE users SET pass = ? WHERE name = ?";
+			mysql.query(sql, [hash, nick], function(err){
 				if (err) {
-					DefaultLog.error(events.EVENT_GENERAL, "Failed to bcrypt for {nick}'s password", { nick }, e);
+					DefaultLog.error(events.EVENT_DB_QUERY, "query \"{sql}\" failed", { sql }, err);
 					DefaultLog.error(events.EVENT_USER_CHANGED_PASSWORD, "{nick} could not change password from ip {ip}", logData, err);
 					return;
 				}
 
-				const sql = "UPDATE users SET pass = ? WHERE name = ?";
-				mysql.query(sql, [hash, nick], function(err){
-					if (err) {
-						DefaultLog.error(events.EVENT_DB_QUERY, "query \"{sql}\" failed", { sql }, err);
-						DefaultLog.error(events.EVENT_USER_CHANGED_PASSWORD, "{nick} could not change password from ip {ip}", logData, err);
-						return;
-					}
-
-					DefaultLog.info(events.EVENT_USER_CHANGED_PASSWORD, "{nick} changed password from ip {ip}", logData, err);
-					socket.emit('forceRefresh');
-				});
-			});
-		});
-	});
-	socket.on("setNick",function(data){
-		ghostBustUser(socket, data, function() {
-			const logData = { ip: getAddress(socket), nick: data.nick };
-			ifNickFree(data.nick,function(meta) {
-				userLogin(socket,data,
-					function() {
-						DefaultLog.info(events.EVENT_LOGIN, "{nick} logged in on ip {ip}", logData);
-					},
-					function(err) {
-						socket.emit("loginError", {message: "Invalid Login."});
-						DefaultLog.error(events.EVENT_LOGIN, "{nick} could not log from ip {ip}", logData, err);
-					});
-			}, function(){
-				DefaultLog.error(events.EVENT_LOGIN, "{nick} could not log from ip {ip} because it is already taken", logData, "Nick already taken");
-				socket.emit("loginError", {message: "Nick already taken."});
+				DefaultLog.info(events.EVENT_USER_CHANGED_PASSWORD, "{nick} changed password from ip {ip}", logData, err);
+				socket.emit('forceRefresh');
 			});
 		});
 	});
 	socket.on("playNext",function(data){
-		ifCanControlPlaylist(socket,function(){
-			DefaultLog.info(events.EVENT_ADMIN_SKIPPED_VIDEO,
-				"{mod} skipped video on {type}",
-				{ mod: getSocketName(socket), type: "playlist"});
-
-			playNext();
-		},function(){
+		if (!authService.can(socket.session, actions.ACTION_CONTROL_PLAYLIST)) {
 			kickForIllegalActivity(socket);
-		});
+			return;
+		}
+		
+		DefaultLog.info(events.EVENT_ADMIN_SKIPPED_VIDEO,
+			"{mod} skipped video on {type}",
+			{ mod: getSocketName(socket), type: "playlist"});
+
+		playNext();
 	});
 	socket.on("sortPlaylist",function(data){
-		ifCanControlPlaylist(socket,function(){
-			if(data.from == data.to) return; //wat.
-			if(data.from < 0 || data.to < 0) return; //wat.
-			var elem = SERVER.PLAYLIST.first;
-			var fromelem,toelem;
-			for(var i=0;i<SERVER.PLAYLIST.length;i++)
-			{
-				if(i == data.from)
-				{
-					fromelem = elem;
-					break;
-				}
-				elem=elem.next;
-			}
-			if(data.sanityid && elem.videoid != data.sanityid) return doorStuck(socket);
-			elem = SERVER.PLAYLIST.first;
-			for(var i=0;i<SERVER.PLAYLIST.length;i++)
-			{
-				if(i == data.to)
-				{
-					toelem = elem;
-					break;
-				}
-				elem=elem.next;
-			}
-			SERVER.PLAYLIST.remove(fromelem);
-			if(data.to > data.from)
-				SERVER.PLAYLIST.insertAfter(toelem,fromelem);
-			else
-				SERVER.PLAYLIST.insertBefore(toelem,fromelem);
-
-			io.sockets.emit("sortPlaylist",data);
-
-			DefaultLog.info(events.EVENT_ADMIN_MOVED_VIDEO,
-				"{mod} moved {title} on {type}",
-				{ mod: getSocketName(socket), title: decodeURIComponent(fromelem.videotitle), type: "playlist"});
-		},function(){
+		if (!authService.can(socket.session, actions.ACTION_CONTROL_PLAYLIST)) {
 			kickForIllegalActivity(socket);
-		});
+			return;
+		}
+
+		if(data.from == data.to) return; //wat.
+		if(data.from < 0 || data.to < 0) return; //wat.
+		var elem = SERVER.PLAYLIST.first;
+		var fromelem,toelem;
+		for(var i=0;i<SERVER.PLAYLIST.length;i++)
+		{
+			if(i == data.from)
+			{
+				fromelem = elem;
+				break;
+			}
+			elem=elem.next;
+		}
+		if(data.sanityid && elem.videoid != data.sanityid) return doorStuck(socket);
+		elem = SERVER.PLAYLIST.first;
+		for(var i=0;i<SERVER.PLAYLIST.length;i++)
+		{
+			if(i == data.to)
+			{
+				toelem = elem;
+				break;
+			}
+			elem=elem.next;
+		}
+		SERVER.PLAYLIST.remove(fromelem);
+		if(data.to > data.from)
+			SERVER.PLAYLIST.insertAfter(toelem,fromelem);
+		else
+			SERVER.PLAYLIST.insertBefore(toelem,fromelem);
+
+		io.sockets.emit("sortPlaylist",data);
+
+		DefaultLog.info(events.EVENT_ADMIN_MOVED_VIDEO,
+			"{mod} moved {title} on {type}",
+			{ mod: getSocketName(socket), title: decodeURIComponent(fromelem.videotitle), type: "playlist"});
 	});
 	socket.on("forceVideoChange",function(data){
-		ifCanControlPlaylist(socket,function(){
-			var elem = SERVER.PLAYLIST.first;
-			var delme = -1;
-			if(SERVER.ACTIVE.volat){
-				for(var i=0;i<SERVER.PLAYLIST.length;i++){
-					if(elem == SERVER.ACTIVE){
-						delme = i;
-						break;
-					}
-					elem=elem.next;
-				}
-			}
-
-			if("colorTagVolat" in SERVER.ACTIVE.meta){
-				var elem = SERVER.PLAYLIST.first;
-				for(var i=0;i<SERVER.PLAYLIST.length;i++){
-					if(elem == SERVER.ACTIVE){
-						setVideoColorTag(i,false,false);
-						break;
-					}
-					elem = elem.next;
-				}
-			}
-
-			elem = SERVER.PLAYLIST.first;
-			for(var i=0;i<SERVER.PLAYLIST.length;i++)
-			{
-				if(i == data.index)
-				{
-					if(data.sanityid && elem.videoid != data.sanityid) return doorStuck(socket);
-					SERVER.ACTIVE = elem;
-					SERVER.ACTIVE.position = i;
+		if (!authService.can(socket.session, actions.ACTION_CONTROL_PLAYLIST)) {
+			kickForIllegalActivity(socket);
+			return;
+		}
+		
+		var elem = SERVER.PLAYLIST.first;
+		var delme = -1;
+		if(SERVER.ACTIVE.volat){
+			for(var i=0;i<SERVER.PLAYLIST.length;i++){
+				if(elem == SERVER.ACTIVE){
+					delme = i;
 					break;
 				}
 				elem=elem.next;
 			}
+		}
 
-			DefaultLog.info(events.EVENT_ADMIN_FORCED_VIDEO_CHANGE,
-				"{mod} forced video change on {type}",
-				{ mod: getSocketName(socket), type: "playlist" });
-
-			handleNewVideoChange();
-			sendStatus("forceVideoChange",io.sockets);
-
-			if(delme > -1){
-				delVideo({index:delme});
+		if("colorTagVolat" in SERVER.ACTIVE.meta){
+			var elem = SERVER.PLAYLIST.first;
+			for(var i=0;i<SERVER.PLAYLIST.length;i++){
+				if(elem == SERVER.ACTIVE){
+					setVideoColorTag(i,false,false);
+					break;
+				}
+				elem = elem.next;
 			}
+		}
 
-		},function(){
-			kickForIllegalActivity(socket);
-		});
+		elem = SERVER.PLAYLIST.first;
+		for(var i=0;i<SERVER.PLAYLIST.length;i++)
+		{
+			if(i == data.index)
+			{
+				if(data.sanityid && elem.videoid != data.sanityid) return doorStuck(socket);
+				SERVER.ACTIVE = elem;
+				SERVER.ACTIVE.position = i;
+				break;
+			}
+			elem=elem.next;
+		}
+
+		DefaultLog.info(events.EVENT_ADMIN_FORCED_VIDEO_CHANGE,
+			"{mod} forced video change on {type}",
+			{ mod: getSocketName(socket), type: "playlist" });
+
+		handleNewVideoChange();
+		sendStatus("forceVideoChange",io.sockets);
+
+		if(delme > -1){
+			delVideo({index:delme});
+		}
+
 	});
 	socket.on("delVideo",function(data){
-		ifCanDeleteVideo(socket,function(){
-			delVideo(data, socket);
-		},function(){
+		if (!authService.can(socket.session, actions.ACTION_DELETE_VIDEO)) {
 			kickForIllegalActivity(socket,"You cannot delete videos.");
-		});
+			return;
+		}
+
+		delVideo(data, socket);
 	});
 	socket.on("addVideo", function (data) {
-			ifCanControlPlaylist(socket, function (meta) {
-			const logData = { mod: getSocketName(socket), type: "playlist", title: data.videotitle, provider: data.videotype };
-
-			if (data.videotype == "yt")
-				addVideoYT(socket, data, meta, onVideoAddSuccess, onVideoAddError);
-			else if (data.videotype == "dm")
-				addVideoDailymotion(socket, data, meta, onVideoAddSuccess, onVideoAddError);
-			else if (data.videotype == "vimeo")
-				addVideoVimeo(socket, data, meta, onVideoAddSuccess, onVideoAddError);
-			else if (data.videotype == "soundcloud")
-				addVideoSoundCloud(socket, data, meta, onVideoAddSuccess, onVideoAddError);
-			else if (data.videotype == "file")
-				addVideoFile(socket, data, meta, onVideoAddSuccess, onVideoAddError);
-			else if (data.videotype == "dash")
-				addVideoDash(socket, data, meta, onVideoAddSuccess, function (error) {
-				    // TODO: less hax
-				    if (error === 'no duration') {
-				       if (!data.videotitle) data.videotitle = "~ Raw Livestream ~";
-				       addLiveVideo(data, meta, onVideoAddSuccess, onVideoAddError);
-				    } else {
-				       onVideoAddError(error);
-				    }
-				});
-			else if (data.videotype == "twitch")
-				addVideoTwitch(socket, data, meta, onVideoAddSuccess, onVideoAddError);
-			else if (data.videotype == "twitchclip")
-				addVideoTwitchClip(socket, data, meta, onVideoAddSuccess, onVideoAddError);
-			else {
-				// Okay, so, it wasn't vimeo and it wasn't youtube, assume it's a livestream and just queue it.
-				// This requires a videotitle and a videotype that the client understands.
-				addLiveVideo(data, meta, onVideoAddSuccess, onVideoAddError);
-			}
-
-			function onVideoAddSuccess(details) {
-				logData.title = details.title;
-				DefaultLog.info(
-					events.EVENT_ADMIN_ADDED_VIDEO,
-					"{mod} added {provider} video {title} on {type}",
-					logData);
-			}
-
-			function onVideoAddError(error) {
-				DefaultLog.error(
-					events.EVENT_ADMIN_ADDED_VIDEO,
-					"{mod} could not add {provider} video {title} on {type}",
-					logData,
-					error);
-
-				socket.emit("dupeAdd");
-			}
-		}, function () {
+		if (!authService.can(socket.session, actions.ACTION_CONTROL_PLAYLIST)) {
 			kickForIllegalActivity(socket);
-		});
+			return;
+		}
+		
+		const logData = { mod: getSocketName(socket), type: "playlist", title: data.videotitle, provider: data.videotype };
+
+		if (data.videotype == "yt")
+			addVideoYT(socket, data, meta, onVideoAddSuccess, onVideoAddError);
+		else if (data.videotype == "dm")
+			addVideoDailymotion(socket, data, meta, onVideoAddSuccess, onVideoAddError);
+		else if (data.videotype == "vimeo")
+			addVideoVimeo(socket, data, meta, onVideoAddSuccess, onVideoAddError);
+		else if (data.videotype == "soundcloud")
+			addVideoSoundCloud(socket, data, meta, onVideoAddSuccess, onVideoAddError);
+		else if (data.videotype == "file")
+			addVideoFile(socket, data, meta, onVideoAddSuccess, onVideoAddError);
+		else if (data.videotype == "dash")
+			addVideoDash(socket, data, meta, onVideoAddSuccess, function (error) {
+				// TODO: less hax
+				if (error === 'no duration') {
+					if (!data.videotitle) data.videotitle = "~ Raw Livestream ~";
+					addLiveVideo(data, meta, onVideoAddSuccess, onVideoAddError);
+				} else {
+					onVideoAddError(error);
+				}
+			});
+		else if (data.videotype == "twitch")
+			addVideoTwitch(socket, data, meta, onVideoAddSuccess, onVideoAddError);
+		else if (data.videotype == "twitchclip")
+			addVideoTwitchClip(socket, data, meta, onVideoAddSuccess, onVideoAddError);
+		else {
+			// Okay, so, it wasn't vimeo and it wasn't youtube, assume it's a livestream and just queue it.
+			// This requires a videotitle and a videotype that the client understands.
+			addLiveVideo(data, meta, onVideoAddSuccess, onVideoAddError);
+		}
+
+		function onVideoAddSuccess(details) {
+			logData.title = details.title;
+			DefaultLog.info(
+				events.EVENT_ADMIN_ADDED_VIDEO,
+				"{mod} added {provider} video {title} on {type}",
+				logData);
+		}
+
+		function onVideoAddError(error) {
+			DefaultLog.error(
+				events.EVENT_ADMIN_ADDED_VIDEO,
+				"{mod} could not add {provider} video {title} on {type}",
+				logData,
+				error);
+
+			socket.emit("dupeAdd");
+		}
 	});
 	socket.on("importPlaylist",function(data){
 		// old implementation can be found in source control
 		return false;
 	});
 	socket.on("forceStateChange",function(data){
-		ifCanControlVideo(socket,function(){
-			SERVER.STATE = data.state;
-			sendStatus("hbVideoDetail",io.sockets);
-		},function(){
+		if (!authService.can(socket.session, actions.ACTION_CONTROL_VIDEO)) {
 			kickForIllegalActivity(socket);
-		});
+			return;
+		}
+		
+		SERVER.STATE = data.state;
+		sendStatus("hbVideoDetail", io.sockets);
 	});
 	socket.on("videoSeek",function(data){
-		ifCanControlVideo(socket,function(){
-			SERVER.TIME = data;
-			sendStatus("hbVideoDetail",io.sockets);
-		},function(){
+		if (!authService.can(socket.session, actions.ACTION_CONTROL_VIDEO)) {
 			kickForIllegalActivity(socket);
-		});
+			return;
+		}
+		
+		SERVER.TIME = data;
+		sendStatus("hbVideoDetail",io.sockets);
 	});
-	socket.on("moveLeader",function(data){
-		ifCanMoveBerry(socket,function(freeMove){
-			var targetnick = data || "Server";
-
-			DefaultLog.info(events.EVENT_ADMIN_SET_BERRY,
-				"{mod} gave berry to {nick} on {type}",
-				{ mod: getSocketName(socket), type: "playlist", nick: targetnick });
-
-			if(targetnick == "Server"){
-				setBpAsLeader();
-			} else if(freeMove) {
-				cl = io.sockets.clients();
-				for(var i=0;i<cl.length;i++){
-					(function(i){
-						cl[i].get("nick",function(err,nick){
-							if(nick == targetnick){
-								reassignLeader(cl[i]);
-							}
-						});
-					})(i);
-				}
+	socket.on("moveLeader",function(data) {
+		data = data || "Server";
+		
+		if (data === "Server") {
+			if (!authService.can(socket.session, actions.ACTION_RELINQUISH_BERRY)) {
+				kickForIllegalActivity(socket, "You cannot relinquish berry");
+				return;
 			}
-		},function(){
-			kickForIllegalActivity(socket,"You cannot move leader");
-		});
+			
+			DefaultLog.info(events.EVENT_ADMIN_SET_BERRY,
+				"{user} relinquished berry on {type}",
+				{ user: getSocketName(socket), type: "playlist" });
+				
+			sessionService.setBerry(null);
+			return;
+		}
+		
+		if (!authService.can(socket.session, actions.ACTION_MOVE_BERRY_TO_USER)) {
+			kickForIllegalActivity(socket, "You cannot move berry");
+			return;
+		}
+		
+		DefaultLog.info(events.EVENT_ADMIN_SET_BERRY,
+			"{mod} gave berry to {nick} on {type}",
+			{ mod: getSocketName(socket), type: "playlist", nick: data });
+
+		sessionService.forNick(data, session => sessionService.setBerry(session));
 	});
 	socket.on("kickUser",function(data){
-		ifCanKickUser(socket,function(){
-			kickUserByNick(socket, data.nick, data.reason);
-		},function(){
+		if (!authService.can(socket.session, actions.ACTION_KICK_USER)) {
 			kickForIllegalActivity(socket);
-		});
+			return;
+		}
+		
+		kickUserByNick(socket, data.nick, data.reason);
 	});
-	socket.on("shadowBan",function(data){
-		ifCanShadowBan(socket,function(forcetemp){
-			var targetNick = data.nick;
-			var isbanning = data.sban;
-			var temp = data.temp;
-			if(forcetemp){temp = forcetemp;}
-			var message = "";
-			if (isbanning) {
-				message = temp
-					? `Shadow banned ${targetNick}`
-					: `Temporarily shadow banned ${targetNick}`;
+	socket.on("shadowBan",function(data) {
+		if (!authService.can(socket.session, actions.ACTION_SHADOWBAN)) {
+			kickForIllegalActivity(socket);
+			return;
+		}
 
+		var targetNick = data.nick;
+		var isbanning = data.sban;
+		var temp = data.temp;
+		if(forcetemp){temp = forcetemp;}
+		var message = "";
+		if (isbanning) {
+			message = temp
+				? `Shadow banned ${targetNick}`
+				: `Temporarily shadow banned ${targetNick}`;
+
+			DefaultLog.info(temp ? events.EVENT_ADMIN_SHADOWBAN_TEMP : events.EVENT_ADMIN_SHADOWBAN_PERMANENT,
+				"{mod} banned user {nick} on {type}",
+				{ mod: getSocketName(socket), nick: targetNick, type: "site" });
+		}
+		else {
+			message = `Un-shadow banned ${targetNick}`;
+
+			DefaultLog.info(events.EVENT_ADMIN_SHADOWBAN_FORGIVEN,
+				"{mod} unbanned {nick} on {type}",
+				{ mod: getSocketName(socket), nick: targetNick, type: "site" });
+		}
+
+		const nick = socket.session.nick;
+		if(isbanning) {
+			var banEmotes = ['[](/ihavenomouthandimustscream)'
+							,'[](/bant)'
+							,'[](/mmmbananas)'
+							,'[](/celbanned)'
+							,'[](/seriouslybanned)'
+							,'[](/konahappy)'
+							,'[](/ppshutup)'
+							,'[](/bpstfu)'
+							,'[](/eatadick)'
+							,'[](/suggestionbox)'
+							,'[](/rargtfo)'
+							,'[](/fuckyoudobby)'
+							,'[](/cleese)'
+							,'[](/wingflipoff)'
+							,'[](/pokemonkilledmyparents)'
+							,'[](/fuckyourshit)'];
+			message = banEmotes[Math.floor(Math.random()*banEmotes.length)] + ' ' + message;
+		}
+		message = '/me ' + message;
+		_sendChat(nick, 3, {msg: message, metadata: {channel: 'admin'}}, socket);
+		getSocketOfNick(targetNick, function(targetSocket) {
+			const logData = { mod: getSocketName(socket), ip: getAddress(targetSocket), type: "site" };
+
+			if (isbanning){
 				DefaultLog.info(temp ? events.EVENT_ADMIN_SHADOWBAN_TEMP : events.EVENT_ADMIN_SHADOWBAN_PERMANENT,
-					"{mod} banned user {nick} on {type}",
-					{ mod: getSocketName(socket), nick: targetNick, type: "site" });
-			}
-			else {
-				message = `Un-shadow banned ${targetNick}`;
+					"{mod} banned ip {ip} on {type}",
+					logData);
 
+				sessionService.setShadowbanForNick(targetNick, true, temp);
+			} else {
 				DefaultLog.info(events.EVENT_ADMIN_SHADOWBAN_FORGIVEN,
-					"{mod} unbanned {nick} on {type}",
-					{ mod: getSocketName(socket), nick: targetNick, type: "site" });
+					"{mod} unbanned ip {ip} on {type}",
+					logData);
+
+				sessionService.setShadowbanForNick(targetNick, false);
 			}
-
-			socket.get('nick', function(err, nick){
-				if(isbanning) {
-					var banEmotes = ['[](/ihavenomouthandimustscream)'
-									,'[](/bant)'
-									,'[](/mmmbananas)'
-									,'[](/celbanned)'
-									,'[](/seriouslybanned)'
-									,'[](/konahappy)'
-									,'[](/ppshutup)'
-									,'[](/bpstfu)'
-									,'[](/eatadick)'
-									,'[](/suggestionbox)'
-									,'[](/rargtfo)'
-									,'[](/fuckyoudobby)'
-									,'[](/cleese)'
-									,'[](/wingflipoff)'
-									,'[](/pokemonkilledmyparents)'
-									,'[](/fuckyourshit)'];
-					message = banEmotes[Math.floor(Math.random()*banEmotes.length)] + ' ' + message;
-				}
-				message = '/me ' + message;
-				_sendChat(nick, 3, {msg: message, metadata: {channel: 'admin'}}, socket);
-			});
-			getSocketOfNick(targetNick, function(targetSocket) {
-				const logData = { mod: getSocketName(socket), ip: getAddress(targetSocket), type: "site" };
-
-				if (isbanning){
-					DefaultLog.info(temp ? events.EVENT_ADMIN_SHADOWBAN_TEMP : events.EVENT_ADMIN_SHADOWBAN_PERMANENT,
-						"{mod} banned ip {ip} on {type}",
-						logData);
-
-					shadowBanUser(targetSocket, temp);
-				} else {
-					DefaultLog.info(events.EVENT_ADMIN_SHADOWBAN_FORGIVEN,
-						"{mod} unbanned ip {ip} on {type}",
-						logData);
-
-					unShadowBanUser(targetSocket);
-				}
-			});
-		}, function(){
-			shadowBanUser(socket); // Nobody plays this game.
-			kickForIllegalActivity(socket);
 		});
 	});
-	socket.on("setAreas",function(data){
-		ifCanSetAreas(socket,function(){
-			areaname = data.areaname;
-			content = data.content;
-
-			DefaultLog.info(events.EVENT_ADMIN_EDITED_AREA,
-				"{mod} edited {area} on {type}",
-				{ mod: getSocketName(socket), type: "site", area: areaname });
-
-			setAreas(areaname,content);
-		},function(){
+	socket.on("setAreas",function(data) {
+		if (!authService.can(socket.session, actions.ACTION_SET_AREAS)) {
 			kickForIllegalActivity(socket);
-		});
+			return;
+		}
+		
+		areaname = data.areaname;
+		content = data.content;
+
+		DefaultLog.info(events.EVENT_ADMIN_EDITED_AREA,
+			"{mod} edited {area} on {type}",
+			{ mod: getSocketName(socket), type: "site", area: areaname });
+
+		setAreas(areaname,content);
 	});
 	socket.on("fondleVideo",function(data){
 		// New abstraction for messing with video details
@@ -3505,150 +2576,110 @@ io.sockets.on('connection', function (socket) {
 		}
 		if(data.sanityid && elem.videoid != data.sanityid) return doorStuck(socket);
 
-		if("action" in data){
+		if("action" in data) {
 			if(data.action == "setVolatile"){ data = data.info; // Drop action name.
-				ifCanSetVideoVolatile(socket,function(){
-					pos = data.pos;
-					isVolat = data.volat;
-					setVideoVolatile(socket,pos,isVolat);
-				},function(){
-					kickForIllegalActivity(socket,"You cannot toggle video volatility");
-				});
+				if (!authService.can(socket.session, actions.ACTION_SET_VIDEO_VOLATILE)) {
+					kickForIllegalActivity(socket);
+					return;
+				}
+				
+				pos = data.pos;
+				isVolat = data.volat;
+				setVideoVolatile(socket,pos,isVolat);
 			}
 			if(data.action == "setColorTag"){ data = data.info; // Drop action name.
-				ifCanSetVideoVolatile(socket,function(){
-					pos = ("pos" in data ? data.pos : 0);
-					tag = ("tag" in data ? data.tag : false);
-					volat = ("volat" in data ? data.volat : false);
-				   setVideoColorTag(pos,tag,volat);
-				},function(){
-					kickForIllegalActivity(socket,"You cannot modify color tags");
-				});
+				if (!authService.can(socket.session, actions.ACTION_SET_VIDEO_VOLATILE)) {
+					kickForIllegalActivity(socket);
+					return;
+				}
+
+				pos = ("pos" in data ? data.pos : 0);
+				tag = ("tag" in data ? data.tag : false);
+				volat = ("volat" in data ? data.volat : false);
+				setVideoColorTag(pos,tag,volat);
 			}
 		}
 	});
 	socket.on("fondleUser", function(data){
 		if("action" in data){
 			if(data.action == "setUserNote"){ var d = data.info; // Drop action name.
-				ifCanSetUserNote(socket,function(){
-					// She wants the d.nick :3
-					if(d.nick.match(/^[0-9a-zA-Z_]+$/) != null &&
-					   d.nick.length >= 1  &&
-					   d.nick.length <= 20
-					){
-						var sql = "select meta from users where name = ?";
-						mysql.query(sql, [d.nick], function(err, result, fields) {
-							if (err) {
-								DefaultLog.error(events.EVENT_DB_QUERY, "query \"{sql}\" failed", { sql }, err);
-								return;
+				if (!authService.can(socket.session, actions.ACTION_SET_USER_NOTE)) {
+					kickForIllegalActivity(socket);
+					return;
+				}
+				
+				// She wants the d.nick :3
+				if(d.nick.match(/^[0-9a-zA-Z_]+$/) != null &&
+					d.nick.length >= 1  &&
+					d.nick.length <= 20
+				){
+					var sql = "select meta from users where name = ?";
+					mysql.query(sql, [d.nick], function(err, result, fields) {
+						if (err) {
+							DefaultLog.error(events.EVENT_DB_QUERY, "query \"{sql}\" failed", { sql }, err);
+							return;
+						}
+						if(result.length == 1) {
+							var meta = {};
+							try {
+								if(result[0].meta)
+									meta = JSON.parse(result[0].meta) || {};
+							} catch(e){
+								DefaultLog.error(events.EVENT_GENERAL, "Failed to parse user meta for {nick}", { nick: d.nick }, e);
+								meta = {};
 							}
-							if(result.length == 1) {
-								var meta = {};
-								try {
-									if(result[0].meta)
-										meta = JSON.parse(result[0].meta) || {};
-								} catch(e){
-									DefaultLog.error(events.EVENT_GENERAL, "Failed to parse user meta for {nick}", { nick: d.nick }, e);
-									meta = {};
+							meta.note = d.note;
+							sql = "update users set meta = ? where name = ?";
+							mysql.query(sql, [JSON.stringify(meta), d.nick], function(err, result, fields) {
+								if (err) {
+									DefaultLog.error(events.EVENT_DB_QUERY, "query \"{sql}\" failed", { sql }, err);
+									return;
 								}
-								meta.note = d.note;
-								sql = "update users set meta = ? where name = ?";
-								mysql.query(sql, [JSON.stringify(meta), d.nick], function(err, result, fields) {
-									if (err) {
-										DefaultLog.error(events.EVENT_DB_QUERY, "query \"{sql}\" failed", { sql }, err);
-										return;
-									}
-									for(var i=0;i<SERVER.CHATLIST.length;i++) {
-										if(SERVER.CHATLIST[i].nick == d.nick){
-											SERVER.CHATLIST[i].meta = meta;
-											break;
-										}
-									}
+								
+								DefaultLog.info(events.EVENT_ADMIN_SET_NOTE,
+									"{mod} set {nick}'s note to '{note}' on {type}",
+									{ mod: getSocketName(socket), type: "user", nick: d.nick, note: d.note});
 
-									DefaultLog.info(events.EVENT_ADMIN_SET_NOTE,
-										"{mod} set {nick}'s note to '{note}' on {type}",
-										{ mod: getSocketName(socket), type: "user", nick: d.nick, note: d.note});
-
-									forModminSockets(function(sc){
-										sc.emit('fondleUser', data);
-									});
-								});
-							}
-						});
-					}
-				}, function() {
-					kickForIllegalActivity(socket,"You cannot do that");
-				});
+								sessionService.forNick(d.nick, s => s.updateMeta(meta));
+								sessionService.forCan(actions.CAN_SEE_PRIVILEGED_USER_DATA, 
+									session => session.emit("fondleUser", data));
+							});
+						}
+					});
+				}
 			}
 		}
 	});
-	if (new Date() < new Date("Wed, 2 Apr 2014 00:00:00 EDT")) { // Don't Register Socket event after April Fools 2014
-		socket.on("activateGold",function(){
-			if (new Date() < new Date("Wed, 2 Apr 2014 00:00:00 EDT")) { // Even registered, Don't do anything.
-				socket.get("nick",function (err, nick){
-					socket.set("gold",true,function (err, val){
-						for(var i=0;i<SERVER.CHATLIST.length;i++) {
-							if(SERVER.CHATLIST[i].nick == nick){
-								SERVER.CHATLIST[i].gold = true;
-								break;
-							}
-						}
-						io.sockets.emit("midasTouch",{nick:nick});
-					});
-				});
-			}
-		});
-	}
 
 	socket.on("getBanlist",function(data){
-		ifCanBan(socket,function(){
-			sendBanlist(socket);
-		},function(){
+		if (!authService.can(socket.session, actions.ACTION_BAN)) {
 			kickForIllegalActivity(socket);
-		});
+			return;
+		}
+
+		sendBanlist(socket);
 	});
 	socket.on("ban",function(data){
-		ifCanBan(socket,function(){
-			banUser(data);
-		},function(){
+		if (!authService.can(socket.session, actions.ACTION_BAN)) {
 			kickForIllegalActivity(socket);
-		});
-	});
-	socket.on("gild",function(data){
-		ifCanGild(socket,function(){
-			SERVER.GILDNAME = data;
-		},function(){
-			kickForIllegalActivity(socket);
-		});
+			return;
+		}
+
+		banUser(data);
 	});
 	socket.on("forceRefreshAll",function(data){
-		ifCanForceRefresh(socket,function(){
-			if (!data) {
-				data = {};
-			}
-			if (!data.delay) {
-				data.delay = true;
-			}
-			io.sockets.emit('forceRefresh', data);
-		},function(){
+		if (!authService.can(socket.session, actions.ACTION_FORCE_REFRESH)) {
 			kickForIllegalActivity(socket);
-		});
-	});
-	socket.on("debugDump",function(data){
-		ifCanDebugDump(socket,function(){
-			io.sockets.each(function(sc){
-				sc.get('nick',function(err,nick){
-					socket.emit('debugDump', {
-						type: 'socket',
-						nick: nick,
-						ip: getAddress(sc),
-						headers: sc.handshake && sc.handshake.headers
-					});
-				});
-			});
-		},function(){
-			kickForIllegalActivity(socket);
-		});
+			return;
+		}
+
+		if (!data) {
+			data = {};
+		}
+		if (!data.delay) {
+			data.delay = true;
+		}
+		io.sockets.emit('forceRefresh', data);
 	});
 	socket.on("crash",function(data){
 		//socket.emit(socket);
@@ -3657,7 +2688,7 @@ io.sockets.on('connection', function (socket) {
 		DefaultLog.error(
 			events.EVENT_SOCKET,
 			"caught error on socket with ip {ip} and name {nick}",
-			{ ip: getAddress(socket), nick: getSocketName(socket) });
+			{ ip: socket.ip, nick: getSocketName(socket) });
 	});
 });
 /* vim: set noexpandtab : */

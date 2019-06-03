@@ -793,7 +793,8 @@ function secToTime(seconds){
 function setNick(nick){
     NAME = nick;
     $("#chatControls .nick").text(NAME);
-    ORIGNAME = nick;
+	ORIGNAME = nick;
+	sortUserList();	
 }
 function recalcStats(){
 	// Figure time.
@@ -1667,7 +1668,7 @@ function updateRankedPollEmotes() {
 	$poll.find(".render-emotes").each(function() {
 		const $this = $(this);
 		if ($this.data("bem-processed")) {
-			return
+			return;
 		}
 
 		$this.data("bem-processed", true);
@@ -1683,7 +1684,7 @@ function getPollTitle({ votes, extended }) {
 	}
 
 	if (typeof(extended) !== "undefined" && typeof(extended.voteCount) !== "undefined") {
-		return `${title} (${extended.voteCount} vote${extended.voteCount !== 1 ? "s" : ""})`
+		return `${title} (${extended.voteCount} vote${extended.voteCount !== 1 ? "s" : ""})`;
 	}
 
     return title;
@@ -1707,11 +1708,11 @@ function getStorage(key){
 }
 
 function setStorageToggle(key, value) {
-	localStorage.setItem(key, value ? "true" : "false")
+	localStorage.setItem(key, value ? "true" : "false");
 }
 
 function getStorageToggle(key) {
-	return localStorage.getItem(key) === "true"
+	return localStorage.getItem(key) === "true";
 }
 
 function getCookie(c_name){
