@@ -6,7 +6,9 @@
   "private": true,
   "scripts": {
     "prettier:check": "prettier --check \"./**/*.{js,ts,css,sass,json,md,yaml}\"",
-    "prettier": "prettier --write \"./**/*.{js,ts,css,sass,json,md,yaml}\""
+	"prettier": "prettier --write \"./**/*.{js,ts,css,sass,json,md,yaml}\"",
+	"lint:all": "eslint ./",
+	"lint": "eslint docker/node/modules web/js/modules"
   },
   "dependencies": {
     "eslint": "^5.16.0",
@@ -15,7 +17,7 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "yarn prettier:check"
+      "pre-commit": "yarn prettier:check && yarn lint"
     }
   }
 }
