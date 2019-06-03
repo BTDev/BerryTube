@@ -4,7 +4,9 @@ exports.createStreamLogger = (levelStreams, defaultStream = null) => {
 			? levelStreams[level]
 			: defaultStream;
 
-		if (!toWriteTo) return;
+		if (!toWriteTo) {
+			return;
+		}
 
 		toWriteTo.write(
 			`<${createdAt.toUTCString()}> ${event}: ${formatted}\n`,

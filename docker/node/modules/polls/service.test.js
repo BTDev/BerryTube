@@ -8,8 +8,8 @@ describe("modules", function() {
 	describe("Poll Service", function() {
 		beforeEach(function() {
 			const io = (this.io = new FakeIo(
-				(eventName, ...args) => {},
-				(socket, eventName, ...args) => {},
+				(_eventName, ..._args) => {},
+				(_socket, _eventName, ..._args) => {},
 			));
 
 			const auth = (this.auth = new AuthService({
@@ -24,17 +24,19 @@ describe("modules", function() {
 			this.simulatePoll = async (...actions) => {
 				for (const [username, type, options] of actions) {
 					let socket = users[username];
-					if (!socket)
+					if (!socket) {
 						users[username] = socket = io.createSocket({
 							nick: username,
 							type: username.startsWith("admin") ? 2 : 0,
 							ip: Math.random().toString(),
 						});
+					}
 
-					if (type == "create")
+					if (type == "create") {
 						await service.createPoll(socket, options);
-					else if (type == "cast")
+					} else if (type == "cast") {
 						await service.castVote(socket, options);
+					}
 				}
 			};
 		});

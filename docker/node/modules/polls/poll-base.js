@@ -40,11 +40,11 @@ exports.PollInstance = class {
 		this.options = options;
 	}
 
-	castVote(options, existingVote = null) {
+	castVote() {
 		return {};
 	}
 
-	clearVote(vote) {}
+	clearVote() {}
 
 	onTick(elapsedMilliseconds) {
 		if (!this.isTimedPoll) {

@@ -12,13 +12,17 @@ exports.AuthService = class extends ServiceBase {
 		const type = parseInt(await getSocketPropAsync(socket, "type"));
 		const leader = this.isLeader(socket);
 
-		if (action == actions.ACTION_CREATE_POLL) return leader || type > 0;
-		else if (action == actions.ACTION_CLOSE_POLL) return leader || type > 0;
-		else if (action == actions.ACTION_VOTE_POLL) return true;
-		else if (action == actions.CAN_SEE_OBSCURED_POLLS)
+		if (action == actions.ACTION_CREATE_POLL) {
+			return leader || type > 0;
+		} else if (action == actions.ACTION_CLOSE_POLL) {
+			return leader || type > 0;
+		} else if (action == actions.ACTION_VOTE_POLL) {
+			return true;
+		} else if (action == actions.CAN_SEE_OBSCURED_POLLS) {
 			return type > 0 || leader;
-		else if (action == actions.ACTION_SEARCH_HISTORY)
+		} else if (action == actions.ACTION_SEARCH_HISTORY) {
 			return type > 0 || leader;
+		}
 
 		throw new Error(`Invalid action passed into canDoAsync: ${action}`);
 	}

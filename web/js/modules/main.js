@@ -5,12 +5,15 @@ let activePoll = null;
 
 window.rankedPolls = {
 	createRankedPoll(state, mountElement) {
-		if (activePoll) activePoll.close();
+		if (activePoll) {
+			activePoll.close();
+		}
 
 		activePoll = new RankedPoll(state, mountElement);
 	},
 	updateRankedPoll(state) {
 		if (!activePoll) {
+			// eslint-disable-next-line no-console
 			console.error(
 				"Could not set ranked poll because there is no active ranked poll object?",
 			);
@@ -22,6 +25,7 @@ window.rankedPolls = {
 
 	closeRankedPoll() {
 		if (!activePoll) {
+			// eslint-disable-next-line no-console
 			console.error(
 				"Could not close ranked poll because there is no active ranked poll object?",
 			);
