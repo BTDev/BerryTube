@@ -89,10 +89,16 @@ exports.PollService = class extends ServiceBase {
 	 * @param {*} socket socket.io socket that requested that this poll be closed
 	 */
 	async closeCurrentPoll(socket = null) {
-		if (!this.currentPoll) return;
+		if (!this.currentPoll) {
+			return;
+		}
 
-		if (socket && !this.auth.can(socket.session, actions.ACTION_CLOSE_POLL))
+		if (
+			socket &&
+			!this.auth.can(socket.session, actions.ACTION_CLOSE_POLL)
+		) {
 			throw new Error("unauthoirzed");
+		}
 
 		const title = this.currentPoll.options.title;
 		const mod = getSocketName(socket);

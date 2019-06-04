@@ -12,14 +12,17 @@ exports.parseFormat = function(format, onMatch) {
 	let lastIndex = 0;
 	while ((result = formatRegex.exec(format))) {
 		const constPart = format.substring(lastIndex, result.index);
-		if (constPart.length) onMatch("constant", constPart);
+		if (constPart.length) {
+			onMatch("constant", constPart);
+		}
 
 		onMatch("match", result[1]);
 		lastIndex = result.index + result[0].length;
 	}
 
-	if (lastIndex < format.length - 1)
+	if (lastIndex < format.length - 1) {
 		onMatch("constant", format.substring(lastIndex));
+	}
 };
 
 /**
@@ -32,7 +35,9 @@ exports.parseRawFileUrl = function(rawFileUrl) {
 	const { pathname } = parts;
 
 	const match = pathname.match(rawLinkRegex);
-	if (!match) return null;
+	if (!match) {
+		return null;
+	}
 
 	const [, , title] = match;
 

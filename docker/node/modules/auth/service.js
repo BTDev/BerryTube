@@ -3,8 +3,8 @@ const { actions } = require("./actions");
 const { userTypes } = require("../sessions");
 
 exports.AuthService = class extends ServiceBase {
-	constructor({}) {
-		super({});
+	constructor(services) {
+		super(services);
 		this.actions = {
 			[actions.ACTION_ANNOUNCE]: isModOrBerry,
 			[actions.ACTION_BAN]: isAdmin,

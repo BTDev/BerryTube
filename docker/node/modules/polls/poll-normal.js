@@ -49,7 +49,9 @@ exports.NormalPoll = class extends PollInstance {
 
 	clearVote(vote) {
 		const index = this.votes.indexOf(vote);
-		if (index == -1) return;
+		if (index == -1) {
+			return;
+		}
 
 		this.votes.splice(index, 1);
 	}
