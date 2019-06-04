@@ -1,0 +1,19 @@
+{
+	"compilerOptions": {
+		"target": "es2018",
+		"module": "commonjs",
+		"strict": true,
+		"moduleResolution": "node",
+		"experimentalDecorators": true,
+		"allowSyntheticDefaultImports": true,
+		"allowJs": true,
+		"baseUrl": ".",
+		"types": [],
+		"lib": ["esnext"],
+		"outDir": "./bin"
+	},
+	"include": [
+		"modules/**/*.ts",
+	],
+	"exclude": ["node_modules"]
+}

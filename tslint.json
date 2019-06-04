@@ -1,0 +1,28 @@
+{
+	"defaultSeverity": "error",
+	"extends": ["tslint:recommended"],
+	"linterOptions": {
+		"exclude": ["node_modules/**"]
+	},
+	"rules": {
+		"quotemark": [true, "double"],
+		"indent": [true, "tabs", 4],
+		"interface-name": false,
+		"ordered-imports": false,
+		"object-literal-sort-keys": false,
+		"semicolon": [true, "always"],
+		"arrow-parens": false,
+		"curly": [true, "always"],
+		"member-access": [
+			true,
+			"check-accessor",
+			"check-constructor",
+			"check-parameter-property"
+		],
+		"no-empty-interface": false,
+		"max-classes-per-file": false,
+		"only-arrow-functions": [false],
+		"trailing-comma": [false],
+		"object-literal-key-quotes": [false]
+	}
+}
