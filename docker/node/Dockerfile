@@ -9,10 +9,12 @@ RUN echo "http://dl-cdn.alpinelinux.org/alpine/v$(cat /etc/alpine-release | cut 
     apk --no-cache add mariadb-client ffmpeg curl && \
     apk --no-cache add --virtual build-dependencies python make g++
 
-COPY package.json ./
-RUN npm install && \
+COPY package.json yarn.lock ./
+RUN yarn install && \
     apk --no-cache del build-dependencies
 
+COPY entrypoint.sh tsconfig.json ./
 COPY bt_data/ ./bt_data/
-COPY modules/ ./modules/
-COPY server.js entrypoint.sh ./
+COPY src/ ./src/
+
+RUN yarn build

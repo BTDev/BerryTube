@@ -1,3 +1,6 @@
-**/*.*
+**/*
 !docker/node/modules/**/*
+!docker/node/src/**/*
 !web/js/modules/**/*
+!**/*.md
+!**/*.json

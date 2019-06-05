@@ -13,4 +13,19 @@
 	"editor.formatOnSave": true,
 	"editor.insertSpaces": false,
 	"editor.detectIndentation": false,
+	"cSpell.words": [
+		"CQRS",
+		"DTOs",
+		"berrytube",
+		"microservice",
+		"schulze",
+		"serializable",
+		"youtube"
+	],
+	"[markdown]": {
+		"editor.defaultFormatter": "esbenp.prettier-vscode"
+	},
+	"[json]": {
+		"editor.defaultFormatter": "esbenp.prettier-vscode"
+	}
 }
