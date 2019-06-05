@@ -1,6 +1,9 @@
-**/*
+**/*.*
+!**/*.ts
 !docker/node/modules/**/*
 !docker/node/src/**/*
 !web/js/modules/**/*
 !**/*.md
 !**/*.json
+berrymotes/**/*.json
+berrymotes/**/*.md
