@@ -1,8 +1,8 @@
-import { Shape, Unwrap, VoidShape } from "./shapes";
-import { AuthInfo, CanDo } from "./auth";
-import { Disposable } from "./types";
-import { ServiceBase } from "./service";
-import { returnTrue } from "./funcs";
+import { Shape, Unwrap, VoidShape } from "lib/shapes";
+import { AuthInfo, CanDo } from "lib/auth";
+import { Disposable } from "lib/types";
+import { ServiceBase, ActionDecl } from "services/base";
+import { returnTrue } from "lib/funcs";
 
 // Action types declare in which way the action may be used:
 
@@ -24,21 +24,6 @@ import { returnTrue } from "./funcs";
 //  Events that are dispatched internally or externally. Examples include notifying clients that polls have been
 //  created.
 
-export type ActionType = "query" | "command" | "event";
-
-export interface ActionDefinition<
-	TType extends ActionType = any,
-	TActionName extends string = any,
-	TInShape = Shape,
-	TOutShape = Shape
-> {
-	readonly type: TType;
-	readonly name: TActionName;
-	readonly inShape: TInShape;
-	readonly outShape: TOutShape;
-	readonly can: CanDo;
-}
-
 export function declareQuery<
 	TActionName extends string = any,
 	TInShape = Shape,
@@ -48,7 +33,7 @@ export function declareQuery<
 	inShape: TInShape,
 	outShape: TOutShape,
 	can: CanDo,
-): ActionDefinition<"query", TActionName, TInShape, TOutShape> {
+): ActionDecl<"query", TActionName, TInShape, TOutShape> {
 	return {
 		type: "query",
 		name,
@@ -65,7 +50,7 @@ export function declareCommand<
 	name: TActionName,
 	inShape: TInShape,
 	can: CanDo,
-): ActionDefinition<"command", TActionName, TInShape, typeof VoidShape> {
+): ActionDecl<"command", TActionName, TInShape, typeof VoidShape> {
 	return {
 		type: "command",
 		name,
@@ -81,7 +66,7 @@ export function declareEvent<
 >(
 	name: TActionName,
 	inShape: TInShape,
-): ActionDefinition<"event", TActionName, TInShape, typeof VoidShape> {
+): ActionDecl<"event", TActionName, TInShape, typeof VoidShape> {
 	return {
 		type: "event",
 		name,
@@ -91,26 +76,26 @@ export function declareEvent<
 	};
 }
 
-export type EventController<TAction extends ActionDefinition> = (
+export type EventController<TAction extends ActionDecl> = (
 	param: ExtractActionIn<TAction>,
 ) => void;
 
 export class ActionsService<TContext> extends ServiceBase {
-	public dispatch<TAction extends ActionDefinition<"query">>(
+	public dispatch<TAction extends ActionDecl<"query">>(
 		action: TAction,
 		param: ExtractActionIn<TAction>,
 		context: TContext,
 	): Promise<ExtractActionOut<TAction>>;
 
 	public dispatch<
-		TAction extends ActionDefinition<"command", any, any, typeof VoidShape>
+		TAction extends ActionDecl<"command", any, any, typeof VoidShape>
 	>(
 		action: TAction,
 		param: ExtractActionIn<TAction>,
 		context: TContext,
 	): Promise<void>;
 
-	public dispatch<TAction extends ActionDefinition>(
+	public dispatch<TAction extends ActionDecl>(
 		action: TAction,
 		param: ExtractActionIn<TAction>,
 		context: TContext,
@@ -118,20 +103,20 @@ export class ActionsService<TContext> extends ServiceBase {
 		return null as any;
 	}
 
-	public define<TAction extends ActionDefinition<"query">>(
+	public define<TAction extends ActionDecl<"query">>(
 		action: TAction,
 		handler: ActionHandler<TContext, TAction>,
 	): void;
 
 	public define<
-		TAction extends ActionDefinition<"command", any, any, typeof VoidShape>
+		TAction extends ActionDecl<"command", any, any, typeof VoidShape>
 	>(action: TAction, handler: ActionHandler<TContext, TAction>): void;
 
 	public define<
-		TAction extends ActionDefinition<"event", any, any, typeof VoidShape>
+		TAction extends ActionDecl<"event", any, any, typeof VoidShape>
 	>(action: TAction): EventController<TAction>;
 
-	public define<TAction extends ActionDefinition>(
+	public define<TAction extends ActionDecl>(
 		action: TAction,
 		handler?: ActionHandler<TContext, TAction>,
 	): EventController<TAction> | void {
@@ -139,38 +124,52 @@ export class ActionsService<TContext> extends ServiceBase {
 	}
 }
 
-export type ActionDispatcher = <TAction extends ActionDefinition>(
+export type ActionDispatcher = <TAction extends ActionDecl>(
 	action: TAction,
 	param: ExtractActionIn<TAction>,
 ) => Promise<ExtractActionOut<TAction>>;
 
-export type ActionHandler<TContext, TAction extends ActionDefinition> = (
+export type ActionHandler<TContext, TAction extends ActionDecl> = (
 	param: ExtractActionIn<TAction>,
 	context: TContext,
 	action: TAction,
 ) => Promise<ExtractActionOut<TAction>>;
 
-export type RegisterActionHandler<TContext> = <
-	TAction extends ActionDefinition
->(
+export type RegisterActionHandler<TContext> = <TAction extends ActionDecl>(
 	action: TAction,
 	handler: ActionHandler<TContext, TAction>,
 ) => Disposable;
 
-export type ExtractActionInShape<
-	T extends ActionDefinition
-> = T extends ActionDefinition<any, any, infer TShape> ? TShape : never;
+export type ExtractActionInShape<T extends ActionDecl> = T extends ActionDecl<
+	any,
+	any,
+	infer TShape
+>
+	? TShape
+	: never;
 
-export type ExtractActionOutShape<
-	T extends ActionDefinition
-> = T extends ActionDefinition<any, any, any, infer TShape> ? TShape : never;
+export type ExtractActionOutShape<T extends ActionDecl> = T extends ActionDecl<
+	any,
+	any,
+	any,
+	infer TShape
+>
+	? TShape
+	: never;
 
-export type ExtractActionIn<
-	T extends ActionDefinition
-> = T extends ActionDefinition<any, any, infer TShape> ? Unwrap<TShape> : never;
+export type ExtractActionIn<T extends ActionDecl> = T extends ActionDecl<
+	any,
+	any,
+	infer TShape
+>
+	? Unwrap<TShape>
+	: never;
 
-export type ExtractActionOut<
-	T extends ActionDefinition
-> = T extends ActionDefinition<any, any, any, infer TShape>
+export type ExtractActionOut<T extends ActionDecl> = T extends ActionDecl<
+	any,
+	any,
+	any,
+	infer TShape
+>
 	? Unwrap<TShape>
 	: never;

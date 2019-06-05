@@ -17,10 +17,16 @@
 		"CQRS",
 		"DTOs",
 		"Greyname",
+		"autobind",
 		"berrytube",
+		"cooldown",
+		"egrep",
 		"microservice",
+		"nodeport",
 		"schulze",
 		"serializable",
+		"spamcompare",
+		"spamhp",
 		"youtube"
 	],
 	"[markdown]": {

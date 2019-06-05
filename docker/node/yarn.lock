@@ -2,6 +2,13 @@
 # yarn lockfile v1
 
 
+"@types/autobind-decorator@^2.1.0":
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/@types/autobind-decorator/-/autobind-decorator-2.1.0.tgz#f8ffd384c1080635a1575b30db2220ac40b0d3dc"
+  integrity sha512-OOS4XPWJEs3MSuya0wy2om9T//PIapkyXdkCqf1t9Rlh3yDs2/wSj6LdmHNWX9ZtxR+DoOcMnWb7LQrkJFT2uQ==
+  dependencies:
+    autobind-decorator "*"
+
 "@types/chai@^4.1.7":
   version "4.1.7"
   resolved "https://registry.yarnpkg.com/@types/chai/-/chai-4.1.7.tgz#1b8e33b61a8c09cbe1f85133071baa0dbf9fa71a"
@@ -91,6 +98,11 @@ asynckit@^0.4.0:
   version "0.4.0"
   resolved "https://registry.yarnpkg.com/asynckit/-/asynckit-0.4.0.tgz#c79ed97f7f34cb8f2ba1bc9790bcc366474b4b79"
   integrity sha1-x57Zf380y48robyXkLzDZkdLS3k=
+
+autobind-decorator@*, autobind-decorator@^2.4.0:
+  version "2.4.0"
+  resolved "https://registry.yarnpkg.com/autobind-decorator/-/autobind-decorator-2.4.0.tgz#ea9e1c98708cf3b5b356f7cf9f10f265ff18239c"
+  integrity sha512-OGYhWUO72V6DafbF8PM8rm3EPbfuyMZcJhtm5/n26IDwO18pohE4eNazLoCGhPiXOCD0gEGmrbU3849QvM8bbw==
 
 aws-sign2@~0.6.0:
   version "0.6.0"

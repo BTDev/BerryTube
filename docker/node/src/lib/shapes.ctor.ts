@@ -12,6 +12,8 @@ import {
 	VoidShape,
 	NumberShapeSettings,
 	NumberShape,
+	BooleanShapeSettings,
+	BooleanShape,
 } from "./shapes.base";
 
 export function shape<TProps extends ObjectOfShapes>(
@@ -26,12 +28,13 @@ export function shape(shape: StringShapeSettings): StringShape;
 
 export function shape(shape: NumberShapeSettings): NumberShape;
 
+export function shape(shape: BooleanShapeSettings): BooleanShape;
+
 export function shape(shape: VoidShapeSettings): VoidShape;
 
 export function shape(settings: ShapeSettings): Shape {
 	if (settings.kind === "object") {
 		return {
-			...settings,
 			default: Object.entries(settings.props).reduce(
 				(acc, [name, value]) => {
 					acc[name] = value.default;
@@ -39,21 +42,22 @@ export function shape(settings: ShapeSettings): Shape {
 				},
 				{} as any,
 			),
+			...settings,
 		};
 	}
 
 	if (settings.kind === "array") {
 		return {
-			...settings,
 			default: [],
+			...settings,
 		};
 	}
 
 	if (settings.kind === "string") {
 		return {
+			default: "",
+			type: "text",
 			...settings,
-			default: settings.default || "",
-			type: settings.type || "text",
 		};
 	}
 
@@ -66,8 +70,15 @@ export function shape(settings: ShapeSettings): Shape {
 
 	if (settings.kind === "number") {
 		return {
-			...settings,
 			default: 0,
+			...settings,
+		};
+	}
+
+	if (settings.kind === "boolean") {
+		return {
+			default: false,
+			...settings,
 		};
 	}
 

@@ -11,6 +11,8 @@ export type Unwrap<T> = T extends ArrayShape<infer TItem>
 	? void
 	: T extends NumberShape
 	? number
+	: T extends BooleanShape
+	? boolean
 	: never;
 
 export type UnwrapObject<TProps extends ObjectOfShapes> = {
@@ -19,13 +21,20 @@ export type UnwrapObject<TProps extends ObjectOfShapes> = {
 
 export interface UnwrapArray<T> extends Array<Unwrap<T>> {}
 
-export type ShapeKind = "object" | "array" | "string" | "number" | "void";
+export type ShapeKind =
+	| "object"
+	| "array"
+	| "string"
+	| "number"
+	| "boolean"
+	| "void";
 
 export type ShapeSettings =
 	| ObjectShapeSettings<ObjectOfShapes>
 	| ArrayShapeSettings<Shape>
 	| StringShapeSettings
 	| NumberShapeSettings
+	| BooleanShapeSettings
 	| VoidShapeSettings;
 
 export type Shape =
@@ -33,6 +42,7 @@ export type Shape =
 	| ArrayShape<any>
 	| StringShape
 	| NumberShape
+	| BooleanShape
 	| VoidShape;
 
 export interface ShapeSettingsBase {
@@ -117,6 +127,15 @@ export interface NumberShape
 	extends ShapeBase<number>,
 		Readonly<NumberValidationOptions> {
 	readonly kind: "number";
+}
+
+export interface BooleanShapeSettings extends ShapeSettingsBase {
+	kind: "boolean";
+	default?: boolean;
+}
+
+export interface BooleanShape extends ShapeBase<boolean> {
+	readonly kind: "boolean";
 }
 
 export interface VoidShapeSettings extends ShapeSettingsBase {

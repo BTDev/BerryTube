@@ -1,5 +1,12 @@
 import { StaticTable } from "./static-table";
 
+export type OriginType = "ipv4" | "ipv6" | "process";
+
+export type Origin = {
+	type: OriginType;
+	value: string;
+};
+
 export const UserTypes = new StaticTable([
 	{ id: -2, name: "Lurker" },
 	{ id: -1, name: "Greyname" },

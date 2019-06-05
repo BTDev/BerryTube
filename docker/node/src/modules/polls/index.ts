@@ -1,8 +1,8 @@
 import { declareEntity, declareAttachment } from "services/entities";
-import { shape, VoidShape } from "lib/shapes";
+import { shape } from "lib/shapes";
 import { RootEntity, BerryEngine } from "engine";
-import { declareCommand, declareQuery, declareEvent } from "lib/actions";
-import { UserTypes, UserTypeNames, isLeaderOrModerator } from "lib/auth";
+import { declareCommand, declareEvent } from "services/actions";
+import { isLeaderOrModerator } from "lib/auth";
 
 export const CurrentPollAttachment = declareAttachment(
 	[RootEntity],
@@ -46,7 +46,7 @@ export const OpenNormalPollCommand = declareCommand(
 	isLeaderOrModerator,
 );
 
-export const PollOpened = declareEvent(
+export const PollOpenedEvent = declareEvent(
 	"polls.opened",
 	shape({
 		kind: "object",
@@ -54,15 +54,16 @@ export const PollOpened = declareEvent(
 	}),
 );
 
-export function initializeModule({ entities, root, actions }: BerryEngine) {
-	const currentPoll = entities.defineAttachment(CurrentPollAttachment);
+export function initializeModule({
+	root,
+	define,
+	actions: { dispatch },
+}: BerryEngine) {
+	const currentPoll = define(CurrentPollAttachment);
+	const normalPolls = define(NormalPollEntity);
+	const pollOpened = define(PollOpenedEvent);
 
-	const normalPolls = entities.define(NormalPollEntity);
-	const rankedPolls = entities.define(RankedPollEntity);
-
-	const pollOpened = actions.define(PollOpened);
-
-	actions.define(OpenNormalPollCommand, async data => {
+	define(OpenNormalPollCommand, async data => {
 		const newPoll = normalPolls.create({
 			title: data.title,
 		});
@@ -71,5 +72,5 @@ export function initializeModule({ entities, root, actions }: BerryEngine) {
 		pollOpened({ title: "Hey" });
 	});
 
-	actions.dispatch(OpenNormalPollCommand, { title: "STUFF" }, {});
+	dispatch(OpenNormalPollCommand, { title: "STUFF" }, {});
 }

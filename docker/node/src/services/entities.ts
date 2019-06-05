@@ -1,5 +1,5 @@
 import { ObjectShape, Unwrap } from "lib/shapes";
-import { ServiceBase } from "lib/service";
+import { ServiceBase, EntityDecl, AttachmentDecl } from "services/base";
 
 export function declareEntity<
 	TShape extends ObjectShape<any>,
@@ -8,8 +8,9 @@ export function declareEntity<
 	name: TEntityName,
 	shape: TShape,
 	defaultValue: Unwrap<TShape>,
-): EntityDefinition<TShape, TEntityName> {
+): EntityDecl<TShape, TEntityName> {
 	return {
+		type: "entity",
 		name,
 		shape,
 		default: defaultValue,
@@ -18,14 +19,15 @@ export function declareEntity<
 
 export function declareAttachment<
 	TShape extends ObjectShape<any>,
-	TValidEntityDefinitions
+	TValidEntityDecls
 >(
-	targets: TValidEntityDefinitions[],
+	targets: TValidEntityDecls[],
 	name: string,
 	shape: TShape,
 	defaultValue: Unwrap<TShape>,
-): EntityAttachmentDefinition<TShape, TValidEntityDefinitions> {
+): AttachmentDecl<TShape, TValidEntityDecls> {
 	return {
+		type: "attachment",
 		name,
 		shape,
 		default: defaultValue,
@@ -34,108 +36,83 @@ export function declareAttachment<
 }
 
 export class EntityRepository extends ServiceBase {
-	public define<TEntityDefinition extends EntityDefinition>(
-		definition: TEntityDefinition,
-	): EntityOps<TEntityDefinition> {
-		return null as any;
-	}
+	public define<TEntityDecl extends EntityDecl>(
+		decl: TEntityDecl,
+	): EntityOps<TEntityDecl>;
 
-	public defineAttachment<
-		TAttachmentDefinition extends EntityAttachmentDefinition
-	>(definition: TAttachmentDefinition): AttachmentOps<TAttachmentDefinition> {
-		return null as any;
-	}
-}
+	public define<TAttachmentDecl extends AttachmentDecl>(
+		decl: TAttachmentDecl,
+	): AttachmentOps<TAttachmentDecl>;
 
-export interface EntityDefinition<
-	T extends ObjectShape<any> = ObjectShape<any>,
-	TKey extends string = any
-> {
-	readonly name: TKey;
-	readonly shape: T;
-	readonly default: Unwrap<T>;
-}
-
-export interface EntityAttachmentDefinition<
-	T extends ObjectShape<any> = ObjectShape<any>,
-	TEntityDefinitions = any
-> {
-	readonly targets: TEntityDefinitions[];
-	readonly name: string;
-	readonly shape: T;
-	readonly default: Unwrap<T>;
+	public define<TThing>(arg: any): any {}
 }
 
 // oof...
 
-export type ExtractShapeFromEntityDefinition<
-	T extends EntityDefinition
-> = T extends EntityDefinition<infer TShape> ? TShape : never;
+export type ExtractShapeFromEntityDecl<
+	T extends EntityDecl
+> = T extends EntityDecl<infer TShape> ? TShape : never;
 
-export type ExtractPropsFromEntityDefinition<
-	T extends EntityDefinition
-> = T extends EntityDefinition<infer TShape> ? Unwrap<TShape> : never;
+export type ExtractPropsFromEntityDecl<
+	T extends EntityDecl
+> = T extends EntityDecl<infer TShape> ? Unwrap<TShape> : never;
 
-export type ExtractKeyFromEntityDefinition<
-	T extends EntityDefinition
-> = T extends EntityDefinition<any, infer TKey> ? TKey : never;
+export type ExtractKeyFromEntityDecl<
+	T extends EntityDecl
+> = T extends EntityDecl<any, infer TKey> ? TKey : never;
 
-export type EntityFrom<T extends EntityDefinition> = T extends EntityDefinition<
+export type EntityFrom<T extends EntityDecl> = T extends EntityDecl<
 	infer TShape
 >
-	? Unwrap<TShape> & { id: number; type: ExtractKeyFromEntityDefinition<T> }
+	? Unwrap<TShape> & { id: number; type: ExtractKeyFromEntityDecl<T> }
 	: never;
 
-export type ExtractShapeFromAttachmentDefinition<
-	T extends EntityAttachmentDefinition
-> = T extends EntityAttachmentDefinition<infer TShape> ? TShape : never;
+export type ExtractShapeFromAttachmentDecl<
+	T extends AttachmentDecl
+> = T extends AttachmentDecl<infer TShape> ? TShape : never;
 
-export type ExtractPropsFromAttachmentDefinition<
-	T extends EntityAttachmentDefinition
-> = T extends EntityAttachmentDefinition<infer TShape> ? Unwrap<TShape> : never;
+export type ExtractPropsFromAttachmentDecl<
+	T extends AttachmentDecl
+> = T extends AttachmentDecl<infer TShape> ? Unwrap<TShape> : never;
 
-export type ExtractEntitiesFromAttachmentDefinition<
-	T extends EntityAttachmentDefinition
-> = T extends EntityAttachmentDefinition<any, infer TEntityDefinitions>
-	? TEntityDefinitions
+export type ExtractEntitiesFromAttachmentDecl<
+	T extends AttachmentDecl
+> = T extends AttachmentDecl<any, infer TEntityDecl> ? TEntityDecl : never;
+
+export type AttachmentFrom<T extends AttachmentDecl> = T extends AttachmentDecl<
+	infer TShape
+>
+	? Unwrap<TShape>
 	: never;
 
-export type AttachmentFrom<
-	T extends EntityAttachmentDefinition
-> = T extends EntityAttachmentDefinition<infer TShape> ? Unwrap<TShape> : never;
+export type CreateEntity<TEntityDecl extends EntityDecl> = (
+	props: Partial<ExtractPropsFromEntityDecl<TEntityDecl>>,
+) => EntityFrom<TEntityDecl>;
 
-export type CreateEntity<TEntityDefinition extends EntityDefinition> = (
-	props: Partial<ExtractPropsFromEntityDefinition<TEntityDefinition>>,
-) => EntityFrom<TEntityDefinition>;
-
-export type UpdateEntity<TEntityDefinition extends EntityDefinition> = (
-	entityOrId: number | EntityFrom<TEntityDefinition>,
-	props: Partial<ExtractPropsFromEntityDefinition<TEntityDefinition>>,
+export type UpdateEntity<TEntityDecl extends EntityDecl> = (
+	entityOrId: number | EntityFrom<TEntityDecl>,
+	props: Partial<ExtractPropsFromEntityDecl<TEntityDecl>>,
 ) => void;
 
-export type DeleteEntity<TEntityDefinition extends EntityDefinition> = (
-	entityOrId: number | EntityFrom<TEntityDefinition>,
+export type DeleteEntity<TEntityDecl extends EntityDecl> = (
+	entityOrId: number | EntityFrom<TEntityDecl>,
 ) => boolean;
 
-export interface EntityOps<TEntityDefinition extends EntityDefinition> {
-	create: CreateEntity<TEntityDefinition>;
-	update: UpdateEntity<TEntityDefinition>;
-	delete: DeleteEntity<TEntityDefinition>;
+export interface EntityOps<TEntityDecl extends EntityDecl> {
+	create: CreateEntity<TEntityDecl>;
+	update: UpdateEntity<TEntityDecl>;
+	delete: DeleteEntity<TEntityDecl>;
 }
 
-export type SetAttachment<
-	TAttachmentDefinition extends EntityAttachmentDefinition
-> = (
+export type SetAttachment<TAttachmentDecl extends AttachmentDecl> = (
 	entity: {
-		type: ExtractKeyFromEntityDefinition<
-			ExtractEntitiesFromAttachmentDefinition<TAttachmentDefinition>
+		type: ExtractKeyFromEntityDecl<
+			ExtractEntitiesFromAttachmentDecl<TAttachmentDecl>
 		>;
 	},
-	props: Partial<AttachmentFrom<TAttachmentDefinition>>,
-) => AttachmentFrom<TAttachmentDefinition>;
+	props: Partial<AttachmentFrom<TAttachmentDecl>>,
+) => AttachmentFrom<TAttachmentDecl>;
 
-export interface AttachmentOps<
-	TAttachmentDefinition extends EntityAttachmentDefinition
-> {
-	set: SetAttachment<TAttachmentDefinition>;
+export interface AttachmentOps<TAttachmentDecl extends AttachmentDecl> {
+	set: SetAttachment<TAttachmentDecl>;
 }
