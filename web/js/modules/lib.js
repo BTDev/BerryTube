@@ -5,6 +5,23 @@ export function $(...args) {
 }
 
 /**
+ * Gets English ordinal for the given integer, eg. 1st, 2nd, 24th
+ * @param {number) num
+ */
+export function getOrdinal(num) {
+    switch (num % 10) {
+	case 1:
+	    return num + 'st';
+	case 2:
+	    return num + 'nd';
+	case 3:
+	    return num + 'rd';
+	default:
+	    return num + 'th';
+    }
+}
+
+/**
  * Prepends an html element
  * @param {HTMLElement} parent 
  * @param {HTMLElement} element 

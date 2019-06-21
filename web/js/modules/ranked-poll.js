@@ -1,4 +1,4 @@
-import { createElement, prependElement, removeElements, $, clear } from "./lib.js";
+import { createElement, prependElement, removeElements, $, clear, getOrdinal } from "./lib.js";
 
 const rankColors = ["#4b830d", "#005cb2", "#29434e", "#444"];
 
@@ -33,7 +33,7 @@ export class RankedPoll {
                                         ...range(maxRankCount).map(rank => {
                                             const isAbstain = rank + 1 == maxRankCount;
                                             const el = createElement("button", {
-                                                innerText: !isAbstain ? (rank + 1).toString() : "-",
+                                                innerText: !isAbstain ? getOrdinal(rank + 1) : "-",
                                                 onClick: onRankButtonClicked,
                                                 className: `ranked-poll__button ${isAbstain ? "is-abstain" : ""}`,
                                                 "data-rank": rank,
