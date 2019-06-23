@@ -364,7 +364,7 @@ body {
 	display:block;
 }
 #playlist ul li.notify .title:after {
-    content: ' ★';
+    content: ' \2605 ';
 }
 #playlist .track{
     border-left: 1px solid #732C7B;
