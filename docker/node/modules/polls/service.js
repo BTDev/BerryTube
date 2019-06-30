@@ -48,7 +48,7 @@ exports.PollService = class extends ServiceBase {
 		};
 		
 		if (!(await this.auth.canDoAsync(socket, actions.ACTION_CREATE_POLL)))
-			throw new Error("unauthoirzed");
+			throw new Error("unauthorized");
 
 		const PollType = pollTypes[options.pollType];
 		if (!PollType)
@@ -81,7 +81,7 @@ exports.PollService = class extends ServiceBase {
 			return;
 
 		if (socket && !(await this.auth.canDoAsync(socket, actions.ACTION_CLOSE_POLL)))
-			throw new Error("unauthoirzed");
+			throw new Error("unauthorized");
 
 		const title = this.currentPoll.options.title;
 		const mod = socket ? await getSocketName(socket) : "[system]"
@@ -121,7 +121,7 @@ exports.PollService = class extends ServiceBase {
 			throw new Error("no current poll");
 
 		if (!(await this.auth.canDoAsync(socket, actions.ACTION_VOTE_POLL)))
-			throw new Error("unauthoirzed");
+			throw new Error("unauthorized");
 
 		const ipAddress = getAddress(socket);
 		if (!ipAddress)

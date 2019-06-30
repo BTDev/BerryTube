@@ -595,6 +595,10 @@ body {
 }
 .poll-auto-close {
     position: relative;
+    display: none;
+}
+.poll-auto-close.enabled {
+    display: block;
 }
 .poll-auto-close__time-left {
     background: rgba(0, 0, 0, .2);

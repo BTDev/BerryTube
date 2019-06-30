@@ -1,11 +1,13 @@
 let lastPollCountdown = null;
 
 class Countdown {
-	constructor(totalTimeInSeconds, timeStartInSeconds, handlers) {
+	constructor(totalTimeInSeconds, startedAt, handlers) {
 		this.isEnabled = true;
 		this.handlers = handlers;
+		this.totalTimeInSeconds = totalTimeInSeconds;
+		this.startedAt = startedAt;
 
-		const start = new Date().getTime() - (timeStartInSeconds * 1000);
+		const start = startedAt;
 		const tick = () => {
 			if (!this.isEnabled)
 				return;
@@ -1378,6 +1380,7 @@ function closePoll(data) {
 
 	if (data.pollType == "ranked") {
 		onModuleLoaded(() => window.rankedPolls.closeRankedPoll());
+		$(".poll.active").removeClass("active");
 	} else {
 		//unbind old buttons
 		var existing = $(".poll.active");
@@ -1526,6 +1529,7 @@ function newPoll(data){
 			}
 			
 			closePoll({});
+			$existingPoll.removeClass("active");
 		}
 
 		// New poll, or ghost poll on an initial connection
@@ -1599,33 +1603,18 @@ function newPoll(data){
 				}
 			}
 
-			if (data.closePollInSeconds > 0) {
-				const $progress = $("<div />")
-					.addClass("poll-auto-close__progress-bar-inner");
+			$("<div />")
+				.addClass("poll-auto-close")
+				.append(
+					$("<div />")
+						.addClass("poll-auto-close__time-left"),
+					$("<div />")
+						.addClass("poll-auto-close__progress-bar")
+						.append($("<div />")
+							.addClass("poll-auto-close__progress-bar-inner")))
+				.appendTo($poll);
 
-				const $timeLeft = $("<div />")
-					.addClass("poll-auto-close__time-left");
-
-				$("<div />")
-					.addClass("poll-auto-close")
-					.append(
-						$timeLeft,
-						$("<div />")
-							.addClass("poll-auto-close__progress-bar")
-							.append($progress))
-					.appendTo($poll);
-
-				lastPollCountdown = new Countdown(data.closePollInSeconds, data.timeElapsedInSeconds, {
-					onTick({timeLeftInSeconds, percent}) {
-						$timeLeft.text(timeLeftInSeconds >= 1 ? `closing in ${secondsToHuman(timeLeftInSeconds)}` : "closing poll...");
-						$progress.css("width", `${percent * 100}%`);
-					},
-					onDispose() {
-						$timeLeft.text("closing poll...");
-						$progress.css("width", "0px");
-					}
-				});
-			}
+			updatePollAutoClose($poll, data);
 		});
 	}
 }
@@ -1654,6 +1643,8 @@ function updatePoll(data){
 			$(val).text(votes[$(val).data("op")]);
 		});
 	}
+
+	updatePollAutoClose($poll, data);
 }
 function updateRankedPollEmotes() {
 	if (typeof Bem === 'undefined') {
@@ -1674,6 +1665,48 @@ function updateRankedPollEmotes() {
 		$this.html(Bem.applyEmotesToStr($this[0].innerText));
 		Bem.postEmoteEffects($this);
 	});
+}
+function updatePollAutoClose($poll, data) {
+	const $progress = $poll.find(".poll-auto-close__progress-bar-inner");
+	const $timeLeft = $poll.find(".poll-auto-close__time-left");
+	const $autoClose = $poll.find(".poll-auto-close");
+
+	if (data.closePollInSeconds > 0) {
+		$autoClose.addClass("enabled");
+
+		if (lastPollCountdown) {
+			if (lastPollCountdown.pollId === data.id && 
+				lastPollCountdown.startedAt === data.startedAt && 
+				lastPollCountdown.totalTimeInSeconds === data.closePollInSeconds) {
+				return
+			}
+
+			lastPollCountdown.dispose();
+		}
+		
+		lastPollCountdown = new Countdown(data.closePollInSeconds, data.startedAt, {
+			onTick({ timeLeftInSeconds, percent }) {
+				$timeLeft.text(timeLeftInSeconds >= 1 
+					? `closing in ${secondsToHuman(timeLeftInSeconds)}` 
+					: "closing poll...");
+
+				$progress.css("width", `${percent * 100}%`);
+			},
+			onDispose() {
+				$timeLeft.text("closing poll...");
+				$progress.css("width", "0px");
+			}
+		});
+
+		lastPollCountdown.pollId = data.id;
+	} else {
+		$autoClose.removeClass("enabled")
+
+		if (lastPollCountdown && lastPollCountdown.pollId === data.id) {
+			lastPollCountdown.dispose();
+			lastPollCountdown = null;
+		}
+	}
 }
 function getPollTitle({ votes, extended }) {
 	var title = POLL_TITLE_FORMAT;
