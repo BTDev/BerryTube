@@ -1,13 +1,13 @@
-const { PollInstance } = require("./poll-base");
+﻿const { PollInstance } = require("./poll-base");
 const { sanitize } = require("../security");
-const { events } = require("../log");
 const schulze = require("schulze-method");
 
 const resultCache = Symbol();
 exports.RankedPoll = class extends PollInstance {
 	get results() {
-		if (!this[resultCache])
+		if (!this[resultCache]) {
 			this[resultCache] = this.calculateResults();
+		}
 
 		return this[resultCache];
 	}
@@ -22,15 +22,17 @@ exports.RankedPoll = class extends PollInstance {
 			obscure: this.options.isObscured,
 			ghost: false,
 			pollType: this.options.pollType,
-			options: this.options.options.map(o => o.isTwoThirds ? `${o.text} (⅔ required)` : o.text),
+			options: this.options.options.map(o =>
+				o.isTwoThirds ? `${o.text} (⅔ required)` : o.text,
+			),
 			votes: [],
 
 			extended: {
 				maxRankCount: this.options.maxRankCount,
 				options: this.options.options,
 				results: this.results,
-				voteCount: this.votes.length
-			}
+				voteCount: this.votes.length,
+			},
 		};
 	}
 
@@ -40,8 +42,8 @@ exports.RankedPoll = class extends PollInstance {
 			isObscured: true,
 			extended: {
 				options: this.options.options,
-				maxRankCount: this.options.maxRankCount
-			}
+				maxRankCount: this.options.maxRankCount,
+			},
 		};
 	}
 
@@ -50,9 +52,9 @@ exports.RankedPoll = class extends PollInstance {
 			...options,
 			options: options.ops.map(o => ({
 				text: sanitize(o.text),
-				isTwoThirds: !!o.isTwoThirds
+				isTwoThirds: !!o.isTwoThirds,
 			})),
-			maxRankCount: 4
+			maxRankCount: 4,
 		});
 
 		this.votes = [];
@@ -61,30 +63,42 @@ exports.RankedPoll = class extends PollInstance {
 	}
 
 	castVote({ ballot }, existingVote) {
-		const { options: { options, maxRankCount } } = this;
+		const {
+			options: { options, maxRankCount },
+		} = this;
 		const abstainedRank = maxRankCount;
 
-		if (!Array.isArray(ballot))
+		if (!Array.isArray(ballot)) {
 			throw new Error(`Invalid ballot: expected array`);
+		}
 
-		if (ballot.length != options.length)
-			throw new Error(`Invalid ballot: expected ${options.length} rankings, but received: ${ballot.length}`);
+		if (ballot.length != options.length) {
+			throw new Error(
+				`Invalid ballot: expected ${options.length} rankings, but received: ${ballot.length}`,
+			);
+		}
 
 		const vote = { ballot: ballot.map(Number) };
-		for (const ranking of vote.ballot)
-			if (ranking < 1 || ranking > abstainedRank)
-				throw new Error(`Invalid ballot: all rankings in the ballot must be between 1 and ${abstainedRank}`)
+		for (const ranking of vote.ballot) {
+			if (ranking < 1 || ranking > abstainedRank) {
+				throw new Error(
+					`Invalid ballot: all rankings in the ballot must be between 1 and ${abstainedRank}`,
+				);
+			}
+		}
 
 		const existingIndex = this.votes.indexOf(existingVote);
 		const isBallotEmpty = vote.ballot.every(b => b == abstainedRank);
 
 		if (!isBallotEmpty) {
-			if (existingIndex !== -1)
+			if (existingIndex !== -1) {
 				this.votes[existingIndex] = vote;
-			else
+			} else {
 				this.votes.push(vote);
-		} else if (existingIndex !== -1)
+			}
+		} else if (existingIndex !== -1) {
 			this.votes.splice(existingIndex, 1);
+		}
 
 		this[resultCache] = null;
 		return vote;
@@ -92,38 +106,48 @@ exports.RankedPoll = class extends PollInstance {
 
 	clearVote(vote) {
 		const index = this.votes.indexOf(vote);
-		if (index == -1)
+		if (index == -1) {
 			return;
+		}
 
 		this.votes.splice(index, 1);
 		this[resultCache] = null;
 	}
 
 	calculateResults() {
-		const { options: { options, maxRankCount }, votes } = this;
+		const {
+			options: { options, maxRankCount },
+			votes,
+		} = this;
 
-		if (!options.length)
+		if (!options.length) {
 			return [];
+		}
 
 		const initialDistribution = new Array(maxRankCount + 1);
-		for (let rank = 0; rank < initialDistribution.length; rank++)
+		for (let rank = 0; rank < initialDistribution.length; rank++) {
 			initialDistribution[rank] = 0;
+		}
 
-		const finalResults = options
-			.map((_, i) => ({
-				index: i,
-				isExcluded: false,
-				ballots: initialDistribution.slice(),
-				rank: maxRankCount + 1
-			}));
+		const finalResults = options.map((_, i) => ({
+			index: i,
+			isExcluded: false,
+			ballots: initialDistribution.slice(),
+			rank: maxRankCount + 1,
+		}));
 
 		const ballots = new Array(votes.length);
 		for (let voteIndex = 0; voteIndex < votes.length; voteIndex++) {
-			const ballot = ballots[voteIndex] = votes[voteIndex].ballot;
-			for (let optionIndex = 0; optionIndex < ballot.length; optionIndex++) {
+			const ballot = (ballots[voteIndex] = votes[voteIndex].ballot);
+			for (
+				let optionIndex = 0;
+				optionIndex < ballot.length;
+				optionIndex++
+			) {
 				const rank = ballot[optionIndex];
-				if (rank != maxRankCount)
+				if (rank != maxRankCount) {
 					finalResults[optionIndex].ballots[rank]++;
+				}
 			}
 		}
 
@@ -152,16 +176,16 @@ exports.RankedPoll = class extends PollInstance {
 					currentRank++;
 					lastRank = currentRank;
 				}
-					
+
 				res.rank = currentRank;
 			}
 		}
-		
+
 		return finalResults;
 
 		function applyTwoThirdsMod() {
 			// Two thirds is not really a built in feature of the schulze ranking method... so we're gonna fake it:
-			// 
+			//
 			// if a two thirds option made it to first place:
 			//   move to 2nd place if fewer than 2/3rds of voters voted for the option in any rank
 			//   move to 1st place if more than 2/3rds of voters voted for the option in any rank
@@ -176,16 +200,24 @@ exports.RankedPoll = class extends PollInstance {
 
 			for (let i = 0; i < finalResults.length; i++) {
 				const res = finalResults[i];
-				if (res.rank >= 1)
+				if (res.rank >= 1) {
 					break;
+				}
 
-				if (!options[res.index].isTwoThirds)
+				if (!options[res.index].isTwoThirds) {
 					continue;
+				}
 
 				twoThirdResultIndicies.push(i);
-				const interest = count(votes, ({ ballot }) => ballot[res.index] < maxRankCount);
+				const interest = count(
+					votes,
+					({ ballot }) => ballot[res.index] < maxRankCount,
+				);
 
-				if (interest < twoThirdsCutoff || interest < twoThirdsInterest) {
+				if (
+					interest < twoThirdsCutoff ||
+					interest < twoThirdsInterest
+				) {
 					continue;
 				}
 
@@ -210,23 +242,29 @@ exports.RankedPoll = class extends PollInstance {
 
 				for (let i = 0; i < finalResults.length; i++) {
 					const res = finalResults[i];
-					if (options[res.index].isTwoThirds)
+					if (options[res.index].isTwoThirds) {
 						continue;
+					}
 
 					firstNonTwoThirdsOptionRank = res.rank;
 					break;
 				}
 
 				for (let i = 0; i < finalResults.length; i++) {
-					if (finalResults[i].rank <= firstNonTwoThirdsOptionRank && !options[finalResults[i].index].isTwoThirds)
+					if (
+						finalResults[i].rank <= firstNonTwoThirdsOptionRank &&
+						!options[finalResults[i].index].isTwoThirds
+					) {
 						finalResults[i].rank = 0;
-					else
+					} else {
 						finalResults[i].rank++;
+					}
 				}
 
 				for (const res of finalResults) {
-					if (res.rank <= 1)
+					if (res.rank <= 1) {
 						continue;
+					}
 
 					res.rank++;
 				}
@@ -234,8 +272,9 @@ exports.RankedPoll = class extends PollInstance {
 				return true;
 			}
 
-			for (const res of finalResults)
+			for (const res of finalResults) {
 				res.rank++;
+			}
 
 			finalResults[twoThirdsResultIndex].rank = 0;
 			return true;

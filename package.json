@@ -1,0 +1,26 @@
+{
+  "name": "berrytube-tools",
+  "description": "Root package for shared tools between the different packages in this project.",
+  "repository": "git@gitlab.com:berrytube/berrytube.git",
+  "license": "ISC",
+  "private": true,
+  "scripts": {
+    "prettier:fix": "prettier --write \"./**/*.{js,ts,css,sass,json,md,yaml}\"",
+    "prettier:lint": "prettier --check \"./**/*.{js,ts,css,sass,json,md,yaml}\"",
+    "eslint:fix": "eslint --fix docker/node/modules web/js/modules",
+    "eslint:lint": "eslint docker/node/modules web/js/modules",
+    "eslint:lint:all": "eslint ./",
+    "fix": "yarn run eslint:fix && yarn run prettier:fix",
+    "lint": "yarn run eslint:lint && yarn run prettier:lint"
+  },
+  "dependencies": {
+    "eslint": "^5.16.0",
+    "husky": "^2.3.0",
+    "prettier": "^1.17.1"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "yarn run lint"
+    }
+  }
+}

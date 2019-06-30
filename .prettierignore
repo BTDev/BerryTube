@@ -1,0 +1,3 @@
+**/*.*
+!docker/node/modules/**/*
+!web/js/modules/**/*

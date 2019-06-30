@@ -1,12 +1,16 @@
 {
-    "editor.formatOnSave": false,
-    "workbench.colorCustomizations": {
-        "titleBar.activeBackground": "#732c7b",
-        "titleBar.inactiveBackground": "#732c7b99",
-        "titleBar.activeForeground": "#e7e7e7",
-        "titleBar.inactiveForeground": "#e7e7e799",
-        "statusBar.background": "#732c7b",
-        "statusBarItem.hoverBackground": "#9639a1",
-        "statusBar.foreground": "#e7e7e7"
-    }
+	"workbench.colorCustomizations": {
+		"titleBar.activeBackground": "#732c7b",
+		"titleBar.inactiveBackground": "#732c7b99",
+		"titleBar.activeForeground": "#e7e7e7",
+		"titleBar.inactiveForeground": "#e7e7e799",
+		"statusBar.background": "#732c7b",
+		"statusBarItem.hoverBackground": "#9639a1",
+		"statusBar.foreground": "#e7e7e7"
+	},
+	"editor.defaultFormatter": "esbenp.prettier-vscode",
+	"eslint.autoFixOnSave": true,
+	"editor.formatOnSave": true,
+	"editor.insertSpaces": false,
+	"editor.detectIndentation": false,
 }

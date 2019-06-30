@@ -1,6 +1,6 @@
 exports.socketProps = {
 	PROP_VOTE_DATA: "PROP_VOTE_DATA",
-	PROP_NICK: "nick"
+	PROP_NICK: "nick",
 };
 
 exports.getSocketPropAsync = function(socket, prop) {
@@ -18,7 +18,7 @@ exports.getSocketPropAsync = function(socket, prop) {
 
 exports.setSocketPropAsync = function(socket, prop, value) {
 	return new Promise((res, rej) => {
-		socket.set(prop, value, (err) => {
+		socket.set(prop, value, err => {
 			if (err) {
 				rej(err);
 				return;
@@ -30,21 +30,25 @@ exports.setSocketPropAsync = function(socket, prop, value) {
 };
 
 exports.getSocketName = async function(socket) {
-	if (!socket)
+	if (!socket) {
 		return "Server";
-	
-	const currentNick = await exports.getSocketPropAsync(socket, exports.socketProps.PROP_NICK);
+	}
+
+	const currentNick = await exports.getSocketPropAsync(
+		socket,
+		exports.socketProps.PROP_NICK,
+	);
 	return currentNick || "Server";
 };
 
 class FakeSocket {
 	constructor(data, onEmitSocket) {
-		this.data = data || { };
+		this.data = data || {};
 		this.onEmitSocket = onEmitSocket;
 		this.handshake = {
 			headers: {
-				"x-forwarded-for": data.ip
-			}
+				"x-forwarded-for": data.ip,
+			},
 		};
 	}
 
@@ -62,7 +66,7 @@ class FakeSocket {
 	}
 }
 
-exports.FakeIo = class { 
+exports.FakeIo = class {
 	constructor(onBroadcast, onEmitSocket) {
 		this.sockets = [];
 		this.sockets.emit = this.emit.bind(this);
