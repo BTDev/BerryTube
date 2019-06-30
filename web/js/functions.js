@@ -1,14 +1,17 @@
 let lastPollCountdown = null;
 
 class Countdown {
-	constructor(totalTimeInSeconds, timeStartInSeconds, handlers) {
+	constructor(totalTimeInSeconds, startedAt, handlers) {
 		this.isEnabled = true;
 		this.handlers = handlers;
+		this.totalTimeInSeconds = totalTimeInSeconds;
+		this.startedAt = startedAt;
 
-		const start = new Date().getTime() - (timeStartInSeconds * 1000);
+		const start = startedAt;
 		const tick = () => {
-			if (!this.isEnabled)
+			if (!this.isEnabled) {
 				return;
+			}
 
 			const now = new Date().getTime();
 			const elapsedInSeconds = (now - start) / 1000;
@@ -32,8 +35,9 @@ class Countdown {
 		this.isEnabled = false;
 		window.clearInterval(this.interval);
 
-		if (this.handlers.onDispose)
+		if (this.handlers.onDispose) {
 			this.handlers.onDispose();
+		}
 	}
 }
 
@@ -169,7 +173,9 @@ function showAdminFilterWindow(){
 		var enableDataCol = $('<td/>').appendTo(enableRow);
 		$('<span/>').text("Enable Rule:").appendTo(enableLabelCol);
 		var enable = $('<input/>').attr('type','checkbox').appendTo(enableDataCol);
-		if(myData.enable) enable.prop('checked',true);
+		if(myData.enable) {
+			enable.prop('checked',true);
+		}
 		newRule.data('enable',enable);
 
 		var rules = mainOptWrap.data('rules');
@@ -256,7 +262,9 @@ function showAdminFilterWindow(){
 				actionMetadata:$(rules[i]).data('actionMetadata').val(),
 				enable:$(rules[i]).data('enable').is(':checked')
 			};
-            if(!d.enable) continue;
+            if(!d.enable) {
+				continue;
+			}
 
 			// Name Check
 			var nickCheck = new RegExp(d.nickMatch,d.nickParam);
@@ -273,8 +281,14 @@ function showAdminFilterWindow(){
 		}
 		var a = '';
 		for(var i=0;i<actionChain.length;i++){
-			if(actionChain[i].action == "none") continue;
-			if(actionChain[i].action == "hush") msg = msg.toLowerCase();
+			if(actionChain[i].action == "none") {
+				continue;
+			}
+
+			if(actionChain[i].action == "hush") {
+				msg = msg.toLowerCase();
+			}
+
 			a += "<div>ACTION: "+actionChain[i].action+", "+actionChain[i].meta+"</div>";
 		}
 		var out = '<div>'+nick+": "+msg+'</div>'+a;
@@ -922,7 +936,9 @@ function handleACL(){
 
         if(controlsPlaylist()) {
             whenExists("#playlistAddControls",function(pl){
-                if(pl.is(":hidden")) pl.show("blind");
+                if(pl.is(":hidden")) {
+					pl.show("blind");
+				}
                 var playlist = $("#playlist ul");
                 playlist.addClass("controlsOn");
 				if(playlist.hasClass("previouslyEnabled")){
@@ -965,7 +981,9 @@ function handleACL(){
             });
         }else{
             whenExists("#playlistAddControls",function(pl){
-                if(pl.is(":visible")) pl.hide("blind");
+				if(pl.is(":visible")) {
+					pl.hide("blind");
+				}
                 var playlist = $("#playlist ul");
                 playlist.removeClass("controlsOn");
                 try{
@@ -978,14 +996,20 @@ function handleACL(){
 
         if(canCreatePoll()){
             whenExists("#pollControl",function(pc){
-                if(pc.is(":hidden")) pc.show("blind");
+                if(pc.is(":hidden")) {
+					pc.show("blind");
+				}
                 dbg("CAN CONTROL POLLS");
-            });
+			});
+			$(".poll-control").addClass("enabled");
         }else{
             whenExists("#pollControl",function(pc){
-                if(pc.is(":visible")) pc.hide("blind");
+                if(pc.is(":visible")) {
+					pc.hide("blind");
+				}
                 dbg("CAN NOT CONTROL POLLS");
             });
+			$(".poll-control").removeClass("enabled");
         }
 
         if(canSetAreas()){
@@ -1010,7 +1034,9 @@ function loginError(data){
     $('#headbar .loginError').text(data.message);
 }
 function isRegisteredUser(){
-    if(TYPE >= 0) return true;
+    if (TYPE >= 0) {
+		return true;
+	}
     return false;
 }
 function sendChatMsg(msg,elem){
@@ -1020,7 +1046,9 @@ function sendChatMsg(msg,elem){
 		HISTORY.push(msg);
 		HISTORY.reverse();
 		HISTORY[HISTORY_POS] = "";
-		if(HISTORY.length > HISTORY_SIZE) HISTORY.splice(HISTORY_SIZE,1);
+		if (HISTORY.length > HISTORY_SIZE) {
+			HISTORY.splice(HISTORY_SIZE,1);
+		}
 
 		meta = {};
 		if(NAMEFLAUNT){ meta.nameflaunt = NAMEFLAUNT; }
@@ -1044,11 +1072,13 @@ function handleSpamChecks(callback) {
 	let lastTime = getVal("lasttime");
 	let currentHp = getVal("chathp");
 
-	if (typeof lastTime == "undefined" || lastTime == null)
+	if (typeof lastTime == "undefined" || lastTime == null) {
 		lastTime = new Date().getTime() - defaultHtp;
+	}
 
-	if (typeof currentHp == "undefined" || currentHp == null)
+	if (typeof currentHp == "undefined" || currentHp == null) {
 		currentHp = defaultHtp;
+	}
 
 	const nowTime = new Date().getTime();
 	const timeDelta = nowTime - lastTime;
@@ -1076,8 +1106,14 @@ function handleSpamChecks(callback) {
 }
 
 function addLogMsg(data, to){
-	if (to.length == 0) return;
-	if (IGNORE_GHOST_MESSAGES && data.ghost) return;
+	if (to.length == 0) {
+		return;
+	}
+
+	if (IGNORE_GHOST_MESSAGES && data.ghost) {
+		return;
+	}
+
 	const timestampDate = new Date(data.logEvent.createdAt);
 
 	const
@@ -1149,7 +1185,9 @@ function addChatMsg(data,_to) {
 		var metadata = data.msg.metadata;
 		var isGhost = data.ghost;
 
-		if(typeof(nick != "undefined"))	var msgwrap = $("<div/>").appendTo(to).addClass("msg-" + nick);
+		if (typeof(nick != "undefined")) {
+			var msgwrap = $("<div/>").appendTo(to).addClass("msg-" + nick);
+		}
 		var newmsg = $("<div/>");
 
 		if ((IGNORELIST.indexOf(nick) != -1 && !metadata.nameflaunt) ||
@@ -1293,8 +1331,9 @@ function addChatMsg(data,_to) {
 		$(to).children().slice(0, -500).remove();
 
 		var d = new Date(data.msg.timestamp);
-		if ($(`li.${nick}`).length != 0)
+		if ($(`li.${nick}`).length != 0) {
 			CHATLIST[nick] = d.getTime();
+		}
 
 		if (includeTimestamp) {
 			var h = addZero(d.getHours());
@@ -1331,20 +1370,24 @@ function manageDrinks(dd){
 		whenExists("#drinkWrap",function(dw){
 			whenExists("#v",function(v){
 				if(dd == 0){
-					if(dw.is(":visible"))
-						 dw.hide("blind");
+					if(dw.is(":visible")) {
+						dw.hide("blind");
+					}
 				} else {
-					if(dw.is(":hidden"))
-						 dw.show("blind");
+					if(dw.is(":hidden")) {
+						dw.show("blind");
+					}
 				}
 
 				if(dd > 9000){
-					if(v.is(":hidden"))
-						 v.show();
+					if(v.is(":hidden")) {
+						v.show();
+					}
 				}
 				if(dd <= 9000){
-					if(v.is(":visible"))
-						 v.hide();
+					if(v.is(":visible")) {
+						v.hide();
+					}
 				}
 
 				//console.log(dd);
@@ -1376,15 +1419,18 @@ function closePoll(data) {
 	}
 
 	$("#pollpane .poll-auto-close").remove();
+	$("#pollpane .poll-control").remove();
 
 	if (data.pollType == "ranked") {
 		onModuleLoaded(() => window.rankedPolls.closeRankedPoll());
+		$(".poll.active").removeClass("active");
 	} else {
 		//unbind old buttons
 		var existing = $(".poll.active");
 		existing.find(".btn").each(function(key, val) {
-			if ($(val).hasClass("close"))
+			if ($(val).hasClass("close")) {
 				return;
+			}
 
 			$(val).unbind('click');
 		});
@@ -1396,11 +1442,13 @@ function closePoll(data) {
 	var keep = getStorage("keeppolls");
 	var polls = $("#pollpane").children(".poll");
 	for (var i=0; i < polls.length; i++) {
-		if ($(polls[i]).hasClass("active"))
+		if ($(polls[i]).hasClass("active")) {
 			continue;
+		}
 
-		if (--keep < 0)
+		if (--keep < 0) {
 			$(polls[i]).remove();
+		}
 	}
 }
 function toggleChatMode(){
@@ -1527,6 +1575,7 @@ function newPoll(data){
 			}
 			
 			closePoll({});
+			$existingPoll.removeClass("active");
 		}
 
 		// New poll, or ghost poll on an initial connection
@@ -1573,8 +1622,9 @@ function newPoll(data){
 					var row = $('<tr/>').appendTo($('<table/>').appendTo(iw));
 					var optionBtn = $('<div/>').addClass("btn").text(votes[i]).appendTo($('<td/>').appendTo(row));
 
-					if(data.obscure)
+					if(data.obscure) {
 						optionBtn.addClass("obscure");
+					}
 
 					$('<div/>').addClass("label").text(t).appendTo($('<td/>').appendTo(row));
 					$('<div/>').addClass("clear").appendTo(iw);
@@ -1600,32 +1650,54 @@ function newPoll(data){
 				}
 			}
 
-			if (data.closePollInSeconds > 0) {
-				const $progress = $("<div />")
-					.addClass("poll-auto-close__progress-bar-inner");
+			$("<div />")
+				.addClass("poll-auto-close")
+				.append(
+					$("<div />")
+						.addClass("poll-auto-close__time-left"),
+					$("<div />")
+						.addClass("poll-auto-close__progress-bar")
+						.append($("<div />")
+							.addClass("poll-auto-close__progress-bar-inner")))
+				.appendTo($poll);
 
-				const $timeLeft = $("<div />")
-					.addClass("poll-auto-close__time-left");
+			const $pollControl = $("<div />")
+				.addClass("poll-control")
+				.append(
+					$("<div />")
+						.addClass("poll-control__auto-close")
+						.append(
+							$("<select>")
+								.addClass("poll-control__auto-close__select")
+								.append($("<option />")
+									.attr("value", "")
+									.text("Set Poll Timer"))
+								.append($("<option />")
+									.attr("value", "0")
+									.text("Remove Timer"))
+								.append(
+									autoCloseTimes
+										.filter(([time]) => time > 0)
+										.map(([time, title]) => $(`<option />`)
+										.text(title)
+										.attr("value", time)))
+								.change(function() {
+									const $this = $(this);
+									const closeInSeconds = parseInt($this.val(), 10);
+									$this.val("");
 
-				$("<div />")
-					.addClass("poll-auto-close")
-					.append(
-						$timeLeft,
-						$("<div />")
-							.addClass("poll-auto-close__progress-bar")
-							.append($progress))
-					.appendTo($poll);
+									socket.emit("updatePoll", { 
+										id: data.id, 
+										closePollInSeconds: closeInSeconds 
+									});
+								}))
+				)
+				.appendTo($poll);
+				
+			updatePollAutoClose($poll, data);
 
-				lastPollCountdown = new Countdown(data.closePollInSeconds, data.timeElapsedInSeconds, {
-					onTick({timeLeftInSeconds, percent}) {
-						$timeLeft.text(timeLeftInSeconds >= 1 ? `closing in ${secondsToHuman(timeLeftInSeconds)}` : "closing poll...");
-						$progress.css("width", `${percent * 100}%`);
-					},
-					onDispose() {
-						$timeLeft.text("closing poll...");
-						$progress.css("width", "0px");
-					}
-				});
+			if (canCreatePoll()) {
+				$pollControl.addClass("enabled");
 			}
 		});
 	}
@@ -1655,6 +1727,8 @@ function updatePoll(data){
 			$(val).text(votes[$(val).data("op")]);
 		});
 	}
+
+	updatePollAutoClose($poll, data);
 }
 function updateRankedPollEmotes() {
 	if (typeof Bem === 'undefined') {
@@ -1675,6 +1749,48 @@ function updateRankedPollEmotes() {
 		$this.html(Bem.applyEmotesToStr($this[0].innerText));
 		Bem.postEmoteEffects($this);
 	});
+}
+function updatePollAutoClose($poll, data) {
+	const $progress = $poll.find(".poll-auto-close__progress-bar-inner");
+	const $timeLeft = $poll.find(".poll-auto-close__time-left");
+	const $autoClose = $poll.find(".poll-auto-close");
+
+	if (data.closePollInSeconds > 0) {
+		$autoClose.addClass("enabled");
+
+		if (lastPollCountdown) {
+			if (lastPollCountdown.pollId === data.id && 
+				lastPollCountdown.startedAt === data.startedAt && 
+				lastPollCountdown.totalTimeInSeconds === data.closePollInSeconds) {
+				return;
+			}
+
+			lastPollCountdown.dispose();
+		}
+		
+		lastPollCountdown = new Countdown(data.closePollInSeconds, data.startedAt, {
+			onTick({ timeLeftInSeconds, percent }) {
+				$timeLeft.text(timeLeftInSeconds >= 1 
+					? `closing in ${secondsToHuman(timeLeftInSeconds)}` 
+					: "closing poll...");
+
+				$progress.css("width", `${percent * 100}%`);
+			},
+			onDispose() {
+				$timeLeft.text("closing poll...");
+				$progress.css("width", "0px");
+			}
+		});
+
+		lastPollCountdown.pollId = data.id;
+	} else {
+		$autoClose.removeClass("enabled");
+
+		if (lastPollCountdown && lastPollCountdown.pollId === data.id) {
+			lastPollCountdown.dispose();
+			lastPollCountdown = null;
+		}
+	}
 }
 function getPollTitle({ votes, extended }) {
 	var title = POLL_TITLE_FORMAT;
@@ -1883,7 +1999,7 @@ function _setVidColorTag(domobj,tag,volat){
 function setColorTheme(cssPath){
 	$('#themeCss').remove();
 	if(cssPath.length > 0)
-		$("<link/>").insertAfter("#mainTheme").attr('href',cssPath).attr('rel','stylesheet').attr('id',"themeCss");
+		{$("<link/>").insertAfter("#mainTheme").attr('href',cssPath).attr('rel','stylesheet').attr('id',"themeCss");}
 	setStorage("siteThemePath", cssPath);
 
 	var exdate = new Date();
@@ -1896,39 +2012,57 @@ function controlsVideo(){
 	return LEADER;
 }
 function controlsPlaylist(){
-	if(TYPE > 0) return true;
+	if(TYPE > 0) {
+		return true;
+	}
 	return LEADER;
 }
 function canColorTag(){
-	if(TYPE > 0) return true;
+	if(TYPE > 0) {
+		return true;
+	}
 	return false;
 }
 function canToggleVolatile(){
-	if(TYPE > 0) return true;
+	if(TYPE > 0) {
+		return true;
+	}
 	return false;
 }
 function canTempShadowBan(){
-	if(TYPE >= 2) return true;
+	if(TYPE >= 2) {
+		return true;
+	}
 	return false;
 }
 function canSeeAdminLog(){
-	if(TYPE >= 2) return true;
+	if(TYPE >= 2) {
+		return true;
+	}
 	return false;
 }
 function canDeleteVideo(){
-	if(TYPE > 0) return true;
+	if(TYPE > 0) {
+		return true;
+	}
 	return false;
 }
 function canSetFilters(){
-	if(TYPE >= 2) return true;
+	if(TYPE >= 2) {
+		return true;
+	}
 	return false;
 }
 function canRandomizeList(){
-	if(TYPE > 0) return true;
+	if(TYPE > 0) {
+		return true;
+	}
 	return false;
 }
 function canCreatePoll(){
-	if(TYPE > 0) return true;
+	if(TYPE > 0) {
+		return true;
+	}
 	return LEADER;
 }
 function canClosePoll(){
@@ -1938,23 +2072,33 @@ function canChat(){
 	return NAME;
 }
 function canMoveBerry(){
-	if(TYPE >= 1) return true;
+	if(TYPE >= 1) {
+		return true;
+	}
 	return false;
 }
 function canKickUser(){
-	if(TYPE >= 2) return true;
+	if(TYPE >= 2) {
+		return true;
+	}
 	return false;
 }
 function canShadowBan(){
-	if(TYPE >= 2) return true;
+	if(TYPE >= 2) {
+		return true;
+	}
 	return false;
 }
-function canBan() {
-	if (TYPE >= 2) return true;
+function canBan(){
+	if (TYPE >= 2) {
+		return true;
+	}
 	return false;
 }
 function canSetAreas(){
-	if(TYPE >= 2) return true;
+	if(TYPE >= 2) {
+		return true;
+	}
 	return false;
 }
 /* Video Control */
@@ -1995,7 +2139,9 @@ function videoLoadAtTime(vidObj, time) {
 			try {
 				PLAYER.getVolume(function(v){
                     try {
-						if(v !== null) VOLUME = v;
+						if(v !== null) {
+							VOLUME = v;
+						}
     					PLAYER = PLAYERS[ptype];
     					removeCurrentPlayer();
     					VIDEO_TYPE = ptype;
@@ -2056,7 +2202,9 @@ function formatChatMsg(msg, greentext){
 
 	if (greentext !== false) {
 	    var re = RegExp("^>");
-		if(h.text().match(re)) h.addClass("green");
+		if(h.text().match(re)) {
+			h.addClass("green");
+		}
 	}
 
 	return h;
@@ -2114,10 +2262,12 @@ function timeToMainGame(){
 
     var dayOffset = 0;
     var day = TIME.getUTCDay();
-    while(day != startDay){
+    while (day != startDay){
         dayOffset++;
         day++;
-        if(day>=7)day=0;
+        if (day>=7) {
+			day=0;
+		}
     }
 
     console.log(TIME.getUTCDate() + dayOffset);
@@ -2127,12 +2277,16 @@ function timeToMainGame(){
     GAME.setUTCSeconds(-1);
 
     var timeUntilGameStarts = (GAME.getTime() / 1000) - (TIME.getTime() / 1000);
-    if(timeUntilGameStarts < 0) timeUntilGameStarts += WEEK;
+    if (timeUntilGameStarts < 0) {
+		timeUntilGameStarts += WEEK;
+	}
 
     GAME.setUTCHours(stopHr);
 
     var timeUntilGameStops = (GAME.getTime() / 1000) - (TIME.getTime() / 1000);
-    if(timeUntilGameStops < 0) timeUntilGameStops += WEEK;
+    if (timeUntilGameStops < 0) {
+		timeUntilGameStops += WEEK;
+	}
 
     return {
         start:timeUntilGameStarts,
@@ -2272,7 +2426,9 @@ function smartRefreshScrollbar(){
 }
 function getVideoIdOfLongUrl(url){
 	var id = url.match(/v=([^&]+)/);
-	if(id == null) return false;
+	if (id == null) {
+		return false;
+	}
 	var id = url.match(/v=([^&]+)/)[1];
 	return id;
 }
@@ -2290,8 +2446,9 @@ function setPlaylistPosition(to){
 	waitForFlag("PLREADY",function(){
 		//unset active class
 		dbg(to);
-		if(typeof ACTIVE.domobj != "undefined")
+		if(typeof ACTIVE.domobj != "undefined") {
 			ACTIVE.domobj.removeClass("active");
+		}
 
 		var elem = PLAYLIST.first;
 		ACTIVE = PLAYLIST.first;
@@ -2306,8 +2463,9 @@ function setPlaylistPosition(to){
 			}
 			elem=elem.next;
 		}
-		if(typeof ACTIVE.domobj != "undefined")
+		if(typeof ACTIVE.domobj != "undefined") {
 			ACTIVE.domobj.addClass("active");
+		}
 		//PL_POSITION = to;
 
 		smartRefreshScrollbar();
@@ -2315,7 +2473,9 @@ function setPlaylistPosition(to){
 		if(getStorage("plFolAcVid") == 1){
 			var x = ACTIVE.domobj.index();
 			x -= 2;
-			if(x < 0) x = 0;
+			if(x < 0) {
+				x = 0;
+			}
 			scrollToPlEntry(x);
 		}
 	});

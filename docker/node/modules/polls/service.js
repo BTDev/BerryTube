@@ -1,6 +1,11 @@
 const { sanitize } = require("../security");
 const { actions } = require("../auth");
-const { getSocketName } = require("../sessions");
+const {
+	getSocketPropAsync,
+	setSocketPropAsync,
+	socketProps,
+	getSocketName,
+} = require("../socket");
 const { ServiceBase } = require("../base");
 const { events } = require("../log/events");
 
@@ -23,6 +28,7 @@ exports.PollService = class extends ServiceBase {
 
 		this.exposeSocketActions({
 			newPoll: this.createPoll.bind(this),
+			updatePoll: this.updatePoll.bind(this),
 			closePoll: this.closeCurrentPoll.bind(this),
 			votePoll: this.castVote.bind(this),
 			disconnect: this.clearVote.bind(this),
@@ -46,7 +52,7 @@ exports.PollService = class extends ServiceBase {
 		};
 
 		if (!this.auth.can(socket.session, actions.ACTION_CREATE_POLL)) {
-			throw new Error("unauthoirzed");
+			throw new Error("unauthorized");
 		}
 
 		const PollType = pollTypes[options.pollType];
@@ -97,7 +103,7 @@ exports.PollService = class extends ServiceBase {
 			socket &&
 			!this.auth.can(socket.session, actions.ACTION_CLOSE_POLL)
 		) {
-			throw new Error("unauthoirzed");
+			throw new Error("unauthorized");
 		}
 
 		const title = this.currentPoll.options.title;
@@ -155,7 +161,7 @@ exports.PollService = class extends ServiceBase {
 		}
 
 		if (!this.auth.can(socket.session, actions.ACTION_VOTE_POLL)) {
-			throw new Error("unauthoirzed");
+			throw new Error("unauthorized");
 		}
 
 		const ipAddress = socket.ip;

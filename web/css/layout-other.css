@@ -563,7 +563,7 @@ body {
 }
 
 .optionWrap__two-thirds-text::before {
-    content: "⅔";
+    content: "\2154 ";
 }
 
 #pollControl .options table input[type="text"] {
@@ -593,8 +593,21 @@ body {
     border: 1px solid #000;
     padding: 5px;
 }
+.poll-control {
+	display: none;
+	margin-top: 10px;
+	background: rgba(0, 0, 0, .2);
+	padding: 10px;
+}
+.poll-control.enabled {
+	display: block;
+}
 .poll-auto-close {
     position: relative;
+    display: none;
+}
+.poll-auto-close.enabled {
+    display: block;
 }
 .poll-auto-close__time-left {
     background: rgba(0, 0, 0, .2);
@@ -793,7 +806,7 @@ button.ranked-poll__button {
     user-select: none;
     margin-right: 10px;
     height: 30px;
-    width: 30px;
+    width: 40px;
     line-height: 15px;
     border: none;
     font-size: 9px;
@@ -897,7 +910,7 @@ button.ranked-poll__button:active::after {
 }
 
 .ranked-poll__option-text.is-two-thirds::before, .ranked-poll__poll-option-text.is-two-thirds::before {
-    content: "⅔ required";
+    content: "\2154  required";
     font-size: 12px;
     color: #ddd;
 }

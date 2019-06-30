@@ -187,7 +187,7 @@ animation: pulse 3s ease-in-out infinite;
     text-indent: 0px; 
     visibility:visible;
     color:yellow;
-    content:'★';
+    content:'\2605 ';
     float:left;
     font-size: 20px;
     line-height: 2px;
