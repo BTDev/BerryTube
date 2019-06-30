@@ -1,9 +1,19 @@
 'what up';
+
+const autoCloseTimes = [
+	[0, "Don't Close Automatically"],
+	[30, "Close in 30 seconds"],
+	[60, "Close in 1 minute"],
+	[60 * 2, "Close in 2 minutes"],
+	[60 * 5, "Close in 5 minutes"],
+	[60 * 10, "Close in 10 minutes"]
+];
+
 var DEBUG = false;
 if(typeof localStorage != "undefined"){
     DEBUG = localStorage.getItem('BT_DEBUG') === "true";
 }
-function dbg(...things) { if(DEBUG) console.debug(...things); }
+function dbg(...things) { if(DEBUG) {console.debug(...things);} }
 function setDebugMode(mode) {
 	DEBUG = !!mode;
 	localStorage.setItem("BT_DEBUG", mode ? "true" : "false");
@@ -297,7 +307,7 @@ function addRequeue(entry){
 	}
 }
 function doRequeue(entry){
-	if(getVal("sorting") == true) return;
+	if(getVal("sorting") == true) {return;}
 	setVal("sorting",true);
 	console.log("Called doRequeue()");
 	if(controlsPlaylist())
@@ -306,7 +316,7 @@ function doRequeue(entry){
 		var to = ACTIVE.domobj.index();
         var id = $(entry).data('plobject').videoid;
 
-		if(from > to) to++;
+		if(from > to) {to++;}
 
 		var data = {
 			from: from,
@@ -376,37 +386,37 @@ function sortUserList(){
 	listitems.sort(function(a, b) {
 	   return $(a).text().toUpperCase().localeCompare($(b).text().toUpperCase());
 	});
-	$.each(listitems, function(idx, itm) { if($(itm).data('nick') != NAME) mylist.append(itm); });
+	$.each(listitems, function(idx, itm) { if($(itm).data('nick') != NAME) {mylist.append(itm);} });
 
 	var listitems = mylist.children('li.user.gilded, li.assistant.gilded').get();
 	listitems.sort(function(a, b) {
 	   return $(a).text().toUpperCase().localeCompare($(b).text().toUpperCase());
 	});
-	$.each(listitems, function(idx, itm) { if($(itm).data('nick') != NAME) mylist.append(itm); });
+	$.each(listitems, function(idx, itm) { if($(itm).data('nick') != NAME) {mylist.append(itm);} });
 
 	var listitems = mylist.children('li.user.leader, li.assistant.leader').get();
         listitems.sort(function(a, b) {
            return $(a).text().toUpperCase().localeCompare($(b).text().toUpperCase());
         });
-        $.each(listitems, function(idx, itm) { if($(itm).data('nick') != NAME) mylist.append(itm); });
+        $.each(listitems, function(idx, itm) { if($(itm).data('nick') != NAME) {mylist.append(itm);} });
 
 	var listitems = mylist.children('li.user:not(.gilded,.leader), li.assistant:not(.gilded,.leader)').get();
 	listitems.sort(function(a, b) {
 	   return $(a).text().toUpperCase().localeCompare($(b).text().toUpperCase());
 	});
-	$.each(listitems, function(idx, itm) { if($(itm).data('nick') != NAME) mylist.append(itm); });
+	$.each(listitems, function(idx, itm) { if($(itm).data('nick') != NAME) {mylist.append(itm);} });
 
 	var listitems = mylist.children('li.anon').get();
 	listitems.sort(function(a, b) {
 	   return $(a).text().toUpperCase().localeCompare($(b).text().toUpperCase());
 	});
-	$.each(listitems, function(idx, itm) { if($(itm).data('nick') != NAME) mylist.append(itm); });
+	$.each(listitems, function(idx, itm) { if($(itm).data('nick') != NAME) {mylist.append(itm);} });
 
 	var listitems = mylist.children('li.nobody').get();
 	listitems.sort(function(a, b) {
 	   return $(a).text().toUpperCase().localeCompare($(b).text().toUpperCase());
 	});
-	$.each(listitems, function(idx, itm) { if($(itm).data('nick') != NAME) mylist.append(itm); });
+	$.each(listitems, function(idx, itm) { if($(itm).data('nick') != NAME) {mylist.append(itm);} });
 
 	dbg("sorting");
 }
@@ -467,7 +477,7 @@ function showLogMenu(on){
 function migrateFrom(url) {
 	for (const key of Object.keys(localStorage)) {
         if (localStorage.hasOwnProperty(key))
-            localStorage.removeItem(key);
+            {localStorage.removeItem(key);}
     }
 	document.cookie = 'bt-migrated=0; path=/; domain=.' + location.hostname + '; max-age=2147483647';
 	window.location = url + '/api/migrate_page.html';
@@ -500,7 +510,7 @@ function showConfigMenu(on){
 	var row = $('<div/>').appendTo(configOps);
 	$('<span/>').text("Sync video:").appendTo(row);
 	var syncOnOff = $('<input/>').attr('type','checkbox').appendTo(row);
-	if(getStorage('syncAtAll') == 1) syncOnOff.prop('checked', true);
+	if(getStorage('syncAtAll') == 1) {syncOnOff.prop('checked', true);}
 	syncOnOff.change(function(){ //
 		if($(this).is(":checked")){
 			setStorage('syncAtAll',1);
@@ -520,7 +530,7 @@ function showConfigMenu(on){
 	var row = $('<div/>').appendTo(configOps);
 	$('<span/>').text("Enable notify sound:").appendTo(row);
 	var notifyMute = $('<input/>').attr('type','checkbox').appendTo(row);
-	if(getStorage('notifyMute') == 0) notifyMute.prop('checked', true);
+	if(getStorage('notifyMute') == 0) {notifyMute.prop('checked', true);}
 	notifyMute.change(function(){ //
 		if($(this).is(":checked")){
 			setStorage('notifyMute',0);
@@ -535,7 +545,7 @@ function showConfigMenu(on){
 		.append($("<input />").attr("type", "checkbox")
 			.prop("checked", getStorageToggle("storeAllSquees"))
 			.change(function() {
-				setStorageToggle("storeAllSquees", $(this).is(":checked"))
+				setStorageToggle("storeAllSquees", $(this).is(":checked"));
 			}));
 	//----------------------------------------
 	var row = $('<div/>').appendTo(configOps);
@@ -593,7 +603,7 @@ function showConfigMenu(on){
 	var row = $('<div/>').appendTo(configOps);
 	$('<span/>').text("Playlist follows active video:").appendTo(row);
 	var plFolAcVid = $('<input/>').attr('type','checkbox').appendTo(row);
-	if(getStorage("plFolAcVid") == 1) plFolAcVid.prop('checked', true);
+	if(getStorage("plFolAcVid") == 1) {plFolAcVid.prop('checked', true);}
 	plFolAcVid.change(function(){ //
 		if($(this).is(":checked")){
 			setStorage('plFolAcVid',1);
@@ -638,7 +648,7 @@ function showConfigMenu(on){
 	var row = $('<div/>').appendTo(configOps);
 	$('<span/>').text("Night mode (for select themes):").appendTo(row);
 	var nightMode = $('<input/>').attr('type','checkbox').appendTo(row);
-	if(getStorage("nightMode") == 1) nightMode.prop('checked', true);
+	if(getStorage("nightMode") == 1) {nightMode.prop('checked', true);}
 	nightMode.change(function(){ //
 		if($(this).is(":checked")){
 			setStorage('nightMode',1);
@@ -685,7 +695,7 @@ function showConfigMenu(on){
 		var row = $('<div/>').appendTo(modOps);
 		$('<span/>').text("Show Shadowban Chatter:").appendTo(row);
 		var showShadowChatter = $('<input/>').attr('type','checkbox').appendTo(row);
-		if(getStorage("sbchatter") == 1) showShadowChatter.prop('checked', true);
+		if(getStorage("sbchatter") == 1) {showShadowChatter.prop('checked', true);}
 		showShadowChatter.change(function(){ //
 			if($(this).is(":checked")){
 				$('body').addClass('showSBChatter');
@@ -954,7 +964,7 @@ function rmUser(nick){
     if(o.length > 0){
         $(o[0]).remove();
         delete CHATLIST[nick];
-    };
+    }
     sortUserList();
 }
 function addVideoControls(entry,optionList){
@@ -1293,7 +1303,7 @@ function initPlaylistControls(plwrap){
 	randomizeBtn.click(function(){
 		if(controlsPlaylist()){
 			if(confirm("Really Randomize list? This should be done SPARINGLY! Its a decent bit of overhead, and will LAG PEOPLE FOR A LITTLE WHILE."))
-				socket.emit("randomizeList");
+				{socket.emit("randomizeList");}
 		}
 	});
 	$('<div/>').addClass("clear").appendTo(container);
@@ -1592,7 +1602,7 @@ function initChatList(data){
 	var count = $(data).length;
 	$(data).each(function(key,value){
 		addUser(value, false);
-		if (!--count) sortUserList();
+		if (!--count) {sortUserList();}
 	});
 }
 function initLogoutForm(headbar){
@@ -1801,14 +1811,8 @@ function initPolls(under){
 	// Automatic Close Row
 	const automaticClose = $("<select />")
 		.addClass("c-poll-select__select")
-		.append([
-			[0, "Don't Close Automaticly"],
-			[30, "Close in 30 seconds"],
-			[60, "Close in 1 minute"],
-			[60 * 2, "Close in 2 minutes"],
-			[60 * 5, "Close in 5 minutes"],
-			[60 * 10, "Close in 10 minutes"]
-		].map(([time, title]) => $(`<option />`)
+		.append(autoCloseTimes
+			.map(([time, title]) => $(`<option />`)
 			.attr("selected", time === 0)
 			.text(title)
 			.attr("value", time)))
@@ -1897,11 +1901,11 @@ function initPolls(under){
 
 	function createPoll(pollType = "normal") {
 		if (!canCreatePoll())
-			return;
+			{return;}
 
 		const options = getOptions();
 		if (!options.length) {
-			return
+			return;
 		}
 
 		socket.emit("newPoll", {
@@ -1928,11 +1932,11 @@ function initPolls(under){
 		for (const opWrap of opWraps) {
 			const textInput = opWrap.querySelector(".option");
 			if (!textInput)
-				continue;
+				{continue;}
 
 			const text = textInput.value;
 			if (!text.trim().length)
-				continue;
+				{continue;}
 
 			const isTwoThirds = opWrap.querySelector(".optionWrap__two-thirds-checkbox").checked;
 			ret.push({ text, isTwoThirds });
@@ -2160,7 +2164,7 @@ $(function(){
 function getClosest(elem, selector) {
     for (; elem && elem !== document; elem = elem.parentNode) {
         if (elem.matches(selector))
-            return elem;
+            {return elem;}
     }
 
     return null;

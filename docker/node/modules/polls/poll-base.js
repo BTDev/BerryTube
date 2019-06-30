@@ -28,15 +28,22 @@ exports.PollInstance = class {
 		};
 	}
 
-	constructor(pollService, id, options) {
-		const { closePollInSeconds } = options;
-		this.timeLeftInSeconds = closePollInSeconds + fudgeFactorInSeconds;
-		this.isTimedPoll = closePollInSeconds > 0;
-		this.startedAt = now();
+	get closePollInSeconds() {
+		return this.options.closePollInSeconds;
+	}
 
+	set closePollInSeconds(value) {
+		this.isTimedPoll = value > 0;
+		this.options.closePollInSeconds = value;
+		this.startedAt = now();
+		this.timeLeftInSeconds = value + fudgeFactorInSeconds;
+	}
+
+	constructor(pollService, id, options) {
 		this.id = id;
 		this.service = pollService;
 		this.options = options;
+		this.closePollInSeconds = options.closePollInSeconds;
 	}
 
 	castVote() {

@@ -999,7 +999,8 @@ function handleACL(){
 					pc.show("blind");
 				}
                 dbg("CAN CONTROL POLLS");
-            });
+			});
+			$(".poll-control").addClass("enabled");
         }else{
             whenExists("#pollControl",function(pc){
                 if(pc.is(":visible")) {
@@ -1007,6 +1008,7 @@ function handleACL(){
 				}
                 dbg("CAN NOT CONTROL POLLS");
             });
+			$(".poll-control").removeClass("enabled");
         }
 
         if(canSetAreas()){
@@ -1416,6 +1418,7 @@ function closePoll(data) {
 	}
 
 	$("#pollpane .poll-auto-close").remove();
+	$("#pollpane .poll-control").remove();
 
 	if (data.pollType == "ranked") {
 		onModuleLoaded(() => window.rankedPolls.closeRankedPoll());
@@ -1657,7 +1660,44 @@ function newPoll(data){
 							.addClass("poll-auto-close__progress-bar-inner")))
 				.appendTo($poll);
 
+			const $pollControl = $("<div />")
+				.addClass("poll-control")
+				.append(
+					$("<div />")
+						.addClass("poll-control__auto-close")
+						.append(
+							$("<select>")
+								.addClass("poll-control__auto-close__select")
+								.append($("<option />")
+									.attr("value", "")
+									.text("Set Poll Timer"))
+								.append($("<option />")
+									.attr("value", "0")
+									.text("Remove Timer"))
+								.append(
+									autoCloseTimes
+										.filter(([time]) => time > 0)
+										.map(([time, title]) => $(`<option />`)
+										.text(title)
+										.attr("value", time)))
+								.change(function() {
+									const $this = $(this);
+									const closeInSeconds = parseInt($this.val(), 10);
+									$this.val("");
+
+									socket.emit("updatePoll", { 
+										id: data.id, 
+										closePollInSeconds: closeInSeconds 
+									});
+								}))
+				)
+				.appendTo($poll);
+				
 			updatePollAutoClose($poll, data);
+
+			if (canCreatePoll()) {
+				$pollControl.addClass("enabled");
+			}
 		});
 	}
 }
