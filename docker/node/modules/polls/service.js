@@ -1,11 +1,6 @@
 const { sanitize } = require("../security");
 const { actions } = require("../auth");
-const {
-	getSocketPropAsync,
-	setSocketPropAsync,
-	socketProps,
-	getSocketName,
-} = require("../socket");
+const { getSocketName } = require("../sessions");
 const { ServiceBase } = require("../base");
 const { events } = require("../log/events");
 
@@ -87,6 +82,38 @@ exports.PollService = class extends ServiceBase {
 				pollTimeout: closePollInSeconds,
 			},
 		);
+	}
+
+	/**
+	 * Updates a poll
+	 * Invoked via the "updatePoll" socket action
+	 * @param {*} socket socket.io socket that requested this poll be created
+	 * @param {any} options the new options to set
+	 */
+	async updatePoll(socket, { id, closePollInSeconds }) {
+		if (!this.auth.can(socket.session, actions.ACTION_CREATE_POLL)) {
+			throw new Error("unauthorized");
+		}
+
+		if (!this.currentPoll || this.currentPoll.id !== id) {
+			return;
+		}
+
+		if (typeof closePollInSeconds === "number") {
+			this.currentPoll.closePollInSeconds = closePollInSeconds;
+			await this.publishToAll("updatePoll");
+
+			this.log.info(
+				events.EVENT_ADMIN_UPDATED_POLL,
+				`{mod} updated poll {title} on {type}: close in ${closePollInSeconds} seconds`,
+				{
+					mod: await getSocketName(socket),
+					title: this.currentPoll.options.title,
+					type: "site",
+					pollTimeout: closePollInSeconds,
+				},
+			);
+		}
 	}
 
 	/**
