@@ -2034,6 +2034,8 @@ function parseVideoURL(url,callback){
 	var m = url.match(new RegExp("clips\\.twitch\\.tv/([A-Za-z0-9]+)")); if(m){	callback(m[1],"twitchclip",m[1]); return;}
 	var m = url.match(new RegExp("twitch\\.tv/[A-Za-z0-9]+/clip/([A-Za-z0-9]+)")); if(m){	callback(m[1],"twitchclip",m[1]); return;}
 	var m = url.match(new RegExp("twitch\\.tv/((?:videos/)?[A-Za-z0-9]+)")); if(m){	callback(m[1],"twitch",m[1]); return;}
+	var m = url.match(new RegExp("v\.redd\.it\/([^\/]+)")); if (m) { callback(`video:${m[1]}`, "reddit"); return; }
+	var m = url.match(new RegExp("^https:\/\/(www\.)?reddit\.com")); if (m) { callback(`post:${url}`, "reddit"); return; }
 	var m = url.match(new RegExp("^rtmp://")); if(m){ callback(url,"osmf", "~ Raw Livestream ~"); return;}
 	var m = url.match(new RegExp("\\.f4m$")); if(m){ callback(url,"osmf", "~ Raw Livestream ~"); return;}
 	var m = url.match(new RegExp("vimeo.com/([^&]+)")); if(m){ callback(m[1],"vimeo"); return;}

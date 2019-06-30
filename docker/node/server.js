@@ -39,6 +39,8 @@ const isoDuration = require('iso8601-duration');
 const fetch = require('node-fetch');
 const bcrypt = require('bcrypt');
 const isoCountries = require('i18n-iso-countries');
+const requestAsync = util.promisify(require("request"));
+
 var mysql = null;
 
 process.on("uncaughtException", function (err) {
@@ -2284,6 +2286,76 @@ function addVideoDailymotion(socket,data,meta,successCallback,failureCallback){
 	});
 }
 
+function addVideoReddit(socket, data, meta, successCallback, failureCallback) {
+	(async () => {
+		const [, type, id] = /(.*?):(.*)/.exec(data.videoid);
+		const isVolatile = meta.type <= 0 || !!data.volat;
+		let jsonUrl = "";
+		
+		if (type === "video") {
+			// this was posted as a direct link to a reddit video
+			// so we have to follow the redirect of the video to get the original post...
+			const {
+				headers: { location }
+			} = await requestAsync({
+				followRedirect: false,
+				url: `https://v.redd.it/${id}`
+			});
+		
+			if (!location) {
+				throw new Error("Reddit did not return a redirect");
+			}
+		
+			jsonUrl = `${location}.json`;
+		} else if (type === "post") {
+			// this was a url that starts with https://www.reddit.com or https://reddit.com - try adding a .json to the 
+			// end of the url to find the video data
+			jsonUrl = `${id}.json`;
+		}
+		
+		if (!jsonUrl) {
+			throw new Error(
+				"Could not locate the json endpoint of the post for this video"
+			);
+		}
+		
+		const response = await requestAsync(jsonUrl);
+		const [
+			{
+				data: {
+					children: [
+						{
+							data: {
+								title,
+								secure_media: {
+									reddit_video: { fallback_url, duration }
+								}
+							}
+						}
+					]
+				}
+			}
+		] = JSON.parse(response.body);
+
+		if (typeof fallback_url !== "string") {
+			throw new Error("Could not get reddit result");
+		}
+		
+		await rawAddVideoAsync({
+			pos: SERVER.PLAYLIST.length,
+			videoid: fallback_url,
+			videotitle: encodeURI(title),
+			videolength: duration,
+			videotype: "file",
+			who: meta.nick,
+			queue: data.queue,
+			volat: isVolatile
+		});
+		
+		return title;		
+	})().then(successCallback, failureCallback);
+}
+
 
 function ifCanSetFilters(socket,truecallback,falsecallback){
 	socket.get('type',function(err,type){
@@ -3334,6 +3406,9 @@ io.sockets.on('connection', function (socket) {
 				addVideoTwitch(socket, data, meta, onVideoAddSuccess, onVideoAddError);
 			else if (data.videotype == "twitchclip")
 				addVideoTwitchClip(socket, data, meta, onVideoAddSuccess, onVideoAddError);
+			else if (data.videotype === "reddit") {
+				addVideoReddit(socket, data, meta, onVideoAddSuccess, onVideoAddError);
+			}
 			else {
 				// Okay, so, it wasn't vimeo and it wasn't youtube, assume it's a livestream and just queue it.
 				// This requires a videotitle and a videotype that the client understands.
