@@ -73,7 +73,7 @@ process.on("uncaughtException", function (err) {
 			err);
 
 		if (isIgnored)
-			return;
+			{return;}
 	}
 	catch (err) { /* the error has already been printed, so just fall out and exit */ }
 
@@ -229,7 +229,7 @@ DefaultLog.addLogger(
 		const {event, formatted, data, createdAt} = logEvent;
 
 		if (!event.startsWith("EVENT_ADMIN_"))
-			return;
+			{return;}
 
 		const buffer = SERVER.OUTBUFFER["adminLog"] = (SERVER.OUTBUFFER["adminLog"] || []);
 		const adminMessage = {
@@ -243,7 +243,7 @@ DefaultLog.addLogger(
 
 		buffer.push(adminMessage);
 		if (buffer.length > SERVER.settings.core.max_saved_buffer)
-			buffer.shift();
+			{buffer.shift();}
 
 		sessionService.forCan(actions.CAN_SEE_ADMIN_LOG, session => session.emit("adminLog", adminMessage));
 	});
@@ -274,7 +274,7 @@ function initPlaylist(callback) {
 
 		SERVER.ACTIVE = SERVER.PLAYLIST.first;
 		if(callback)
-			callback();
+			{callback();}
 	});
 }
 function initResumePosition(callback){
@@ -287,23 +287,23 @@ function initResumePosition(callback){
 					if (+old_time) {
 						SERVER.TIME = +old_time + 1;
 					}
-					if(callback)callback();
+					if(callback){callback();}
 				});
 				return;
 			}
 			elem = elem.next;
 		}
-		if(callback)callback();
+		if(callback){callback();}
 	});
 }
 function upsertMisc(data, callback){
 	var sql = `insert into misc (name,value) VALUES (?,?) ON DUPLICATE KEY UPDATE value = ?`;
 	mysql.query(sql, [data.name, data.value, data.value], function(err) {
 		if (err)
-			DefaultLog.error(events.EVENT_DB_QUERY, "query \"{sql}\" failed", { sql }, err);
+			{DefaultLog.error(events.EVENT_DB_QUERY, "query \"{sql}\" failed", { sql }, err);}
 
 		if (callback)
-			callback();
+			{callback();}
 	});
 }
 function getMisc(data, callback){
@@ -323,7 +323,7 @@ function getMisc(data, callback){
 				DefaultLog.error(events.EVENT_GENERAL,  `Bad stored misc. Blah. ${data.name}`);
 			}
 		}
-		if(callback) callback(val);
+		if(callback) {callback(val);}
 	});
 }
 function initHardbant(callback){
@@ -331,7 +331,7 @@ function initHardbant(callback){
 		if (ips) {
 			SERVER.BANS = JSON.parse(ips) || [];
 		}
-		if(callback)callback();
+		if(callback){callback();}
 	});
 }
 function initShadowbant(callback){
@@ -360,7 +360,7 @@ function initFilters(callback){
 			}
 
 		}
-		if(callback) callback();
+		if(callback) {callback();}
 	});
 }
 function initTimer(){
@@ -497,7 +497,7 @@ function prepareBans(){
 	var i = SERVER.BANS.length;
 	while(i--){
 
-		if(SERVER.BANS[i].duration == -1) continue;
+		if(SERVER.BANS[i].duration == -1) {continue;}
 
 		//CHECK DURATION AND TIME, REMOVE BAN IF APPROPRIATE
 		// Ban duration is in minutes, so multiply all values by 60 seconds, and 1000 millis, for 60000
@@ -535,14 +535,14 @@ function augmentBan(ban,o){
 }
 function isUserBanned(o){
 	var required = ['ips','nicks'];
-	for(elem in required)if(!(required[elem] in o))return;
+	for(elem in required){if(!(required[elem] in o))return;}
 
 	prepareBans();
 	for(bannedguy in SERVER.BANS){
 
 		// Check all IP's
 		for(ip in o.ips){
-			if(!SERVER.BANS[bannedguy].ips) SERVER.BANS[bannedguy].ips = [];
+			if(!SERVER.BANS[bannedguy].ips) {SERVER.BANS[bannedguy].ips = [];}
 			if(SERVER.BANS[bannedguy].ips.indexOf(o.ips[ip]) >= 0){
 				augmentBan(SERVER.BANS[bannedguy],o);
 				return SERVER.BANS[bannedguy];
@@ -550,7 +550,7 @@ function isUserBanned(o){
 		}
 		// Check all Nicks
 		for(nick in o.nicks){
-			if(!SERVER.BANS[bannedguy].nicks) SERVER.BANS[bannedguy].nicks = [];
+			if(!SERVER.BANS[bannedguy].nicks) {SERVER.BANS[bannedguy].nicks = [];}
 			if(SERVER.BANS[bannedguy].nicks.indexOf(o.nicks[nick]) >= 0){
 				augmentBan(SERVER.BANS[bannedguy],o);
 				return SERVER.BANS[bannedguy];
@@ -687,7 +687,7 @@ function addDrink(amt,socket,callback){
 		SERVER.DRINKS = "lol go fuck yourself";
 		socket.session.kick("Berry Punch is mad at you");
 	}
-	if(callback)callback();
+	if(callback){callback();}
 }
 function randomPoni(){
 	return SERVER.ponts[Math.floor(Math.random()*SERVER.ponts.length)];
@@ -726,7 +726,7 @@ function applyFilters(nick,msg,socket){
 			}
 		}
 		for(var i=0;i<actionChain.length;i++){
-			if(actionChain[i].action == "none") continue;
+			if(actionChain[i].action == "none") {continue;}
 			if(actionChain[i].action == "kick"){
 				kickIfUnderLevel(socket,actionChain[i].meta,1);
 				continue;
@@ -979,7 +979,7 @@ function _sendChat(nick,type,incoming,socket){
 		return;
 	}
 
-	var bufferMessage = false; if(data) bufferMessage = true;
+	var bufferMessage = false; if(data) {bufferMessage = true;}
 	bufferMessage = (!isUserShadowBanned(socket)) && bufferMessage;
 	bufferMessage = (!metadata.graymute) && bufferMessage;
 
@@ -1001,7 +1001,7 @@ function _sendChat(nick,type,incoming,socket){
 			if(!SERVER.OUTBUFFER[channel]) { SERVER.OUTBUFFER[channel] = []; }
 				SERVER.OUTBUFFER[channel].push(data);
 			if(SERVER.OUTBUFFER[channel].length > SERVER.settings.core.max_saved_buffer)
-				SERVER.OUTBUFFER[channel].shift();
+				{SERVER.OUTBUFFER[channel].shift();}
 		}
 	}
 }
@@ -1023,10 +1023,10 @@ function setToggleable(socket, name,state,callback){
 	SERVER.settings.toggles[name][0] = state;
 
 	if (callback)
-		callback(null, {
+		{callback(null, {
 			name: name,
 			state: state
-		});
+		});}
 }
 function getToggleable(name) {
 	if(typeof SERVER.settings.toggles[name] == "undefined") {
@@ -1054,11 +1054,11 @@ function getSocketOfNick(targetnick,truecallback,falsecallback){
 		(function(i){
 			cl[i].get("nick",function(err,nick){
 				if(nick && nick.toLowerCase() == targetnick){
-					if(truecallback)truecallback(cl[i]);
+					if(truecallback){truecallback(cl[i]);}
 				}
 			});
 			if(i == cl.length-1){
-				if(falsecallback)falsecallback();
+				if(falsecallback){falsecallback();}
 			}
 		})(i);
 	}
@@ -1070,10 +1070,10 @@ function delVideo(data, socket){
 	{
 		if(i == data.index)
 		{
-			if(data.sanityid && elem.videoid != data.sanityid) return doorStuck(socket);
+			if(data.sanityid && elem.videoid != data.sanityid) {return doorStuck(socket);}
 
-			if(elem.deleted) break;
-			if(elem == SERVER.ACTIVE) playNext();
+			if(elem.deleted) {break;}
+			if(elem == SERVER.ACTIVE) {playNext();}
 
 			try{
 				SERVER.PLAYLIST.remove(elem);
@@ -1187,7 +1187,7 @@ function rawAddVideo(d,successCallback,failureCallback){
 		mysql.query(sql, qParams, function(err) {
 			if (err) {
 				DefaultLog.error(events.EVENT_DB_QUERY, "query \"{sql}\" failed", { sql }, err);
-				if(failureCallback)failureCallback(err);
+				if(failureCallback){failureCallback(err);}
 			}else{
 
 				var o = new Video();
@@ -1228,7 +1228,7 @@ function rawAddVideo(d,successCallback,failureCallback){
 					});
 				}
 
-				if(successCallback)successCallback();
+				if(successCallback){successCallback();}
 			}
 		});
 
@@ -1257,9 +1257,9 @@ function addLiveVideo(data,meta,successCallback,failureCallback){
 		queue:data.queue,
 		volat:volat
 	},function(){
-		if(successCallback)successCallback({ title: data.videotitle });
+		if(successCallback){successCallback({ title: data.videotitle });}
 	},function(err){
-		if(failureCallback)failureCallback(err);
+		if(failureCallback){failureCallback(err);}
 	});
 }
 function addVideoVimeo(socket,data,meta,successCallback,failureCallback){
@@ -1275,8 +1275,8 @@ function _addVideoVimeo(socket,data,meta,path,successCallback,failureCallback) {
 	var pos = SERVER.PLAYLIST.length;
 	var volat = data.volat;
 	var jdata;
-	if(meta.type <= 0) volat = true;
-	if(volat === undefined) volat = false;
+	if(meta.type <= 0) {volat = true;}
+	if(volat === undefined) {volat = false;}
 
 	var options = {
 		host: 'vimeo.com',
@@ -1293,11 +1293,11 @@ function _addVideoVimeo(socket,data,meta,path,successCallback,failureCallback) {
 		res.on('end', function () {
 			try {
 				jdata = JSON.parse(recievedBody);
-				if(util.isArray(jdata)) jdata = jdata[0];
+				if(util.isArray(jdata)) {jdata = jdata[0];}
 			}
 			catch (err) {
 				//json parse failure because the failure message from vimeo is a string. ex: 61966249 not found.
-				if (failureCallback)failureCallback(err);
+				if (failureCallback){failureCallback(err);}
 				return;
 			}
 
@@ -1311,15 +1311,15 @@ function _addVideoVimeo(socket,data,meta,path,successCallback,failureCallback) {
 				queue: data.queue,
 				volat: volat
 			}, function () {
-				if (successCallback)successCallback({ title: jdata.title });
+				if (successCallback){successCallback({ title: jdata.title });}
 			}, function (err) {
-				if (failureCallback)failureCallback(err);
+				if (failureCallback){failureCallback(err);}
 			});
 		});
 	});
 	req.on('error', function (e) {
 		if (failureCallback)
-			failureCallback(e);
+			{failureCallback(e);}
 	});
 	req.end();
 }
@@ -1338,7 +1338,7 @@ function addVideoYT(socket,data,meta,successCallback,failureCallback){
 	if(videoid.length==0)
 	{
 		if (failureCallback)
-			failureCallback("no title specified");
+			{failureCallback("no title specified");}
 		return;
 	}
 	var options = {
@@ -1412,18 +1412,18 @@ function addVideoYT(socket,data,meta,successCallback,failureCallback){
 				vidObj &&
 				vidObj.snippet &&
 				vidObj.snippet.title
-			) formattedTitle = vidObj.snippet.title;
+			) {formattedTitle = vidObj.snippet.title;}
 
 			if(
 				vidObj &&
 				vidObj.contentDetails &&
 				vidObj.contentDetails.duration
-			) formattedTime = parseDuration(vidObj.contentDetails.duration);
+			) {formattedTime = parseDuration(vidObj.contentDetails.duration);}
 
 			if(
 				vidObj &&
 				vidObj.status
-			) embeddable = !!vidObj.status.embeddable;
+			) {embeddable = !!vidObj.status.embeddable;}
 
 			var restrictReasons = {};
 
@@ -1465,7 +1465,7 @@ function addVideoYT(socket,data,meta,successCallback,failureCallback){
 				}
 			}
 
-			for(var hasProperties in restrictReasons) break;
+			for(var hasProperties in restrictReasons) {break;}
 			if(hasProperties) {
 				resolveRestrictCountries(restrictReasons);
 				socket.emit("videoRestriction", restrictReasons);
@@ -1475,8 +1475,8 @@ function addVideoYT(socket,data,meta,successCallback,failureCallback){
 
 			if (!maybeError) {
 				var volat = data.volat;
-				if(meta.type <= 0) volat = true;
-				if(volat === undefined) volat = false;
+				if(meta.type <= 0) {volat = true;}
+				if(volat === undefined) {volat = false;}
 
 				rawAddVideo({
 					pos:pos,
@@ -1488,14 +1488,14 @@ function addVideoYT(socket,data,meta,successCallback,failureCallback){
 					queue:data.queue,
 					volat:volat
 				},function(){
-					if(successCallback)successCallback({ title: formattedTitle });
+					if(successCallback){successCallback({ title: formattedTitle });}
 				},function(err){
 					if(failureCallback)
-						failureCallback(err);
+						{failureCallback(err);}
 				});
 			}else{
 				if (failureCallback)
-					failureCallback(maybeError);
+					{failureCallback(maybeError);}
 			}
 		});
 	});
@@ -1518,8 +1518,8 @@ function addVideoYT(socket,data,meta,successCallback,failureCallback){
 			var pos = SERVER.PLAYLIST.length;
 			var volat = data.volat;
 
-			if(meta.type <= 0) volat = true;
-			if(volat === undefined) volat = false;
+			if(meta.type <= 0) {volat = true;}
+			if(volat === undefined) {volat = false;}
 
 			rawAddVideo({
 				pos: pos,
@@ -1532,10 +1532,10 @@ function addVideoYT(socket,data,meta,successCallback,failureCallback){
 				volat: volat
 			}, function() {
 				if (successCallback)
-					successCallback({ title });
+					{successCallback({ title });}
 			}, function(err) {
 				if (failureCallback)
-					failureCallback(err);
+					{failureCallback(err);}
 			});
 		});
 	}
@@ -1558,7 +1558,7 @@ function followRedirect(options, successCallback,failureCallback){
 			http.get(options, successCallback)
 			.on('error', function(e){
 				if (failureCallback)
-					failureCallback(e);
+					{failureCallback(e);}
 			});
 
 		// Otherwise no redirect; capture the response as normal
@@ -1566,11 +1566,11 @@ function followRedirect(options, successCallback,failureCallback){
 			successCallback(res);
 		} else {
 			if(failureCallback)
-				failureCallback();
+				{failureCallback();}
 		}
 	}).on('error', function(e) {
 		if (failureCallback)
-			failureCallback(e);
+			{failureCallback(e);}
 	});
 }
 
@@ -1579,7 +1579,7 @@ function addVideoSoundCloud(socket,data,meta,successCallback,failureCallback){
 	var path;
 	if(videoid.length==0)
 	{
-		if(failureCallback)failureCallback();
+		if(failureCallback){failureCallback();}
 		return;
 	}
 	//http://api.soundcloud.com/resolve.json?url=
@@ -1606,13 +1606,13 @@ function addVideoSoundCloud(socket,data,meta,successCallback,failureCallback){
 				jdata = JSON.parse(recievedBody);
 			}
 			catch (err) {
-				if (failureCallback)failureCallback(err);
+				if (failureCallback){failureCallback(err);}
 				return;
 			}
 
 			var volat = data.volat;
-			if(meta.type <= 0) volat = true;
-			if(volat === undefined) volat = false;
+			if(meta.type <= 0) {volat = true;}
+			if(volat === undefined) {volat = false;}
 			rawAddVideo({
 				pos: SERVER.PLAYLIST.length,
 				// Don't collide with vimeo
@@ -1628,9 +1628,9 @@ function addVideoSoundCloud(socket,data,meta,successCallback,failureCallback){
 					permalink: jdata.permalink_url
 				}
 			}, function () {
-				if (successCallback)successCallback({ title: jdata.user.username + " - " + jdata.title });
+				if (successCallback){successCallback({ title: jdata.user.username + " - " + jdata.title });}
 			}, function (err) {
-				if (failureCallback)failureCallback(err);
+				if (failureCallback){failureCallback(err);}
 			});
 		});
 	}, failureCallback);
@@ -1703,8 +1703,8 @@ function addVideoDash(socket,data,meta,successCallback,failureCallback){
 			}
 
 			var volat = data.volat;
-			if(meta.type <= 0) volat = true;
-			if(volat === undefined) volat = false;
+			if(meta.type <= 0) {volat = true;}
+			if(volat === undefined) {volat = false;}
 			const parts = videoid.split('/');
 			const videoTitle = data.videotitle ? encodeURI(data.videotitle) : parts[parts.length-1];
 			rawAddVideo({
@@ -1717,9 +1717,9 @@ function addVideoDash(socket,data,meta,successCallback,failureCallback){
 				queue: data.queue,
 				volat: volat
 			}, function () {
-				if (successCallback)successCallback({ title: videoTitle });
+				if (successCallback){successCallback({ title: videoTitle });}
 			}, function (err) {
-				if (failureCallback)failureCallback(err);
+				if (failureCallback){failureCallback(err);}
 			});
 		}).catch(err => {
 			failureCallback(err);
@@ -1751,8 +1751,8 @@ async function twitchApi(path, params={}) {
 
 function addVideoTwitch(socket,data,meta,successCallback,failureCallback){
 	var volat = data.volat;
-	if(meta.type <= 0) volat = true;
-	if(volat === undefined) volat = false;
+	if(meta.type <= 0) {volat = true;}
+	if(volat === undefined) {volat = false;}
 
 	const parts = data.videoid.trim().split('/');
 	if (parts[0] === 'videos') {
@@ -1772,18 +1772,18 @@ function addVideoTwitch(socket,data,meta,successCallback,failureCallback){
 				queue: data.queue,
 				volat: volat
 			}, function () {
-				if (successCallback)successCallback({ title: response.title });
+				if (successCallback){successCallback({ title: response.title });}
 			}, function (err) {
-				if (failureCallback)failureCallback(err);
+				if (failureCallback){failureCallback(err);}
 			});
 		}).catch(error => {
-			if (failureCallback) failureCallback(error);
+			if (failureCallback) {failureCallback(error);}
 		});
 	} else {
 		twitchApi(['search', 'channels'], {query: parts[0], limit: 1}).then(response => {
 			response = response && response.channels && response.channels[0];
 			if (!response) {
-				if (failureCallback)failureCallback('no such channel');
+				if (failureCallback){failureCallback('no such channel');}
 				return;
 			}
 
@@ -1797,20 +1797,20 @@ function addVideoTwitch(socket,data,meta,successCallback,failureCallback){
 				queue: data.queue,
 				volat: volat
 			}, function () {
-				if (successCallback)successCallback({ title: response.display_name });
+				if (successCallback){successCallback({ title: response.display_name });}
 			}, function (err) {
-				if (failureCallback)failureCallback(err);
+				if (failureCallback){failureCallback(err);}
 			});
 		}).catch(error => {
-			if (failureCallback) failureCallback(error);
+			if (failureCallback) {failureCallback(error);}
 		});
 	}
 }
 
 function addVideoTwitchClip(socket,data,meta,successCallback,failureCallback){
 	var volat = data.volat;
-	if(meta.type <= 0) volat = true;
-	if(volat === undefined) volat = false;
+	if(meta.type <= 0) {volat = true;}
+	if(volat === undefined) {volat = false;}
 
 	twitchApi(['clips', data.videoid]).then(response => {
 		rawAddVideo({
@@ -1823,12 +1823,12 @@ function addVideoTwitchClip(socket,data,meta,successCallback,failureCallback){
 			queue: data.queue,
 			volat: volat
 		}, function () {
-			if (successCallback)successCallback({ title: response.title });
+			if (successCallback){successCallback({ title: response.title });}
 		}, function (err) {
-			if (failureCallback)failureCallback(err);
+			if (failureCallback){failureCallback(err);}
 		});
 	}).catch(error => {
-		if (failureCallback) failureCallback(error);
+		if (failureCallback) {failureCallback(error);}
 	});
 }
 
@@ -1856,8 +1856,8 @@ async function dailymotionApi(path, params={}) {
 
 function addVideoDailymotion(socket,data,meta,successCallback,failureCallback){
 	var volat = data.volat;
-	if(meta.type <= 0) volat = true;
-	if(volat === undefined) volat = false;
+	if(meta.type <= 0) {volat = true;}
+	if(volat === undefined) {volat = false;}
 
 	const videoId = data.videoid.trim();
 	dailymotionApi(['video', videoId], {
@@ -1873,18 +1873,18 @@ function addVideoDailymotion(socket,data,meta,successCallback,failureCallback){
 			queue: data.queue,
 			volat: volat
 		}, function () {
-			if (successCallback)successCallback({ title: response.title });
+			if (successCallback){successCallback({ title: response.title });}
 		}, function (err) {
-			if (failureCallback)failureCallback(err);
+			if (failureCallback){failureCallback(err);}
 		});
 	}).catch(error => {
-		if (failureCallback) failureCallback(error);
+		if (failureCallback) {failureCallback(error);}
 	});
 }
 
 function isTrackingTime(){
 	if(SERVER.LIVE_MODE)
-		return false;
+		{return false;}
 	return true;
 }
 
@@ -2104,14 +2104,14 @@ io.sockets.on('connection', function (ioSocket) {
 		const { session: { type, nick }, ip } = socket;
 
 		if (typeof(nick) !== "string" || !ip)
-			throw kick("You must be logged in to chat");
+			{throw kick("You must be logged in to chat");}
 
 		if (typeof(data) !== "object" || typeof(data.msg) !== "string")
-			throw kick("Expected data");
+			{throw kick("Expected data");}
 
 		const { metadata: metaAttempt, msg } = data;
 		if (msg.length > SERVER.settings.core.max_chat_size)
-			throw kick(`Message length exeeds max size of ${SERVER.settings.core.max_chat_size}`);
+			{throw kick(`Message length exeeds max size of ${SERVER.settings.core.max_chat_size}`);}
 
 		const metadata = {
 			nameflaunt: !!metaAttempt.nameflaunt,
@@ -2122,7 +2122,7 @@ io.sockets.on('connection', function (ioSocket) {
 		};
 
 		if (metadata.nameflaunt && type < 1)
-			throw kick(`User ${nick} attempted to flaunt their name, but they are not a mod!`);
+			{throw kick(`User ${nick} attempted to flaunt their name, but they are not a mod!`);}
 
 		sendChat(nick, type, { msg, metadata }, socket);
 		DefaultLog.info(events.EVENT_CHAT, "user {session} on ip {ip} sent message {message}", { 
@@ -2142,7 +2142,7 @@ io.sockets.on('connection', function (ioSocket) {
 
 		var i = SERVER.RECENTLY_REGISTERED.length;
 		var ip = socket.ip;
-		if(!ip) return false;
+		if(!ip) {return false;}
 		var now = new Date();
 		// Backwards to splice on the go
 		const isLocalIp = ip == "172.20.0.1";
@@ -2273,8 +2273,8 @@ io.sockets.on('connection', function (ioSocket) {
 			return;
 		}
 
-		if(data.from == data.to) return; //wat.
-		if(data.from < 0 || data.to < 0) return; //wat.
+		if(data.from == data.to) {return;} //wat.
+		if(data.from < 0 || data.to < 0) {return;} //wat.
 		var elem = SERVER.PLAYLIST.first;
 		var fromelem,toelem;
 		for(var i=0;i<SERVER.PLAYLIST.length;i++)
@@ -2286,7 +2286,7 @@ io.sockets.on('connection', function (ioSocket) {
 			}
 			elem=elem.next;
 		}
-		if(data.sanityid && elem.videoid != data.sanityid) return doorStuck(socket);
+		if(data.sanityid && elem.videoid != data.sanityid) {return doorStuck(socket);}
 		elem = SERVER.PLAYLIST.first;
 		for(var i=0;i<SERVER.PLAYLIST.length;i++)
 		{
@@ -2299,9 +2299,9 @@ io.sockets.on('connection', function (ioSocket) {
 		}
 		SERVER.PLAYLIST.remove(fromelem);
 		if(data.to > data.from)
-			SERVER.PLAYLIST.insertAfter(toelem,fromelem);
+			{SERVER.PLAYLIST.insertAfter(toelem,fromelem);}
 		else
-			SERVER.PLAYLIST.insertBefore(toelem,fromelem);
+			{SERVER.PLAYLIST.insertBefore(toelem,fromelem);}
 
 		io.sockets.emit("sortPlaylist",data);
 
@@ -2343,7 +2343,7 @@ io.sockets.on('connection', function (ioSocket) {
 		{
 			if(i == data.index)
 			{
-				if(data.sanityid && elem.videoid != data.sanityid) return doorStuck(socket);
+				if(data.sanityid && elem.videoid != data.sanityid) {return doorStuck(socket);}
 				SERVER.ACTIVE = elem;
 				SERVER.ACTIVE.position = i;
 				break;
@@ -2380,17 +2380,17 @@ io.sockets.on('connection', function (ioSocket) {
 		const logData = { mod: getSocketName(socket), type: "playlist", title: data.videotitle, provider: data.videotype };
 
 		if (data.videotype == "yt")
-			addVideoYT(socket, data, meta, onVideoAddSuccess, onVideoAddError);
+			{addVideoYT(socket, data, meta, onVideoAddSuccess, onVideoAddError);}
 		else if (data.videotype == "dm")
-			addVideoDailymotion(socket, data, meta, onVideoAddSuccess, onVideoAddError);
+			{addVideoDailymotion(socket, data, meta, onVideoAddSuccess, onVideoAddError);}
 		else if (data.videotype == "vimeo")
-			addVideoVimeo(socket, data, meta, onVideoAddSuccess, onVideoAddError);
+			{addVideoVimeo(socket, data, meta, onVideoAddSuccess, onVideoAddError);}
 		else if (data.videotype == "soundcloud")
-			addVideoSoundCloud(socket, data, meta, onVideoAddSuccess, onVideoAddError);
+			{addVideoSoundCloud(socket, data, meta, onVideoAddSuccess, onVideoAddError);}
 		else if (data.videotype == "file")
-			addVideoFile(socket, data, meta, onVideoAddSuccess, onVideoAddError);
+			{addVideoFile(socket, data, meta, onVideoAddSuccess, onVideoAddError);}
 		else if (data.videotype == "dash")
-			addVideoDash(socket, data, meta, onVideoAddSuccess, function (error) {
+			{addVideoDash(socket, data, meta, onVideoAddSuccess, function (error) {
 				// TODO: less hax
 				if (error === 'no duration') {
 					if (!data.videotitle) data.videotitle = "~ Raw Livestream ~";
@@ -2398,11 +2398,11 @@ io.sockets.on('connection', function (ioSocket) {
 				} else {
 					onVideoAddError(error);
 				}
-			});
+			});}
 		else if (data.videotype == "twitch")
-			addVideoTwitch(socket, data, meta, onVideoAddSuccess, onVideoAddError);
+			{addVideoTwitch(socket, data, meta, onVideoAddSuccess, onVideoAddError);}
 		else if (data.videotype == "twitchclip")
-			addVideoTwitchClip(socket, data, meta, onVideoAddSuccess, onVideoAddError);
+			{addVideoTwitchClip(socket, data, meta, onVideoAddSuccess, onVideoAddError);}
 		else {
 			// Okay, so, it wasn't vimeo and it wasn't youtube, assume it's a livestream and just queue it.
 			// This requires a videotitle and a videotype that the client understands.
@@ -2574,7 +2574,7 @@ io.sockets.on('connection', function (ioSocket) {
 		for(var i=0;i<data.info.pos;i++){
 			 elem=elem.next;
 		}
-		if(data.sanityid && elem.videoid != data.sanityid) return doorStuck(socket);
+		if(data.sanityid && elem.videoid != data.sanityid) {return doorStuck(socket);}
 
 		if("action" in data) {
 			if(data.action == "setVolatile"){ data = data.info; // Drop action name.
@@ -2623,7 +2623,7 @@ io.sockets.on('connection', function (ioSocket) {
 							var meta = {};
 							try {
 								if(result[0].meta)
-									meta = JSON.parse(result[0].meta) || {};
+									{meta = JSON.parse(result[0].meta) || {};}
 							} catch(e){
 								DefaultLog.error(events.EVENT_GENERAL, "Failed to parse user meta for {nick}", { nick: d.nick }, e);
 								meta = {};

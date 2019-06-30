@@ -1,29 +1,42 @@
 {
-  "name": "berrytube",
-  "version": "1.0.0",
-  "description": "BerryTube",
-  "main": "server.js",
-  "dependencies": {
-    "bcrypt": "^3.0.0",
-    "elementtree": "^0.1.7",
-    "get-video-duration": "^0.3.0",
-    "i18n-iso-countries": "^3.7.8",
-    "iso8601-duration": "^1.1.1",
-    "mysql": "^2.15.0",
-    "node-fetch": "^2.1.2",
-    "schulze-method": "^2.0.0",
-    "socket.io": "^0.9.19",
-    "youtube-info": "^1.3.2"
-  },
-  "devDependencies": {
-    "chai": "^4.2.0",
-    "mocha": "^5.2.0"
-  },
-  "author": "Eric Cutler <bulzeeb@gmail.com> (https://github.com/GreyMage)",
-  "license": "ISC",
-  "private": true,
-  "scripts": {
-    "test": "mocha \"./modules/**/*.test.js\"",
-    "test-w": "mocha --watch --reporter min \"./modules/**/*.test.js\""
-  }
+	"name": "berrytube",
+	"version": "1.0.0",
+	"description": "BerryTube",
+	"main": "server.js",
+	"dependencies": {
+		"@types/autobind-decorator": "^2.1.0",
+		"@types/chai": "^4.1.7",
+		"@types/mocha": "^5.2.7",
+		"@types/node": "^12.0.4",
+		"autobind-decorator": "^2.4.0",
+		"bcrypt": "^3.0.0",
+		"elementtree": "^0.1.7",
+		"get-video-duration": "^0.3.0",
+		"i18n-iso-countries": "^3.7.8",
+		"iso8601-duration": "^1.1.1",
+		"mysql": "^2.15.0",
+		"node-fetch": "^2.1.2",
+		"rimraf": "^2.6.3",
+		"schulze-method": "^2.0.0",
+		"socket.io": "^0.9.19",
+		"ts-node": "^8.2.0",
+		"typescript": "^3.5.1",
+		"youtube-info": "^1.3.2"
+	},
+	"devDependencies": {
+		"chai": "^4.2.0",
+		"mocha": "^5.2.0"
+	},
+	"author": "Eric Cutler <bulzeeb@gmail.com> (https://github.com/GreyMage)",
+	"license": "ISC",
+	"private": true,
+	"scripts": {
+		"test": "mocha -r ts-node/register --watch-extensions ts src/**/*.test.{ts,js}",
+		"test:watch": "mocha --watch --reporter min -r ts-node/register --watch-extensions ts src/**/*.test.{ts,js}",
+		"types": "tsc --noEmit",
+		"types:watch": "tsc --noEmit --watch",
+		"clean": "rimraf ./bin",
+		"build": "yarn run clean && tsc",
+		"start": "node bin/server"
+	}
 }
