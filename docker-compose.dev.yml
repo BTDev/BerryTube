@@ -1,0 +1,92 @@
+# have to create an entirely new docker-compose file because the docker-compose override file does not
+# support changing port mappings
+
+version: '2.2'
+
+networks:
+    net:
+
+volumes:
+    mysql:
+
+services:
+    nginx:
+        build: ./docker/nginx
+        environment:
+            - HTTPS_PORT
+        volumes:
+            - ./web:/var/www/html/web:ro
+            - ./berrymotes/css:/var/www/html/web/berrymotes/css:ro
+            - ./berrymotes/data:/var/www/html/web/berrymotes/data:ro
+            - ./berrymotes/images:/var/www/html/web/berrymotes/images:ro
+            - ./berrymotes/js:/var/www/html/web/berrymotes/js:ro
+            - ./berrymotes/single_emotes:/var/www/html/web/berrymotes/single_emotes:ro
+        networks:
+            - net
+        depends_on:
+            php:
+                condition: service_healthy
+            node:
+                condition: service_healthy
+        links:
+            - php
+            - node
+        ports:
+            - '${HTTP_PORT}:80/tcp'
+
+    php:
+        build: ./docker/php/
+        init: true
+        environment:
+            - DOMAIN
+            - HTTPS_PORT
+            - NO_CDN
+            - NO_MINIFIED
+            - MYSQL_PASSWORD
+            - SOCKET_ORIGIN
+            - CDN_ORIGIN
+        volumes:
+            - ./web:/var/www/html/web:ro
+            - ./berrymotes/css:/var/www/html/web/berrymotes/css:ro
+            - ./berrymotes/data:/var/www/html/web/berrymotes/data:ro
+            - ./berrymotes/images:/var/www/html/web/berrymotes/images:ro
+            - ./berrymotes/js:/var/www/html/web/berrymotes/js:ro
+            - ./berrymotes/single_emotes:/var/www/html/web/berrymotes/single_emotes:ro
+        expose:
+            - '9000'
+        networks:
+            - net
+        depends_on:
+            mysql:
+                condition: service_healthy
+
+    node:
+        build: ./docker/node/
+        init: true
+        environment:
+            - MYSQL_PASSWORD
+            - YOUTUBE_APIKEY
+            - SOCKET_PATH
+        expose:
+            - '8344'
+        networks:
+            - net
+        depends_on:
+            mysql:
+                condition: service_healthy
+
+    mysql:
+        build: ./docker/mysql/
+        command: --default-authentication-plugin=mysql_native_password --skip-performance-schema
+        environment:
+            - MYSQL_RANDOM_ROOT_PASSWORD=yes
+            - MYSQL_ONETIME_PASSWORD=yes
+            - MYSQL_DATABASE=berrytube
+            - MYSQL_USER=berrytube
+            - MYSQL_PASSWORD
+        volumes:
+            - mysql:/var/lib/mysql
+        expose:
+            - '3306'
+        networks:
+            - net
