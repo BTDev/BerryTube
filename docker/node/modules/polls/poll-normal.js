@@ -10,13 +10,13 @@ exports.NormalPoll = class extends PollInstance {
 			obscure: this.options.isObscured,
 			ghost: false,
 			pollType: this.options.pollType,
-			options: this.options.options.map(o => o.isTwoThirds ? `${o.text} (⅔ required)` : o.text),
-			votes: this.votes.reduce(
-				(arr, vote) => {
-					arr[vote.optionIndex]++;
-					return arr;
-				},
-				this.options.options.map(_ => 0))
+			options: this.options.options.map(o =>
+				o.isTwoThirds ? `${o.text} (⅔ required)` : o.text,
+			),
+			votes: this.votes.reduce((arr, vote) => {
+				arr[vote.optionIndex]++;
+				return arr;
+			}, this.options.options.map(_ => 0)),
 		};
 	}
 
@@ -24,16 +24,18 @@ exports.NormalPoll = class extends PollInstance {
 		return {
 			...this.state,
 			isObscured: true,
-			votes: this.options.options.map(_ => "?")
+			votes: this.options.options.map(_ => "?"),
 		};
 	}
 
 	constructor(pollService, id, options) {
 		super(pollService, id, {
 			...options,
-			options: options.ops.map(o => typeof(o) === "string" 
-				? sanitize(o)
-				: { text: sanitize(o.text), isTwoThirds: !!o.isTwoThirds })
+			options: options.ops.map(o =>
+				typeof o === "string"
+					? sanitize(o)
+					: { text: sanitize(o.text), isTwoThirds: !!o.isTwoThirds },
+			),
 		});
 
 		this.votes = [];
@@ -47,8 +49,9 @@ exports.NormalPoll = class extends PollInstance {
 
 	clearVote(vote) {
 		const index = this.votes.indexOf(vote);
-		if (index == -1)
+		if (index == -1) {
 			return;
+		}
 
 		this.votes.splice(index, 1);
 	}

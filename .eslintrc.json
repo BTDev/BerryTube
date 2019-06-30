@@ -1,0 +1,27 @@
+{
+	"extends": ["eslint:recommended"],
+	"root": true,
+	"parserOptions": {
+		"sourceType": "module",
+		"ecmaVersion": 2019
+	},
+	"env": {
+		"browser": true,
+		"es6": true,
+		"jasmine": true,
+		"worker": true,
+		"node": true
+	},
+	"rules": {
+		"semi": "error",
+		"no-unused-vars": ["warn", { "argsIgnorePattern": "^_" }],
+		"no-mixed-spaces-and-tabs": 0,
+		"curly": "error"
+	},
+	"globals": {
+		"IS_DEVELOPMENT": false,
+		"IS_PRODUCTION": false,
+		"module": false,
+		"require": false
+	}
+}
