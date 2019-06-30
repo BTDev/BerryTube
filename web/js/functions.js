@@ -9,8 +9,9 @@ class Countdown {
 
 		const start = startedAt;
 		const tick = () => {
-			if (!this.isEnabled)
+			if (!this.isEnabled) {
 				return;
+			}
 
 			const now = new Date().getTime();
 			const elapsedInSeconds = (now - start) / 1000;
@@ -34,8 +35,9 @@ class Countdown {
 		this.isEnabled = false;
 		window.clearInterval(this.interval);
 
-		if (this.handlers.onDispose)
+		if (this.handlers.onDispose) {
 			this.handlers.onDispose();
+		}
 	}
 }
 
@@ -171,7 +173,9 @@ function showAdminFilterWindow(){
 		var enableDataCol = $('<td/>').appendTo(enableRow);
 		$('<span/>').text("Enable Rule:").appendTo(enableLabelCol);
 		var enable = $('<input/>').attr('type','checkbox').appendTo(enableDataCol);
-		if(myData.enable) enable.prop('checked',true);
+		if(myData.enable) {
+			enable.prop('checked',true);
+		}
 		newRule.data('enable',enable);
 
 		var rules = mainOptWrap.data('rules');
@@ -258,7 +262,9 @@ function showAdminFilterWindow(){
 				actionMetadata:$(rules[i]).data('actionMetadata').val(),
 				enable:$(rules[i]).data('enable').is(':checked')
 			};
-            if(!d.enable) continue;
+            if(!d.enable) {
+				continue;
+			}
 
 			// Name Check
 			var nickCheck = new RegExp(d.nickMatch,d.nickParam);
@@ -275,8 +281,14 @@ function showAdminFilterWindow(){
 		}
 		var a = '';
 		for(var i=0;i<actionChain.length;i++){
-			if(actionChain[i].action == "none") continue;
-			if(actionChain[i].action == "hush") msg = msg.toLowerCase();
+			if(actionChain[i].action == "none") {
+				continue;
+			}
+
+			if(actionChain[i].action == "hush") {
+				msg = msg.toLowerCase();
+			}
+
 			a += "<div>ACTION: "+actionChain[i].action+", "+actionChain[i].meta+"</div>";
 		}
 		var out = '<div>'+nick+": "+msg+'</div>'+a;
@@ -923,7 +935,9 @@ function handleACL(){
 
         if(controlsPlaylist()) {
             whenExists("#playlistAddControls",function(pl){
-                if(pl.is(":hidden")) pl.show("blind");
+                if(pl.is(":hidden")) {
+					pl.show("blind");
+				}
                 var playlist = $("#playlist ul");
                 playlist.addClass("controlsOn");
 				if(playlist.hasClass("previouslyEnabled")){
@@ -966,7 +980,9 @@ function handleACL(){
             });
         }else{
             whenExists("#playlistAddControls",function(pl){
-                if(pl.is(":visible")) pl.hide("blind");
+				if(pl.is(":visible")) {
+					pl.hide("blind");
+				}
                 var playlist = $("#playlist ul");
                 playlist.removeClass("controlsOn");
                 try{
@@ -979,12 +995,16 @@ function handleACL(){
 
         if(canCreatePoll()){
             whenExists("#pollControl",function(pc){
-                if(pc.is(":hidden")) pc.show("blind");
+                if(pc.is(":hidden")) {
+					pc.show("blind");
+				}
                 dbg("CAN CONTROL POLLS");
             });
         }else{
             whenExists("#pollControl",function(pc){
-                if(pc.is(":visible")) pc.hide("blind");
+                if(pc.is(":visible")) {
+					pc.hide("blind");
+				}
                 dbg("CAN NOT CONTROL POLLS");
             });
         }
@@ -1011,7 +1031,9 @@ function loginError(data){
     $('#headbar .loginError').text(data.message);
 }
 function isRegisteredUser(){
-    if(TYPE >= 0) return true;
+    if (TYPE >= 0) {
+		return true;
+	}
     return false;
 }
 function sendChatMsg(msg,elem){
@@ -1021,7 +1043,9 @@ function sendChatMsg(msg,elem){
 		HISTORY.push(msg);
 		HISTORY.reverse();
 		HISTORY[HISTORY_POS] = "";
-		if(HISTORY.length > HISTORY_SIZE) HISTORY.splice(HISTORY_SIZE,1);
+		if (HISTORY.length > HISTORY_SIZE) {
+			HISTORY.splice(HISTORY_SIZE,1);
+		}
 
 		meta = {};
 		if(NAMEFLAUNT){ meta.nameflaunt = NAMEFLAUNT; }
@@ -1045,11 +1069,13 @@ function handleSpamChecks(callback) {
 	let lastTime = getVal("lasttime");
 	let currentHp = getVal("chathp");
 
-	if (typeof lastTime == "undefined" || lastTime == null)
+	if (typeof lastTime == "undefined" || lastTime == null) {
 		lastTime = new Date().getTime() - defaultHtp;
+	}
 
-	if (typeof currentHp == "undefined" || currentHp == null)
+	if (typeof currentHp == "undefined" || currentHp == null) {
 		currentHp = defaultHtp;
+	}
 
 	const nowTime = new Date().getTime();
 	const timeDelta = nowTime - lastTime;
@@ -1077,8 +1103,14 @@ function handleSpamChecks(callback) {
 }
 
 function addLogMsg(data, to){
-	if (to.length == 0) return;
-	if (IGNORE_GHOST_MESSAGES && data.ghost) return;
+	if (to.length == 0) {
+		return;
+	}
+
+	if (IGNORE_GHOST_MESSAGES && data.ghost) {
+		return;
+	}
+
 	const timestampDate = new Date(data.logEvent.createdAt);
 
 	const
@@ -1150,7 +1182,9 @@ function addChatMsg(data,_to) {
 		var metadata = data.msg.metadata;
 		var isGhost = data.ghost;
 
-		if(typeof(nick != "undefined"))	var msgwrap = $("<div/>").appendTo(to).addClass("msg-" + nick);
+		if (typeof(nick != "undefined")) {
+			var msgwrap = $("<div/>").appendTo(to).addClass("msg-" + nick);
+		}
 		var newmsg = $("<div/>");
 
 		if ((IGNORELIST.indexOf(nick) != -1 && !metadata.nameflaunt) ||
@@ -1294,8 +1328,9 @@ function addChatMsg(data,_to) {
 		$(to).children().slice(0, -500).remove();
 
 		var d = new Date(data.msg.timestamp);
-		if ($(`li.${nick}`).length != 0)
+		if ($(`li.${nick}`).length != 0) {
 			CHATLIST[nick] = d.getTime();
+		}
 
 		if (includeTimestamp) {
 			var h = addZero(d.getHours());
@@ -1332,20 +1367,24 @@ function manageDrinks(dd){
 		whenExists("#drinkWrap",function(dw){
 			whenExists("#v",function(v){
 				if(dd == 0){
-					if(dw.is(":visible"))
-						 dw.hide("blind");
+					if(dw.is(":visible")) {
+						dw.hide("blind");
+					}
 				} else {
-					if(dw.is(":hidden"))
-						 dw.show("blind");
+					if(dw.is(":hidden")) {
+						dw.show("blind");
+					}
 				}
 
 				if(dd > 9000){
-					if(v.is(":hidden"))
-						 v.show();
+					if(v.is(":hidden")) {
+						v.show();
+					}
 				}
 				if(dd <= 9000){
-					if(v.is(":visible"))
-						 v.hide();
+					if(v.is(":visible")) {
+						v.hide();
+					}
 				}
 
 				//console.log(dd);
@@ -1385,8 +1424,9 @@ function closePoll(data) {
 		//unbind old buttons
 		var existing = $(".poll.active");
 		existing.find(".btn").each(function(key, val) {
-			if ($(val).hasClass("close"))
+			if ($(val).hasClass("close")) {
 				return;
+			}
 
 			$(val).unbind('click');
 		});
@@ -1398,11 +1438,13 @@ function closePoll(data) {
 	var keep = getStorage("keeppolls");
 	var polls = $("#pollpane").children(".poll");
 	for (var i=0; i < polls.length; i++) {
-		if ($(polls[i]).hasClass("active"))
+		if ($(polls[i]).hasClass("active")) {
 			continue;
+		}
 
-		if (--keep < 0)
+		if (--keep < 0) {
 			$(polls[i]).remove();
+		}
 	}
 }
 function toggleChatMode(){
@@ -1576,8 +1618,9 @@ function newPoll(data){
 					var row = $('<tr/>').appendTo($('<table/>').appendTo(iw));
 					var optionBtn = $('<div/>').addClass("btn").text(votes[i]).appendTo($('<td/>').appendTo(row));
 
-					if(data.obscure)
+					if(data.obscure) {
 						optionBtn.addClass("obscure");
+					}
 
 					$('<div/>').addClass("label").text(t).appendTo($('<td/>').appendTo(row));
 					$('<div/>').addClass("clear").appendTo(iw);
@@ -1658,7 +1701,7 @@ function updateRankedPollEmotes() {
 	$poll.find(".render-emotes").each(function() {
 		const $this = $(this);
 		if ($this.data("bem-processed")) {
-			return
+			return;
 		}
 
 		$this.data("bem-processed", true);
@@ -1678,7 +1721,7 @@ function updatePollAutoClose($poll, data) {
 			if (lastPollCountdown.pollId === data.id && 
 				lastPollCountdown.startedAt === data.startedAt && 
 				lastPollCountdown.totalTimeInSeconds === data.closePollInSeconds) {
-				return
+				return;
 			}
 
 			lastPollCountdown.dispose();
@@ -1700,7 +1743,7 @@ function updatePollAutoClose($poll, data) {
 
 		lastPollCountdown.pollId = data.id;
 	} else {
-		$autoClose.removeClass("enabled")
+		$autoClose.removeClass("enabled");
 
 		if (lastPollCountdown && lastPollCountdown.pollId === data.id) {
 			lastPollCountdown.dispose();
@@ -1716,7 +1759,7 @@ function getPollTitle({ votes, extended }) {
 	}
 
 	if (typeof(extended) !== "undefined" && typeof(extended.voteCount) !== "undefined") {
-		return `${title} (${extended.voteCount} vote${extended.voteCount !== 1 ? "s" : ""})`
+		return `${title} (${extended.voteCount} vote${extended.voteCount !== 1 ? "s" : ""})`;
 	}
 
     return title;
@@ -1740,11 +1783,11 @@ function getStorage(key){
 }
 
 function setStorageToggle(key, value) {
-	localStorage.setItem(key, value ? "true" : "false")
+	localStorage.setItem(key, value ? "true" : "false");
 }
 
 function getStorageToggle(key) {
-	return localStorage.getItem(key) === "true"
+	return localStorage.getItem(key) === "true";
 }
 
 function getCookie(c_name){
@@ -1915,7 +1958,7 @@ function _setVidColorTag(domobj,tag,volat){
 function setColorTheme(cssPath){
 	$('#themeCss').remove();
 	if(cssPath.length > 0)
-		$("<link/>").insertAfter("#mainTheme").attr('href',cssPath).attr('rel','stylesheet').attr('id',"themeCss");
+		{$("<link/>").insertAfter("#mainTheme").attr('href',cssPath).attr('rel','stylesheet').attr('id',"themeCss");}
 	setStorage("siteThemePath", cssPath);
 
 	var exdate = new Date();
@@ -1928,39 +1971,57 @@ function controlsVideo(){
 	return LEADER;
 }
 function controlsPlaylist(){
-	if(TYPE > 0) return true;
+	if(TYPE > 0) {
+		return true;
+	}
 	return LEADER;
 }
 function canColorTag(){
-	if(TYPE > 0) return true;
+	if(TYPE > 0) {
+		return true;
+	}
 	return false;
 }
 function canToggleVolatile(){
-	if(TYPE > 0) return true;
+	if(TYPE > 0) {
+		return true;
+	}
 	return false;
 }
 function canTempShadowBan(){
-	if(TYPE >= 2) return true;
+	if(TYPE >= 2) {
+		return true;
+	}
 	return false;
 }
 function canSeeAdminLog(){
-	if(TYPE >= 2) return true;
+	if(TYPE >= 2) {
+		return true;
+	}
 	return false;
 }
 function canDeleteVideo(){
-	if(TYPE > 0) return true;
+	if(TYPE > 0) {
+		return true;
+	}
 	return false;
 }
 function canSetFilters(){
-	if(TYPE >= 2) return true;
+	if(TYPE >= 2) {
+		return true;
+	}
 	return false;
 }
 function canRandomizeList(){
-	if(TYPE > 0) return true;
+	if(TYPE > 0) {
+		return true;
+	}
 	return false;
 }
 function canCreatePoll(){
-	if(TYPE > 0) return true;
+	if(TYPE > 0) {
+		return true;
+	}
 	return LEADER;
 }
 function canClosePoll(){
@@ -1970,23 +2031,33 @@ function canChat(){
 	return NAME;
 }
 function canMoveBerry(){
-	if(TYPE >= 1) return true;
+	if(TYPE >= 1) {
+		return true;
+	}
 	return false;
 }
 function canKickUser(){
-	if(TYPE >= 2) return true;
+	if(TYPE >= 2) {
+		return true;
+	}
 	return false;
 }
 function canShadowBan(){
-	if(TYPE >= 2) return true;
+	if(TYPE >= 2) {
+		return true;
+	}
 	return false;
 }
-function canBan() {
-	if (TYPE >= 2) return true;
+function canBan(){
+	if (TYPE >= 2) {
+		return true;
+	}
 	return false;
 }
 function canSetAreas(){
-	if(TYPE >= 2) return true;
+	if(TYPE >= 2) {
+		return true;
+	}
 	return false;
 }
 /* Video Control */
@@ -2027,7 +2098,9 @@ function videoLoadAtTime(vidObj, time) {
 			try {
 				PLAYER.getVolume(function(v){
                     try {
-						if(v !== null) VOLUME = v;
+						if(v !== null) {
+							VOLUME = v;
+						}
     					PLAYER = PLAYERS[ptype];
     					removeCurrentPlayer();
     					VIDEO_TYPE = ptype;
@@ -2088,7 +2161,9 @@ function formatChatMsg(msg, greentext){
 
 	if (greentext !== false) {
 	    var re = RegExp("^>");
-		if(h.text().match(re)) h.addClass("green");
+		if(h.text().match(re)) {
+			h.addClass("green");
+		}
 	}
 
 	return h;
@@ -2146,10 +2221,12 @@ function timeToMainGame(){
 
     var dayOffset = 0;
     var day = TIME.getUTCDay();
-    while(day != startDay){
+    while (day != startDay){
         dayOffset++;
         day++;
-        if(day>=7)day=0;
+        if (day>=7) {
+			day=0;
+		}
     }
 
     console.log(TIME.getUTCDate() + dayOffset);
@@ -2159,12 +2236,16 @@ function timeToMainGame(){
     GAME.setUTCSeconds(-1);
 
     var timeUntilGameStarts = (GAME.getTime() / 1000) - (TIME.getTime() / 1000);
-    if(timeUntilGameStarts < 0) timeUntilGameStarts += WEEK;
+    if (timeUntilGameStarts < 0) {
+		timeUntilGameStarts += WEEK;
+	}
 
     GAME.setUTCHours(stopHr);
 
     var timeUntilGameStops = (GAME.getTime() / 1000) - (TIME.getTime() / 1000);
-    if(timeUntilGameStops < 0) timeUntilGameStops += WEEK;
+    if (timeUntilGameStops < 0) {
+		timeUntilGameStops += WEEK;
+	}
 
     return {
         start:timeUntilGameStarts,
@@ -2304,7 +2385,9 @@ function smartRefreshScrollbar(){
 }
 function getVideoIdOfLongUrl(url){
 	var id = url.match(/v=([^&]+)/);
-	if(id == null) return false;
+	if (id == null) {
+		return false;
+	}
 	var id = url.match(/v=([^&]+)/)[1];
 	return id;
 }
@@ -2322,8 +2405,9 @@ function setPlaylistPosition(to){
 	waitForFlag("PLREADY",function(){
 		//unset active class
 		dbg(to);
-		if(typeof ACTIVE.domobj != "undefined")
+		if(typeof ACTIVE.domobj != "undefined") {
 			ACTIVE.domobj.removeClass("active");
+		}
 
 		var elem = PLAYLIST.first;
 		ACTIVE = PLAYLIST.first;
@@ -2338,8 +2422,9 @@ function setPlaylistPosition(to){
 			}
 			elem=elem.next;
 		}
-		if(typeof ACTIVE.domobj != "undefined")
+		if(typeof ACTIVE.domobj != "undefined") {
 			ACTIVE.domobj.addClass("active");
+		}
 		//PL_POSITION = to;
 
 		smartRefreshScrollbar();
@@ -2347,7 +2432,9 @@ function setPlaylistPosition(to){
 		if(getStorage("plFolAcVid") == 1){
 			var x = ACTIVE.domobj.index();
 			x -= 2;
-			if(x < 0) x = 0;
+			if(x < 0) {
+				x = 0;
+			}
 			scrollToPlEntry(x);
 		}
 	});
