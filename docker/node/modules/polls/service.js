@@ -34,6 +34,7 @@ exports.PollService = class extends ServiceBase {
 
 		this.exposeSocketActions({
 			newPoll: this.createPoll.bind(this),
+			updatePoll: this.updatePoll.bind(this),
 			closePoll: this.closeCurrentPoll.bind(this),
 			votePoll: this.castVote.bind(this),
 			disconnect: this.clearVote.bind(this),
@@ -57,7 +58,7 @@ exports.PollService = class extends ServiceBase {
 		};
 
 		if (!(await this.auth.canDoAsync(socket, actions.ACTION_CREATE_POLL))) {
-			throw new Error("unauthoirzed");
+			throw new Error("unauthorized");
 		}
 
 		const PollType = pollTypes[options.pollType];
@@ -98,6 +99,38 @@ exports.PollService = class extends ServiceBase {
 	}
 
 	/**
+	 * Updates a poll
+	 * Invoked via the "updatePoll" socket action
+	 * @param {*} socket socket.io socket that requested this poll be created
+	 * @param {any} options the new options to set
+	 */
+	async updatePoll(socket, { id, closePollInSeconds }) {
+		if (!(await this.auth.canDoAsync(socket, actions.ACTION_CREATE_POLL))) {
+			throw new Error("unauthorized");
+		}
+
+		if (!this.currentPoll || this.currentPoll.id !== id) {
+			return;
+		}
+
+		if (typeof closePollInSeconds === "number") {
+			this.currentPoll.closePollInSeconds = closePollInSeconds;
+			await this.publishToAll("updatePoll");
+
+			this.log.info(
+				events.EVENT_ADMIN_UPDATED_POLL,
+				`{mod} updated poll {title} on {type}: close in ${closePollInSeconds} seconds`,
+				{
+					mod: await getSocketName(socket),
+					title: this.currentPoll.options.title,
+					type: "site",
+					pollTimeout: closePollInSeconds,
+				},
+			);
+		}
+	}
+
+	/**
 	 * Closes the currently active poll
 	 * Invoked via the "closePoll" socket action
 	 * @param {*} socket socket.io socket that requested that this poll be closed
@@ -111,7 +144,7 @@ exports.PollService = class extends ServiceBase {
 			socket &&
 			!(await this.auth.canDoAsync(socket, actions.ACTION_CLOSE_POLL))
 		) {
-			throw new Error("unauthoirzed");
+			throw new Error("unauthorized");
 		}
 
 		const title = this.currentPoll.options.title;
@@ -169,7 +202,7 @@ exports.PollService = class extends ServiceBase {
 		}
 
 		if (!(await this.auth.canDoAsync(socket, actions.ACTION_VOTE_POLL))) {
-			throw new Error("unauthoirzed");
+			throw new Error("unauthorized");
 		}
 
 		const ipAddress = getAddress(socket);

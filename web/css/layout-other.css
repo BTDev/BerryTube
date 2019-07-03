@@ -593,8 +593,21 @@ body {
     border: 1px solid #000;
     padding: 5px;
 }
+.poll-control {
+	display: none;
+	margin-top: 10px;
+	background: rgba(0, 0, 0, .2);
+	padding: 10px;
+}
+.poll-control.enabled {
+	display: block;
+}
 .poll-auto-close {
     position: relative;
+    display: none;
+}
+.poll-auto-close.enabled {
+    display: block;
 }
 .poll-auto-close__time-left {
     background: rgba(0, 0, 0, .2);
