@@ -1198,7 +1198,7 @@ function addChatMsg(data,_to) {
 		msgwrap.addClass($("#chatlist ."+nick).attr("class"));
 		if(metadata.graymute){msgwrap.addClass("graymute");}
 
-		var isSquee = (nick != NAME && NAME.length > 0 && detectName(NAME, msgText));
+		var isSquee = metadata.isSquee || (nick != NAME && NAME.length > 0 && detectName(NAME, msgText));
 		var includeTimestamp = false;
 
 		switch (data.msg.emote) {
