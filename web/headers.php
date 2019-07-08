@@ -72,7 +72,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/tinyscrollbar/2.4.2/jquery.tinyscrollbar.min.js" integrity="sha256-gENsdwXJl1qiwOqS0DF+kfqTP5Dy+0gDTtxpRcWVhrU=" crossorigin="anonymous" defer></script>
 
 <script src="https://w.soundcloud.com/player/api.js" defer></script>
-<!-- <script src="https://player.vimeo.com/api/player.js" crossorigin="anonymous" defer></script> -->
+<script src="https://player.vimeo.com/api/player.js" crossorigin="anonymous" defer></script>
 <script src="https://player.twitch.tv/js/embed/v1.js" crossorigin="anonymous" defer></script>
 <script src="https://api.dmcdn.net/all.js" crossorigin="anonymous" defer></script>
 

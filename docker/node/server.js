@@ -644,11 +644,11 @@ function setServerState(state) {
 	SERVER.STATE = state;
 }
 function getCommand(msg){
-	var re = new RegExp("^/([a-zA-Z]*)([-0-9]*)\\s*(.*)","i");
+	var re = new RegExp("^/([a-zA-Z]*)([-0-9.]*)\\s*(.*)","i");
 	var parsed = { msg: msg, command: false, multi: 1 };
 	if(ret = msg.match(re)){
 		parsed.command = ret[1].toLowerCase();
-		parsed.multi = ret[2] || 1;
+		parsed.multi = parseFloat(ret[2] || 1);
 		parsed.msg = ret[3];
 	}
 
@@ -682,7 +682,7 @@ function resetTime(){
 	SERVER.TIME=(0-SERVER.settings.vc.head_time);
 }
 function addDrink(amt,socket,callback){
-	SERVER.DRINKS = (parseInt(SERVER.DRINKS)||0) + parseInt(amt);
+	SERVER.DRINKS = SERVER.DRINKS + amt;
 	if(Math.abs(SERVER.DRINKS) > 1000000){
 		SERVER.DRINKS = "lol go fuck yourself";
 		socket.session.kick("Berry Punch is mad at you");

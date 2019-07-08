@@ -283,6 +283,20 @@ socket.on("leaderIs",function(data){
 
 	if(sortUserList)sortUserList();
 
+	if (data.nick === NAME) {
+		addChatMsg({
+			msg:{
+				emote: "rcv",
+				nick: "server",
+				type: 0,
+				msg: "You have been given berry",
+				multi: 0,
+				metadata: { isSquee: true }
+			},
+			ghost:false
+		}, '#chatbuffer');	
+	}
+
 });
 socket.on("setVidVolatile",function(data){
 	pos = data.pos;
