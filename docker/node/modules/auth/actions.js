@@ -22,7 +22,7 @@ exports.actions = {
 	ACTION_SET_USER_NOTE: "setUserNote",
 	ACTION_SET_VIDEO_VOLATILE: "setVideoVolatile",
 	ACTION_SHADOWBAN: "shadowban",
-	ACTION_SHITOPST: "shitpost",
+	ACTION_SHITPOST: "shitpost",
 	ACTION_VOTE_POLL: "votePoll",
 	CAN_SEE_ADMIN_LOG: "canSeeAdminLog",
 	CAN_SEE_OBSCURED_POLLS: "canSeeObscuredPolls",

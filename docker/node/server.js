@@ -961,7 +961,7 @@ function _sendChat(nick,type,incoming,socket){
 		return;
 	}
 	if(action_map.shitpost.indexOf(parsed.command) >= 0){
-		if (!authService.can(socket.session, actions.ACTION_SHITOPST)) {
+		if (!authService.can(socket.session, actions.ACTION_SHITPOST)) {
 			kickForIllegalActivity(socket);
 			return;
 		}

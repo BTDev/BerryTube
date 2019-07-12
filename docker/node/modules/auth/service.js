@@ -28,7 +28,7 @@ exports.AuthService = class extends ServiceBase {
 			[actions.ACTION_SET_USER_NOTE]: isMod,
 			[actions.ACTION_SET_VIDEO_VOLATILE]: isMod,
 			[actions.ACTION_SHADOWBAN]: isAdmin,
-			[actions.ACTION_SHITOPST]: isAdmin,
+			[actions.ACTION_SHITPOST]: isAdmin,
 			[actions.ACTION_VOTE_POLL]: () => true,
 			[actions.CAN_SEE_ADMIN_LOG]: isMod,
 			[actions.CAN_SEE_OBSCURED_POLLS]: isModOrBerry,
