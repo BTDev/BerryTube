@@ -671,23 +671,26 @@ function handleNewVideoChange() {
 }
 function sendDrinks(socket){
 	socket.emit("drinkCount",{
-		drinks:SERVER.DRINKS
+		drinks: formatDrinkMessage(SERVER.DRINKS)
 	});
 }
 function resetDrinks(){
-	SERVER.DRINKS=0;
+	SERVER.DRINKS = 0;
 	sendDrinks(io.sockets);
 }
 function resetTime(){
 	SERVER.TIME=(0-SERVER.settings.vc.head_time);
 }
-function addDrink(amt,socket,callback){
-	SERVER.DRINKS = SERVER.DRINKS + amt;
-	if(Math.abs(SERVER.DRINKS) > 1000000){
-		SERVER.DRINKS = "lol go fuck yourself";
-		socket.session.kick("Berry Punch is mad at you");
+function addDrink(amount, socket, callback){
+	SERVER.DRINKS += parseFloat(amount);
+	
+	if (isDrinkAmountExcessive(SERVER.DRINKS)) {
+		kickUser(socket,"Berry Punch is mad at you");
 	}
-	if(callback){callback();}
+	
+	if (callback) {
+		callback();
+	}
 }
 function randomPoni(){
 	return SERVER.ponts[Math.floor(Math.random()*SERVER.ponts.length)];
@@ -2691,4 +2694,21 @@ io.sockets.on('connection', function (ioSocket) {
 			{ ip: socket.ip, nick: getSocketName(socket) });
 	});
 });
+
+function formatDrinkMessage(drinks) {
+	if (isDrinkAmountExcessive(drinks)) {
+		return "lol go fuck yourself";
+	}
+
+	if (Number.isInteger(drinks)) {
+		return drinks;
+	}
+
+	return drinks.toFixed(2);
+}
+
+function isDrinkAmountExcessive(drinks) {
+	return Math.abs(drinks) > 1000000;
+}
+
 /* vim: set noexpandtab : */

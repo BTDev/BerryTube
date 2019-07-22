@@ -264,40 +264,55 @@ socket.on("drinkCount",function(data){
 socket.on("numConnected",function(data){
 	handleNumCount(data);
 });
-socket.on("leaderIs",function(data){
-	// Keep trying to set until you do.
-	if(data.nick == false){ // server is leading.
-		$("#chatlist ul li").removeClass("leader");
-		return;
-	}
-
-	whenExists("#chatlist ul li",function(obj){
-		$(obj).removeClass("leader");
-		$(obj).each(function(key,val){
-			if($(val).data('nick') == data.nick){
+socket.on(
+	"leaderIs",
+	(() => {
+		let lastLeader = null;
+		return data => {
+			// Keep trying to set until you do.
+			if (data.nick == false) {
+				// server is leading.
 				$("#chatlist ul li").removeClass("leader");
-				$(val).addClass("leader");
+				return;
 			}
-		});
-	});
 
-	if(sortUserList)sortUserList();
+			whenExists("#chatlist ul li", function(obj) {
+				$(obj).removeClass("leader");
+				$(obj).each(function(key, val) {
+					if ($(val).data("nick") == data.nick) {
+						$("#chatlist ul li").removeClass("leader");
+						$(val).addClass("leader");
+					}
+				});
+			});
 
-	if (data.nick === NAME) {
-		addChatMsg({
-			msg:{
-				emote: "rcv",
-				nick: "server",
-				type: 0,
-				msg: "You have been given berry",
-				multi: 0,
-				metadata: { isSquee: true }
-			},
-			ghost:false
-		}, '#chatbuffer');	
-	}
+			if (sortUserList) {
+				sortUserList();
+			}
 
-});
+			if (lastLeader !== data.nick) {
+				if (data.nick === NAME) {
+					addChatMsg(
+						{
+							msg: {
+								emote: "rcv",
+								nick: "server",
+								type: 0,
+								msg: "You have been given berry",
+								multi: 0,
+								metadata: { isSquee: true },
+							},
+							ghost: false,
+						},
+						"#chatbuffer",
+					);
+				}
+
+				lastLeader = data.nick;
+			}
+		};
+	})(),
+);
 socket.on("setVidVolatile",function(data){
 	pos = data.pos;
 	isVolat = data.volat;
