@@ -74,9 +74,7 @@ exports.RankedPoll = class extends PollInstance {
 
 		if (ballot.length != options.length) {
 			throw new Error(
-				`Invalid ballot: expected ${
-					options.length
-				} rankings, but received: ${ballot.length}`,
+				`Invalid ballot: expected ${options.length} rankings, but received: ${ballot.length}`,
 			);
 		}
 

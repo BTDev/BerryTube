@@ -1,6 +1,5 @@
 const { DefaultLog } = require("./log");
 const { events } = require("./log/events");
-const { getSocketName } = require("./socket");
 
 exports.ServiceBase = class {
 	constructor({ log = DefaultLog }) {
@@ -8,6 +7,8 @@ exports.ServiceBase = class {
 		this._socketActions = {};
 		this.onSocketConnected = this.onSocketConnected.bind(this);
 	}
+
+	init() {}
 
 	exposeSocketActions(actions) {
 		for (const actionName in actions) {
@@ -40,7 +41,7 @@ exports.ServiceBase = class {
 							{
 								action: actionName,
 								message: error.message,
-								nick: await getSocketName(socket),
+								nick: socket.session.systemName,
 							},
 							error,
 						);
@@ -59,6 +60,4 @@ exports.ServiceBase = class {
 			});
 		}
 	}
-
-	onSocketAuthenticated(_socket, _type) {}
 };

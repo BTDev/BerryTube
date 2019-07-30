@@ -2,7 +2,7 @@ FROM node:10.15.3-alpine
 
 WORKDIR /app/
 ENTRYPOINT ["/app/entrypoint.sh"]
-CMD ["node", "server.js"]
+CMD ["yarn", "start"]
 HEALTHCHECK --interval=10s --timeout=3s --start-period=10s CMD curl http://localhost:8344/
 
 RUN echo "http://dl-cdn.alpinelinux.org/alpine/v$(cat /etc/alpine-release | cut -d. -f1-2)/community/" >>/etc/apk/repositories && \

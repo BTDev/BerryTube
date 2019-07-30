@@ -13,4 +13,27 @@
 	"editor.formatOnSave": true,
 	"editor.insertSpaces": false,
 	"editor.detectIndentation": false,
+	"cSpell.words": [
+		"CQRS",
+		"DTOs",
+		"Greyname",
+		"amgic",
+		"autobind",
+		"berrytube",
+		"cooldown",
+		"egrep",
+		"microservice",
+		"nodeport",
+		"schulze",
+		"serializable",
+		"spamcompare",
+		"spamhp",
+		"youtube"
+	],
+	"[markdown]": {
+		"editor.defaultFormatter": "esbenp.prettier-vscode"
+	},
+	"[json]": {
+		"editor.defaultFormatter": "esbenp.prettier-vscode"
+	}
 }
