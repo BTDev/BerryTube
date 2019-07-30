@@ -404,7 +404,7 @@ function sortUserList(){
 	listitems.sort(function(a, b) {
 	   return $(a).text().toUpperCase().localeCompare($(b).text().toUpperCase());
 	});
-	$.each(listitems, function(idx, itm) { if($(itm).data('nick') != NAME) {mylist.append(itm);} });
+	$.each(listitems, function(idx, itm) { if($(itm).data('nick') != NAME) {mylist.append(itm);} else {$(itm).addClass("me");} });
 
 	var listitems = mylist.children('li.anon').get();
 	listitems.sort(function(a, b) {

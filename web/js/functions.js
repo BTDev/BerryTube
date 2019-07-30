@@ -807,7 +807,8 @@ function secToTime(seconds){
 function setNick(nick){
     NAME = nick;
     $("#chatControls .nick").text(NAME);
-    ORIGNAME = nick;
+	ORIGNAME = nick;
+	sortUserList();	
 }
 function recalcStats(){
 	// Figure time.

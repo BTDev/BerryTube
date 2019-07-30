@@ -7,11 +7,3 @@ exports.sanitize = function(string) {
 	}
 	return string;
 };
-
-exports.getAddress = function(socket) {
-	try {
-		return socket.handshake.headers["x-forwarded-for"];
-	} catch (e) {
-		return false;
-	}
-};
