@@ -2380,6 +2380,7 @@ io.sockets.on('connection', function (ioSocket) {
 			return;
 		}
 		
+		const meta = { nick: socket.session.nick, type: socket.session.type };
 		const logData = { mod: getSocketName(socket), type: "playlist", title: data.videotitle, provider: data.videotype };
 
 		if (data.videotype == "yt")

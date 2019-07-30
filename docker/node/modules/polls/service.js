@@ -107,7 +107,7 @@ exports.PollService = class extends ServiceBase {
 				events.EVENT_ADMIN_UPDATED_POLL,
 				`{mod} updated poll {title} on {type}: close in ${closePollInSeconds} seconds`,
 				{
-					mod: await getSocketName(socket),
+					mod: getSocketName(socket),
 					title: this.currentPoll.options.title,
 					type: "site",
 					pollTimeout: closePollInSeconds,
