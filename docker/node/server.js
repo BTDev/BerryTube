@@ -2498,7 +2498,6 @@ io.sockets.on('connection', function (ioSocket) {
 		var targetNick = data.nick;
 		var isbanning = data.sban;
 		var temp = data.temp;
-		if(forcetemp){temp = forcetemp;}
 		var message = "";
 		if (isbanning) {
 			message = temp
