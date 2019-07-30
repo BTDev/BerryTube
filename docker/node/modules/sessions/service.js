@@ -211,7 +211,7 @@ exports.SessionService = class extends ServiceBase {
 		const userCount = this.sessions.length;
 		const socketCount = this.sockets.length;
 
-		this.io.sockets.emit("numConnected", userCount);
+		this.io.sockets.emit("numConnected", { num: userCount });
 		this.log.info(
 			events.EVENT_SOCKET,
 			"socket joined from ip {ip}, total users: {userCount}, total sockets: {socketCount}",
@@ -240,7 +240,7 @@ exports.SessionService = class extends ServiceBase {
 		}
 
 		session.disconnect();
-		this.io.sockets.emit("numConnected", this.sessions.length);
+		this.io.sockets.emit("numConnected", { num: this.sessions.length });
 
 		if (session.hasNick) {
 			this.io.sockets.emit("userPart", {
