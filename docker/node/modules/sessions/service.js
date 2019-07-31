@@ -476,7 +476,7 @@ exports.SessionService = class extends ServiceBase {
 					pass = ${newPassword}
 				WHERE
 					name = ${nick}`;
-		} else if (!bcrypt.compareSync(password, dbUser.pass)) {
+		} else if (!(await bcrypt.compare(password, dbUser.pass))) {
 			return sendFailMessage("Invalid password");
 		}
 
