@@ -424,8 +424,25 @@ socket.on('reconnect', function() {
 		socket.emit('setNick', data);
 	}
 });
+function cleanupSessionNick(s) {
+	return s.replace(/session\((\d+), ([^,]+), ([^)]+)\)/, '$2');
+}
 socket.on('adminLog', function(data){
-    data.timestamp = new Date(data.timestamp);
+	if (data.timestamp) {
+    	data.timestamp = new Date(data.timestamp);
+    }
+    if (data.nick) {
+    	data.nick = cleanupSessionNick(data.nick);
+    }
+    if (data.msg) {
+    	data.msg = cleanupSessionNick(data.msg);
+    }
+    if (data.logEvent && data.logEvent.data && data.logEvent.data.mod) {
+    	data.logEvent.data.mod = cleanupSessionNick(data.logEvent.data.mod);
+    }
+    if (data.logEvent && data.logEvent.formatted) {
+    	data.logEvent.formatted = cleanupSessionNick(data.logEvent.formatted);
+    }
     ADMIN_LOG.push(data);
     if(ADMIN_LOG.length > 200){
         ADMIN_LOG.shift();

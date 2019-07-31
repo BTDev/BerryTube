@@ -808,7 +808,7 @@ function setNick(nick){
     NAME = nick;
     $("#chatControls .nick").text(NAME);
 	ORIGNAME = nick;
-	sortUserList();	
+	sortUserList();
 }
 function recalcStats(){
 	// Figure time.
@@ -1141,7 +1141,7 @@ function addLogMsg(data, to){
 					),
 				$("<td />")
 					.addClass("nick")
-					.text(data.logEvent.data.mod),
+					.text(data.logEvent.data.mod || data.nick),
 				$("<td />")
 					.addClass("event")
 					.text(eventType),
@@ -1573,7 +1573,7 @@ function newPoll(data){
 				updatePoll(data);
 				return;
 			}
-			
+
 			closePoll({});
 			$existingPoll.removeClass("active");
 		}
@@ -1590,8 +1590,8 @@ function newPoll(data){
 			},
 			ghost:false
 		},'#chatbuffer');
-		
-		whenExists("#pollpane", stack => {			
+
+		whenExists("#pollpane", stack => {
             POLL_TITLE_FORMAT = data.title;
             POLL_OPTIONS.splice(0, POLL_OPTIONS.length);
 
@@ -1686,14 +1686,14 @@ function newPoll(data){
 									const closeInSeconds = parseInt($this.val(), 10);
 									$this.val("");
 
-									socket.emit("updatePoll", { 
-										id: data.id, 
-										closePollInSeconds: closeInSeconds 
+									socket.emit("updatePoll", {
+										id: data.id,
+										closePollInSeconds: closeInSeconds
 									});
 								}))
 				)
 				.appendTo($poll);
-				
+
 			updatePollAutoClose($poll, data);
 
 			if (canCreatePoll()) {
@@ -1759,19 +1759,19 @@ function updatePollAutoClose($poll, data) {
 		$autoClose.addClass("enabled");
 
 		if (lastPollCountdown) {
-			if (lastPollCountdown.pollId === data.id && 
-				lastPollCountdown.startedAt === data.startedAt && 
+			if (lastPollCountdown.pollId === data.id &&
+				lastPollCountdown.startedAt === data.startedAt &&
 				lastPollCountdown.totalTimeInSeconds === data.closePollInSeconds) {
 				return;
 			}
 
 			lastPollCountdown.dispose();
 		}
-		
+
 		lastPollCountdown = new Countdown(data.closePollInSeconds, data.startedAt, {
 			onTick({ timeLeftInSeconds, percent }) {
-				$timeLeft.text(timeLeftInSeconds >= 1 
-					? `closing in ${secondsToHuman(timeLeftInSeconds)}` 
+				$timeLeft.text(timeLeftInSeconds >= 1
+					? `closing in ${secondsToHuman(timeLeftInSeconds)}`
 					: "closing poll...");
 
 				$progress.css("width", `${percent * 100}%`);
