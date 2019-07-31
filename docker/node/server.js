@@ -2501,8 +2501,8 @@ io.sockets.on('connection', function (ioSocket) {
 		var message = "";
 		if (isbanning) {
 			message = temp
-				? `Shadow banned ${targetNick}`
-				: `Temporarily shadow banned ${targetNick}`;
+				? `Temporarily shadow banned ${targetNick}`
+				: `Shadow banned ${targetNick}`;
 
 			DefaultLog.info(temp ? events.EVENT_ADMIN_SHADOWBAN_TEMP : events.EVENT_ADMIN_SHADOWBAN_PERMANENT,
 				"{mod} banned user {nick} on {type}",
