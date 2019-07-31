@@ -683,11 +683,11 @@ function resetTime(){
 }
 function addDrink(amount, socket, callback){
 	SERVER.DRINKS += parseFloat(amount);
-	
+
 	if (isDrinkAmountExcessive(SERVER.DRINKS)) {
 		kickUser(socket,"Berry Punch is mad at you");
 	}
-	
+
 	if (callback) {
 		callback();
 	}
@@ -818,7 +818,7 @@ function _setVideoColorTag(elem,pos,tag,volat){
 function banUser(data) {
 	var required = ['ips','nicks','duration']; // nick and ip should be arrays, even if single-element
 	data.bannedOn = new Date().getTime();
-	
+
 	for (const elem in required) {
 		if (!(required[elem] in data)) {
 			return;
@@ -852,7 +852,7 @@ function sendChat(nick, type, incoming, socket){
 		kickIfUnderLevel(socket, "Spamming", 1);
 		return;
 	}
-	
+
 	_sendChat(nick, type, incoming, socket);
 }
 
@@ -954,9 +954,9 @@ function _sendChat(nick,type,incoming,socket){
 			kickForIllegalActivity(socket);
 			return;
 		}
-		
+
 		const parts = parsed.msg.split(' ');
-		
+
 		if (parts[0]) {
 			kickUserByNick(socket, parts[0], parts.slice(1).join(' ') || undefined);
 		}
@@ -990,13 +990,13 @@ function _sendChat(nick,type,incoming,socket){
 		if (isUserShadowBanned(socket)) {
 			emitChat(socket, data, false);
 		} else {
-			if (target) { 
+			if (target) {
 				emitChat(target,data,false);
 			}
 		}
 
 		if(sendToAdmins){
-			sessionService.forCan(actions.CAN_SEE_SHADOWBANS, 
+			sessionService.forCan(actions.CAN_SEE_SHADOWBANS,
 				session => emitChat(session, data, false));
 		}
 
@@ -1910,14 +1910,14 @@ io.sockets.on('connection', function (ioSocket) {
 		DefaultLog.error(events.EVENT_GENERAL, "rejecting socket");
 		return;
 	}
-	
+
 	services.forEach(s => s.onSocketConnected(socket));
 
 	socket.addOnAuthenticatedHandler(() => {
 		if (socket.session.type < userTypes.MODERATOR) {
 			return;
 		}
-		
+
 		socket.socket.join("admin");
 		sendToggleables(socket);
 
@@ -1931,7 +1931,7 @@ io.sockets.on('connection', function (ioSocket) {
 			socket.emit("adminLog", data);
 		}
 	});
-	
+
 	// Send the SERVER.PLAYLIST, and then the position.
 	sendToggleables(socket);
 	socket.emit("recvPlaylist",SERVER.PLAYLIST.toArray());
@@ -1944,7 +1944,7 @@ io.sockets.on('connection', function (ioSocket) {
 	socket.on("setOverrideCss",function(data){
 		if (!authService.can(socket.session, actions.ACTION_CAN_SET_CSS)) {
 			kickForIllegalActivity(socket, "You cannot set the CSS");
-			return;		
+			return;
 		}
 
 		DefaultLog.info(events.EVENT_ADMIN_SET_CSS,
@@ -1970,20 +1970,20 @@ io.sockets.on('connection', function (ioSocket) {
 			socket.emit("searchHistoryResults", []);
 			return;
 		}
-		
+
 		const pattern = '%' + encodeURI(data.search).replace('%', '\\%') + '%';
 		const { result } = await databaseService.query`
-			SELECT 
-				* 
-			FROM 
-				videos_history 
-			WHERE 
-				videotitle LIKE ${pattern} 
+			SELECT
+				*
+			FROM
+				videos_history
+			WHERE
+				videotitle LIKE ${pattern}
 			ORDER BY
-				date_added DESC 
+				date_added DESC
 			LIMIT 50`;
 
-		socket.emit("searchHistoryResults", 
+		socket.emit("searchHistoryResults",
 			result.map(res => {
 				let meta = null;
 				try {
@@ -2000,7 +2000,7 @@ io.sockets.on('connection', function (ioSocket) {
 		if (!authService.can(socket.session, actions.ACTION_DELETE_HISTORY)) {
 			return;
 		}
-		
+
 		const logData = { mod: getSocketName(socket), type: "playlist", id: data.videoid};
 
 		if(!data.videoid.match(/^[a-zA-Z0-9_ \-#]{3,50}$/)){
@@ -2022,7 +2022,7 @@ io.sockets.on('connection', function (ioSocket) {
 		if (!authService.can(socket.session, actions.ACTION_RANDOMIZE_LIST)) {
 			return;
 		}
-		
+
 		DefaultLog.info(events.EVENT_ADMIN_RANDOMIZED_PLAYLIST,
 			"{mod} randomized playlist on {type}",
 			{ mod: getSocketName(socket), type: "playlist" }
@@ -2058,7 +2058,7 @@ io.sockets.on('connection', function (ioSocket) {
 			kickForIllegalActivity(socket);
 			return;
 		}
-		
+
 		tn = data.name;
 		ts = data.state;
 		setToggleable(socket, tn, ts, function(err) {
@@ -2112,10 +2112,10 @@ io.sockets.on('connection', function (ioSocket) {
 			{throw kick(`User ${nick} attempted to flaunt their name, but they are not a mod!`);}
 
 		sendChat(nick, type, { msg, metadata }, socket);
-		DefaultLog.info(events.EVENT_CHAT, "user {session} on ip {ip} sent message {message}", { 
-			ip, 
-			session: socket.session.systemName, 
-			message: msg 
+		DefaultLog.info(events.EVENT_CHAT, "user {session} on ip {ip} sent message {message}", {
+			ip,
+			session: socket.session.systemName,
+			message: msg
 		});
 
 		function kick(message) {
@@ -2213,7 +2213,7 @@ io.sockets.on('connection', function (ioSocket) {
 			DefaultLog.error(events.EVENT_GENERAL, "Failed to get nick from socket on ip {ip}", { ip: socket.ip });
 			return;
 		}
-		
+
 		const logData = { ip: socket.ip, nick };
 		if (!data.pass || data.pass.length <= 5) {
 			const err = "Invalid password. Must be at least 6 characters long.";
@@ -2247,7 +2247,7 @@ io.sockets.on('connection', function (ioSocket) {
 			kickForIllegalActivity(socket);
 			return;
 		}
-		
+
 		DefaultLog.info(events.EVENT_ADMIN_SKIPPED_VIDEO,
 			"{mod} skipped video on {type}",
 			{ mod: getSocketName(socket), type: "playlist"});
@@ -2301,7 +2301,7 @@ io.sockets.on('connection', function (ioSocket) {
 			kickForIllegalActivity(socket);
 			return;
 		}
-		
+
 		var elem = SERVER.PLAYLIST.first;
 		var delme = -1;
 		if(SERVER.ACTIVE.volat){
@@ -2363,7 +2363,7 @@ io.sockets.on('connection', function (ioSocket) {
 			kickForIllegalActivity(socket);
 			return;
 		}
-		
+
 		const meta = { nick: socket.session.nick, type: socket.session.type };
 		const logData = { mod: getSocketName(socket), type: "playlist", title: data.videotitle, provider: data.videotype };
 
@@ -2424,7 +2424,7 @@ io.sockets.on('connection', function (ioSocket) {
 			kickForIllegalActivity(socket);
 			return;
 		}
-		
+
 		SERVER.STATE = data.state;
 		sendStatus("hbVideoDetail", io.sockets);
 	});
@@ -2433,32 +2433,32 @@ io.sockets.on('connection', function (ioSocket) {
 			kickForIllegalActivity(socket);
 			return;
 		}
-		
+
 		SERVER.TIME = data;
 		sendStatus("hbVideoDetail",io.sockets);
 	});
 	socket.on("moveLeader",function(data) {
 		data = data || "Server";
-		
+
 		if (data === "Server") {
 			if (!authService.can(socket.session, actions.ACTION_RELINQUISH_BERRY)) {
 				kickForIllegalActivity(socket, "You cannot relinquish berry");
 				return;
 			}
-			
+
 			DefaultLog.info(events.EVENT_ADMIN_SET_BERRY,
 				"{user} relinquished berry on {type}",
 				{ user: getSocketName(socket), type: "playlist" });
-				
+
 			sessionService.setBerry(null);
 			return;
 		}
-		
+
 		if (!authService.can(socket.session, actions.ACTION_MOVE_BERRY_TO_USER)) {
 			kickForIllegalActivity(socket, "You cannot move berry");
 			return;
 		}
-		
+
 		DefaultLog.info(events.EVENT_ADMIN_SET_BERRY,
 			"{mod} gave berry to {nick} on {type}",
 			{ mod: getSocketName(socket), type: "playlist", nick: data });
@@ -2470,7 +2470,7 @@ io.sockets.on('connection', function (ioSocket) {
 			kickForIllegalActivity(socket);
 			return;
 		}
-		
+
 		kickUserByNick(socket, data.nick, data.reason);
 	});
 	socket.on("shadowBan",function(data) {
@@ -2543,7 +2543,7 @@ io.sockets.on('connection', function (ioSocket) {
 			kickForIllegalActivity(socket);
 			return;
 		}
-		
+
 		areaname = data.areaname;
 		content = data.content;
 
@@ -2567,7 +2567,7 @@ io.sockets.on('connection', function (ioSocket) {
 					kickForIllegalActivity(socket);
 					return;
 				}
-				
+
 				pos = data.pos;
 				isVolat = data.volat;
 				setVideoVolatile(socket,pos,isVolat);
@@ -2592,7 +2592,7 @@ io.sockets.on('connection', function (ioSocket) {
 					kickForIllegalActivity(socket);
 					return;
 				}
-				
+
 				// She wants the d.nick :3
 				if(d.nick.match(/^[0-9a-zA-Z_]+$/) != null &&
 					d.nick.length >= 1  &&
@@ -2620,13 +2620,13 @@ io.sockets.on('connection', function (ioSocket) {
 									DefaultLog.error(events.EVENT_DB_QUERY, "query \"{sql}\" failed", { sql }, err);
 									return;
 								}
-								
+
 								DefaultLog.info(events.EVENT_ADMIN_SET_NOTE,
 									"{mod} set {nick}'s note to '{note}' on {type}",
 									{ mod: getSocketName(socket), type: "user", nick: d.nick, note: d.note});
 
 								sessionService.forNick(d.nick, s => s.updateMeta(meta));
-								sessionService.forCan(actions.CAN_SEE_PRIVILEGED_USER_DATA, 
+								sessionService.forCan(actions.CAN_SEE_PRIVILEGED_USER_DATA,
 									session => session.emit("fondleUser", data));
 							});
 						}
