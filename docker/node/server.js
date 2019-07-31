@@ -1050,22 +1050,6 @@ function sendToggleables(socket){
 	}
 	socket.emit("setToggleables",data);
 }
-function getSocketOfNick(targetnick,truecallback,falsecallback){
-	targetnick = targetnick && targetnick.toLowerCase();
-	cl = io.sockets.clients();
-	for(var i=0;i<cl.length;i++){
-		(function(i){
-			cl[i].get("nick",function(err,nick){
-				if(nick && nick.toLowerCase() == targetnick){
-					if(truecallback){truecallback(cl[i]);}
-				}
-			});
-			if(i == cl.length-1){
-				if(falsecallback){falsecallback();}
-			}
-		})(i);
-	}
-}
 
 function delVideo(data, socket){
 	elem = SERVER.PLAYLIST.first;
@@ -2538,23 +2522,21 @@ io.sockets.on('connection', function (ioSocket) {
 		}
 		message = '/me ' + message;
 		_sendChat(nick, 3, {msg: message, metadata: {channel: 'admin'}}, socket);
-		getSocketOfNick(targetNick, function(targetSocket) {
-			const logData = { mod: getSocketName(socket), ip: getAddress(targetSocket), type: "site" };
+		const logData = { mod: getSocketName(socket), ip: socket.ip, type: "site" };
 
-			if (isbanning){
-				DefaultLog.info(temp ? events.EVENT_ADMIN_SHADOWBAN_TEMP : events.EVENT_ADMIN_SHADOWBAN_PERMANENT,
-					"{mod} banned ip {ip} on {type}",
-					logData);
+		if (isbanning){
+			DefaultLog.info(temp ? events.EVENT_ADMIN_SHADOWBAN_TEMP : events.EVENT_ADMIN_SHADOWBAN_PERMANENT,
+				"{mod} banned ip {ip} on {type}",
+				logData);
 
-				sessionService.setShadowbanForNick(targetNick, true, temp);
-			} else {
-				DefaultLog.info(events.EVENT_ADMIN_SHADOWBAN_FORGIVEN,
-					"{mod} unbanned ip {ip} on {type}",
-					logData);
+			sessionService.setShadowbanForNick(targetNick, true, temp);
+		} else {
+			DefaultLog.info(events.EVENT_ADMIN_SHADOWBAN_FORGIVEN,
+				"{mod} unbanned ip {ip} on {type}",
+				logData);
 
-				sessionService.setShadowbanForNick(targetNick, false);
-			}
-		});
+			sessionService.setShadowbanForNick(targetNick, false);
+		}
 	});
 	socket.on("setAreas",function(data) {
 		if (!authService.can(socket.session, actions.ACTION_SET_AREAS)) {
