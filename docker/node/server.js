@@ -2489,18 +2489,17 @@ io.sockets.on('connection', function (ioSocket) {
 				: `Shadow banned ${targetNick}`;
 
 			DefaultLog.info(temp ? events.EVENT_ADMIN_SHADOWBAN_TEMP : events.EVENT_ADMIN_SHADOWBAN_PERMANENT,
-				"{mod} banned user {nick} on {type}",
+				"{mod} shadow banned user {nick} on {type}",
 				{ mod: getSocketName(socket), nick: targetNick, type: "site" });
 		}
 		else {
 			message = `Un-shadow banned ${targetNick}`;
 
 			DefaultLog.info(events.EVENT_ADMIN_SHADOWBAN_FORGIVEN,
-				"{mod} unbanned {nick} on {type}",
+				"{mod} un-shadow banned {nick} on {type}",
 				{ mod: getSocketName(socket), nick: targetNick, type: "site" });
 		}
 
-		const nick = socket.session.nick;
 		if(isbanning) {
 			var banEmotes = ['[](/ihavenomouthandimustscream)'
 							,'[](/bant)'
@@ -2521,20 +2520,12 @@ io.sockets.on('connection', function (ioSocket) {
 			message = banEmotes[Math.floor(Math.random()*banEmotes.length)] + ' ' + message;
 		}
 		message = '/me ' + message;
-		_sendChat(nick, 3, {msg: message, metadata: {channel: 'admin'}}, socket);
+		_sendChat(socket.session.nick, 3, {msg: message, metadata: {channel: 'admin'}}, socket);
 		const logData = { mod: getSocketName(socket), ip: socket.ip, type: "site" };
 
 		if (isbanning){
-			DefaultLog.info(temp ? events.EVENT_ADMIN_SHADOWBAN_TEMP : events.EVENT_ADMIN_SHADOWBAN_PERMANENT,
-				"{mod} banned ip {ip} on {type}",
-				logData);
-
 			sessionService.setShadowbanForNick(targetNick, true, temp);
 		} else {
-			DefaultLog.info(events.EVENT_ADMIN_SHADOWBAN_FORGIVEN,
-				"{mod} unbanned ip {ip} on {type}",
-				logData);
-
 			sessionService.setShadowbanForNick(targetNick, false);
 		}
 	});
