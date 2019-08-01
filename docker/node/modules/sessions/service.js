@@ -299,7 +299,6 @@ exports.SessionService = class extends ServiceBase {
 			this.sessionsByNick[nick.toLowerCase()] = session;
 
 			const publicData = session.publicData;
-			const privilegedData = session.privilegedData;
 
 			for (const otherSession of this.sessions) {
 				otherSession.emit(
@@ -308,7 +307,7 @@ exports.SessionService = class extends ServiceBase {
 						otherSession,
 						actions.CAN_SEE_PRIVILEGED_USER_DATA,
 					)
-						? privilegedData
+						? this.getPrivilegedDataForSession(session)
 						: publicData,
 				);
 			}
@@ -345,10 +344,7 @@ exports.SessionService = class extends ServiceBase {
 					continue;
 				}
 
-				users.push({
-					...session.privilegedData,
-					aliases: this.getAliasesFromSession(session),
-				});
+				users.push(this.getPrivilegedDataForSession(session));
 			}
 		} else {
 			for (const session of this.sessions) {
@@ -365,6 +361,22 @@ exports.SessionService = class extends ServiceBase {
 		if (this.berrySession) {
 			socket.emit("leaderIs", this.berrySession.nick);
 		}
+	}
+
+	getPrivilegedDataForSession(session) {
+		const data = session.privilegedData;
+		return {
+			...data,
+			meta: {
+				...data.meta,
+				// TODO: protocol needs to be updated to support multiple IP addresses
+				ip: session.sockets.length ? session.sockets[0].ip : "",
+				aliases: [
+					...(data.meta.aliases || []),
+					...this.getAliasesFromSession(session),
+				],
+			},
+		};
 	}
 
 	getAliasesFromSession(session) {
