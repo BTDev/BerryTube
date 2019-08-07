@@ -5,20 +5,13 @@ networks:
 
 volumes:
     mysql:
+    selfsigned:
 
 services:
     nginx:
         build: ./docker/nginx/
         restart: unless-stopped
         read_only: true
-        command:
-            - /bin/sh
-            - -c
-            - |
-                for fname in $$(ls /etc/nginx.source); do
-                    envsubst '$$DOMAIN $$HTTP_PORT $$HTTPS_PORT $$LEGACY_SOCKET_PORT $$TLS_TYPE' <"/etc/nginx.source/$$fname" >"/etc/nginx/$$fname"
-                done
-                exec nginx -g 'daemon off;'
         environment:
             - DOMAIN
             - HTTP_PORT
@@ -27,14 +20,15 @@ services:
             - TLS_TYPE
         volumes:
             - ./docker/nginx/config:/etc/nginx.source:ro
-            - /etc/letsencrypt:/etc/letsencrypt:ro
             - ./web:/var/www/html/web:ro
             - ./berrymotes/css:/var/www/html/web/berrymotes/css:ro
             - ./berrymotes/data:/var/www/html/web/berrymotes/data:ro
             - ./berrymotes/images:/var/www/html/web/berrymotes/images:ro
             - ./berrymotes/js:/var/www/html/web/berrymotes/js:ro
             - ./berrymotes/single_emotes:/var/www/html/web/berrymotes/single_emotes:ro
+            - ${LETSENCRYPT_DIR}:/etc/letsencrypt:ro
             - ${EXTRA_DIR}:/var/www/html/extra:ro
+            - selfsigned:/var/selfsigned
         tmpfs:
             - /etc/nginx
             - /var/cache/nginx

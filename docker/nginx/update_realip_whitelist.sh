@@ -6,7 +6,7 @@ readonly URLS=(
     'https://www.cloudflare.com/ips-v4'
     'https://www.cloudflare.com/ips-v6'
 )
-readonly OUTFILE='config/realip_whitelist.conf'
+readonly OUTFILE='config/generated/realip_whitelist.conf'
 
 echo -n >"$OUTFILE"
 for url in "${URLS[@]}"; do

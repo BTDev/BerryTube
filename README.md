@@ -8,21 +8,25 @@ Download [the emote data](https://cdn.berrytube.tv/berrymotes/data/berrymotes_js
 
 Copy `.env.sample` to `.env` and tweak the values.
 
+### Certificate options
 
-## Certificate options
+-   `TLS_TYPE=selfsigned`
+
+    Generate a self-signed certificate on startup.
 
 -   `TLS_TYPE=letsencrypt`
 
-    Use certificates from /etc/letsencrypt (bind mounted). The cert name must match `$DOMAIN`.
-
+    Use certificates from `$LETSENCRYPT_DIR` (e.g. /etc/letsencrypt). The cert name must match `$DOMAIN`.
 
 ## Running
 
 To run (or apply changes): `docker-compose up -d --build`
 
-To stop and remove containers (keeps data): `docker-compose down`
+To stop and remove containers, keeping database content: `docker-compose down`
 
-Note that the `web` directory is mounted directly into the containers (as read-only), so any changes there will get applied immediately.
+To stop and remove everything, including database content: `docker-compose down --volumes`
+
+Note that the `web` and `berrymotes` directories are bind mounted into the containers, so any changes there will be visible without a restart.
 
 ## Testing In Development
 

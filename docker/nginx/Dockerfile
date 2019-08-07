@@ -5,8 +5,7 @@ FROM nginx:${nginx_version}-alpine AS build
 ARG headersmore_version=0.33
 
 # https://github.com/nginxinc/docker-nginx/blob/master/mainline/alpine/Dockerfile
-RUN apk add --no-cache git && \
-    apk add --no-cache --virtual .build-deps \
+RUN apk add --no-cache --virtual .build-deps \
         gcc \
         libc-dev \
         make \
@@ -28,6 +27,7 @@ RUN mkdir /tmp/build && \
     cd /tmp/build && \
     wget -O - "https://nginx.org/download/nginx-${NGINX_VERSION}.tar.gz" | tar xzf - && \
     wget -O - "https://github.com/openresty/headers-more-nginx-module/archive/v${headersmore_version}.tar.gz" | tar xzf - && \
+    apk add --no-cache git && \
     git clone --depth=1 --recurse-submodules "https://github.com/google/ngx_brotli.git"
 
 RUN CONFARGS=$(nginx -V 2>&1 | sed -n -e 's/^.*arguments: //p') \
@@ -46,6 +46,8 @@ FROM nginx:${nginx_version}-alpine
 
 ENTRYPOINT ["/entrypoint.sh"]
 CMD ["nginx", "-g", "daemon off;"]
+
+RUN apk add --no-cache openssl
 
 COPY --from=build /usr/local/nginx/modules/*.so /usr/local/nginx/modules/
 COPY --from=build /var/dhparam.pem /var/dhparam.pem
