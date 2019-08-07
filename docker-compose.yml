@@ -5,26 +5,29 @@ networks:
 
 volumes:
     mysql:
-    caddy:
-        external: true
 
 services:
-    caddy:
-        build: ./docker/caddy/
-        command: caddy -agree -log stderr -ca "${CA_URL}" -email "${CA_EMAIL}"
-        restart: always
+    nginx:
+        build: ./docker/nginx/
+        restart: unless-stopped
+        read_only: true
+        command:
+            - /bin/sh
+            - -c
+            - |
+                for fname in $$(ls /etc/nginx.source); do
+                    envsubst '$$DOMAIN $$HTTP_PORT $$HTTPS_PORT $$LEGACY_SOCKET_PORT $$TLS_TYPE' <"/etc/nginx.source/$$fname" >"/etc/nginx/$$fname"
+                done
+                exec nginx -g 'daemon off;'
         environment:
-            - "CADDY_UUID_FILE=/root/.caddy/uuid-${DOMAIN}"
             - DOMAIN
             - HTTP_PORT
             - HTTPS_PORT
             - LEGACY_SOCKET_PORT
             - TLS_TYPE
-            - CLOUDFLARE_EMAIL
-            - CLOUDFLARE_API_KEY
         volumes:
-            - caddy:/root/.caddy
-            - ${EXISTING_CERT_DIR}:/existing-certs:ro
+            - ./docker/nginx/config:/etc/nginx.source:ro
+            - /etc/letsencrypt:/etc/letsencrypt:ro
             - ./web:/var/www/html/web:ro
             - ./berrymotes/css:/var/www/html/web/berrymotes/css:ro
             - ./berrymotes/data:/var/www/html/web/berrymotes/data:ro
@@ -32,6 +35,9 @@ services:
             - ./berrymotes/js:/var/www/html/web/berrymotes/js:ro
             - ./berrymotes/single_emotes:/var/www/html/web/berrymotes/single_emotes:ro
             - ${EXTRA_DIR}:/var/www/html/extra:ro
+        tmpfs:
+            - /etc/nginx
+            - /var/cache/nginx
         ports:
             - '${HTTP_PORT}:${HTTP_PORT}/tcp'
             - '${HTTPS_PORT}:${HTTPS_PORT}/tcp'
@@ -46,7 +52,7 @@ services:
 
     php:
         build: ./docker/php/
-        restart: always
+        restart: unless-stopped
         init: true
         environment:
             - DOMAIN
@@ -71,7 +77,7 @@ services:
 
     extra-php:
         build: ./docker/php/
-        restart: always
+        restart: unless-stopped
         init: true
         environment:
             - DOMAIN
@@ -85,7 +91,7 @@ services:
 
     node:
         build: ./docker/node/
-        restart: always
+        restart: unless-stopped
         init: true
         environment:
             - MYSQL_PASSWORD
@@ -101,7 +107,7 @@ services:
     mysql:
         build: ./docker/mysql/
         command: --default-authentication-plugin=mysql_native_password --skip-performance-schema
-        restart: always
+        restart: unless-stopped
         environment:
             - MYSQL_RANDOM_ROOT_PASSWORD=yes
             - MYSQL_ONETIME_PASSWORD=yes
