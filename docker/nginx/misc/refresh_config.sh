@@ -3,8 +3,14 @@ set -eu
 
 echo "Refreshing config..." >&2
 
-readonly varnames="$(env | cut -d= -f1 | grep -v '[a-z]' | sed 's/^/$/' | xargs) \$HOST_IP"
+readonly varnames="$(env | cut -d= -f1 | grep -v '[a-z]' | sed 's/^/$/' | xargs) \$HOST_IP \$HTTPS_LISTEN"
+
 export HOST_IP="$(route | grep '^default' | awk '{ print $2 }')"
+
+export HTTPS_LISTEN='ssl http2'
+if [ "$TLS_TYPE" = none ]; then
+    HTTPS_LISTEN=''
+fi
 
 for fname in $(find /etc/nginx.source -mindepth 1 -type f | cut -d/ -f4-); do
     mkdir -p "$(dirname "/etc/nginx/$fname")"

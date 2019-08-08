@@ -56,6 +56,7 @@ services:
             - NO_CDN
             - NO_MINIFIED
             - MYSQL_PASSWORD
+            - TLS_TYPE
         volumes:
             - ./web:/var/www/html/web:ro
             - ./berrymotes/css:/var/www/html/web/berrymotes/css:ro

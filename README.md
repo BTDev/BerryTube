@@ -10,6 +10,10 @@ Copy `.env.sample` to `.env` and tweak the values.
 
 ### Certificate options
 
+-   `TLS_TYPE=none`
+
+    Serve plain http on `$HTTPS_PORT` as well.
+
 -   `TLS_TYPE=selfsigned`
 
     Generate a self-signed certificate on startup.
