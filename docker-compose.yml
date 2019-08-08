@@ -43,6 +43,8 @@ services:
                 condition: service_healthy
             extra-php:
                 condition: service_healthy
+        labels:
+            tv.berrytube.cert-renew-signal: HUP
 
     php:
         build: ./docker/php/
