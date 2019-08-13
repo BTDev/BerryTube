@@ -2015,7 +2015,7 @@ $(function(){
 					}
 				},
 				theme: "classic",
-				position: "bottom-left",
+				position: "bottom-right",
 				law: {
 					countryCode: MY_COUNTRY
 				},
