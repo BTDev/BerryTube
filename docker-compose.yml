@@ -1,8 +1,5 @@
 version: '2.2'
 
-networks:
-    net:
-
 volumes:
     mysql:
     selfsigned:
@@ -36,8 +33,6 @@ services:
             - '${HTTP_PORT}:${HTTP_PORT}/tcp'
             - '${HTTPS_PORT}:${HTTPS_PORT}/tcp'
             - '${LEGACY_SOCKET_PORT}:${LEGACY_SOCKET_PORT}/tcp'
-        networks:
-            - net
         depends_on:
             php:
                 condition: service_healthy
@@ -66,8 +61,6 @@ services:
             - ./berrymotes/single_emotes:/var/www/html/web/berrymotes/single_emotes:ro
         expose:
             - '9000'
-        networks:
-            - net
         depends_on:
             mysql:
                 condition: service_healthy
@@ -83,8 +76,6 @@ services:
             - ${EXTRA_DIR}:/var/www/html/extra
         expose:
             - '9000'
-        networks:
-            - net
 
     node:
         build: ./docker/node/
@@ -95,8 +86,6 @@ services:
             - YOUTUBE_APIKEY
         expose:
             - '8344'
-        networks:
-            - net
         depends_on:
             mysql:
                 condition: service_healthy
@@ -115,5 +104,3 @@ services:
             - mysql:/var/lib/mysql
         expose:
             - '3306'
-        networks:
-            - net
