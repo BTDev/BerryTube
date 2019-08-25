@@ -359,7 +359,9 @@ exports.SessionService = class extends ServiceBase {
 		socket.emit("newChatList", users);
 
 		if (this.berrySession) {
-			socket.emit("leaderIs", this.berrySession.nick);
+			socket.emit("leaderIs", {
+				nick: this.berrySession.nick,
+			});
 		}
 	}
 
