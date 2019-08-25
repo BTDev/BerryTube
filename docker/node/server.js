@@ -858,39 +858,53 @@ function sendChat(nick, type, incoming, socket){
 const doNormalChatMessage = { doSuppress: false };
 const doSuppressChat = { doSuppress: true };
 
-const chatCommands = {
+const chatCommandMap = {
 	// /me wiggles the tub
-	action: (parsed, socket, messageData) => {
+	...withAliases(["me"], (_parsed, _socket, messageData) => {
 		messageData.emote = "act";
 		return doNormalChatMessage;
-	},
+	}),
+
 	// /sb greetings programs
-	sweetieBot: (parsed, socket, messageData) => {
+	...withAliases(["sb"], (_parsed, _socket, messageData) => {
 		messageData.emote = "sweetiebot";
 		return doNormalChatMessage;
-	},
-	// /rcv attention berrytube: BUTTS
-	rcv: (parsed, socket, messageData) => {
-		if (!authService.can(socket.session, actions.ACTION_ANNOUNCE)) {
-			return doSuppressChat;
-		}
+	}),
 
-		messageData.emote = "rcv";
-		messageData.msg = parsed.msg; // Specifically not using the fun bits here.
-		return doNormalChatMessage;
-	},
+	// /rcv attention berrytube: BUTTS
+	...withAliases(
+		["rcv", "shout", "yell", "announcement", "rcv"],
+		(parsed, socket, messageData) => {
+			if (!authService.can(socket.session, actions.ACTION_ANNOUNCE)) {
+				return doSuppressChat;
+			}
+
+			messageData.emote = "rcv";
+			messageData.msg = parsed.msg; // Specifically not using the fun bits here.
+			return doNormalChatMessage;
+		},
+	),
+
 	// /r rainbow rocks
-	request: (parsed, socket, messageData) => {
-		messageData.emote = "request";
-		return doNormalChatMessage;
-	},
+	...withAliases(
+		["r", "request", "requests", "req"],
+		(_parsed, _socket, messageData) => {
+			messageData.emote = "request";
+			return doNormalChatMessage;
+		},
+	),
+
 	// /sp snape kills dumbledoor
-	spoiler: (parsed, socket, messageData) => {
-		messageData.emote = "spoiler";
-		return doNormalChatMessage;
-	},
+	...withAliases(
+		["spoiler", "sp", "spoilers"],
+		(_parsed, _socket, messageData) => {
+			messageData.emote = "spoiler";
+			return doNormalChatMessage;
+		},
+	),
+
 	// /d AMGIC!
-	drink: (parsed, socket, messageData) => {
+	...withAliases(["drink", "d"], (parsed, socket, messageData) => {
 		if (!authService.can(socket.session, actions.ACTION_CALL_DRINKS)) {
 			return doSuppressChat;
 		}
@@ -904,9 +918,10 @@ const chatCommands = {
 		}
 
 		return doNormalChatMessage;
-	},
+	}),
+
 	// /kick nlaq
-	kick: (parsed, socket, _messageData) => {
+	...withAliases(["kick", "k"], (parsed, socket, _messageData) => {
 		if (!authService.can(socket.session, actions.ACTION_KICK_USER)) {
 			kickForIllegalActivity(socket);
 			return doSuppressChat;
@@ -923,9 +938,10 @@ const chatCommands = {
 		}
 
 		return doSuppressChat;
-	},
+	}),
+
 	// what does this even do
-	shitpost: (parsed, socket, _messageData) => {
+	...withAliases(["shitpost"], (parsed, socket, _messageData) => {
 		if (!authService.can(socket.session, actions.ACTION_SHITPOST)) {
 			kickForIllegalActivity(socket);
 			return doSuppressChat;
@@ -945,9 +961,10 @@ const chatCommands = {
 		}
 
 		return doSuppressChat;
-	},
+	}),
+
 	// /fondlepw nlaq
-	resetPassword: (parsed, socket, _messageData) => {
+	...withAliases(["fondlepw"], (parsed, socket, _messageData) => {
 		if (
 			!authService.can(socket.session, actions.ACTION_CAN_RESET_PASSWORD)
 		) {
@@ -996,9 +1013,11 @@ const chatCommands = {
 				`password for "${foundNick}" has been reset to "${randomPassword}"`,
 			);
 
-			DefaultLog.info(events.EVENT_ADMIN_USER_PASSWORD_RESET,
+			DefaultLog.info(
+				events.EVENT_ADMIN_USER_PASSWORD_RESET,
 				"{mod} reset {nick}'s password on {type}",
-				{ mod: getSocketName(socket), type: "user", nick: foundNick });
+				{ mod: getSocketName(socket), type: "user", nick: foundNick },
+			);
 		})();
 
 		// ok to return while we process the command above
@@ -1017,25 +1036,7 @@ const chatCommands = {
 				false,
 			);
 		}
-	},
-};
-
-const chatCommandMap = {
-	...withAliases(chatCommands.action, ["me"]),
-	...withAliases(chatCommands.sweetieBot, ["sb"]),
-	...withAliases(chatCommands.rcv, [
-		"rcv",
-		"shout",
-		"yell",
-		"announcement",
-		"rcv",
-	]),
-	...withAliases(chatCommands.request, ["r", "request", "requests", "req"]),
-	...withAliases(chatCommands.spoiler, ["spoiler", "sp", "spoilers"]),
-	...withAliases(chatCommands.drink, ["drink", "d"]),
-	...withAliases(chatCommands.kick, ["kick", "k"]),
-	...withAliases(chatCommands.shitpost, ["shitpost"]),
-	...withAliases(chatCommands.resetPassword, ["fondlepw"]),
+	}),
 };
 
 function _sendChat(nick, type, incoming, socket) {
@@ -2810,7 +2811,7 @@ function isDrinkAmountExcessive(drinks) {
 	return Math.abs(drinks) > 1000000;
 }
 
-function withAliases(value, keys) {
+function withAliases(keys, value) {
 	const obj = {}
 	for (const key of keys) {
 		obj[key] = value;
