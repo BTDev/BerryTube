@@ -1,6 +1,6 @@
 const { PollService } = require("./modules/polls");
 const { AuthService, actions } = require("./modules/auth");
-const { sanitize } = require("./modules/security");
+const { sanitize, generateRandomPassword } = require("./modules/security");
 const { DefaultLog, events, levels, consoleLogger, createStreamLogger } = require("./modules/log");
 const { DatabaseService } = require("./modules/database");
 const { SessionService, getSocketName, userTypes } = require("./modules/sessions");
@@ -897,7 +897,7 @@ const chatCommands = {
 
 		messageData.emote = "drink";
 
-		if(messageData.metadata.channel === "main") {
+		if (messageData.metadata.channel === "main") {
 			addDrink(parsed.multi, socket, () => {
 				sendDrinks(io.sockets);
 			});
@@ -912,10 +912,14 @@ const chatCommands = {
 			return doSuppressChat;
 		}
 
-		const parts = parsed.msg.split(' ');
+		const parts = parsed.msg.split(" ");
 
 		if (parts[0]) {
-			kickUserByNick(socket, parts[0], parts.slice(1).join(' ') || undefined);
+			kickUserByNick(
+				socket,
+				parts[0],
+				parts.slice(1).join(" ") || undefined,
+			);
 		}
 
 		return doSuppressChat;
@@ -929,12 +933,14 @@ const chatCommands = {
 
 		const parts = parsed.msg.split(" ");
 		if (parts[0]) {
-			DefaultLog.info(events.EVENT_ADMIN_SHATPOST,
+			DefaultLog.info(
+				events.EVENT_ADMIN_SHATPOST,
 				"{mod} shatpost {title} on {type}",
-				{ mod: nick,  type: "site", title: parts[0] });
+				{ mod: nick, type: "site", title: parts[0] },
+			);
 
 			io.sockets.emit("shitpost", {
-				msg: parsed.msg
+				msg: parsed.msg,
 			});
 		}
 
@@ -942,20 +948,94 @@ const chatCommands = {
 	},
 	// /fondlepw nlaq
 	resetPassword: (parsed, socket, _messageData) => {
-		
-	}
-}
+		if (
+			!authService.can(socket.session, actions.ACTION_CAN_RESET_PASSWORD)
+		) {
+			kickForIllegalActivity(socket);
+			return doSuppressChat;
+		}
+
+		const nickToReset = parsed.msg.trim();
+		if (!nickToReset.length) {
+			sendMessage(`please specify a nick: "/fondlepw nick"`);
+			return doSuppressChat;
+		}
+
+		(async () => {
+			const { result } = await databaseService.query`
+				SELECT
+					name
+				FROM
+					users
+				WHERE
+					name = ${nickToReset}`;
+
+			if (!result || !result.length) {
+				sendMessage(
+					`cannot reset password for "${nickToReset}": user not found`,
+				);
+				return;
+			}
+
+			const foundNick = result[0].name;
+			const randomPassword = generateRandomPassword();
+			const randomPasswordHashed = await bcrypt.hash(
+				randomPassword,
+				SERVER.settings.core.bcrypt_rounds,
+			);
+
+			await databaseService.query`
+				UPDATE
+					users
+				SET
+					pass = ${randomPasswordHashed}
+				WHERE
+					name = ${foundNick}`;
+
+			sendMessage(
+				`password for "${foundNick}" has been reset to "${randomPassword}"`,
+			);
+
+			DefaultLog.info(events.EVENT_ADMIN_USER_PASSWORD_RESET,
+				"{mod} reset {nick}'s password on {type}",
+				{ mod: getSocketName(socket), type: "user", nick: foundNick });
+		})();
+
+		// ok to return while we process the command above
+		return doSuppressChat;
+
+		function sendMessage(message) {
+			emitChat(
+				socket,
+				{
+					nick: "server",
+					emote: "server",
+					metadata: { channel: "main" },
+					msg: message,
+					timestamp: new Date().toUTCString(),
+				},
+				false,
+			);
+		}
+	},
+};
 
 const chatCommandMap = {
 	...withAliases(chatCommands.action, ["me"]),
 	...withAliases(chatCommands.sweetieBot, ["sb"]),
-	...withAliases(chatCommands.rcv, ["rcv", "shout", "yell", "announcement", "rcv"]),
+	...withAliases(chatCommands.rcv, [
+		"rcv",
+		"shout",
+		"yell",
+		"announcement",
+		"rcv",
+	]),
 	...withAliases(chatCommands.request, ["r", "request", "requests", "req"]),
 	...withAliases(chatCommands.spoiler, ["spoiler", "sp", "spoilers"]),
 	...withAliases(chatCommands.drink, ["drink", "d"]),
 	...withAliases(chatCommands.kick, ["kick", "k"]),
 	...withAliases(chatCommands.shitpost, ["shitpost"]),
-	...withAliases(chatCommands.resetPassword, ["fondlepw"])
+	...withAliases(chatCommands.resetPassword, ["fondlepw"]),
 };
 
 function _sendChat(nick, type, incoming, socket) {
@@ -1002,7 +1082,7 @@ function _sendChat(nick, type, incoming, socket) {
 			},
 			false,
 		);
-		
+
 		metadata.graymute = true;
 		sendToAdmins = true;
 		sendToUsers = false;
@@ -1044,9 +1124,10 @@ function _sendChat(nick, type, incoming, socket) {
 	if (sendToUsers) {
 		emitChat(io.sockets, messageData, false);
 
-		const targetBuffer = SERVER.OUTBUFFER[channel] || (SERVER.OUTBUFFER[channel] = []);			
+		const targetBuffer =
+			SERVER.OUTBUFFER[channel] || (SERVER.OUTBUFFER[channel] = []);
 		targetBuffer.push(messageData);
-	
+
 		if (targetBuffer.length > SERVER.settings.core.max_saved_buffer) {
 			targetBuffer.shift();
 		}

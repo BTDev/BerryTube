@@ -5,3 +5,9 @@ exports.sanitize = function(string) {
 
 	return string.replace(/</g, "&lt;").replace(/>/g, "&gt;");
 };
+
+exports.generateRandomPassword = function(length = 10) {
+	return Math.random()
+		.toString(36)
+		.slice(-length);
+};
