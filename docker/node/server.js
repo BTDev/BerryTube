@@ -2,9 +2,8 @@ const { PollService } = require("./modules/polls");
 const { AuthService, actions } = require("./modules/auth");
 const { sanitize } = require("./modules/security");
 const { DefaultLog, events, levels, consoleLogger, createStreamLogger } = require("./modules/log");
-const { getSocketName } = require("./modules/sessions");
 const { DatabaseService } = require("./modules/database");
-const { SessionService, userTypes } = require("./modules/sessions");
+const { SessionService, getSocketName, userTypes } = require("./modules/sessions");
 const { parseRawFileUrl } = require("./modules/utils");
 const fetchYoutubeVideoInfo = require("youtube-info");
 
@@ -856,103 +855,61 @@ function sendChat(nick, type, incoming, socket){
 	_sendChat(nick, type, incoming, socket);
 }
 
-function _sendChat(nick,type,incoming,socket){
-	//Sanitize.
-	var msg = sanitize(incoming.msg);
-	if(typeof(msg) == "undefined"){
-		msg = "I'm a lazy hacker";
-	}
-	var metadata = incoming.metadata;
+const doNormalChatMessage = { doSuppress: false };
+const doSuppressChat = { doSuppress: true };
 
-	var data = false;
-	var timestamp = new Date().toUTCString();
-
-	var target = io.sockets;
-	var sendToAdmins = false;
-	var channel = metadata.channel || 'main';
-
-	if(channel != 'main'){
-		// Someone trying to send a message to a channel they're not in?!
-		// Also, let server send messages to admin chat.
-		if(type < 2 && io.sockets.manager.roomClients[socket.id]['/'+channel] !== true){
-			return;
+const chatCommands = {
+	// /me wiggles the tub
+	action: (parsed, socket, messageData) => {
+		messageData.emote = "act";
+		return doNormalChatMessage;
+	},
+	// /sb greetings programs
+	sweetieBot: (parsed, socket, messageData) => {
+		messageData.emote = "sweetiebot";
+		return doNormalChatMessage;
+	},
+	// /rcv attention berrytube: BUTTS
+	rcv: (parsed, socket, messageData) => {
+		if (!authService.can(socket.session, actions.ACTION_ANNOUNCE)) {
+			return doSuppressChat;
 		}
-		target=null;
-		sendToAdmins = true;
-	}
 
-	if(isUserShadowBanned(socket)) { // handle major shadowbans
-		sendToAdmins = true;
-		target = socket;
-	}
-
-	if(getToggleable("mutegray")){ // Mute grays?
-		if(type < 0){
-			target = socket;
-			emitChat(target,{
-				nick:"server",
-				emote:"server",
-				metadata:metadata,
-				msg:"Unregistered users are not currently allowed to chat. Sorry!",
-				timestamp: timestamp
-			},false);
-			target = null;
-			metadata.graymute = true;
-			sendToAdmins = true;
+		messageData.emote = "rcv";
+		messageData.msg = parsed.msg; // Specifically not using the fun bits here.
+		return doNormalChatMessage;
+	},
+	// /r rainbow rocks
+	request: (parsed, socket, messageData) => {
+		messageData.emote = "request";
+		return doNormalChatMessage;
+	},
+	// /sp snape kills dumbledoor
+	spoiler: (parsed, socket, messageData) => {
+		messageData.emote = "spoiler";
+		return doNormalChatMessage;
+	},
+	// /d AMGIC!
+	drink: (parsed, socket, messageData) => {
+		if (!authService.can(socket.session, actions.ACTION_CALL_DRINKS)) {
+			return doSuppressChat;
 		}
-	}
 
-	// Apply any filters.
-	msg = applyFilters(nick,msg,socket);
+		messageData.emote = "drink";
 
-	// Set default data.
-	var sendMessage = true;
-	var parsed = getCommand(msg);
-	data = {
-		emote:false,
-		nick:nick,
-		type:type,
-		msg:applyPluginFilters(parsed.msg,socket),
-		metadata:metadata,
-		multi:parsed.multi,
-		timestamp: timestamp
-	};
-
-	// slash-command map.
-	var action_map = {
-		act:["me"],
-		sweetiebot:["sb"],
-		rcv:["rcv","shout","yell","announcement","rvc"],
-		request:["r","request","requests","req"],
-		spoiler:["spoiler","sp","spoilers"],
-		drink:["drink","d"],
-		kick:["kick","k"],
-		shitpost:["shitpost"]
-	};
-
-	// Handle Actions
-	if(action_map.act.indexOf(parsed.command) >= 0){data.emote = "act";}
-	if(action_map.request.indexOf(parsed.command) >= 0){data.emote = "request";}
-	if(action_map.sweetiebot.indexOf(parsed.command) >= 0){data.emote = "sweetiebot";}
-	if(action_map.spoiler.indexOf(parsed.command) >= 0){data.emote = "spoiler";}
-	if(action_map.rcv.indexOf(parsed.command) >= 0) {
-		if (authService.can(socket.session, actions.ACTION_ANNOUNCE)) {
-			data.emote = "rcv";
-			data.msg = parsed.msg; // Specifically not using the fun bits here.
-		}
-	}
-	if(action_map.drink.indexOf(parsed.command) >= 0 && authService.can(socket.session, actions.ACTION_CALL_DRINKS)) {
-		data.emote = "drink";
-		if(channel == "main") {
-			addDrink(parsed.multi,socket,function(){
+		if(messageData.metadata.channel === "main") {
+			addDrink(parsed.multi, socket, () => {
 				sendDrinks(io.sockets);
 			});
 		}
-	}
-	if(action_map.kick.indexOf(parsed.command) >= 0){
+
+		return doNormalChatMessage;
+	},
+	// /kick nlaq
+	kick: (parsed, socket, _messageData) => {
 		if (!authService.can(socket.session, actions.ACTION_KICK_USER)) {
 			kickForIllegalActivity(socket);
-			return;
+			return doSuppressChat;
 		}
 
 		const parts = parsed.msg.split(' ');
@@ -961,53 +918,141 @@ function _sendChat(nick,type,incoming,socket){
 			kickUserByNick(socket, parts[0], parts.slice(1).join(' ') || undefined);
 		}
 
-		return;
-	}
-	if(action_map.shitpost.indexOf(parsed.command) >= 0){
+		return doSuppressChat;
+	},
+	// what does this even do
+	shitpost: (parsed, socket, _messageData) => {
 		if (!authService.can(socket.session, actions.ACTION_SHITPOST)) {
 			kickForIllegalActivity(socket);
-			return;
+			return doSuppressChat;
 		}
 
-		const parts = parsed.msg.split(' ');
+		const parts = parsed.msg.split(" ");
 		if (parts[0]) {
 			DefaultLog.info(events.EVENT_ADMIN_SHATPOST,
 				"{mod} shatpost {title} on {type}",
 				{ mod: nick,  type: "site", title: parts[0] });
 
-			io.sockets.emit('shitpost', {
+			io.sockets.emit("shitpost", {
 				msg: parsed.msg
 			});
 		}
-		return;
+
+		return doSuppressChat;
+	},
+	// /fondlepw nlaq
+	resetPassword: (parsed, socket, _messageData) => {
+		
+	}
+}
+
+const chatCommandMap = {
+	...withAliases(chatCommands.action, ["me"]),
+	...withAliases(chatCommands.sweetieBot, ["sb"]),
+	...withAliases(chatCommands.rcv, ["rcv", "shout", "yell", "announcement", "rcv"]),
+	...withAliases(chatCommands.request, ["r", "request", "requests", "req"]),
+	...withAliases(chatCommands.spoiler, ["spoiler", "sp", "spoilers"]),
+	...withAliases(chatCommands.drink, ["drink", "d"]),
+	...withAliases(chatCommands.kick, ["kick", "k"]),
+	...withAliases(chatCommands.shitpost, ["shitpost"]),
+	...withAliases(chatCommands.resetPassword, ["fondlepw"])
+};
+
+function _sendChat(nick, type, incoming, socket) {
+	const messageText = sanitize(incoming.msg);
+	const metadata = incoming.metadata;
+	const { channel = "main" } = metadata;
+	const timestamp = new Date().toUTCString();
+	const isSocketBanned = isUserShadowBanned(socket);
+
+	let sendToAdmins = false;
+	let sendToUsers = true;
+	let sendToSelf = false;
+
+	if (channel !== "main") {
+		// Someone trying to send a message to a channel they're not in?!
+		// Also, let server send messages to admin chat.
+		if (
+			type < userTypes.ADMINISTRATOR &&
+			io.sockets.manager.roomClients[socket.id]["/" + channel] !== true
+		) {
+			return;
+		}
+
+		sendToAdmins = true;
+		sendToUsers = false;
 	}
 
-	var bufferMessage = false; if(data) {bufferMessage = true;}
-	bufferMessage = (!isUserShadowBanned(socket)) && bufferMessage;
-	bufferMessage = (!metadata.graymute) && bufferMessage;
+	if (isSocketBanned) {
+		sendToAdmins = true;
+		sendToUsers = false;
+		sendToSelf = true;
+	}
 
-	if(sendMessage) {
-		if (isUserShadowBanned(socket)) {
-			emitChat(socket, data, false);
-		} else {
-			if (target) {
-				emitChat(target,data,false);
-			}
+	if (getToggleable("mutegray") && type <= userTypes.ANONYMOUS) {
+		emitChat(
+			socket,
+			{
+				nick: "server",
+				emote: "server",
+				metadata: metadata,
+				msg:
+					"Unregistered users are not currently allowed to chat. Sorry!",
+				timestamp: timestamp,
+			},
+			false,
+		);
+		
+		metadata.graymute = true;
+		sendToAdmins = true;
+		sendToUsers = false;
+		sendToSelf = false;
+	}
+
+	const filteredMessage = applyFilters(nick, messageText, socket);
+	const parsed = getCommand(filteredMessage);
+
+	const messageData = {
+		emote: false,
+		nick: nick,
+		type: type,
+		msg: applyPluginFilters(parsed.msg, socket),
+		metadata: metadata,
+		multi: parsed.multi,
+		timestamp: timestamp,
+	};
+
+	const command = chatCommandMap[parsed.command];
+	if (command) {
+		const { doSuppress } = command(parsed, socket, messageData);
+
+		if (doSuppress) {
+			return;
 		}
+	}
 
-		if(sendToAdmins){
-			sessionService.forCan(actions.CAN_SEE_SHADOWBANS,
-				session => emitChat(session, data, false));
-		}
+	if (sendToAdmins) {
+		sessionService.forCan(actions.CAN_SEE_SHADOWBANS, session =>
+			emitChat(session, messageData, false),
+		);
+	}
 
-		if(bufferMessage){
-			if(!SERVER.OUTBUFFER[channel]) { SERVER.OUTBUFFER[channel] = []; }
-				SERVER.OUTBUFFER[channel].push(data);
-			if(SERVER.OUTBUFFER[channel].length > SERVER.settings.core.max_saved_buffer)
-				{SERVER.OUTBUFFER[channel].shift();}
+	if (sendToSelf) {
+		emitChat(socket, messageData, false);
+	}
+
+	if (sendToUsers) {
+		emitChat(io.sockets, messageData, false);
+
+		const targetBuffer = SERVER.OUTBUFFER[channel] || (SERVER.OUTBUFFER[channel] = []);			
+		targetBuffer.push(messageData);
+	
+		if (targetBuffer.length > SERVER.settings.core.max_saved_buffer) {
+			targetBuffer.shift();
 		}
 	}
 }
+
 /* ================= */
 function setOverrideCss(path){
 	upsertMisc({name:"overrideCss", value:path}, function(){
@@ -2682,6 +2727,15 @@ function formatDrinkMessage(drinks) {
 
 function isDrinkAmountExcessive(drinks) {
 	return Math.abs(drinks) > 1000000;
+}
+
+function withAliases(value, keys) {
+	const obj = {}
+	for (const key of keys) {
+		obj[key] = value;
+	}
+
+	return obj;
 }
 
 /* vim: set noexpandtab : */
