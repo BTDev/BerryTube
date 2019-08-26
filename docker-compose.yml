@@ -1,52 +1,49 @@
 version: '2.2'
 
-networks:
-    net:
-
 volumes:
     mysql:
-    caddy:
-        external: true
+    selfsigned:
 
 services:
-    caddy:
-        build: ./docker/caddy/
-        command: caddy -agree -log stderr -ca "${CA_URL}" -email "${CA_EMAIL}"
-        restart: always
+    nginx:
+        build: ./docker/nginx/
+        restart: unless-stopped
+        read_only: true
         environment:
-            - "CADDY_UUID_FILE=/root/.caddy/uuid-${DOMAIN}"
             - DOMAIN
             - HTTP_PORT
             - HTTPS_PORT
             - LEGACY_SOCKET_PORT
             - TLS_TYPE
-            - CLOUDFLARE_EMAIL
-            - CLOUDFLARE_API_KEY
         volumes:
-            - caddy:/root/.caddy
-            - ${EXISTING_CERT_DIR}:/existing-certs:ro
+            - ./docker/nginx/config:/etc/nginx.source:ro
             - ./web:/var/www/html/web:ro
             - ./berrymotes/css:/var/www/html/web/berrymotes/css:ro
             - ./berrymotes/data:/var/www/html/web/berrymotes/data:ro
             - ./berrymotes/images:/var/www/html/web/berrymotes/images:ro
             - ./berrymotes/js:/var/www/html/web/berrymotes/js:ro
             - ./berrymotes/single_emotes:/var/www/html/web/berrymotes/single_emotes:ro
+            - ${LETSENCRYPT_DIR}:/etc/letsencrypt:ro
             - ${EXTRA_DIR}:/var/www/html/extra:ro
+            - selfsigned:/var/selfsigned
+        tmpfs:
+            - /etc/nginx
+            - /var/cache/nginx
         ports:
             - '${HTTP_PORT}:${HTTP_PORT}/tcp'
             - '${HTTPS_PORT}:${HTTPS_PORT}/tcp'
             - '${LEGACY_SOCKET_PORT}:${LEGACY_SOCKET_PORT}/tcp'
-        networks:
-            - net
         depends_on:
             php:
                 condition: service_healthy
             extra-php:
                 condition: service_healthy
+        labels:
+            tv.berrytube.cert-renew-signal: HUP
 
     php:
         build: ./docker/php/
-        restart: always
+        restart: unless-stopped
         init: true
         environment:
             - DOMAIN
@@ -54,6 +51,7 @@ services:
             - NO_CDN
             - NO_MINIFIED
             - MYSQL_PASSWORD
+            - TLS_TYPE
         volumes:
             - ./web:/var/www/html/web:ro
             - ./berrymotes/css:/var/www/html/web/berrymotes/css:ro
@@ -63,15 +61,13 @@ services:
             - ./berrymotes/single_emotes:/var/www/html/web/berrymotes/single_emotes:ro
         expose:
             - '9000'
-        networks:
-            - net
         depends_on:
             mysql:
                 condition: service_healthy
 
     extra-php:
         build: ./docker/php/
-        restart: always
+        restart: unless-stopped
         init: true
         environment:
             - DOMAIN
@@ -80,20 +76,16 @@ services:
             - ${EXTRA_DIR}:/var/www/html/extra
         expose:
             - '9000'
-        networks:
-            - net
 
     node:
         build: ./docker/node/
-        restart: always
+        restart: unless-stopped
         init: true
         environment:
             - MYSQL_PASSWORD
             - YOUTUBE_APIKEY
         expose:
             - '8344'
-        networks:
-            - net
         depends_on:
             mysql:
                 condition: service_healthy
@@ -101,7 +93,7 @@ services:
     mysql:
         build: ./docker/mysql/
         command: --default-authentication-plugin=mysql_native_password --skip-performance-schema
-        restart: always
+        restart: unless-stopped
         environment:
             - MYSQL_RANDOM_ROOT_PASSWORD=yes
             - MYSQL_ONETIME_PASSWORD=yes
@@ -112,5 +104,3 @@ services:
             - mysql:/var/lib/mysql
         expose:
             - '3306'
-        networks:
-            - net
