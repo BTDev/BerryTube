@@ -24,6 +24,7 @@ exports.actions = {
 	ACTION_SHADOWBAN: "shadowban",
 	ACTION_SHITPOST: "shitpost",
 	ACTION_VOTE_POLL: "votePoll",
+	ACTION_CAN_RESET_PASSWORD: "resetPassword",
 	CAN_SEE_ADMIN_LOG: "canSeeAdminLog",
 	CAN_SEE_OBSCURED_POLLS: "canSeeObscuredPolls",
 	CAN_SEE_PRIVILEGED_USER_DATA: "canSeePrivilegedUserData",

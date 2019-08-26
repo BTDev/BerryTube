@@ -1,10 +1,9 @@
 const { PollService } = require("./modules/polls");
 const { AuthService, actions } = require("./modules/auth");
-const { sanitize } = require("./modules/security");
+const { sanitize, generateRandomPassword } = require("./modules/security");
 const { DefaultLog, events, levels, consoleLogger, createStreamLogger } = require("./modules/log");
-const { getSocketName } = require("./modules/sessions");
 const { DatabaseService } = require("./modules/database");
-const { SessionService, userTypes } = require("./modules/sessions");
+const { SessionService, getSocketName, userTypes } = require("./modules/sessions");
 const { parseRawFileUrl } = require("./modules/utils");
 const fetchYoutubeVideoInfo = require("youtube-info");
 
@@ -856,158 +855,286 @@ function sendChat(nick, type, incoming, socket){
 	_sendChat(nick, type, incoming, socket);
 }
 
-function _sendChat(nick,type,incoming,socket){
-	//Sanitize.
-	var msg = sanitize(incoming.msg);
-	if(typeof(msg) == "undefined"){
-		msg = "I'm a lazy hacker";
-	}
-	var metadata = incoming.metadata;
+const doNormalChatMessage = { doSuppress: false };
+const doSuppressChat = { doSuppress: true };
 
-	var data = false;
-	var timestamp = new Date().toUTCString();
+const chatCommandMap = {
+	// /me wiggles the tub
+	...withAliases(["me"], (_parsed, _socket, messageData) => {
+		messageData.emote = "act";
+		return doNormalChatMessage;
+	}),
 
-	var target = io.sockets;
-	var sendToAdmins = false;
-	var channel = metadata.channel || 'main';
+	// /sb greetings programs
+	...withAliases(["sb"], (_parsed, _socket, messageData) => {
+		messageData.emote = "sweetiebot";
+		return doNormalChatMessage;
+	}),
 
-	if(channel != 'main'){
-		// Someone trying to send a message to a channel they're not in?!
-		// Also, let server send messages to admin chat.
-		if(type < 2 && io.sockets.manager.roomClients[socket.id]['/'+channel] !== true){
-			return;
+	// /rcv attention berrytube: BUTTS
+	...withAliases(
+		["rcv", "shout", "yell", "announcement", "rcv"],
+		(parsed, socket, messageData) => {
+			if (!authService.can(socket.session, actions.ACTION_ANNOUNCE)) {
+				return doSuppressChat;
+			}
+
+			messageData.emote = "rcv";
+			messageData.msg = parsed.msg; // Specifically not using the fun bits here.
+			return doNormalChatMessage;
+		},
+	),
+
+	// /r rainbow rocks
+	...withAliases(
+		["r", "request", "requests", "req"],
+		(_parsed, _socket, messageData) => {
+			messageData.emote = "request";
+			return doNormalChatMessage;
+		},
+	),
+
+	// /sp snape kills dumbledoor
+	...withAliases(
+		["spoiler", "sp", "spoilers"],
+		(_parsed, _socket, messageData) => {
+			messageData.emote = "spoiler";
+			return doNormalChatMessage;
+		},
+	),
+
+	// /d AMGIC!
+	...withAliases(["drink", "d"], (parsed, socket, messageData) => {
+		if (!authService.can(socket.session, actions.ACTION_CALL_DRINKS)) {
+			return doSuppressChat;
 		}
-		target=null;
-		sendToAdmins = true;
-	}
 
-	if(isUserShadowBanned(socket)) { // handle major shadowbans
-		sendToAdmins = true;
-		target = socket;
-	}
+		messageData.emote = "drink";
 
-	if(getToggleable("mutegray")){ // Mute grays?
-		if(type < 0){
-			target = socket;
-			emitChat(target,{
-				nick:"server",
-				emote:"server",
-				metadata:metadata,
-				msg:"Unregistered users are not currently allowed to chat. Sorry!",
-				timestamp: timestamp
-			},false);
-			target = null;
-			metadata.graymute = true;
-			sendToAdmins = true;
-		}
-	}
-
-	// Apply any filters.
-	msg = applyFilters(nick,msg,socket);
-
-	// Set default data.
-	var sendMessage = true;
-	var parsed = getCommand(msg);
-	data = {
-		emote:false,
-		nick:nick,
-		type:type,
-		msg:applyPluginFilters(parsed.msg,socket),
-		metadata:metadata,
-		multi:parsed.multi,
-		timestamp: timestamp
-	};
-
-	// slash-command map.
-	var action_map = {
-		act:["me"],
-		sweetiebot:["sb"],
-		rcv:["rcv","shout","yell","announcement","rvc"],
-		request:["r","request","requests","req"],
-		spoiler:["spoiler","sp","spoilers"],
-		drink:["drink","d"],
-		kick:["kick","k"],
-		shitpost:["shitpost"]
-	};
-
-	// Handle Actions
-	if(action_map.act.indexOf(parsed.command) >= 0){data.emote = "act";}
-	if(action_map.request.indexOf(parsed.command) >= 0){data.emote = "request";}
-	if(action_map.sweetiebot.indexOf(parsed.command) >= 0){data.emote = "sweetiebot";}
-	if(action_map.spoiler.indexOf(parsed.command) >= 0){data.emote = "spoiler";}
-	if(action_map.rcv.indexOf(parsed.command) >= 0) {
-		if (authService.can(socket.session, actions.ACTION_ANNOUNCE)) {
-			data.emote = "rcv";
-			data.msg = parsed.msg; // Specifically not using the fun bits here.
-		}
-	}
-	if(action_map.drink.indexOf(parsed.command) >= 0 && authService.can(socket.session, actions.ACTION_CALL_DRINKS)) {
-		data.emote = "drink";
-		if(channel == "main") {
-			addDrink(parsed.multi,socket,function(){
+		if (messageData.metadata.channel === "main") {
+			addDrink(parsed.multi, socket, () => {
 				sendDrinks(io.sockets);
 			});
 		}
-	}
-	if(action_map.kick.indexOf(parsed.command) >= 0){
+
+		return doNormalChatMessage;
+	}),
+
+	// /kick nlaq
+	...withAliases(["kick", "k"], (parsed, socket, _messageData) => {
 		if (!authService.can(socket.session, actions.ACTION_KICK_USER)) {
 			kickForIllegalActivity(socket);
-			return;
+			return doSuppressChat;
 		}
 
-		const parts = parsed.msg.split(' ');
+		const parts = parsed.msg.split(" ");
 
 		if (parts[0]) {
-			kickUserByNick(socket, parts[0], parts.slice(1).join(' ') || undefined);
+			kickUserByNick(
+				socket,
+				parts[0],
+				parts.slice(1).join(" ") || undefined,
+			);
 		}
 
-		return;
-	}
-	if(action_map.shitpost.indexOf(parsed.command) >= 0){
+		return doSuppressChat;
+	}),
+
+	// what does this even do
+	...withAliases(["shitpost"], (parsed, socket, _messageData) => {
 		if (!authService.can(socket.session, actions.ACTION_SHITPOST)) {
 			kickForIllegalActivity(socket);
+			return doSuppressChat;
+		}
+
+		const parts = parsed.msg.split(" ");
+		if (parts[0]) {
+			DefaultLog.info(
+				events.EVENT_ADMIN_SHATPOST,
+				"{mod} shatpost {title} on {type}",
+				{ mod: nick, type: "site", title: parts[0] },
+			);
+
+			io.sockets.emit("shitpost", {
+				msg: parsed.msg,
+			});
+		}
+
+		return doSuppressChat;
+	}),
+
+	// /fondlepw nlaq
+	...withAliases(["fondlepw"], (parsed, socket, _messageData) => {
+		if (
+			!authService.can(socket.session, actions.ACTION_CAN_RESET_PASSWORD)
+		) {
+			kickForIllegalActivity(socket);
+			return doSuppressChat;
+		}
+
+		const nickToReset = parsed.msg.trim();
+		if (!nickToReset.length) {
+			sendMessage(`please specify a nick: "/fondlepw nick"`);
+			return doSuppressChat;
+		}
+
+		(async () => {
+			const { result } = await databaseService.query`
+				SELECT
+					name
+				FROM
+					users
+				WHERE
+					name = ${nickToReset}`;
+
+			if (!result || !result.length) {
+				sendMessage(
+					`cannot reset password for "${nickToReset}": user not found`,
+				);
+				return;
+			}
+
+			const foundNick = result[0].name;
+			const randomPassword = generateRandomPassword();
+			const randomPasswordHashed = await bcrypt.hash(
+				randomPassword,
+				SERVER.settings.core.bcrypt_rounds,
+			);
+
+			await databaseService.query`
+				UPDATE
+					users
+				SET
+					pass = ${randomPasswordHashed}
+				WHERE
+					name = ${foundNick}`;
+
+			sendMessage(
+				`password for "${foundNick}" has been reset to "${randomPassword}"`,
+			);
+
+			DefaultLog.info(
+				events.EVENT_ADMIN_USER_PASSWORD_RESET,
+				"{mod} reset {nick}'s password on {type}",
+				{ mod: getSocketName(socket), type: "user", nick: foundNick },
+			);
+		})();
+
+		// ok to return while we process the command above
+		return doSuppressChat;
+
+		function sendMessage(message) {
+			emitChat(
+				socket,
+				{
+					nick: "server",
+					emote: "server",
+					metadata: { channel: "main" },
+					msg: message,
+					timestamp: new Date().toUTCString(),
+				},
+				false,
+			);
+		}
+	}),
+};
+
+function _sendChat(nick, type, incoming, socket) {
+	const messageText = sanitize(incoming.msg);
+	const metadata = incoming.metadata;
+	const { channel = "main" } = metadata;
+	const timestamp = new Date().toUTCString();
+	const isSocketBanned = isUserShadowBanned(socket);
+
+	let sendToAdmins = false;
+	let sendToUsers = true;
+	let sendToSelf = false;
+
+	if (channel !== "main") {
+		// Someone trying to send a message to a channel they're not in?!
+		// Also, let server send messages to admin chat.
+		if (
+			type < userTypes.ADMINISTRATOR &&
+			io.sockets.manager.roomClients[socket.id]["/" + channel] !== true
+		) {
 			return;
 		}
 
-		const parts = parsed.msg.split(' ');
-		if (parts[0]) {
-			DefaultLog.info(events.EVENT_ADMIN_SHATPOST,
-				"{mod} shatpost {title} on {type}",
-				{ mod: nick,  type: "site", title: parts[0] });
-
-			io.sockets.emit('shitpost', {
-				msg: parsed.msg
-			});
-		}
-		return;
+		sendToAdmins = true;
+		sendToUsers = false;
 	}
 
-	var bufferMessage = false; if(data) {bufferMessage = true;}
-	bufferMessage = (!isUserShadowBanned(socket)) && bufferMessage;
-	bufferMessage = (!metadata.graymute) && bufferMessage;
+	if (isSocketBanned) {
+		sendToAdmins = true;
+		sendToUsers = false;
+		sendToSelf = true;
+	}
 
-	if(sendMessage) {
-		if (isUserShadowBanned(socket)) {
-			emitChat(socket, data, false);
-		} else {
-			if (target) {
-				emitChat(target,data,false);
-			}
+	if (getToggleable("mutegray") && type <= userTypes.ANONYMOUS) {
+		emitChat(
+			socket,
+			{
+				nick: "server",
+				emote: "server",
+				metadata: metadata,
+				msg:
+					"Unregistered users are not currently allowed to chat. Sorry!",
+				timestamp: timestamp,
+			},
+			false,
+		);
+
+		metadata.graymute = true;
+		sendToAdmins = true;
+		sendToUsers = false;
+		sendToSelf = false;
+	}
+
+	const filteredMessage = applyFilters(nick, messageText, socket);
+	const parsed = getCommand(filteredMessage);
+
+	const messageData = {
+		emote: false,
+		nick: nick,
+		type: type,
+		msg: applyPluginFilters(parsed.msg, socket),
+		metadata: metadata,
+		multi: parsed.multi,
+		timestamp: timestamp,
+	};
+
+	const command = chatCommandMap[parsed.command];
+	if (command) {
+		const { doSuppress } = command(parsed, socket, messageData);
+
+		if (doSuppress) {
+			return;
 		}
+	}
 
-		if(sendToAdmins){
-			sessionService.forCan(actions.CAN_SEE_SHADOWBANS,
-				session => emitChat(session, data, false));
-		}
+	if (sendToAdmins) {
+		sessionService.forCan(actions.CAN_SEE_SHADOWBANS, session =>
+			emitChat(session, messageData, false),
+		);
+	}
 
-		if(bufferMessage){
-			if(!SERVER.OUTBUFFER[channel]) { SERVER.OUTBUFFER[channel] = []; }
-				SERVER.OUTBUFFER[channel].push(data);
-			if(SERVER.OUTBUFFER[channel].length > SERVER.settings.core.max_saved_buffer)
-				{SERVER.OUTBUFFER[channel].shift();}
+	if (sendToSelf) {
+		emitChat(socket, messageData, false);
+	}
+
+	if (sendToUsers) {
+		emitChat(io.sockets, messageData, false);
+
+		const targetBuffer =
+			SERVER.OUTBUFFER[channel] || (SERVER.OUTBUFFER[channel] = []);
+		targetBuffer.push(messageData);
+
+		if (targetBuffer.length > SERVER.settings.core.max_saved_buffer) {
+			targetBuffer.shift();
 		}
 	}
 }
+
 /* ================= */
 function setOverrideCss(path){
 	upsertMisc({name:"overrideCss", value:path}, function(){
@@ -2682,6 +2809,15 @@ function formatDrinkMessage(drinks) {
 
 function isDrinkAmountExcessive(drinks) {
 	return Math.abs(drinks) > 1000000;
+}
+
+function withAliases(keys, value) {
+	const obj = {}
+	for (const key of keys) {
+		obj[key] = value;
+	}
+
+	return obj;
 }
 
 /* vim: set noexpandtab : */

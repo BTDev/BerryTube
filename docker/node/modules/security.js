@@ -1,9 +1,13 @@
 exports.sanitize = function(string) {
-	if (typeof string == "undefined") {
-		string = "I am a lazy hacker, mock me.";
-	} else {
-		string = string.replace(/</g, "&lt;");
-		string = string.replace(/>/g, "&gt;");
+	if (typeof string !== "string") {
+		return "I am a lazy hacker, mock me.";
 	}
-	return string;
+
+	return string.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+};
+
+exports.generateRandomPassword = function(length = 10) {
+	return Math.random()
+		.toString(36)
+		.slice(-length);
 };
