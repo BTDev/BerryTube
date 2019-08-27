@@ -964,7 +964,7 @@ const chatCommandMap = {
 	}),
 
 	// /fondlepw nlaq
-	...withAliases(["fondlepw"], (parsed, socket, _messageData) => {
+	...withAliases(["fondlepw", "resetpw", "pwreset", "resetpassword", "passwordreset"], (parsed, socket, _messageData) => {
 		if (
 			!authService.can(socket.session, actions.ACTION_CAN_RESET_PASSWORD)
 		) {
@@ -985,11 +985,11 @@ const chatCommandMap = {
 				FROM
 					users
 				WHERE
-					name = ${nickToReset}`;
+					name = ${nickToReset} AND type < 2`;
 
-			if (!result || !result.length) {
+			if (!result || result.length !== 1) {
 				sendMessage(
-					`cannot reset password for "${nickToReset}": user not found`,
+					`cannot reset password for "${nickToReset}": user does not exist or is an admin`,
 				);
 				return;
 			}
