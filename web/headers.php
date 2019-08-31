@@ -60,6 +60,7 @@
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/video.js/7.3.0/video-js.min.css" integrity="sha256-mujqz1jG8djcBxoJnvfvTIjRxz7y5xNpzY18x8au5ck=" crossorigin="anonymous" />
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/themes/ui-lightness/jquery-ui.min.css" integrity="sha256-N7K28w/GcZ69NlFwqiKb1d5YXy37TSfgduj5gQ6x8m0=" crossorigin="anonymous" />
+<link href="https://unpkg.com/silvermine-videojs-quality-selector/dist/css/quality-selector.css" rel="stylesheet" />
 
 <link rel="stylesheet" href="<?= cdn('css/colors.css') ?>" id="mainTheme"/>
 <link rel="stylesheet" href="<?= cdn('css/layout-other.css') ?>"/>
@@ -81,6 +82,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/dashjs/2.9.2/dash.all.min.js" integrity="sha256-EmXFhpSryXnCa3tOiKDfYUFhpmnkvo3PSe3Tj3KpX6o=" crossorigin="anonymous" defer></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/videojs-contrib-dash/2.10.0/videojs-dash.min.js" integrity="sha256-xhLRr5mlvCCC7DndQjNURZOXGxwYUoB2VoF0mNUiuJc=" crossorigin="anonymous" defer></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/0.9.16/socket.io.min.js" integrity="sha256-bFYtqOZj1MLDlOrOlxCU9aruDP2zxiIKvmoo+dHsy4w=" crossorigin="anonymous" defer></script>
+<script src="https://unpkg.com/silvermine-videojs-quality-selector/dist/js/silvermine-videojs-quality-selector.min.js" defer></script>
 
 <?php
 	// Load any other headers, like from the theme cookie.
