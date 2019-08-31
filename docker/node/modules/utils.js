@@ -49,3 +49,16 @@ exports.parseRawFileUrl = function(rawFileUrl) {
 exports.now = function() {
 	return new Date().getTime();
 };
+
+exports.isUrl = function(maybeUrl) {
+	if (typeof maybeUrl !== "string") {
+		return false;
+	}
+
+	try {
+		const parsed = url.parse(maybeUrl);
+		return parsed.protocol !== null && parsed.host !== null;
+	} catch (e) {
+		return false;
+	}
+};

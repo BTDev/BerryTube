@@ -483,7 +483,7 @@ window.PLAYERS.soundcloud = {
 const fileExtensionRegex = /(mp4|webm)([^/]*)$/;
 
 window.PLAYERS.file = {
-    loadPlayer: function (src, at, volume) {
+    loadPlayer: function (src, at, volume, length, meta) {
         if (volume === false){
             volume = 1;
         }
@@ -500,23 +500,54 @@ window.PLAYERS.file = {
             ? fileExtensionMatch[1]
             : "mp4";
 
-        var source = $("<source>", {
-            "src" : src,
-            "type" : `video/${fileExtension}`
-        });
+		if (meta.manifest) {
+			const targetSource = pickSourceAtQuality(meta.manifest.sources, getUserQualityPreference());
+			for (const source of meta.manifest.sources) {
+				let $source = $("<source>", {
+					src: source.url,
+					type: source.contentType,
+					label: source.quality,
+				});
 
-        player.append(source);
+				if (targetSource == source) {
+					// jQuery does dumb things sometimes, we need the selected attribute to be the
+					// string literal of true
+					$source[0].setAttribute("selected", "true");
+				}
+				
+				player.append($source);
+			}
+		} else {
+			var source = $("<source>", {
+				"src" : src,
+				"type" : `video/${fileExtension}`
+			});
+	
+			player.append(source);
+		}
 
         $("#ytapiplayer").append(player);
-        videojs("vjs_player").ready(function(){
-            this.volume(volume);
-            this.on('volumechange',function(){
+		const videoJsPlayer = videojs("vjs_player");
+		
+		videoJsPlayer.ready(function(){
+			this.volume(volume);
+			
+            this.on("volumechange",function(){
                 VOLUME = this.volume();
-            });
-            this.on('seeked',function(){
+			});
+			
+            this.on("seeked",function(){
                 videoSeeked(this.currentTime());
             });
-        });
+
+			this.on("qualitySelected", (e, { label }) => {
+				setUserQualityPreference(parseInt(label));
+			});
+
+			
+		});
+
+		videoJsPlayer.controlBar.addChild("QualitySelector");
     },
     pause: function () {
         videojs('vjs_player').pause();

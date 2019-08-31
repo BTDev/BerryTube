@@ -1,4 +1,8 @@
 let lastPollCountdown = null;
+let selectedQuality = null;
+
+const integerRegex = /^\d+$/;
+const QUALITY_LOCAL_STORAGE_KEY = "quality";
 
 class Countdown {
 	constructor(totalTimeInSeconds, startedAt, handlers) {
@@ -1823,6 +1827,24 @@ function getStorage(key){
 	return localStorage.getItem(key);
 }
 
+function getStorageInteger(key, def = 1080) {
+	const value = getStorage(key);
+	if (!integerRegex.test(value)) {
+		return def;
+	}
+
+	return parseInt(value, 10);
+}
+
+function setStorageInteger(key, value) {
+	if (typeof(value) !== "number") {
+		return;
+	}
+
+	value = parseInt(value, 10);
+	setStorage(key, value.toString());
+}
+
 function setStorageToggle(key, value) {
 	localStorage.setItem(key, value ? "true" : "false");
 }
@@ -2145,7 +2167,7 @@ function videoLoadAtTime(vidObj, time) {
     					PLAYER = PLAYERS[ptype];
     					removeCurrentPlayer();
     					VIDEO_TYPE = ptype;
-    					PLAYER.loadPlayer(id, time, VOLUME, length);
+    					PLAYER.loadPlayer(id, time, VOLUME, length, vidObj.meta);
                     }
                     catch (e) {
 						console.error(e);
@@ -2159,7 +2181,7 @@ function videoLoadAtTime(vidObj, time) {
 			PLAYER = PLAYERS[ptype];
 			removeCurrentPlayer();
 			VIDEO_TYPE = ptype;
-			PLAYER.loadPlayer(id, time, VOLUME, length);
+			PLAYER.loadPlayer(id, time, VOLUME, length, vidObj.meta);
 		}
     }
     else {
@@ -2188,6 +2210,7 @@ function parseVideoURL(url,callback){
 	var m = url.match(new RegExp("https://watch.cloudflarestream.com/([a-z0-9]+)")); if(m){ callback(`https://cloudflarestream.com/${m[1]}/manifest/video.mpd`,"dash", "~ Raw Livestream ~"); return;}
 	var m = url.match(new RegExp("\\.mpd")); if(m){ callback(url,"dash"); return;}
 	var m = url.match(new RegExp("\\.m3u8$")); if(m){ callback(url,"hls", "~ Raw Livestream ~"); return;}
+	var m = url.match(new RegExp("\\.(?:json)?[^\\/]*$")); if(m){ callback(url,"manifest"); return;}
 	var m = url.match(new RegExp("\\.(?:mp4|webm)?[^\\/]*$")); if(m){ callback(url,"file"); return;}
 	// ppshrug
 	callback(url,"yt");
@@ -2683,4 +2706,33 @@ function secondsToHuman(seconds) {
 	}
 
 	return `${seconds} second${seconds != 1 ? "s" : ""}`;
+}
+
+function getUserQualityPreference() {
+	if (selectedQuality === null) {
+		selectedQuality = getStorageInteger(QUALITY_LOCAL_STORAGE_KEY, 1080);
+	}
+	
+	return selectedQuality;
+}
+
+function setUserQualityPreference(value) {
+	if (typeof(value) !== "number") {
+		return;
+	}
+
+	selectedQuality = value;
+	setStorageInteger(QUALITY_LOCAL_STORAGE_KEY, value);
+}
+
+function pickSourceAtQuality(sources, quality) {
+	// make this smarter sometime? dunno
+
+	for (const source of sources) {
+		if (source.quality === quality) {
+			return source;
+		}
+	}
+
+	return sources.length > 0 ? sources[0] : null;
 }

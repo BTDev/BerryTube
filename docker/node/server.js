@@ -1,6 +1,7 @@
 const { PollService } = require("./modules/polls");
 const { AuthService, actions } = require("./modules/auth");
 const { sanitize, generateRandomPassword } = require("./modules/security");
+const { sanitizeManifest } = require("./modules/playlist");
 const { DefaultLog, events, levels, consoleLogger, createStreamLogger } = require("./modules/log");
 const { DatabaseService } = require("./modules/database");
 const { SessionService, getSocketName, userTypes } = require("./modules/sessions");
@@ -1792,6 +1793,36 @@ async function addVideoFile(socket, data, meta, successCallback, failureCallback
 	}
 }
 
+async function addVideoManifest(socket, data, meta, successCallback, failureCallback) {
+	try {
+		const manifestUrl = data.videoid.trim();
+		const response = await fetch(manifestUrl);
+		const manifest = sanitizeManifest(await response.json());
+
+		const isVolatile = meta.type > 0
+			? (data.volat || false)
+			: true;
+
+		await rawAddVideoAsync({
+			pos: SERVER.PLAYLIST.length,
+			videoid: manifestUrl,
+			videotitle: manifest.title,
+			videolength: manifest.duration,
+			videotype: "file",
+			who: meta.nick,
+			queue: data.queue,
+			volat: isVolatile,
+			meta: {
+				manifest
+			}
+		});
+		
+		successCallback({ title: manifest.title });
+	} catch (e) {
+		failureCallback(e.message || e);
+	}
+}
+
 function addVideoDash(socket,data,meta,successCallback,failureCallback){
 	var videoid = data.videoid.trim();
 	if (videoid.length == 0)
@@ -2492,7 +2523,7 @@ io.sockets.on('connection', function (ioSocket) {
 		}
 
 		const meta = { nick: socket.session.nick, type: socket.session.type };
-		const logData = { mod: getSocketName(socket), type: "playlist", title: data.videotitle, provider: data.videotype };
+		const logData = { mod: getSocketName(socket), type: "playlist", title: data.videotitle || data.videoid, provider: data.videotype };
 
 		if (data.videotype == "yt")
 			{addVideoYT(socket, data, meta, onVideoAddSuccess, onVideoAddError);}
@@ -2518,6 +2549,9 @@ io.sockets.on('connection', function (ioSocket) {
 			{addVideoTwitch(socket, data, meta, onVideoAddSuccess, onVideoAddError);}
 		else if (data.videotype == "twitchclip")
 			{addVideoTwitchClip(socket, data, meta, onVideoAddSuccess, onVideoAddError);}
+		else if (data.videotype === "manifest") {
+			addVideoManifest(socket, data, meta, onVideoAddSuccess, onVideoAddError);
+		}
 		else {
 			// Okay, so, it wasn't vimeo and it wasn't youtube, assume it's a livestream and just queue it.
 			// This requires a videotitle and a videotype that the client understands.
