@@ -501,21 +501,32 @@ window.PLAYERS.file = {
             : "mp4";
 
 		if (meta.manifest) {
-			const targetSource = pickSourceAtQuality(meta.manifest.sources, getUserQualityPreference());
-			for (const source of meta.manifest.sources) {
-				let $source = $("<source>", {
-					src: source.url,
-					type: source.contentType,
-					label: source.quality,
-				});
-
-				if (targetSource == source) {
-					// jQuery does dumb things sometimes, we need the selected attribute to be the
-					// string literal of true
-					$source[0].setAttribute("selected", "true");
+			const sourceCount = meta.manifest.sources.length;
+			if (sourceCount > 1) {
+				const targetSource = pickSourceAtQuality(meta.manifest.sources, getUserQualityPreference());
+				for (const source of meta.manifest.sources) {
+					let $source = $("<source>", {
+						src: source.url,
+						type: source.contentType,
+						label: source.quality,
+					});
+	
+					if (targetSource == source) {
+						// jQuery does dumb things sometimes, we need the selected attribute to be the
+						// string literal of true
+						$source[0].setAttribute("selected", "true");
+					}
+					
+					player.append($source);
 				}
-				
-				player.append($source);
+			} else if (sourceCount === 1) {
+				const { url, contentType } = meta.manifest.sources[0]
+				player.append($("<source>", {
+					"src" : url,
+					"type" : contentType
+				}));
+			} else {
+				console.error("manifest had no sources?!")
 			}
 		} else {
 			var source = $("<source>", {

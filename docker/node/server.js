@@ -1799,6 +1799,10 @@ async function addVideoManifest(socket, data, meta, successCallback, failureCall
 		const response = await fetch(manifestUrl);
 		const manifest = sanitizeManifest(await response.json());
 
+		if (manifest.sources.length === 0) {
+			throw new Error("manifest must have one or more sources specified");
+		}
+
 		const isVolatile = meta.type > 0
 			? (data.volat || false)
 			: true;
