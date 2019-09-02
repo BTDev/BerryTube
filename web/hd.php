@@ -49,9 +49,7 @@
 	</div>
 	<div id="videobg">
 		<div id="videowrap">
-			<div id="ytapiplayer">
-				Loading&hellip;
-			</div>
+			<div id="ytapiplayer"></div>
 		</div>
 	</div>
 	<div id="main" class="wrapper">

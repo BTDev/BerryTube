@@ -18,7 +18,25 @@ body {
 	margin: 0 auto;
 }
 #videowrap {
-    margin: 0 auto;
+	margin: 0 auto;
+	position: relative;
+}
+#videowrap > .player {
+	width: 100%;
+	height: 100%;
+	position: absolute;
+	top: 0;
+	left: 0;
+}
+#videowrap > .player iframe {
+	width: 100%;
+	height: 100%;
+}
+#ytapiplayer {
+    position: relative;
+    width: 100%;
+	height: 100%;
+	z-index: -1;
 }
 #scBackground {
 	background-color: transparent;

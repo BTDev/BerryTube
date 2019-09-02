@@ -141,7 +141,7 @@ var btEvents = (function(){
 
 })();
 
-var PLAYER = false;
+var PLAYER = {};
 var LEADER = false;
 var ADMIN = false;
 var MOD = false;
@@ -186,7 +186,7 @@ var FILTERS = false;
 var BANLIST = false;
 var PLUGINS = [];
 var NAMEFLAUNT = false;
-var VOLUME = false;
+var VOLUME = 1;
 var PLAYERS = {};
 var IGNORE_GHOST_MESSAGES = false;
 var ADMIN_LOG = [];

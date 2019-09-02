@@ -51,6 +51,11 @@ function videoPaused(){
 }
 
 socket.on("createPlayer",function(data){
+	window.lastVideoChangeEvent = {
+		at: new Date().getTime(),
+		id: data.video.videoid
+	};
+
     console.log('createPlayer', data);
 	INIT_TIME=data.time;
 	setPlaylistPosition(data);
@@ -144,7 +149,12 @@ socket.on("sortPlaylist",function(data){
 	unfuckPlaylist();
 	waitForNegativeFlag('sorting', function() { sortPlaylist(data); });
 });
-socket.on("forceVideoChange",function(data){
+socket.on("forceVideoChange",function(data) {
+	window.lastVideoChangeEvent = {
+		at: new Date().getTime(),
+		id: data.videoid
+	};
+
 	unfuckPlaylist();
 	setPlaylistPosition(data);
 	videoLoadAtTime(ACTIVE,data.time);

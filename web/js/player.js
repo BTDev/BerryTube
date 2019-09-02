@@ -1,161 +1,229 @@
-//test
-function removeCurrentPlayer() {
-	if ( videojs.getPlayers()['vjs_player'] )
-        videojs('vjs_player').dispose();
-    //clean up after youtube and vimeo
-    if (PLAYER && PLAYER.PLAYER && PLAYER.PLAYER.destroy) {
-      PLAYER.PLAYER.destroy();
-    }
-    var currentEmbed = $("#ytapiplayer");
-    var placeholder = $("<div/>").css({width:'100%', height:'100%', position:'relative'}).insertBefore(currentEmbed);
-    currentEmbed.remove();
-    placeholder.attr("id", "ytapiplayer");
-    setVal("VIMEOPLAYERLOADED", false);
-	setVal("DMPLAYERREADY", false);
+const PLAYER_STATE_PAUSED = 2;
+const PLAYER_STATE_PLAYING = 1;
+const PLAYER_STATE_ENDED = 0;
+const PLAYER_STATE_BUFFERING = 3;
+
+function resetVideoContainer() {
+	$("#ytapiplayer").remove();
+
+	$("<div />")
+		.attr("id", "ytapiplayer")
+		.appendTo($("#videowrap"));
+}
+
+/**
+ * time has passed between when the forceVideoChange event happened
+ * and now - so adjust the target time accordingly
+ */
+function adjustVideoTime(id, at) {
+	const lastEvent = window.lastVideoChangeEvent;
+	if (!lastEvent || lastEvent.id !== id) {
+		return at;
+	}
+
+	return at + (new Date().getTime() - lastEvent.at) / 1000;
 }
 
 window.PLAYERS.dm = {
-    playVideo: function(id, at) {
-        this.PLAYER.load(id, {
-            autoplay: !(at < 0),
-            start: Math.max(at, 0)
-        });
-        if (at < 0) {
-            setTimeout(() => {
-                this.play();
-            }, at * -1000);
-        }
-    },
-    loadPlayer: function(id, at, volume) {
-        const preloadTime = Date.now();
+	async setEnabled(isEnabled) {
+		if (!isEnabled) {
+			if (this.$el) {
+				this.$el.css("display", "none");
+			}
 
-        if (volume === false){
-            volume = 1;
-        }
+			if (this.PLAYER) {
+				this.PLAYER.pause();
+			}
 
-        this.PLAYER = window.DM.player('ytapiplayer', {
-            video: id,
-            width: '100%',
-            height: '100%',
-            params: {
-                autoplay: !(at < 0),
-                start: Math.max(at, 0),
-                'queue-autoplay-next': false,
-                'queue-enable': false,
-                'sharing-enable': false,
-                'ui-highlight': 'c600ad',
-                'ui-logo': false,
-                'ui-start-screen-info': false
-            }
-        });
+			return;
+		}
 
-        this.PLAYER.addEventListener('playback_ready', onceFunction(() => {
-            this.PLAYER.setVolume(volume);
+		if (this.$el) {
+			this.$el.css("display", "block");
+			return;
+		}
+	},
 
-            // adjust in case loading the player took a while
-            at += (Date.now() - preloadTime) / 1000;
+    playVideo(id, at) {
+		at = adjustVideoTime(id, at);
+		if (at < 0) {
+			this.PLAYER.pause();
+			this.PLAYER.load(id, { autoplay: false });
+			setTimeout(() => {
+				this.play();
+			}, at * -1000);
+		} else {
+			this.PLAYER.load(id, { autoplay: true, start: at });
+		}
+	},
+	
+    loadPlayer(id, at, volume) {
+		if (this.PLAYER) {
+			const setVolume = () => {
+				this.PLAYER.seek(adjustVideoTime(id, at));
+				this.PLAYER.setVolume(volume);
+				this.PLAYER.removeEventListener("playing", setVolume);
+			};
 
-            if (at < 0) {
-                setTimeout(() => {
-                    this.play();
-                }, at * -1000);
-            }
-        }));
-    },
-    pause: function() {
+			this.PLAYER.addEventListener("playing", setVolume);
+			this.playVideo(id, at);
+			return;
+		}
+		
+		return new Promise((resolve, reject) => {
+			const timeoutTimeout = window.setTimeout(() => 
+				reject(new Error("Dailymotion took too long?")), 
+				10000);
+
+			this.$el = $(`<div class="player" />`).appendTo($("#videowrap"));
+			this.PLAYER = new DM.player($("<div />").appendTo(this.$el)[0], {
+				video: id,
+				params: {
+					"queue-autoplay-next": false,
+					"queue-enable": false,
+					"sharing-enable": false,
+					"ui-highlight": "c600ad",
+					"ui-logo": false,
+					"ui-start-screen-info": false,
+					autoplay: false,
+				}
+			});
+
+			const firstReady = () => {
+				window.clearTimeout(timeoutTimeout);
+				const adjustedAt = adjustVideoTime(id, at);
+				if (adjustedAt < 0) {
+					setTimeout(() => {
+						this.PLAYER.play();
+					}, adjustedAt * -1000);
+				} else {
+					const firstPlay = () => {
+						this.PLAYER.setVolume(volume);
+						this.PLAYER.seek(adjustVideoTime(id, at));
+						this.PLAYER.removeEventListener("playing", firstPlay);
+					};
+
+					this.PLAYER.addEventListener("playing", firstPlay);
+					this.PLAYER.play();
+				}
+
+				this.PLAYER.removeEventListener("playback_ready", firstReady);
+				resolve();
+			};
+
+			this.PLAYER.addEventListener("playback_ready", firstReady);
+		})
+	},
+	
+    pause() {
         if (this.PLAYER) {
             this.PLAYER.pause();
         }
-    },
-    play: function(){
+	},
+	
+    play(){
         if (this.PLAYER) {
             this.PLAYER.play();
         }
-    },
-    seek: function(pos) {
+	},
+	
+    seek(pos) {
         if (this.PLAYER) {
             this.PLAYER.seek(pos);
         }
-    },
-    getVideoState: function () {
+	},
+	
+    getVideoState() {
         return 1;
-    },
-    getTime: function(callback) {
-        if (callback && this.PLAYER && this.PLAYER.currentTime) {
+	},
+	
+    getTime(callback) {
+        if (callback && this.PLAYER) {
             callback(this.PLAYER.currentTime);
         }
-    },
-    getVolume: function(callback) {
-        if (callback && this.PLAYER && this.PLAYER.currentTime) {
+	},
+	
+    getVolume(callback) {
+        if (callback && this.PLAYER) {
             callback(this.PLAYER.volume);
-        }
+		}
     }
 };
 
 window.PLAYERS.yt = {
-    playVideo: function (id, at) {
-        var self = this;
-        waitForFlag("YTAPREADY", function () {
-            self.PLAYER.loadVideoById(id);
-            if (at < 0) {
-                videoPlay();
-                videoPause();
-                var wait = (at * -1000);
-                setTimeout(function () {
-                    videoPlay();
-                }, wait);
-            } else {
-                videoSeekTo(at);
-                videoPlay();
-            }
-        });
-    },
-    loadPlayer: function (id, at, volume) {
-        var self = this;
-        waitForFlag("YTAPREADY", function () {
-            var params = {
-                disablekb: 1,
-                enablejsapi: 1,
-                iv_load_policy: 3,
-                modestbranding: 1,
-                playsinline: 1,
-                rel: 0
-            };
-            if (getStorage("legacyPlayer") == 0) {
-                params.wmode = "transparent";
-            }
-            if (parseInt(getStorage("disableYoutube")) == 1) {
-                return;
-            }
-            self.PLAYER = new YT.Player('ytapiplayer', {
-                height: videoHeight,
-                width: videoWidth,
-                videoId: id,
-                playerVars: params,
-                events: {
-                    'onReady': function () {
-                        if (volume !== false) {
-                            self.PLAYER.setVolume(volume*100);
-                            self.PLAYER.unMute();
-                        }
-                        if (at < 0) {
-                            videoPlay();
-                            videoPause();
-                            var wait = (at * -1000);
-                            setTimeout(function () {
-                                videoPlay();
-                            }, wait);
-                        } else {
-                            videoSeekTo(at);
-                            videoPlay();
-                        }
-                    },
-                    'onStateChange': self.onPlayerStateChange
-                }
-            });
-        });
-    },
-    onPlayerStateChange: function (event) {
+	async setEnabled(isEnabled) {
+		if (!isEnabled) {
+			if (this.$el) {
+				this.$el.css("display", "none");
+			}
+
+			if (this.PLAYER) {
+				this.PLAYER.stopVideo();
+			}
+
+			return;
+		}
+
+		if (this.$el) {
+			this.$el.css("display", "block");
+			return;
+		}
+
+		this.$el = $(`<div class="player" />`).appendTo($("#videowrap"));
+
+		await new Promise(resolve => waitForFlag("YTAPREADY", resolve));
+
+		await new Promise(resolve => {
+			const $innerEl = $("<div />").appendTo(this.$el);
+			this.PLAYER = new YT.Player($innerEl[0], {
+				playerVars: {
+					disablekb: 1,
+					enablejsapi: 1,
+					iv_load_policy: 3,
+					modestbranding: 1,
+					playsinline: 1,
+					rel: 0,
+					autoplay: 1
+				},
+				events: {
+					onReady: resolve,
+					onStateChange: this.onPlayerStateChange
+				}
+			});
+		});
+	},
+
+    playVideo(id, at) {
+		const adjustedAt = adjustVideoTime(id, at);
+
+		if (adjustedAt < 0) {
+			this.PLAYER.cueVideoById({
+				videoId: id,
+			});
+			setTimeout(() => {
+				this.play();
+			}, adjustedAt * -1000);
+		} else {
+			this.PLAYER.loadVideoById({
+				videoId: id,
+				startSeconds: adjustedAt
+			});
+		}
+	},
+	
+    loadPlayer(id, at, volume) {
+		this.PLAYER.setVolume(volume * 100);
+
+		if (volume > 0) {
+			this.PLAYER.unMute();
+		} else {
+			this.PLAYER.mute();
+		}
+		
+		this.playVideo(id, at);
+	},
+	
+    onPlayerStateChange(event) {
         var newState = event.data;
         //Possible values are unstarted (-1), ended (0), playing (1), paused (2), buffering (3), video cued (5).
         switch (newState) {
@@ -178,178 +246,154 @@ window.PLAYERS.yt = {
                 break;
         }
         dbg("Player's new state: " + newState);
-    },
-    pause: function () {
+	},
+	
+    pause() {
         this.PLAYER.pauseVideo();
-    },
-    play: function () {
-        //if (this.getVideoState() != 3)
-            this.PLAYER.playVideo();
-    },
-    getVideoState: function () {
+	},
+	
+    play() {
+		this.PLAYER.playVideo();
+	},
+	
+    getVideoState() {
         return this.PLAYER.getPlayerState();
-    },
-    seek: function (pos) {
+	},
+	
+    seek(pos) {
         this.PLAYER.seekTo(pos);
-    },
-    getTime: function (callback) {
+	},
+	
+    getTime(callback) {
         if(callback && this.PLAYER && this.PLAYER.getCurrentTime){
             callback(this.PLAYER.getCurrentTime());
         }
-    },
-	getVolume: function(callback){
-        var volume = this.PLAYER.getVolume() / 100;
-        if(this.PLAYER.isMuted()){
-            volume = 0;
-        }
-		if(callback)callback(volume);
+	},
+	
+	getVolume(callback){
+		const volume = !this.PLAYER.isMuted() 
+			? this.PLAYER.getVolume() / 100
+			: 0;
+
+		if (callback) {
+			callback(volume);
+		}
 	}
 };
 
 window.PLAYERS.vimeo = {
-  status: {
-    time: 0,
-    volume: VOLUME,//idk if anything even sets this anymore. seems to mostly be false
-    state: 3,
-    ready: false
-  },
-  loadPlayer: function(id, at, volume) {
-    this.preloadTime = Date.now();
-    if (volume === false) {
-      volume = VOLUME;
-    }
-    var currentEmbed = $("#ytapiplayer");
-    var frame = $("<iframe src='https://player.vimeo.com/video/"+id+"' style='width:100%;height:100%' frameborder='0' allow='autoplay; encrypted-media; fullscreen' allowfullscreen />").appendTo(currentEmbed);
-    this.PLAYER = new Vimeo.Player(frame[0],{
-      id:id,
-      autoplay:false
-    });
-    //YoU dO nOt nEeD to WaIt FoR ReAdy tO trigger to begin adding event listeners or calling other methods.LIES
-    //no really, it fails to find setvolume sometimes
-    this.PLAYER.ready().then(()=>{
-      this.PLAYER.setVolume(volume);
-      this.status.ready = true;
-      this.status.oldVolume = volume;
-      //Idk how much the state is used much anymore, but whatever, covering the bases
-      //also using these for post-seek changes, to know what our state_should_ be,
-      //since seeking autostarts
-      var eventFunctions = {
-        'ended': ()=>{
-          this.status.state = 0;
-          videoEnded();
-        },
-        'play': ()=>{
-          this.status.state = 1;
-          videoPlaying();
-        },
-        'volumechange': (o)=>{
-          VOLUME = o.volume;
-        },
-        'pause': ()=>{
-          this.status.state = 2;
-          videoPaused();
-        },
-        'bufferstart': ()=>{
-          this.status.state = 3;
-        },
-        'seeked': (seekDetails)=>{
-          videoSeeked(seekDetails.seconds);
-        }
-      };
-      for (var p in eventFunctions) {
-        this.PLAYER.on(p, eventFunctions[p]);
-      }
-      //adjust the time for player getting ready
-      //doing this here once because maybe the player is already present when playVideo gets called
-      at += (Date.now() - this.preloadTime)/1000;
-      this.playVideo(id, at);
-    });
-  },
-  playVideo: function(id, at) {
-    this.preloadTime = Date.now();
-    //let's see if it'll just continue if given the same id..
-    //not sure if there might be a race for the player's initiallization, or the video load, we'll see I guess
-    this.status.ready = false;
-    this.PLAYER.loadVideo(id).then(()=>{
-      //this didn't seem to work earlier in the process, stayed blue
-      //complains about not enough contrast, looks fine to me.
-      this.PLAYER.setColor('C600AD').catch(()=>{});
-      this.status.ready = true;
-      //Loading takes a bit of time, adjust for this
-      //may want to use an eventlistener like bufferfinish or whatever
-      at += (Date.now() - this.preloadTime)/1000;
-      if (at < 0) {
-        var wait = (at * -1000);
-        setTimeout(()=>{
-          videoPlay();
-        }, wait);
-      } else {
-        videoSeekTo(at);
-        //current vimeo API starts playback as soon as seek happens
-        //Fine for us for now, but seems presumptuous
-      }
-    });
+	status: {
+		state: PLAYER_STATE_BUFFERING,
+	},
+	
+	async setEnabled(isEnabled) {
+		if (!isEnabled) {
+			if (this.$el) {
+				this.$el.css("display", "none");
+			}
 
-  },
-  pause: function() {
-    this.status.state = 2;
-    if (this.status.ready) {
-      this.PLAYER.pause();
-    }
-  },
-  play: function() {
-    this.status.state = 1;
-    if (this.status.ready) {
-      this.PLAYER.play().catch((err)=>{
-        console.log("could not start playback", err);
-      });
-    }
-  },
-  seek: function(pos) {
-    if (this.status.ready) {
-      //may want to adjust this for load time too,
-      this.PLAYER.setCurrentTime(pos).then(()=>{
-      }).catch((err)=>{
-        console.log("could not seek",err);
-        //if there's a seek error, it'll try and start at the beginning, stop that
-        videoPause();
-      });
-      //restore playback state since vimeo autoplays on seek...or tries
-      this.PLAYER.getPaused().then((paused)=>{
-        if (!paused && this.status.state == 2) {
-          videoPause();
-        } else if (paused && this.status.state != 2) {
-          videoPlay();
-        }
-      });
-    }
-  },
-  getVideoState: function() {
-    return this.status.state;
-  },
-  getTime: function(callback) {
-    if (callback) {
-      if (!this.status.ready) {
-        callback(0);
-      } else {
-        this.PLAYER.getCurrentTime()
-        .then((time)=>{
-          callback(time);
-        }).catch((err)=>{
-          console.log("Vimeo getTime error",err);
-        });
-      }
-    }
-  },
-  getVolume: function(callback) {
-    if (callback) {
-      this.PLAYER.getVolume()
-      .then(callback)
-      .catch((err)=>{
-        console.log("Vimeo getVolume error",err);
-      });
-    }
-  }
+			if (this.PLAYER) {
+				this.PLAYER.pause();
+			}
+
+			return;
+		}
+
+		if (this.$el) {
+			this.$el.css("display", "block");
+			return;
+		}
+	},
+
+    async playVideo(id, at) {
+		await this.PLAYER.loadVideo(id);
+		const adjustedAt = adjustVideoTime(id, at);
+		if (adjustedAt < 0) {
+			setTimeout(() => {
+				this.play();
+			}, adjustedAt * -1000);
+		} else {
+			await this.PLAYER.setCurrentTime(adjustedAt);
+		}
+	},
+	
+	async loadPlayer(id, at, volume) {
+		if (this.PLAYER) {
+			await this.playVideo(id, at);
+			this.PLAYER.setVolume(volume);
+			return;
+		}
+		
+		this.$el = $(`<div class="player" />`).appendTo($("#videowrap"));
+		const player = this.PLAYER = new Vimeo.Player(this.$el[0], { id, autoplay: false });
+		await player.ready();
+
+		player.on("ended", () => { this.status.state = PLAYER_STATE_ENDED; videoEnded(); });
+		player.on("play", () => { this.status.state = PLAYER_STATE_PLAYING; videoPlaying(); });
+		player.on("pause", () => { this.status.state = PLAYER_STATE_PAUSED; videoPaused(); });
+		player.on("bufferstart", () => { this.status.state = PLAYER_STATE_BUFFERING; videoPaused(); });
+		player.on("seeked", details => { videoSeeked(details.seconds); });
+
+		this.playVideo(id, at);
+		window.setTimeout(() => {
+			player.setVolume(volume)
+		}, 1000);
+	},
+
+	async pause() {
+		this.status.state = PLAYER_STATE_PAUSED;
+		if (!this.PLAYER) {
+			return;
+		}
+		
+		await this.PLAYER.pause();
+	},
+
+	async play() {
+		this.status.state = PLAYER_STATE_PLAYING;
+		if (!this.PLAYER) {
+			return;
+		}
+		
+		await this.PLAYER.play();
+	},
+
+	async seek(positionInSeconds) {
+		if (!this.PLAYER) {
+			return;
+		}
+
+		await this.PLAYER.setCurrentTime(positionInSeconds);
+		if (await this.PLAYER.getPaused()) {
+			if (this.status.state !== PLAYER_STATE_PAUSED) {
+				this.pause();
+			}
+		} else {
+			if (this.status.state !== PLAYER_STATE_PLAYING) {
+				this.play();
+			}
+		}
+	},
+
+	getVideoState() {
+		return this.status.state;
+	},
+
+	async getTime(callback) {
+		if (!callback) {
+			return;
+		}
+
+		callback(await this.PLAYER.getCurrentTime());
+	},
+
+	async getVolume(callback) {
+		if (!callback) {
+			return;
+		}
+
+		callback(await this.PLAYER.getVolume());
+	}
 };
 
 function osmfEventHandler(playerId, event, data) {

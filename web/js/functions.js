@@ -2151,43 +2151,81 @@ function videoPlay(){
         PLAYER.play();
     }
 }
-function videoLoadAtTime(vidObj, time) {
-    var id = vidObj.videoid;
-    var ptype = vidObj.videotype;
-	var length = vidObj.videolength;
 
-    if (VIDEO_TYPE != ptype || !PLAYERS[ptype].playVideo) {
-        if(PLAYER.getVolume) {
-			try {
-				PLAYER.getVolume(function(v){
-                    try {
-						if(v !== null) {
-							VOLUME = v;
-						}
-    					PLAYER = PLAYERS[ptype];
-    					removeCurrentPlayer();
-    					VIDEO_TYPE = ptype;
-    					PLAYER.loadPlayer(id, time, VOLUME, length, vidObj.meta);
-                    }
-                    catch (e) {
-						console.error(e);
-                    }
+const loadRequestQueue = [];
+let isInLoadRequest = false;
+
+async function videoLoadAtTime(vidObj, time) {
+	if (isInLoadRequest) {
+		loadRequestQueue.push(() => videoLoadAtTime(vidObj, time));
+		return;
+	}
+
+	try {
+		isInLoadRequest = true;
+		await inner();
+
+		isInLoadRequest = false;
+		while (loadRequestQueue.length) {
+			await loadRequestQueue.pop()();
+		}
+	} finally {
+		isInLoadRequest = false;
+	}
+
+	async function inner() {
+		const {
+			videoid: id,
+			videotype: videoType,
+			videolength: length
+		} = vidObj;
+
+		if (VIDEO_TYPE === videoType) {
+			if (PLAYER.playVideo) {
+				PLAYER.playVideo(id, time, VOLUME);
+			}
+
+			return;
+		}
+
+		if (PLAYER) {
+			if (PLAYER.getVolume) {
+				PLAYER.getVolume(volume => {
+					if (volume === null) {
+						return;
+					}
+					
+					VOLUME = volume;
 				});
 			}
-			catch (e) {
-				// Private vimeos can throw exceptions at us here, and that breaks EVERYTHING
+			
+			if (PLAYER.setEnabled) {
+				await PLAYER.setEnabled(false);
 			}
-        } else {
-			PLAYER = PLAYERS[ptype];
-			removeCurrentPlayer();
-			VIDEO_TYPE = ptype;
-			PLAYER.loadPlayer(id, time, VOLUME, length, vidObj.meta);
+
+			resetVideoContainer();	
 		}
-    }
-    else {
-        PLAYER.playVideo(id, time, VOLUME);
-    }
+		
+		VIDEO_TYPE = videoType;
+		PLAYER = PLAYERS[VIDEO_TYPE];
+
+		if (!PLAYER) {
+			return;
+		}
+		
+		if (PLAYER.setEnabled) {
+			await PLAYER.setEnabled(true);
+		}
+
+		try {
+			await Promise.resolve(PLAYER.loadPlayer(id, time, VOLUME, length, vidObj.meta));
+		}
+		catch (e) {
+			console.error(e);
+		}
+	}
 }
+
 function videoPause(){
     if(PLAYER.pause){
         PLAYER.pause();
