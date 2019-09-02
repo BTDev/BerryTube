@@ -20,6 +20,15 @@ body {
 #videowrap {
     margin: 0 auto;
 }
+#ytapiplayer {
+	/* for now we're going to hide the old player so that code that references the element directly doesn't break */
+	display: none;
+}
+.bt-player {
+	width: 100%;
+	height: 100%;
+	border: none;
+}
 #scBackground {
 	background-color: transparent;
 	background-repeat: no-repeat;

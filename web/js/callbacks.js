@@ -54,10 +54,6 @@ socket.on("createPlayer",function(data){
     console.log('createPlayer', data);
 	INIT_TIME=data.time;
 	setPlaylistPosition(data);
-	var tag = document.createElement('script');
-    tag.src = "https://www.youtube.com/iframe_api";
-    var firstScriptTag = document.getElementsByTagName('script')[0];
-    firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 	videoLoadAtTime(data.video,data.time);
 });
 socket.on("renewPos",function(data){

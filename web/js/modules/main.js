@@ -1,3 +1,6 @@
+import "./compat.js";
+import * as player from "./player/controller.js";
+import { PLAYER_ACTION } from "./player/shared.js";
 import { RankedPoll } from "./ranked-poll.js";
 
 // ranked poll API
@@ -35,4 +38,9 @@ window.rankedPolls = {
 		activePoll.close();
 		activePoll = null;
 	},
+};
+
+window.player = {
+	dispatch: player.dispatch,
+	actions: PLAYER_ACTION,
 };

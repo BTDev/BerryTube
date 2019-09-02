@@ -218,3 +218,12 @@ export const EVENT_MAP = {
 	onAnimationIteration: "animationiteration",
 	onTransitionEnd: "transitionend",
 };
+
+export class PromiseSource {
+	constructor() {
+		this.promise = new Promise((resolve, reject) => {
+			this.resolve = resolve;
+			this.reject = reject;
+		});
+	}
+}

@@ -2126,58 +2126,31 @@ function videoGetState() {
         return PLAYER.getVideoState();
     }
 }
-function videoSeekTo(pos){
-	console.log("Got seek to",secToTime(pos));
-    if(PLAYER.seek){
-        PLAYER.seek(pos);
-    }
+function videoSeekTo(positionInSeconds) {
+	console.log(`Got seek to ${secToTime(positionInSeconds)}`);
+	window.player.dispatch(
+		window.player.actions.doSeek(positionInSeconds));
 }
-function videoPlay(){
-    if(PLAYER.play){
-        PLAYER.play();
-    }
+function videoPlay() {
+	window.player.dispatch(
+		window.player.actions.doPlay());
 }
-function videoLoadAtTime(vidObj, time) {
-    var id = vidObj.videoid;
-    var ptype = vidObj.videotype;
-	var length = vidObj.videolength;
-
-    if (VIDEO_TYPE != ptype || !PLAYERS[ptype].playVideo) {
-        if(PLAYER.getVolume) {
-			try {
-				PLAYER.getVolume(function(v){
-                    try {
-						if(v !== null) {
-							VOLUME = v;
-						}
-    					PLAYER = PLAYERS[ptype];
-    					removeCurrentPlayer();
-    					VIDEO_TYPE = ptype;
-    					PLAYER.loadPlayer(id, time, VOLUME, length, vidObj.meta);
-                    }
-                    catch (e) {
-						console.error(e);
-                    }
-				});
-			}
-			catch (e) {
-				// Private vimeos can throw exceptions at us here, and that breaks EVERYTHING
-			}
-        } else {
-			PLAYER = PLAYERS[ptype];
-			removeCurrentPlayer();
-			VIDEO_TYPE = ptype;
-			PLAYER.loadPlayer(id, time, VOLUME, length, vidObj.meta);
-		}
-    }
-    else {
-        PLAYER.playVideo(id, time, VOLUME);
-    }
+function videoLoadAtTime(video, positionInSeconds) {
+	const normalizedVideo = {
+		type: video.videotype,
+		id: video.videoid,
+		lengthInSeconds: video.videolength,
+		title: video.videotitle,
+		meta: video.meta,
+		positionInSeconds
+	};
+	
+	window.player.dispatch(
+		window.player.actions.doSet(normalizedVideo));
 }
-function videoPause(){
-    if(PLAYER.pause){
-        PLAYER.pause();
-    }
+function videoPause() {
+	window.player.dispatch(
+		window.player.actions.doPause());
 }
 /* Utilities */
 function parseVideoURL(url,callback){
