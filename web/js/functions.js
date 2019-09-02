@@ -50,16 +50,6 @@ function setRuleTitle(titleBar, myData) {
     titleBar.html(['<span class="name">', myData.name, '</span> <span class="code">',  myData.chatMatch, ' => ', myData.chatReplace.replace(/</g, '&lt;').replace(/>/g, '&gt'), '</span>'].join(''));
 }
 
-function onModuleLoaded(callback) {
-	if (window.isModuleLoaded) {
-		callback();
-		return;
-	}
-
-	(window.moduleLoadedCallbacks = (window.moduleLoadedCallbacks || []))
-		.push(callback);
-}
-
 function showAdminFilterWindow(){
 
 	socket.emit('getFilters');
@@ -1426,7 +1416,7 @@ function closePoll(data) {
 	$("#pollpane .poll-control").remove();
 
 	if (data.pollType == "ranked") {
-		onModuleLoaded(() => window.rankedPolls.closeRankedPoll());
+		window.rankedPolls.closeRankedPoll()
 		$(".poll.active").removeClass("active");
 	} else {
 		//unbind old buttons
@@ -1612,10 +1602,8 @@ function newPoll(data){
 
 			if (data.pollType == "ranked") {
 				$poll.addClass("ranked-poll");
-				onModuleLoaded(() => {
-					window.rankedPolls.createRankedPoll(data, $poll[0]);
-					updateRankedPollEmotes();
-				});
+				window.rankedPolls.createRankedPoll(data, $poll[0]);
+				updateRankedPollEmotes();
 			} else {
 				const votes = data.votes;
 				var optionwrap = $('<ul/>').appendTo($poll);
@@ -1721,10 +1709,8 @@ function updatePoll(data){
     }
 
 	if (data.pollType == "ranked") {
-		onModuleLoaded(() => {
-			window.rankedPolls.updateRankedPoll(data);
-			updateRankedPollEmotes();
-		});
+		window.rankedPolls.updateRankedPoll(data);
+		updateRankedPollEmotes();
 	} else {
 		const votes = data.votes;
 		$poll.find(".btn").each(function(key, val){

@@ -36,10 +36,3 @@ window.rankedPolls = {
 		activePoll = null;
 	},
 };
-
-window.isModuleLoaded = true;
-
-if (window.moduleLoadedCallbacks) {
-	window.moduleLoadedCallbacks.forEach(a => a());
-	window.moduleLoadedCallbacks = null;
-}
