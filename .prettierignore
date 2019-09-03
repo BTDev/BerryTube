@@ -7,3 +7,4 @@
 !**/*.json
 berrymotes/**/*.json
 berrymotes/**/*.md
+web/vendor/**/*

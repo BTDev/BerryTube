@@ -1,2 +1,3 @@
 web/js/*.js
 docker/node/server.js
+web/vendor/**/*.js
