@@ -1,9 +1,20 @@
 import "./compat.js";
-import * as player from "./player/controller.js";
-import { PLAYER_ACTION } from "./player/shared.js";
 import { RankedPoll } from "./ranked-poll.js";
+import * as player from "./player.js";
+import { PLAYER_STATUS } from "./player/index.js";
+import {
+	getStorage,
+	setStorage,
+	getStorageInteger,
+	setStorageInteger,
+	getStorageFloat,
+	setStorageFloat,
+	setStorageToggle,
+	getStorageToggle,
+} from "./lib.js";
 
-// ranked poll API
+// ---------------------------------------------------------------------------------------------------------------------
+// Export our ranked poll compatibility layer for old code
 let activePoll = null;
 
 window.rankedPolls = {
@@ -40,7 +51,24 @@ window.rankedPolls = {
 	},
 };
 
+// ---------------------------------------------------------------------------------------------------------------------
+// Export our player compatibility layer for old code
 window.player = {
-	dispatch: player.dispatch,
-	actions: PLAYER_ACTION,
+	setState: player.setState,
+	PLAYER_STATUS,
 };
+
+// ---------------------------------------------------------------------------------------------------------------------
+// Export our library compatibility layer for old code
+for (const [key, value] of Object.entries({
+	setStorage,
+	getStorage,
+	getStorageInteger,
+	setStorageInteger,
+	getStorageFloat,
+	setStorageFloat,
+	setStorageToggle,
+	getStorageToggle,
+})) {
+	window[key] = value;
+}

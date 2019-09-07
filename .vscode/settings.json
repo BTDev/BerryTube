@@ -7,7 +7,9 @@
 	"cSpell.words": [
 		"CQRS",
 		"DTOs",
+		"Dailymotion",
 		"Greyname",
+		"Soundcloud",
 		"amgic",
 		"autobind",
 		"berrytube",
@@ -17,6 +19,7 @@
 		"maltweaks",
 		"microservice",
 		"nodeport",
+		"osmf",
 		"popin",
 		"popout",
 		"schulze",
@@ -24,7 +27,12 @@
 		"spamcompare",
 		"spamhp",
 		"thinggy",
-		"youtube"
+		"twitchclip",
+		"videotype",
+		"videowrap",
+		"vimeo",
+		"youtube",
+		"ytapiplayer"
 	],
 	"[markdown]": {
 		"editor.defaultFormatter": "esbenp.prettier-vscode"

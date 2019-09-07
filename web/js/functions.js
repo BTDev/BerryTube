@@ -1,7 +1,7 @@
 let lastPollCountdown = null;
 let selectedQuality = null;
+let currentVideoState = {}
 
-const integerRegex = /^\d+$/;
 const QUALITY_LOCAL_STORAGE_KEY = "quality";
 
 class Countdown {
@@ -1795,9 +1795,7 @@ function getPollTitle({ votes, extended }) {
 
     return title;
 }
-function setStorage(key,value){
-	localStorage.setItem(key,value);
-}
+
 function setCookie(c_name,value,exdays){
 	// Kept for backwards compatability. Update references when found.
 	console.log("Old setCookie ref, update please!");
@@ -1808,35 +1806,6 @@ function setCookie(c_name,value,exdays){
 	var c_value=escape(value) + ((exdays==null) ? "" : "; expires="+exdate.toUTCString());
 	document.cookie=c_name + "=" + c_value;
 	*/
-}
-function getStorage(key){
-	return localStorage.getItem(key);
-}
-
-function getStorageInteger(key, def = 1080) {
-	const value = getStorage(key);
-	if (!integerRegex.test(value)) {
-		return def;
-	}
-
-	return parseInt(value, 10);
-}
-
-function setStorageInteger(key, value) {
-	if (typeof(value) !== "number") {
-		return;
-	}
-
-	value = parseInt(value, 10);
-	setStorage(key, value.toString());
-}
-
-function setStorageToggle(key, value) {
-	localStorage.setItem(key, value ? "true" : "false");
-}
-
-function getStorageToggle(key) {
-	return localStorage.getItem(key) === "true";
 }
 
 function getCookie(c_name){
@@ -2128,29 +2097,33 @@ function videoGetState() {
 }
 function videoSeekTo(positionInSeconds) {
 	console.log(`Got seek to ${secToTime(positionInSeconds)}`);
-	window.player.dispatch(
-		window.player.actions.doSeek(positionInSeconds));
+	currentVideoState.positionInSeconds = positionInSeconds;
+	window.player.setState(currentVideoState);
 }
 function videoPlay() {
-	window.player.dispatch(
-		window.player.actions.doPlay());
+	currentVideoState.status = window.player.PLAYER_STATUS.PLAYING;
+	window.player.setState(currentVideoState);
 }
 function videoLoadAtTime(video, positionInSeconds) {
-	const normalizedVideo = {
-		type: video.videotype,
-		id: video.videoid,
-		lengthInSeconds: video.videolength,
-		title: video.videotitle,
-		meta: video.meta,
-		positionInSeconds
+	currentVideoState = {
+		// we have to do a copy here because a DOM element gets added to this object for whatever reason \\lptired
+		video: {
+			videoid: video.videoid,
+			videotitle: video.videotitle,
+			videolength: video.videolength,
+			videotype: video.videotype,
+			volat: video.volat,
+			meta: video.meta
+		},
+		positionInSeconds,
+		status: window.player.PLAYER_STATUS.PLAYING
 	};
-	
-	window.player.dispatch(
-		window.player.actions.doSet(normalizedVideo));
+
+	window.player.setState(currentVideoState);
 }
 function videoPause() {
-	window.player.dispatch(
-		window.player.actions.doPause());
+	currentVideoState.status = window.player.PLAYER_STATUS.PAUSED;
+	window.player.setState(currentVideoState);
 }
 /* Utilities */
 function parseVideoURL(url,callback){

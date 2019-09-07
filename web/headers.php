@@ -109,7 +109,6 @@
 <script src="<?= cdn('js/init.js') ?>" defer></script>
 <script src="<?= cdn('js/functions.js') ?>" defer></script>
 <script src="<?= cdn('js/callbacks.js') ?>" defer></script>
-<script src="<?= cdn('js/player.js') ?>" defer></script>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/cookieconsent2/3.1.0/cookieconsent.min.js" integrity="sha256-y0EpKQP2vZljM73+b7xY4dvbYQkHRQXuPqRjc7sjvnA=" crossorigin="anonymous" defer></script>
 

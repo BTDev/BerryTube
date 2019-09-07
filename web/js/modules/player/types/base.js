@@ -1,18 +1,18 @@
 /* eslint-disable no-unused-vars */
-import { PlayerTypeDOM } from "../component.js";
 import { PlayerController } from "../controller.js";
 /* eslint-enable no-unused-vars */
 
-import { BasePlayer } from "./base.js";
+import { DEFAULT_PREFERENCES } from "../index.js";
 
-export class VimeoPlayer extends BasePlayer {
+export class BasePlayer {
 	/**
 	 * @param {PlayerController} controller
-	 * @param {PlayerTypeDOM} dom
+	 * @param {string} type
 	 */
-	constructor(controller, dom) {
-		super(controller, "vimeo");
-		this.dom = dom;
+	constructor(controller, type) {
+		this.type = type;
+		this.controller = controller;
+		this.preferences = DEFAULT_PREFERENCES;
 	}
 
 	/**
@@ -20,14 +20,15 @@ export class VimeoPlayer extends BasePlayer {
 	 * @param {IPlayerPreferences} preferences
 	 */
 	async setEnabled(isEnabled, preferences) {
-		await super.setEnabled(isEnabled, preferences);
+		this.dom.setEnabled(isEnabled);
+		this.preferences = preferences;
 	}
 
 	/**
 	 * @returns {Promise<IPlayerState>}
 	 */
 	async getState() {
-		return await super.getState();
+		return this.state;
 	}
 
 	/**
@@ -35,17 +36,14 @@ export class VimeoPlayer extends BasePlayer {
 	 * @returns {Promise<void>}
 	 */
 	async setState(state) {
-		await super.setState(state);
-		this.dom.el.innerText = `${this.type}: ${JSON.stringify(
-			state,
-		)} ${JSON.stringify(this.preferences)}`;
+		this.state = state;
 	}
 
 	/**
 	 * @returns {Promise<IPlayerPreferences>}
 	 */
 	async getPreferences() {
-		return await super.getPreferences();
+		return this.preferences;
 	}
 
 	/**
@@ -53,6 +51,6 @@ export class VimeoPlayer extends BasePlayer {
 	 * @returns {Promise<void>}
 	 */
 	async setPreferences(preferences) {
-		await super.setPreferences(preferences);
+		this.preferences = preferences;
 	}
 }

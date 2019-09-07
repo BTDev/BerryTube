@@ -29,6 +29,7 @@ export class ActionDispatcher {
 			promise: new PromiseSource(),
 		};
 
+		this.nextRequestId++;
 		this.actions[wrapped.id] = wrapped;
 
 		wrapped.timeoutTimeout = window.setTimeout(() => {
@@ -110,9 +111,26 @@ export class ActionDispatcher {
 					isOk: false,
 					id: data.id,
 					timestamp: new Date().getTime(),
-					error: e.message || e.toString(),
+					error: e.stack || e.message || e,
 				});
 			}
+		}
+	}
+}
+
+export class Subscribable {
+	constructor() {
+		this.callbacks = new Set();
+	}
+
+	subscribe(callback) {
+		this.callbacks.add(callback);
+		return () => this.callbacks.delete(callback);
+	}
+
+	dispatch(...args) {
+		for (const callback of this.callbacks) {
+			callback(...args);
 		}
 	}
 }

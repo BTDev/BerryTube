@@ -5,13 +5,13 @@ import { PlayerController } from "../controller.js";
 
 import { BasePlayer } from "./base.js";
 
-export class VimeoPlayer extends BasePlayer {
+export class SoundcloudPlayer extends BasePlayer {
 	/**
 	 * @param {PlayerController} controller
 	 * @param {PlayerTypeDOM} dom
 	 */
 	constructor(controller, dom) {
-		super(controller, "vimeo");
+		super(controller, "soundcloud");
 		this.dom = dom;
 	}
 

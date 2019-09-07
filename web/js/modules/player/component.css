@@ -1,0 +1,23 @@
+.c-player {
+	color: #fff;
+	background: #000;
+}
+
+.c-player__error-message {
+	color: red;
+	font-weight: bold;
+	display: none;
+}
+
+.c-player.has-error .c-player__error-message {
+	display: block;
+}
+
+.c-player-type {
+	width: 100%;
+	height: 100%;
+}
+
+.c-player-type.is-inactive {
+	display: none;
+}

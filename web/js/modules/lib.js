@@ -1,3 +1,5 @@
+const integerRegex = /^\d+$/;
+
 export function $(...args) {
 	const ret = document.querySelectorAll(...args);
 	ret.map = Array.prototype.map.bind(ret);
@@ -226,4 +228,51 @@ export class PromiseSource {
 			this.reject = reject;
 		});
 	}
+}
+
+export function setStorage(key, value) {
+	localStorage.setItem(key, value);
+}
+
+export function getStorage(key) {
+	return localStorage.getItem(key);
+}
+
+export function getStorageInteger(key, def = 0) {
+	const value = getStorage(key);
+	if (!integerRegex.test(value)) {
+		return def;
+	}
+
+	return parseInt(value, 10);
+}
+
+export function setStorageInteger(key, value) {
+	if (typeof value !== "number") {
+		return;
+	}
+
+	value = parseInt(value, 10);
+	setStorage(key, value.toString());
+}
+
+export function getStorageFloat(key, def = 0.0) {
+	const value = parseFloat(getStorage(key));
+	return !isNaN(value) ? value : def;
+}
+
+export function setStorageFloat(key, value) {
+	if (typeof value !== "number") {
+		return;
+	}
+
+	setStorage(key, value.toString());
+}
+
+export function setStorageToggle(key, value) {
+	localStorage.setItem(key, value ? "true" : "false");
+}
+
+export function getStorageToggle(key) {
+	return localStorage.getItem(key) === "true";
 }
