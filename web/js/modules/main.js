@@ -1,7 +1,7 @@
 import "./compat.js";
 import { RankedPoll } from "./ranked-poll.js";
 import * as player from "./player.js";
-import { PLAYER_STATUS } from "./player/index.js";
+import { PLAYER_STATUS, PLAYER_MODE } from "./player/index.js";
 import {
 	getStorage,
 	setStorage,
@@ -55,7 +55,10 @@ window.rankedPolls = {
 // Export our player compatibility layer for old code
 window.player = {
 	setState: player.setState,
+	setMode: player.setMode,
+	store: player.Store,
 	PLAYER_STATUS,
+	PLAYER_MODE,
 };
 
 // ---------------------------------------------------------------------------------------------------------------------

@@ -1,26 +1,19 @@
-/* eslint-disable no-unused-vars */
-import { PlayerTypeDOM } from "../component.js";
-import { PlayerController } from "../controller.js";
-/* eslint-enable no-unused-vars */
-
 import { BasePlayer } from "./base.js";
 
 export class YoutubePlayer extends BasePlayer {
 	/**
-	 * @param {PlayerController} controller
 	 * @param {PlayerTypeDOM} dom
 	 */
-	constructor(controller, dom) {
-		super(controller, "yt");
+	constructor(dom) {
+		super("yt");
 		this.dom = dom;
 	}
 
 	/**
 	 * @param {boolean} isEnabled
-	 * @param {IPlayerPreferences} preferences
 	 */
-	async setEnabled(isEnabled, preferences) {
-		await super.setEnabled(isEnabled, preferences);
+	async setEnabled(isEnabled) {
+		await super.setEnabled(isEnabled);
 	}
 
 	/**
@@ -39,20 +32,5 @@ export class YoutubePlayer extends BasePlayer {
 		this.dom.el.innerText = `${this.type}: ${JSON.stringify(
 			state,
 		)} ${JSON.stringify(this.preferences)}`;
-	}
-
-	/**
-	 * @returns {Promise<IPlayerPreferences>}
-	 */
-	async getPreferences() {
-		return await super.getPreferences();
-	}
-
-	/**
-	 * @param {IPlayerPreferences} preferences
-	 * @returns {Promise<void>}
-	 */
-	async setPreferences(preferences) {
-		await super.setPreferences(preferences);
 	}
 }

@@ -127,6 +127,27 @@ body {
     margin: 1px 10px 1px 0;
     width: 10px;
 }
+#chatControls .player-mode {
+	float: left;
+	display: flex;
+	background: #732C7B;
+	color: #fff;
+	border-radius: 4px;
+	font-size: 9px;
+	font-family: monospace;
+}
+#chatControls .player-mode > div {
+	padding: 0 2px;
+	border-radius: 4px;
+	cursor: pointer;
+}
+#chatControls .player-mode > div:hover {
+	background: #777;
+}
+#chatControls .player-mode > div.is-enabled {
+	cursor: default;
+	background: #444;
+}
 .clear{
 	clear:both;
 }

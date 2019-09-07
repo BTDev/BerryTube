@@ -310,9 +310,9 @@ body {
 
 /* Chat */
 #chatpane {
-    height: 390px;
+    height: 367px;
     position: relative;
-	font-size: 13px;
+    font-size: 13px;
 }
 #chatpane.admin #chatlist ul li {
 	display: none !important;

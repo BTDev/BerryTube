@@ -22,6 +22,9 @@ export class ActionDispatcher {
 		this.actionTypes[type] = handler;
 	}
 
+	/**
+	 * @returns {Promise<any>}
+	 */
 	dispatch(action, timeoutInMilliseconds = 5000) {
 		const wrapped = {
 			id: this.nextRequestId,
@@ -33,7 +36,9 @@ export class ActionDispatcher {
 		this.actions[wrapped.id] = wrapped;
 
 		wrapped.timeoutTimeout = window.setTimeout(() => {
-			wrapped.promise.reject(new Error("action timed out"));
+			wrapped.promise.reject(
+				new Error(`action ${JSON.stringify(action)} timed out`),
+			);
 			delete this.actions[wrapped.id];
 		}, timeoutInMilliseconds);
 
@@ -95,7 +100,7 @@ export class ActionDispatcher {
 			}
 
 			try {
-				const result = await handler(data.action);
+				const result = await Promise.resolve(handler(data.action));
 				this.innerPostMessage({
 					namespace: this.namespace,
 					type: ACTION_RESPONSE,
@@ -131,6 +136,46 @@ export class Subscribable {
 	dispatch(...args) {
 		for (const callback of this.callbacks) {
 			callback(...args);
+		}
+	}
+}
+
+export class StatelyProperty {
+	constructor(value) {
+		this.value = value;
+		this.callbacks = new Set();
+		const that = this;
+		this.public = {
+			get value() {
+				return that.value;
+			},
+			subscribe: callback => {
+				return this.subscribe(callback);
+			},
+		};
+	}
+
+	subscribe(callback, firstInvoke = true) {
+		this.callbacks.add(callback);
+
+		if (firstInvoke) {
+			callback(this.value);
+		}
+
+		return () => {
+			this.callbacks.delete(callback);
+		};
+	}
+
+	async set(value) {
+		const oldValue = this.value;
+		if (oldValue === value) {
+			return;
+		}
+
+		this.value = value;
+		for (const callback of this.callbacks) {
+			await Promise.resolve(callback(value, oldValue));
 		}
 	}
 }

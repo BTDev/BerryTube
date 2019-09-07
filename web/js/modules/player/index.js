@@ -5,20 +5,18 @@
  */
 export const PLAYER_NAMESPACE = "player";
 
+export const PLAYER_MODE = {
+	INLINE: "INLINE",
+	POPOUT: "POPOUT",
+	DISABLED: "DISABLED",
+};
+
 export const PLAYER_STATUS = {
 	PLAYING: "PLAYING",
 	PAUSED: "PAUSED",
 };
 
 export const PLAYER_ACTION = {
-	SET_STATE: "SET_STATE",
-	setState(state) {
-		return {
-			type: PLAYER_ACTION.SET_STATE,
-			state,
-		};
-	},
-
 	STATE_SET: "STATE_SET",
 	stateSet(state) {
 		return {
@@ -27,20 +25,9 @@ export const PLAYER_ACTION = {
 		};
 	},
 
-	REQUEST_STATE: "REQUEST_STATE",
-	requestState() {
-		return { type: PLAYER_ACTION.REQUEST_STATE };
-	},
-
-	SET_PREFERENCES: "SET_PREFERENCES",
-	/**
-	 * @param {IPlayerPreferences} preferences
-	 */
-	setPreferences(preferences) {
-		return {
-			type: PLAYER_ACTION.SET_PREFERENCES,
-			preferences,
-		};
+	REQUEST_SET_STATE: "REQUEST_SET_STATE",
+	requestSetState(state) {
+		return { type: PLAYER_ACTION.REQUEST_SET_STATE, state };
 	},
 
 	PREFERENCES_SET: "PREFERENCES_SET",
@@ -54,10 +41,14 @@ export const PLAYER_ACTION = {
 		};
 	},
 
-	REQUEST_PREFERENCES: "REQUEST_PREFERENCES",
-	requestPreferences() {
+	REQUEST_SET_PREFERENCES: "REQUEST_SET_PREFERENCES",
+	/**
+	 * @param {IPlayerPreferences} preferences
+	 */
+	requestSetPreferences(preferences) {
 		return {
-			type: PLAYER_ACTION.REQUEST_PREFERENCES,
+			type: PLAYER_ACTION.REQUEST_SET_PREFERENCES,
+			preferences,
 		};
 	},
 };

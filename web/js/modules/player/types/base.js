@@ -1,27 +1,20 @@
-/* eslint-disable no-unused-vars */
-import { PlayerController } from "../controller.js";
-/* eslint-enable no-unused-vars */
-
-import { DEFAULT_PREFERENCES } from "../index.js";
+import { Store } from "../../main.player.js";
 
 export class BasePlayer {
 	/**
-	 * @param {PlayerController} controller
 	 * @param {string} type
 	 */
-	constructor(controller, type) {
+	constructor(type) {
 		this.type = type;
-		this.controller = controller;
-		this.preferences = DEFAULT_PREFERENCES;
+		Store.preferences.subscribe(p => this.setPreferences(p));
 	}
 
 	/**
 	 * @param {boolean} isEnabled
 	 * @param {IPlayerPreferences} preferences
 	 */
-	async setEnabled(isEnabled, preferences) {
+	async setEnabled(isEnabled) {
 		this.dom.setEnabled(isEnabled);
-		this.preferences = preferences;
 	}
 
 	/**
@@ -43,14 +36,12 @@ export class BasePlayer {
 	 * @returns {Promise<IPlayerPreferences>}
 	 */
 	async getPreferences() {
-		return this.preferences;
+		return Store.preferences.value;
 	}
 
 	/**
 	 * @param {IPlayerPreferences} preferences
 	 * @returns {Promise<void>}
 	 */
-	async setPreferences(preferences) {
-		this.preferences = preferences;
-	}
+	async setPreferences(preferences) {}
 }
