@@ -8,8 +8,10 @@ import { PlayerToolbar } from "./PlayerToolbar.js";
  * @param {Store} store
  */
 export async function DisabledPlayer(actions, store) {
-	const toolbar = await PlayerToolbar(actions, store);
+	const videoWrap = document.querySelector("#videowrap");
 
+	const toolbar = await PlayerToolbar(actions, store);
+	videoWrap.classList.add("is-collapsed");
 	return {
 		el: createElement(
 			"div",
@@ -20,6 +22,7 @@ export async function DisabledPlayer(actions, store) {
 			createElement("div", { innerText: "DISABLED" }),
 		),
 		async unload() {
+			videoWrap.classList.remove("is-collapsed");
 			await toolbar.unload();
 		},
 	};

@@ -2102,17 +2102,21 @@ function videoPlay() {
 	window.BT.dispatch(window.BT.PLAYER.play());
 }
 function videoLoadAtTime(video, positionInSeconds) {
-	// we have to do a copy here because a DOM element gets added to this object for whatever reason \\lptired
-	const videoCopy = {
+	window.BT.dispatch(window.BT.PLAYER.setVideo(cloneVideo(video), window.BT.PLAYER_STATUS.PLAYING, positionInSeconds))
+}
+/**
+ * We have to do a copy here because a DOM element gets added to this object for whatever reason \\lptired
+ * @param {BtVideo} video 
+ */
+function cloneVideo(video) {
+	return {
 		videoid: video.videoid,
 		videotitle: video.videotitle,
 		videolength: video.videolength,
 		videotype: video.videotype,
 		volat: video.volat,
 		meta: video.meta
-	};
-
-	window.BT.dispatch(window.BT.PLAYER.setVideo(videoCopy, window.BT.PLAYER_STATUS.PLAYING, positionInSeconds))
+	}
 }
 function videoPause() {
 	window.BT.dispatch(window.BT.PLAYER.pause())

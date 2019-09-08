@@ -3,6 +3,8 @@ import { ActionDispatcher, Store } from "../actions.js";
 import { createElement, PromiseSource } from "../lib.js";
 import { PlayerToolbar } from "./PlayerToolbar.js";
 
+let element = null;
+
 /**
  * @param {ActionDispatcher} actions
  * @param {Store} store
@@ -14,10 +16,16 @@ export async function InlinePlayer(actions, store) {
 	const iframe = createElement("iframe", {
 		className: "c-inline-player__iframe",
 		onload: finish,
+		src: "/player.php",
 		onerror(e) {
 			promise.reject(e);
 		},
 	});
+
+	iframe.setAttribute(
+		"allow",
+		"accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; fullscreen",
+	);
 
 	const component = {
 		el: createElement(
@@ -38,5 +46,11 @@ export async function InlinePlayer(actions, store) {
 
 	function finish() {
 		promise.resolve(component);
+	}
+}
+
+async function loadIframe() {
+	if (element) {
+		return element;
 	}
 }

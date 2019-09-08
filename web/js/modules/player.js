@@ -34,7 +34,7 @@ Actions.handle(PLAYER.SET_MODE, action => {
 	Store.update({
 		[PLAYER.NAMESPACE]: {
 			...current,
-			stateCreatedAt: new Date().getUTCMilliseconds(),
+			stateCreatedAt: new Date().getTime(),
 			mode: action.mode,
 		},
 	});
@@ -45,7 +45,7 @@ Actions.handle(PLAYER.PLAY, () => {
 	Store.update({
 		[PLAYER.NAMESPACE]: {
 			...current,
-			stateCreatedAt: new Date().getUTCMilliseconds(),
+			stateCreatedAt: new Date().getTime(),
 			status: PLAYER_STATUS.PLAYING,
 		},
 	});
@@ -60,7 +60,7 @@ Actions.handle(PLAYER.PAUSE, () => {
 	Store.update({
 		[PLAYER.NAMESPACE]: {
 			...current,
-			stateCreatedAt: new Date().getUTCMilliseconds(),
+			stateCreatedAt: new Date().getTime(),
 			status: PLAYER_STATUS.PAUSED,
 		},
 	});
@@ -75,7 +75,7 @@ Actions.handle(PLAYER.SEEK, action => {
 	Store.update({
 		[PLAYER.NAMESPACE]: {
 			...current,
-			stateCreatedAt: new Date().getUTCMilliseconds(),
+			stateCreatedAt: new Date().getTime(),
 			positionInSeconds: action.positionInSeconds,
 		},
 	});
@@ -90,7 +90,7 @@ Actions.handle(PLAYER.SET_VIDEO, action => {
 	Store.update({
 		[PLAYER.NAMESPACE]: {
 			...current,
-			stateCreatedAt: new Date().getUTCMilliseconds(),
+			stateCreatedAt: new Date().getTime(),
 			video: action.video || null,
 			status: action.status,
 			positionInSeconds: action.positionInSeconds,

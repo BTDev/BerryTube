@@ -16,6 +16,8 @@ import {
 	updateStoreFromPostMessage,
 } from "./actions.js";
 
+import { comparePreferences } from "./player/index.js";
+
 // ---------------------------------------------------------------------------------------------------------------------
 // Init
 const component = new PlayerDOM(document.querySelector("#root"));
@@ -97,6 +99,14 @@ if (!config.dialogId) {
 async function switchPlayers(newPlayer) {
 	if (currentPlayer === newPlayer) {
 		return;
+	}
+
+	const oldPreferences = Store.state[PLAYER.NAMESPACE].preferences;
+	const newPreferences =
+		(await currentPlayer.getPreferences()) || oldPreferences;
+
+	if (newPreferences.volume !== oldPreferences.volume) {
+		Actions.dispatch(PLAYER.setVolume(newPreferences.volume));
 	}
 
 	await currentPlayer.setEnabled(false);

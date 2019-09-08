@@ -26,6 +26,34 @@
 	opacity: 0.4;
 }
 
+body.tweaked .c-player-toolbar {
+	bottom: auto;
+	top: -15px;
+	border-top-left-radius: 0;
+	border-top-right-radius: 0;
+	border-bottom-left-radius: 4px;
+	border-bottom-right-radius: 4px;
+}
+
+body.tweaked .c-player-toolbar::before {
+	position: absolute;
+	left: -10px;
+	right: -10px;
+	width: calc(100% + 20px);
+	height: calc(100% + 20px);
+	content: "";
+	display: none;
+	z-index: -1;
+}
+
+body.tweaked .c-player-toolbar:hover {
+	top: 0;
+}
+
+body.tweaked .c-player-toolbar:hover::before {
+	display: block;
+}
+
 .c-player-toolbar:hover {
 	opacity: 1;
 }
@@ -43,4 +71,8 @@
 
 .c-player-toolbar__button:hover {
 	background: #713a71;
+}
+
+#videowrap.is-collapsed {
+	height: 0;
 }

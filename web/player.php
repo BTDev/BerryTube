@@ -7,7 +7,6 @@
 		<meta name="theme-color" content="#421C52" />
 		<meta name="robots" content="noindex" />
 		<script src="<?= cdn('js/modules/main.player.js') ?>" type="module"></script>
-		<script src="https://www.youtube.com/iframe_api" async></script>
 		<link rel="stylesheet" href="<?= cdn('js/modules/player/component.css') ?>" />
 		<style>
 			html, body {

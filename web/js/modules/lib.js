@@ -315,3 +315,7 @@ export function getQuerystringObject() {
 			return acc;
 		}, {});
 }
+
+export function adjustTime(eventCreatedAt, positionInSeconds = 0) {
+	return new Date().getTime() - eventCreatedAt + positionInSeconds * 1000;
+}

@@ -18,6 +18,7 @@ export class BasePlayer {
 		this.isEnabled = false;
 		this.dom = dom;
 		this.playerDom = dom.getPlayerType(this.type);
+		this.state = {};
 	}
 
 	/**
@@ -49,5 +50,9 @@ export class BasePlayer {
 				state.video.videotype
 			}`;
 		}
+	}
+
+	async getPreferences() {
+		return this.state.preferences;
 	}
 }

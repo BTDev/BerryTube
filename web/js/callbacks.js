@@ -79,62 +79,20 @@ socket.on("recvPlaylist",function(data){
 		setVal("PLREADY",true);
 	});
 });
-socket.on("hbVideoDetail",function(data){
+socket.on("hbVideoDetail", (data) => {
+	if(controlsVideo()) {
+		return;
+	}
 
-	//if(videoGetState() == -1 || videoGetState() == 3 ) return;
-	if(controlsVideo()) return;
+	window.BT.dispatch(window.BT.PLAYER.setVideo(
+		cloneVideo(data.video), 
+		data.state === 1 
+			? window.BT.PLAYER_STATUS.PLAYING 
+			: window.BT.PLAYER_STATUS.PAUSED, 
+		data.time));
+
 	dbg('hbVideoDetail data');
 	dbg(data);
-	//Check if video ID is the same as ours.
-	if(ACTIVE.videoid != data.video.videoid)
-	{
-		// Ask server for a videochange/update.
-		dbg("SHIT: "+ACTIVE.videoid+" != "+data.video.videoid);
-		socket.emit("refreshMyVideo");
-	}
-	/*else if(ACTIVE.videoid == data.video.videoid && videoGetState() == 0) // We've already finished.
-	{
-		// Ho hum.
-		dbg("SHIT: ho-hum");
-	}*/
-	else if(getStorage('syncAtAll') == 1)
-	{
-		dbg("SYNCH_AT_ALL");
-		videoGetTime(function(time){
-			if(Math.abs(time - data.time) > getStorage('syncAccuracy'))
-			{
-				dbg("SHIT: "+(time - data.time)+" > "+getStorage('syncAccuracy'));
-				videoSeekTo(data.time);
-			}
-
-			if(videoGetState() == 2)
-			{
-				dbg("SHIT: "+videoGetState()+" > 2");
-				videoSeekTo(data.time);
-			}
-
-			if(data.state == 1 && videoGetState() != 1)
-			{
-				dbg("SHIT: "+data.state+" == 1 && "+videoGetState()+" != 1");
-				videoPlay();
-			}
-
-			if(data.state == 2 && videoGetState() != 2)
-			{
-				dbg("SHIT: "+data.state+" == 2 && "+videoGetState()+" != 2");
-				videoPause();
-				videoSeekTo(data.time);
-			}
-
-			if(data.state == 3 && videoGetState() != 2) // Intentionally 2
-			{
-				dbg("SHIT: "+data.state+" == 3 && "+videoGetState()+" != 2");
-				videoPause();
-				videoSeekTo(data.time);
-			}
-		});
-	}
-	dbg("hbVideoDetail Complete");
 });
 socket.on("sortPlaylist",function(data){
 	unfuckPlaylist();
