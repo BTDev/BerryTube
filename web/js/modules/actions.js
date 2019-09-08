@@ -3,127 +3,32 @@ import { getConfig } from "./bt.js";
 
 const config = getConfig();
 
-const ACTION_RESPONSE = "ACTION_RESPONSE";
+const ACTION_SET_STATE = "ACTION_SET_STATE";
+const ACTION_SUBSCRIBE = "ACTION_SUBSCRIBE";
+const ACTION_UNSUBSCRIBE = "ACTION_UNSUBSCRIBE";
 const ACTION_REQUEST = "ACTION_REQUEST";
+const ACTION_RESPONSE = "ACTION_RESPONSE";
 
 export class ActionDispatcher {
-	constructor(namespace, postMessage, origin = config.origin) {
-		this.namespace = namespace;
-		this.innerPostMessage = postMessage;
-		this.isQueueActive = false;
-		this.nextRequestId = 1;
-		this.actions = {};
-		this.actionTypes = {};
-		this.queue = null;
-		this.origin = origin;
+	constructor() {
+		this.handlers = new Map();
 	}
 
-	addActionHandler(type, handler) {
-		this.actionTypes[type] = handler;
-	}
-
-	/**
-	 * @returns {Promise<any>}
-	 */
-	dispatch(action, timeoutInMilliseconds = 5000) {
-		const wrapped = {
-			id: this.nextRequestId,
-			action,
-			promise: new PromiseSource(),
-		};
-
-		this.nextRequestId++;
-		this.actions[wrapped.id] = wrapped;
-
-		wrapped.timeoutTimeout = window.setTimeout(() => {
-			wrapped.promise.reject(
-				new Error(`action ${JSON.stringify(action)} timed out`),
+	async dispatch(action) {
+		const handler = this.handlers.get(action.type);
+		if (!handler) {
+			throw new Error(
+				`we do not know how to handle an action of type "${
+					action.type
+				}"`,
 			);
-			delete this.actions[wrapped.id];
-		}, timeoutInMilliseconds);
-
-		this.innerPostMessage({
-			namespace: this.namespace,
-			type: ACTION_REQUEST,
-			id: wrapped.id,
-			timestamp: new Date().getTime(),
-			action,
-		});
-
-		return wrapped.promise;
-	}
-
-	async receiveMessage({ origin, data }) {
-		if (origin !== this.origin) {
-			return;
 		}
 
-		if (typeof data !== "object" || data.namespace !== this.namespace) {
-			return;
-		}
-
-		if (data.type === ACTION_RESPONSE) {
-			// this is a response to an action that we sent
-			const action = this.actions[data.id];
-			if (!action) {
-				// eslint-disable-next-line no-console
-				console.error(`we received a message for an invalid action`);
-				return;
-			}
-
-			delete this.actions[data.id];
-			if (data.isOk) {
-				action.promise.resolve(data.result);
-			} else {
-				action.promise.reject(data.error);
-			}
-		} else {
-			// this is a request to do something
-			const type = data.action.type;
-			const handler = this.actionTypes[type];
-			if (!handler) {
-				// eslint-disable-next-line no-console
-				console.error(
-					`we do not support handling actions of type ${type}`,
-				);
-
-				this.innerPostMessage({
-					namespace: this.namespace,
-					type: ACTION_RESPONSE,
-					id: data.id,
-					timestamp: new Date().getTime(),
-					isOk: false,
-					error: "not supported",
-				});
-
-				return;
-			}
-
-			try {
-				const result = await Promise.resolve(handler(data.action));
-				this.innerPostMessage({
-					namespace: this.namespace,
-					type: ACTION_RESPONSE,
-					id: data.id,
-					timestamp: new Date().getTime(),
-					isOk: true,
-					result,
-				});
-			} catch (e) {
-				this.innerPostMessage({
-					namespace: this.namespace,
-					type: ACTION_RESPONSE,
-					isOk: false,
-					id: data.id,
-					timestamp: new Date().getTime(),
-					error: e.stack || e.message || e,
-				});
-			}
-		}
+		await handler();
 	}
 }
 
-export class Subscribable {
+export class Event {
 	constructor() {
 		this.callbacks = new Set();
 	}
@@ -140,42 +45,193 @@ export class Subscribable {
 	}
 }
 
-export class StatelyProperty {
-	constructor(value) {
-		this.value = value;
-		this.callbacks = new Set();
-		const that = this;
-		this.public = {
-			get value() {
-				return that.value;
-			},
-			subscribe: callback => {
-				return this.subscribe(callback);
-			},
-		};
+export class Store {
+	constructor() {
+		this.stateSet = new Event();
+		this.state = {};
 	}
 
-	subscribe(callback, firstInvoke = true) {
-		this.callbacks.add(callback);
-
-		if (firstInvoke) {
-			callback(this.value);
-		}
-
-		return () => {
-			this.callbacks.delete(callback);
-		};
+	update(namespaces) {
+		this.state = { ...this.state, ...namespaces };
+		this.stateSet(namespaces, this.state);
 	}
+}
 
-	async set(value) {
-		const oldValue = this.value;
-		if (oldValue === value) {
+/**
+ * @param {Window} eventReceiver
+ * @param {Store} store
+ * @param {string[]} namespaces
+ */
+export function updateStoreFromPostMessage(eventReceiver, store, namespaces) {
+	const namespaceSet = new Set(namespaces);
+	eventReceiver.addEventListener("message", ({ origin, data }) => {
+		if (origin !== config.origin) {
 			return;
 		}
 
-		this.value = value;
-		for (const callback of this.callbacks) {
-			await Promise.resolve(callback(value, oldValue));
+		if (typeof data !== "object" || data.type !== ACTION_SET_STATE) {
+			return;
 		}
+
+		const update = {};
+		for (const [name, data] of Object.entries(data.namespaces)) {
+			if (!namespaceSet.has(name)) {
+				continue;
+			}
+
+			update[name] = data;
+		}
+
+		if (!Object.keys(update).length) {
+			return;
+		}
+
+		store.update(update);
+	});
+
+	eventReceiver.postMessage({ type: ACTION_SUBSCRIBE, namespaces });
+}
+
+/**
+ * @param {Window} eventReceiver
+ * @param {Store} store
+ * @param {string[]} namespaces
+ */
+export function provideStoreToPostMessage(eventReceiver, store, namespaces) {
+	/**
+	 * The set of namespaces that we export
+	 * @var {Set<string>[]}
+	 */
+	const allowedNamespaces = new Set(namespaces);
+
+	/**
+	 * A map of sources to an array of namespaces that source subscribes to
+	 * @var {WeakMap<EventSource, string[]>}
+	 */
+	const subscribedSources = new WeakMap();
+
+	/**
+	 * A map of namespaces to a list of EventSources that must be notified when that namespace changes.
+	 * @var {Map<string, EventSource[]>}
+	 */
+	const subscriptions = new Map();
+
+	eventReceiver.addEventListener("message", ({ origin, data, source }) => {
+		if (origin !== config.origin) {
+			return;
+		}
+
+		if (typeof data !== "object") {
+			return;
+		}
+
+		if (data.type === ACTION_SUBSCRIBE) {
+			if (subscribedSources.has(source)) {
+				throw new Error(`Source attempted to subscribe twice!`);
+			}
+
+			const subscribedTo = [];
+			for (const namespace of data.namespaces) {
+				if (!allowedNamespaces.has(namespace)) {
+					// eslint-disable-next-line no-console
+					console.error(
+						`Cannot subscribe to namespace ${namespace} because we do not provide it`,
+					);
+
+					continue;
+				}
+
+				let namespaceSubscriptions = subscriptions.get(namespace);
+				if (!namespaceSubscriptions) {
+					subscriptions.set(namespace, (namespaceSubscriptions = []));
+				}
+
+				namespaceSubscriptions.push(source);
+				subscribedTo.push(namespace);
+			}
+
+			subscribedSources.set(source, subscribedTo);
+
+			const envelope = { type: ACTION_SET_STATE, namespaces: {} };
+			for (const namespace of subscribedTo) {
+				envelope.namespaces[namespace] = store.state[namespace];
+			}
+
+			source.addEventListener("unload", () => {
+				// eslint-disable-next-line no-console
+				console.info(
+					`source ${source} unsubscribed from ${subscribedTo.join(
+						", ",
+					)}`,
+				);
+
+				unsubscribeSource(source);
+			});
+
+			source.postMessage(envelope);
+
+			// eslint-disable-next-line no-console
+			console.info(
+				`source ${source} subscribed to ${subscribedTo.join(", ")}`,
+			);
+		} else if (data.type === ACTION_UNSUBSCRIBE) {
+			unsubscribeSource(source);
+		} else {
+			return;
+		}
+	});
+
+	store.stateSet.subscribe(changed => {
+		for (const [namespace, data] of Object.entries(changed)) {
+			const targets = subscriptions.get(namespace);
+			if (!targets) {
+				continue;
+			}
+
+			const envelope = {
+				type: ACTION_SET_STATE,
+				namespaces: { [namespace]: data },
+			};
+
+			for (const target of targets) {
+				target.postMessage(envelope);
+			}
+		}
+	});
+
+	function unsubscribeSource(source) {
+		const item = subscribedSources.get(source);
+		if (!item) {
+			// eslint-disable-next-line no-console
+			console.warn(
+				`Source attempted to unsubscribe, but we do not have any active subscriptions for it`,
+			);
+
+			return;
+		}
+
+		for (const namespace of item) {
+			const namespaceSubscriptions = subscriptions.get(namespace);
+			subscriptions.set(namespaceSubscriptions.filter(s => s === source));
+		}
+
+		subscribedSources.delete(source);
 	}
+}
+
+/**
+ *
+ * @param {ActionDispatcher} actions
+ * @param {Window} eventRoot
+ * @param {string[]} namespaces
+ */
+export function forwardActionsToPostMessage(actions, eventRoot, namespaces) {
+	actions.handleNamespaces(namespaces, action => {
+		const actionEnvelope = {
+			type: ACTION_REQUEST,
+			action,
+		};
+
+		eventRoot.postMessage(actionEnvelope);
+	});
 }

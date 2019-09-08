@@ -1456,6 +1456,39 @@ function initChatControls(parent){
 	$("#chatControls").remove();
 
 	var chatControls = $('<div/>').attr('id','chatControls').appendTo(parent);
+
+	let elInline, elPopout, elDisabled
+	const { PLAYER_MODE, store, setMode } = window.player
+	const $playerMode = $("<div />")
+		.addClass("player-mode")
+		.append(
+			elInline = $(`<div title="player: inline" class="inline is-enabled">[ ]</div>`)
+				.click(() => {
+					setMode(PLAYER_MODE.INLINE);
+				}),
+
+			elPopout = $(`<div title="player: popout" class="popout">[^]</div>`)
+				.click(() => {
+					setMode(PLAYER_MODE.POPOUT);
+				}),
+
+			elDisabled = $(`<div title="player: disabled" class="disabled">[x]</div>`)
+				.click(() => {
+					setMode(PLAYER_MODE.DISABLED);
+				}))
+		.appendTo(chatControls);
+
+	store.mode.subscribe(value => {
+		$playerMode.find(".is-enabled").removeClass("is-enabled")
+		if (value === PLAYER_MODE.INLINE) {
+			elInline.addClass("is-enabled");
+		} else if (value === PLAYER_MODE.POPOUT) {
+			elPopout.addClass("is-enabled");
+		} else if (value === PLAYER_MODE.DISABLED) {
+			elDisabled.addClass("is-enabled");
+		}
+	})
+	
 	var _loginAs = $('<div/>').addClass('loginAs').text("Logged in as:").appendTo(chatControls);
 	var loginAs = $('<span/>').addClass('nick').text("anonymous").appendTo(_loginAs);
 	loginAs.click(function(){
@@ -1497,38 +1530,6 @@ function initChatControls(parent){
 	settingsMenu.click(function(){
 		showConfigMenu(settingsMenu);
 	});
-
-	let elInline, elPopout, elDisabled
-	const { PLAYER_MODE, store, setMode } = window.player
-	const $playerMode = $("<div />")
-		.addClass("player-mode")
-		.append(
-			elInline = $(`<div title="player: inline" class="inline is-enabled">[ ]</div>`)
-				.click(() => {
-					setMode(PLAYER_MODE.INLINE);
-				}),
-
-			elPopout = $(`<div title="player: popout" class="popout">[^]</div>`)
-				.click(() => {
-					setMode(PLAYER_MODE.POPOUT);
-				}),
-
-			elDisabled = $(`<div title="player: disabled" class="disabled">[x]</div>`)
-				.click(() => {
-					setMode(PLAYER_MODE.DISABLED);
-				}))
-		.appendTo(chatControls);
-
-	store.mode.subscribe(value => {
-		$playerMode.find(".is-enabled").removeClass("is-enabled")
-		if (value === PLAYER_MODE.INLINE) {
-			elInline.addClass("is-enabled");
-		} else if (value === PLAYER_MODE.POPOUT) {
-			elPopout.addClass("is-enabled");
-		} else if (value === PLAYER_MODE.DISABLED) {
-			elDisabled.addClass("is-enabled");
-		}
-	})
 }
 function initChat(parent){
 	$("#chatpane").remove();

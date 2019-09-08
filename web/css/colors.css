@@ -130,15 +130,14 @@ body {
 #chatControls .player-mode {
 	float: left;
 	display: flex;
-	background: #732C7B;
+	background: #444;
 	color: #fff;
-	border-radius: 4px;
 	font-size: 9px;
 	font-family: monospace;
+	border-right: 2px solid #aaa;
 }
 #chatControls .player-mode > div {
 	padding: 0 2px;
-	border-radius: 4px;
 	cursor: pointer;
 }
 #chatControls .player-mode > div:hover {
@@ -146,7 +145,7 @@ body {
 }
 #chatControls .player-mode > div.is-enabled {
 	cursor: default;
-	background: #444;
+	background: #732C7B;
 }
 .clear{
 	clear:both;

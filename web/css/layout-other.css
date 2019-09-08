@@ -1040,3 +1040,9 @@ button.ranked-poll__submit-button {
 .super-select__option:hover {
     filter: none;
 }
+
+/** what else can we do here? */
+#poptoggle, #vidtoggle {
+	display: none;
+}
+
