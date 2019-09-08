@@ -1,7 +1,6 @@
 import "./compat.js";
 import { RankedPoll } from "./ranked-poll.js";
-import * as player from "./player.js";
-import { PLAYER_STATUS, PLAYER_MODE } from "./player/index.js";
+import { PLAYER, PLAYER_MODE, PLAYER_STATUS, Actions, Store } from "./bt.js";
 import {
 	getStorage,
 	setStorage,
@@ -12,6 +11,19 @@ import {
 	setStorageToggle,
 	getStorageToggle,
 } from "./lib.js";
+
+import "./player.js";
+
+// ---------------------------------------------------------------------------------------------------------------------
+// Export our store and actions
+window.BT = {
+	...(window.BT || {}),
+	PLAYER,
+	PLAYER_MODE,
+	PLAYER_STATUS,
+	store: Store,
+	dispatch: Actions.dispatch.bind(Actions),
+};
 
 // ---------------------------------------------------------------------------------------------------------------------
 // Export our ranked poll compatibility layer for old code
@@ -49,16 +61,6 @@ window.rankedPolls = {
 		activePoll.close();
 		activePoll = null;
 	},
-};
-
-// ---------------------------------------------------------------------------------------------------------------------
-// Export our player compatibility layer for old code
-window.player = {
-	setState: player.setState,
-	setMode: player.setMode,
-	store: player.Store,
-	PLAYER_STATUS,
-	PLAYER_MODE,
 };
 
 // ---------------------------------------------------------------------------------------------------------------------

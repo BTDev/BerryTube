@@ -1,47 +1,53 @@
-import { Store } from "../../main.player.js";
+// eslint-disable-next-line no-unused-vars
+import { ActionDispatcher } from "../../actions.js";
+
+// eslint-disable-next-line no-unused-vars
+import { PlayerDOM } from "../component.js";
+
+import { createElement } from "../../lib.js";
 
 export class BasePlayer {
 	/**
 	 * @param {string} type
+	 * @param {PlayerDOM} dom
+	 * @param {ActionDispatcher} actions
 	 */
-	constructor(type) {
+	constructor(type, dom, actions) {
+		this.actions = actions;
 		this.type = type;
-		Store.preferences.subscribe(p => this.setPreferences(p));
+		this.isEnabled = false;
+		this.dom = dom;
+		this.playerDom = dom.getPlayerType(this.type);
 	}
 
 	/**
 	 * @param {boolean} isEnabled
-	 * @param {IPlayerPreferences} preferences
 	 */
 	async setEnabled(isEnabled) {
-		this.dom.setEnabled(isEnabled);
+		this.isEnabled = isEnabled;
+		this.playerDom.setEnabled(isEnabled);
 	}
 
 	/**
-	 * @returns {Promise<IPlayerState>}
+	 * @returns {Promise<BtVideoState>}
 	 */
 	async getState() {
 		return this.state;
 	}
 
 	/**
-	 * @param {IPlayerState} state
+	 * @param {BtVideoState} state
 	 * @returns {Promise<void>}
 	 */
 	async setState(state) {
 		this.state = state;
-	}
 
-	/**
-	 * @returns {Promise<IPlayerPreferences>}
-	 */
-	async getPreferences() {
-		return Store.preferences.value;
+		if (state.video === null) {
+			this.dom.innerText = "No video.";
+		} else {
+			this.dom.innerText = `Unsupported video type: ${
+				state.video.videotype
+			}`;
+		}
 	}
-
-	/**
-	 * @param {IPlayerPreferences} preferences
-	 * @returns {Promise<void>}
-	 */
-	async setPreferences(preferences) {}
 }

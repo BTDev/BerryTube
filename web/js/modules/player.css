@@ -1,0 +1,46 @@
+.c-inline-player,
+.c-popout-player,
+.c-audio-only-player,
+.c-unknown-player,
+.c-disabled-player {
+	width: 100%;
+	height: 100%;
+	position: relative;
+}
+
+.c-inline-player__iframe {
+	width: 100%;
+	height: 100%;
+	border: none;
+}
+
+.c-player-toolbar {
+	position: absolute;
+	bottom: 100%;
+	left: 50%;
+	transform: translate(-50%, 0);
+	display: flex;
+	background: #444;
+	border-top-left-radius: 4px;
+	border-top-right-radius: 4px;
+	opacity: 0.4;
+}
+
+.c-player-toolbar:hover {
+	opacity: 1;
+}
+
+.c-player-toolbar__button {
+	padding: 5px 10px;
+	font-family: monospace;
+	cursor: pointer;
+}
+
+.c-player-toolbar__button.is-enabled {
+	background: #a556a5;
+	cursor: default;
+}
+
+.c-player-toolbar__button:hover {
+	background: #713a71;
+}

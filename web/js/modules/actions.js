@@ -1,5 +1,5 @@
-import { PromiseSource } from "./lib.js";
 import { getConfig } from "./bt.js";
+import { PromiseSource } from "./lib.js";
 
 const config = getConfig();
 
@@ -7,64 +7,149 @@ const ACTION_SET_STATE = "ACTION_SET_STATE";
 const ACTION_SUBSCRIBE = "ACTION_SUBSCRIBE";
 const ACTION_UNSUBSCRIBE = "ACTION_UNSUBSCRIBE";
 const ACTION_REQUEST = "ACTION_REQUEST";
-const ACTION_RESPONSE = "ACTION_RESPONSE";
 
 export class ActionDispatcher {
 	constructor() {
 		this.handlers = new Map();
+		this.middlewares = [];
 	}
 
 	async dispatch(action) {
-		const handler = this.handlers.get(action.type);
-		if (!handler) {
+		const { middlewares, handlers } = this;
+		await next(action, 0);
+
+		async function next(action, index) {
+			if (index >= middlewares.length) {
+				const handler = handlers.get(action.type);
+				if (!handler) {
+					throw new Error(
+						`we do not know how to handle an action of type "${
+							action.type
+						}"`,
+					);
+				}
+
+				await Promise.resolve(handler(action));
+				return;
+			}
+
+			return await Promise.resolve(
+				middlewares[index](action, a => next(a || action, index + 1)),
+			);
+		}
+	}
+
+	/**
+	 *
+	 * @param {(action: object, next: (action) => Promise<void>) => Promise<void>} middleware
+	 */
+	addMiddleware(middleware) {
+		this.middlewares.push(middleware);
+	}
+
+	handle(type, handler) {
+		if (this.handlers.has(type)) {
 			throw new Error(
-				`we do not know how to handle an action of type "${
-					action.type
-				}"`,
+				`We already have a handler for action of type ${type}`,
 			);
 		}
 
-		await handler();
+		this.handlers.set(type, handler);
 	}
 }
 
 export class Event {
-	constructor() {
+	constructor(isFiber = false, fiberTimeoutInMilliseconds = 5000) {
 		this.callbacks = new Set();
+		this.isFiber = isFiber;
+		this.fiberTimeoutInMilliseconds = fiberTimeoutInMilliseconds;
+		this.lastCall = undefined;
+		this.actionQueue = isFiber ? [] : null;
+		this.isQueueRunning = false;
 	}
 
-	subscribe(callback) {
+	subscribe(callback, initCall = false) {
 		this.callbacks.add(callback);
-		return () => this.callbacks.delete(callback);
+		if (initCall && this.lastCall) {
+			callback(...this.lastCall);
+		}
+
+		return async () => this.callbacks.delete(callback);
 	}
 
-	dispatch(...args) {
-		for (const callback of this.callbacks) {
-			callback(...args);
+	async dispatch(...args) {
+		this.lastCall = args;
+
+		if (!this.isFiber) {
+			for (const callback of this.callbacks) {
+				callback(...args);
+			}
+			return;
+		}
+
+		this.actionQueue.push(
+			...Array.from(this.callbacks).map(c => () => c(...args)),
+		);
+
+		if (this.isQueueRunning) {
+			return;
+		}
+
+		try {
+			this.isQueueRunning = true;
+			while (this.actionQueue.length) {
+				const action = this.actionQueue.shift();
+
+				try {
+					const promise = new PromiseSource();
+					const timeout = window.setTimeout(() => {
+						promise.reject("handler timeout...");
+					}, this.fiberTimeoutInMilliseconds);
+
+					Promise.resolve(action()).then(result => {
+						window.clearTimeout(timeout);
+						promise.resolve(result);
+					});
+
+					await promise.promise;
+				} catch (e) {
+					// eslint-disable-next-line no-console
+					console.error(e);
+				}
+			}
+		} finally {
+			this.isQueueRunning = false;
 		}
 	}
 }
 
 export class Store {
 	constructor() {
-		this.stateSet = new Event();
+		this.stateSet = new Event(true);
 		this.state = {};
 	}
 
 	update(namespaces) {
+		const prevState = this.state;
 		this.state = { ...this.state, ...namespaces };
-		this.stateSet(namespaces, this.state);
+		this.stateSet.dispatch(this.state, prevState, namespaces);
 	}
 }
 
 /**
- * @param {Window} eventReceiver
+ * @param {Window} eventTarget
+ * @param {EventTarget} parentTarget
  * @param {Store} store
  * @param {string[]} namespaces
  */
-export function updateStoreFromPostMessage(eventReceiver, store, namespaces) {
+export function updateStoreFromPostMessage(
+	eventTarget,
+	parentTarget,
+	store,
+	namespaces,
+) {
 	const namespaceSet = new Set(namespaces);
-	eventReceiver.addEventListener("message", ({ origin, data }) => {
+	eventTarget.addEventListener("message", ({ origin, data }) => {
 		if (origin !== config.origin) {
 			return;
 		}
@@ -74,12 +159,12 @@ export function updateStoreFromPostMessage(eventReceiver, store, namespaces) {
 		}
 
 		const update = {};
-		for (const [name, data] of Object.entries(data.namespaces)) {
+		for (const [name, change] of Object.entries(data.namespaces)) {
 			if (!namespaceSet.has(name)) {
 				continue;
 			}
 
-			update[name] = data;
+			update[name] = change;
 		}
 
 		if (!Object.keys(update).length) {
@@ -89,7 +174,12 @@ export function updateStoreFromPostMessage(eventReceiver, store, namespaces) {
 		store.update(update);
 	});
 
-	eventReceiver.postMessage({ type: ACTION_SUBSCRIBE, namespaces });
+	if (parentTarget) {
+		parentTarget.postMessage(
+			{ type: ACTION_SUBSCRIBE, namespaces },
+			config.origin,
+		);
+	}
 }
 
 /**
@@ -168,7 +258,7 @@ export function provideStoreToPostMessage(eventReceiver, store, namespaces) {
 				unsubscribeSource(source);
 			});
 
-			source.postMessage(envelope);
+			source.postMessage(envelope, config.origin);
 
 			// eslint-disable-next-line no-console
 			console.info(
@@ -194,7 +284,7 @@ export function provideStoreToPostMessage(eventReceiver, store, namespaces) {
 			};
 
 			for (const target of targets) {
-				target.postMessage(envelope);
+				target.postMessage(envelope, config.origin);
 			}
 		}
 	});
@@ -220,18 +310,80 @@ export function provideStoreToPostMessage(eventReceiver, store, namespaces) {
 }
 
 /**
- *
- * @param {ActionDispatcher} actions
- * @param {Window} eventRoot
+ * @param {BroadcastChannel} channel
+ * @param {Store} store
  * @param {string[]} namespaces
  */
-export function forwardActionsToPostMessage(actions, eventRoot, namespaces) {
-	actions.handleNamespaces(namespaces, action => {
-		const actionEnvelope = {
-			type: ACTION_REQUEST,
-			action,
-		};
+export function broadcastStateToChannel(channel, store, namespaces) {
+	const namespaceSet = new Set(namespaces);
+	store.stateSet.subscribe((_state, _prevState, namespaces) => {
+		const toSet = {};
+		for (const [name, data] of Object.entries(namespaces)) {
+			if (!namespaceSet.has(name)) {
+				continue;
+			}
 
-		eventRoot.postMessage(actionEnvelope);
+			toSet[name] = data;
+		}
+
+		if (Object.keys(toSet).length) {
+			channel.postMessage({
+				type: ACTION_SET_STATE,
+				namespaces: toSet,
+			});
+		}
+	});
+}
+
+/**
+ *
+ * @param {Window} eventReceiver
+ * @param {ActionDispatcher} actions
+ * @param {string[]} namespaces
+ */
+export function handleActionsFromPostMessage(eventRoot, actions, namespaces) {
+	const namespaceSet = new Set(namespaces);
+	eventRoot.addEventListener("message", ({ origin, data }) => {
+		if (origin !== config.origin) {
+			return;
+		}
+
+		if (typeof data !== "object" || data.type !== ACTION_REQUEST) {
+			return;
+		}
+
+		if (!namespaceSet.has(data.namespace)) {
+			// eslint-disable-next-line no-console
+			console.error(
+				`We received a request to ${
+					data.action.type
+				}, but we do not expose the namespace ${data.namespace}`,
+			);
+			return;
+		}
+
+		actions.dispatch(data.action);
+	});
+}
+
+/**
+ *
+ * @param {Window} eventReceiver
+ * @param {ActionDispatcher} actions
+ * @param {string[]} namespaces
+ */
+export function forwardActionsToPostMessage(eventRoot, actions, namespaces) {
+	const namespaceSet = new Set(namespaces);
+	actions.addMiddleware((action, next) => {
+		if (namespaceSet.has(action.namespace)) {
+			const actionEnvelope = {
+				type: ACTION_REQUEST,
+				action,
+			};
+
+			eventRoot.postMessage(actionEnvelope, config.origin);
+		} else {
+			return next(action);
+		}
 	});
 }

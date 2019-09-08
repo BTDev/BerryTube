@@ -1,14 +1,9 @@
 import { BasePlayer } from "./base.js";
 
 export class TwitchClipPlayer extends BasePlayer {
-	/**
-	 * @param {PlayerTypeDOM} dom
-	 */
-	constructor(dom) {
-		super("twitchclip");
-		this.dom = dom;
+	constructor(dom, actions) {
+		super("twitchclip", dom, actions);
 	}
-
 	/**
 	 * @param {boolean} isEnabled
 	 */
@@ -17,14 +12,14 @@ export class TwitchClipPlayer extends BasePlayer {
 	}
 
 	/**
-	 * @returns {Promise<IPlayerState>}
+	 * @returns {Promise<BtVideoState>}
 	 */
 	async getState() {
 		return await super.getState();
 	}
 
 	/**
-	 * @param {IPlayerState} state
+	 * @param {BtVideoState} state
 	 * @returns {Promise<void>}
 	 */
 	async setState(state) {

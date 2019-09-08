@@ -18,6 +18,7 @@
 		"entrypoint",
 		"maltweaks",
 		"microservice",
+		"middlewares",
 		"nodeport",
 		"osmf",
 		"popin",

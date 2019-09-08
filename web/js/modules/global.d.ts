@@ -1,6 +1,8 @@
 declare type PLAYER_STATUS = "PLAYING" | "PAUSED" | "LOADING";
 
-declare interface IVideo {
+declare type PLAYER_MODE = "INLINE" | "POPOUT" | "AUDIO_ONLY" | "DISABLED";
+
+declare interface BtVideo {
 	videoid: string;
 	videotype: string;
 	videolength: number;
@@ -8,17 +10,25 @@ declare interface IVideo {
 	meta: object;
 }
 
-declare interface IPlayerState {
-	stateCreatedAt: number; // <- unix milliseconds timestamp
-	video: IVideo;
+declare interface BtVideoState {
+	/**
+	 * The unix millisecond timestamp of when the client received (or generated) the request to set the state of the
+	 * player.
+	 */
+	stateCreatedAt: number;
+	video?: BtVideo;
 	positionInSeconds: number;
 	status: PLAYER_STATUS;
+	mode: PLAYER_MODE;
+	preferences: PlayerPreferences;
 }
 
-declare interface IPlayerPreferences {
+declare interface PlayerPreferences {
 	volume: number; // <- number between 0.0 and 1.0 representing the volume
-	sync: {
-		isEnabled: boolean;
-		accuracyInSeconds: number;
-	};
+	sync: PlayerSyncPreferences;
+}
+
+declare interface PlayerSyncPreferences {
+	isEnabled: boolean;
+	accuracyInSeconds: number;
 }

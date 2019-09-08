@@ -32,7 +32,7 @@ export const PLAYER_ACTION = {
 
 	PREFERENCES_SET: "PREFERENCES_SET",
 	/**
-	 * @param {IPlayerPreferences} preferences
+	 * @param {PlayerPreferences} preferences
 	 */
 	preferencesSet(preferences) {
 		return {
@@ -43,7 +43,7 @@ export const PLAYER_ACTION = {
 
 	REQUEST_SET_PREFERENCES: "REQUEST_SET_PREFERENCES",
 	/**
-	 * @param {IPlayerPreferences} preferences
+	 * @param {PlayerPreferences} preferences
 	 */
 	requestSetPreferences(preferences) {
 		return {
@@ -54,8 +54,8 @@ export const PLAYER_ACTION = {
 };
 
 /**
- * @param {IPlayerPreferences} left
- * @param {IPlayerPreferences} right
+ * @param {PlayerPreferences} left
+ * @param {PlayerPreferences} right
  * @returns {boolean}
  */
 export function comparePreferences(left, right) {

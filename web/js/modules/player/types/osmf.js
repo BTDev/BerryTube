@@ -1,12 +1,8 @@
 import { BasePlayer } from "./base.js";
 
 export class OsmfPlayer extends BasePlayer {
-	/**
-	 * @param {PlayerTypeDOM} dom
-	 */
-	constructor(dom) {
-		super("osmf");
-		this.dom = dom;
+	constructor(dom, actions) {
+		super("osmf", dom, actions);
 	}
 
 	/**
@@ -17,14 +13,14 @@ export class OsmfPlayer extends BasePlayer {
 	}
 
 	/**
-	 * @returns {Promise<IPlayerState>}
+	 * @returns {Promise<BtVideoState>}
 	 */
 	async getState() {
 		return await super.getState();
 	}
 
 	/**
-	 * @param {IPlayerState} state
+	 * @param {BtVideoState} state
 	 * @returns {Promise<void>}
 	 */
 	async setState(state) {

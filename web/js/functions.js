@@ -1,6 +1,5 @@
 let lastPollCountdown = null;
 let selectedQuality = null;
-let currentVideoState = {}
 
 const QUALITY_LOCAL_STORAGE_KEY = "quality";
 
@@ -2097,33 +2096,26 @@ function videoGetState() {
 }
 function videoSeekTo(positionInSeconds) {
 	console.log(`Got seek to ${secToTime(positionInSeconds)}`);
-	currentVideoState.positionInSeconds = positionInSeconds;
-	window.player.setState(currentVideoState);
+	window.BT.dispatch(window.BT.PLAYER.seek(positionInSeconds))
 }
 function videoPlay() {
-	currentVideoState.status = window.player.PLAYER_STATUS.PLAYING;
-	window.player.setState(currentVideoState);
+	window.BT.dispatch(window.BT.PLAYER.play());
 }
 function videoLoadAtTime(video, positionInSeconds) {
-	currentVideoState = {
-		// we have to do a copy here because a DOM element gets added to this object for whatever reason \\lptired
-		video: {
-			videoid: video.videoid,
-			videotitle: video.videotitle,
-			videolength: video.videolength,
-			videotype: video.videotype,
-			volat: video.volat,
-			meta: video.meta
-		},
-		positionInSeconds,
-		status: window.player.PLAYER_STATUS.PLAYING
+	// we have to do a copy here because a DOM element gets added to this object for whatever reason \\lptired
+	const videoCopy = {
+		videoid: video.videoid,
+		videotitle: video.videotitle,
+		videolength: video.videolength,
+		videotype: video.videotype,
+		volat: video.volat,
+		meta: video.meta
 	};
 
-	window.player.setState(currentVideoState);
+	window.BT.dispatch(window.BT.PLAYER.setVideo(videoCopy, window.BT.PLAYER_STATUS.PLAYING, positionInSeconds))
 }
 function videoPause() {
-	currentVideoState.status = window.player.PLAYER_STATUS.PAUSED;
-	window.player.setState(currentVideoState);
+	window.BT.dispatch(window.BT.PLAYER.pause())
 }
 /* Utilities */
 function parseVideoURL(url,callback){

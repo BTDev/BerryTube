@@ -276,3 +276,42 @@ export function setStorageToggle(key, value) {
 export function getStorageToggle(key) {
 	return localStorage.getItem(key) === "true";
 }
+
+/**
+ * Gets the querystring of the current URL in an array in the form:
+ *  [0]: {name: "name1", value: "value1"},
+ *  [1]: {name: "name2", value: "value2"}
+ */
+export function getQuerystring() {
+	const { search } = window.location;
+	if (!search.trim().length) {
+		return [];
+	}
+
+	return search
+		.substr(1)
+		.split("&")
+		.reduce((acc, part) => {
+			const [name, value = ""] = part.split("=");
+			return acc.concat({ name, value: decodeURIComponent(value) });
+		}, []);
+}
+
+/**
+ * Gets the querystring as an object
+ */
+export function getQuerystringObject() {
+	const { search } = window.location;
+	if (!search.trim().length) {
+		return [];
+	}
+
+	return search
+		.substr(1)
+		.split("&")
+		.reduce((acc, part) => {
+			const [name, value = ""] = part.split("=");
+			acc[name] = value;
+			return acc;
+		}, {});
+}

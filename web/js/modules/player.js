@@ -1,175 +1,213 @@
 // this is the module that adds the BT player to the page
-import { getConfig } from "./bt.js";
 import {
-	PLAYER_NAMESPACE,
-	PLAYER_ACTION,
-	DEFAULT_PREFERENCES,
+	Store,
+	Actions,
+	PLAYER,
+	PLAYER_STATUS,
 	PLAYER_MODE,
-} from "./player/index.js";
-import { ActionDispatcher, StatelyProperty } from "./actions.js";
-import { getStorageInteger, getStorageFloat, setStorageFloat } from "./lib.js";
+	getConfig,
+} from "./bt.js";
 
-const actions = new ActionDispatcher(PLAYER_NAMESPACE, sendMessage);
-let messageBuffer = [];
-let actionTarget = null;
+import {
+	setStorageFloat,
+	setStorageInteger,
+	getStorageFloat,
+	getStorageInteger,
+} from "./lib.js";
 
-// ---------------------------------------------------------------------------------------------------------------------
-// Mode
-const mode = new StatelyProperty(PLAYER_MODE.INLINE);
+import {
+	handleActionsFromPostMessage,
+	provideStoreToPostMessage,
+	broadcastStateToChannel,
+} from "./actions.js";
 
-mode.subscribe(value => {
-	if (value === PLAYER_MODE.INLINE) {
-		setVideo(loadIframe());
-	} else if (value === PLAYER_MODE.POPOUT) {
-		setVideo(loadDialog());
-	} else {
-		setVideo(null);
-	}
-}, false);
-
-export function setMode(newMode) {
-	mode.set(newMode);
-}
+import { AudioOnlyPlayer } from "./components/AudioOnlyPlayer.js";
+import { InlinePlayer } from "./components/InlinePlayer.js";
+import { PopoutPlayer } from "./components/PopoutPlayer.js";
+import { UnknownPlayer } from "./components/UnknownPlayer.js";
+import { DisabledPlayer } from "./components/DisabledPlayer.js";
 
 // ---------------------------------------------------------------------------------------------------------------------
-// Preferences
-const preferences = new StatelyProperty(loadPreferences());
+// Init and state action handlers
+Actions.handle(PLAYER.SET_MODE, action => {
+	const current = Store.state[PLAYER.NAMESPACE];
+	Store.update({
+		[PLAYER.NAMESPACE]: {
+			...current,
+			stateCreatedAt: new Date().getUTCMilliseconds(),
+			mode: action.mode,
+		},
+	});
+});
 
-preferences.subscribe(newPreferences => {
-	setStorageFloat("player.volume", newPreferences.volume);
-	actions.dispatch(PLAYER_ACTION.preferencesSet(newPreferences));
-}, false);
+Actions.handle(PLAYER.PLAY, () => {
+	const current = Store.state[PLAYER.NAMESPACE];
+	Store.update({
+		[PLAYER.NAMESPACE]: {
+			...current,
+			stateCreatedAt: new Date().getUTCMilliseconds(),
+			status: PLAYER_STATUS.PLAYING,
+		},
+	});
+});
 
-actions.addActionHandler(
-	PLAYER_ACTION.REQUEST_SET_PREFERENCES,
-	async newPreferences => preferences.set(newPreferences),
-);
+Actions.handle(PLAYER.REQUEST_PLAY, () => {
+	// user requested a play, do nothing right now
+});
 
-export function setPreferences(newPreferences) {
-	preferences.set(newPreferences);
-}
+Actions.handle(PLAYER.PAUSE, () => {
+	const current = Store.state[PLAYER.NAMESPACE];
+	Store.update({
+		[PLAYER.NAMESPACE]: {
+			...current,
+			stateCreatedAt: new Date().getUTCMilliseconds(),
+			status: PLAYER_STATUS.PAUSED,
+		},
+	});
+});
 
-// ---------------------------------------------------------------------------------------------------------------------
-// State
-const state = new StatelyProperty(null);
+Actions.handle(PLAYER.REQUEST_PAUSE, () => {
+	// user requested a pause, do nothing right now
+});
 
-state.subscribe(newState => {
-	if (newState === null) {
-		return;
-	}
+Actions.handle(PLAYER.SEEK, action => {
+	const current = Store.state[PLAYER.NAMESPACE];
+	Store.update({
+		[PLAYER.NAMESPACE]: {
+			...current,
+			stateCreatedAt: new Date().getUTCMilliseconds(),
+			positionInSeconds: action.positionInSeconds,
+		},
+	});
+});
 
-	actions.dispatch(PLAYER_ACTION.stateSet(newState));
-}, false);
+Actions.handle(PLAYER.REQUEST_SEEK, () => {
+	// user requested a seek, do nothing right now
+});
 
-actions.addActionHandler(
-	PLAYER_ACTION.REQUEST_SET_STATE,
-	async ({ state: newState }) => {
-		// this means that the user initiated a player state change, todo
-		console.log(newState);
+Actions.handle(PLAYER.SET_VIDEO, action => {
+	const current = Store.state[PLAYER.NAMESPACE];
+	Store.update({
+		[PLAYER.NAMESPACE]: {
+			...current,
+			stateCreatedAt: new Date().getUTCMilliseconds(),
+			video: action.video || null,
+			status: action.status,
+			positionInSeconds: action.positionInSeconds,
+		},
+	});
+});
+
+Actions.handle(PLAYER.SET_VOLUME, action => {
+	setStorageFloat("player.volume", action.volume);
+	const current = Store.state[PLAYER.NAMESPACE];
+	Store.update({
+		[PLAYER.NAMESPACE]: {
+			...current,
+			preferences: {
+				...current.preferences,
+				volume: action.volume,
+			},
+		},
+	});
+});
+
+Actions.handle(
+	PLAYER.SET_SYNC_PREFERENCES,
+	({ preferences: { isEnabled, accuracyInSeconds } }) => {
+		setStorageInteger("syncAtAll", isEnabled ? 1 : 0);
+		setStorageFloat("syncAccuracy", accuracyInSeconds);
+
+		const current = Store.state[PLAYER.NAMESPACE];
+		Store.update({
+			[PLAYER.NAMESPACE]: {
+				...current,
+				preferences: {
+					...current.preferences,
+					sync: {
+						isEnabled,
+						accuracyInSeconds,
+					},
+				},
+			},
+		});
 	},
 );
 
-export function setState(newState) {
-	state.set(newState);
+provideStoreToPostMessage(window, Store, [PLAYER.NAMESPACE]);
+handleActionsFromPostMessage(window, Actions, [PLAYER.NAMESPACE]);
+
+try {
+	const channel = new BroadcastChannel(`player-${getConfig().channelId}`);
+	broadcastStateToChannel(channel, Store, [PLAYER.NAMESPACE]);
+	handleActionsFromPostMessage(channel, Actions, [PLAYER.NAMESPACE]);
+} catch (e) {
+	// eslint-disable-next-line no-console
+	console.error("Could not setup broadcast channel");
+	// eslint-disable-next-line no-console
+	console.error(e);
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
-// Init
-let lastVideoPlayer = null;
-const config = getConfig();
-window.addEventListener("message", actions.receiveMessage.bind(actions));
-setVideo(loadIframe());
+// Player UI
+let currentMode = null;
 
-// ---------------------------------------------------------------------------------------------------------------------
-function setVideo(player) {
-	if (lastVideoPlayer) {
-		lastVideoPlayer();
-		lastVideoPlayer = null;
+Store.stateSet.subscribe(async ({ player: left }, { player: right }) => {
+	if (right && left.mode === right.mode) {
+		return;
 	}
 
-	if (player) {
-		lastVideoPlayer = player;
-		actionTarget = null;
-		actions.dispatch(PLAYER_ACTION.preferencesSet(preferences.value));
-		actions.dispatch(PLAYER_ACTION.stateSet(state.value));
+	try {
+		if (left.mode === PLAYER_MODE.INLINE) {
+			await setPlayerComponent(InlinePlayer);
+		} else if (left.mode === PLAYER_MODE.POPOUT) {
+			await setPlayerComponent(PopoutPlayer);
+		} else if (left.mode === PLAYER_MODE.AUDIO_ONLY) {
+			await setPlayerComponent(AudioOnlyPlayer);
+		} else if (left.mode === PLAYER_MODE.DISABLED) {
+			await setPlayerComponent(DisabledPlayer);
+		} else {
+			// eslint-disable-next-line no-console
+			throw new Error(`unknown player mode ${left.mode}`);
+		}
+	} catch (e) {
+		// eslint-disable-next-line no-console
+		console.error(`Could not load player mode ${left.mode}`);
+		// eslint-disable-next-line no-console
+		console.error(e);
+		await setPlayerComponent(UnknownPlayer);
 	}
-}
+}, true);
 
-function loadIframe() {
-	const iframe = document.createElement("iframe");
-	iframe.classList.add("bt-player");
-	iframe.addEventListener("load", () => {
-		onActionTargetLoaded(iframe.contentWindow);
-	});
+Actions.dispatch(PLAYER.setVolume(getStorageFloat("player.volume", 1)));
 
+Actions.dispatch(
+	PLAYER.setSyncPreferences({
+		isEnabled: getStorageInteger("syncAtAll", 1) === 1,
+		accuracyInSeconds: getStorageFloat("syncAccuracy", 2),
+	}),
+);
+
+async function setPlayerComponent(Component) {
 	const videoWrap = document.querySelector("#videowrap");
-	videoWrap.appendChild(iframe);
-	document.querySelector("#ytapiplayer").style.display = "none";
-	iframe.src = "/player.php";
+	if (currentMode) {
+		try {
+			await currentMode.unload();
+		} catch (e) {
+			// eslint-disable-next-line no-console
+			console.error("could not unload player component");
 
-	return () => {
-		iframe.parentNode.removeChild(iframe);
-	};
-}
+			// eslint-disable-next-line no-console
+			console.error(e);
+		}
 
-function loadDialog() {
-	const dialog = window.open(
-		"/player.php",
-		"_blank",
-		"height=720,width=1280,scrollbars=no,menubar=no,location=no",
-	);
-
-	dialog.addEventListener("load", () => {
-		onActionTargetLoaded(dialog.window);
-
-		dialog.addEventListener("unload", () => {
-			if (mode.value === PLAYER_MODE.POPOUT) {
-				setMode(PLAYER_MODE.INLINE);
-			}
-		});
-	});
-
-	return () => {
-		dialog.close();
-	};
-}
-
-function onActionTargetLoaded(newActionTarget) {
-	actionTarget = newActionTarget;
-	for (const message of messageBuffer) {
-		sendMessage(message);
+		try {
+			videoWrap.removeChild(currentMode.el);
+		} catch (e) {
+			// blank
+		}
 	}
 
-	messageBuffer = [];
+	currentMode = await Component(Actions, Store);
+	videoWrap.appendChild(currentMode.el);
 }
-
-function sendMessage(message) {
-	if (actionTarget) {
-		actionTarget.postMessage(message, config.origin);
-	} else {
-		messageBuffer.push(message);
-	}
-}
-
-function loadPreferences() {
-	return {
-		sync: {
-			isEnabled:
-				getStorageInteger(
-					"syncAtAll",
-					DEFAULT_PREFERENCES.sync.isEnabled,
-				) === 1,
-			accuracyInSeconds: getStorageInteger(
-				"syncAccuracy",
-				DEFAULT_PREFERENCES.sync.accuracyInSeconds,
-			),
-		},
-		volume: getStorageFloat("player.volume", DEFAULT_PREFERENCES.volume),
-	};
-}
-
-export const Store = {
-	mode: mode.public,
-	preferences: preferences.public,
-	state: state.public,
-};

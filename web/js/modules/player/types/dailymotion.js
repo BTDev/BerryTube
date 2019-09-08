@@ -1,12 +1,8 @@
 import { BasePlayer } from "./base.js";
 
 export class DailyMotionPlayer extends BasePlayer {
-	/**
-	 * @param {PlayerTypeDOM} dom
-	 */
-	constructor(dom) {
-		super("dm");
-		this.dom = dom;
+	constructor(dom, actions) {
+		super("dm", dom, actions);
 	}
 
 	/**
@@ -17,14 +13,14 @@ export class DailyMotionPlayer extends BasePlayer {
 	}
 
 	/**
-	 * @returns {Promise<IPlayerState>}
+	 * @returns {Promise<BtVideoState>}
 	 */
 	async getState() {
 		return await super.getState();
 	}
 
 	/**
-	 * @param {IPlayerState} state
+	 * @param {BtVideoState} state
 	 * @returns {Promise<void>}
 	 */
 	async setState(state) {

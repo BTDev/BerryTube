@@ -67,5 +67,6 @@
 			<span><a style="color:white" href="?LayoutType=compact">Regular</a></span>
 		</center>
 	</div>
+	<?php require("footers.php"); ?>
 </body>
 </html>

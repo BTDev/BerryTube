@@ -79,5 +79,6 @@
 			</script>
 		</center>
 	</div>
+	<?php require("footers.php"); ?>
 </body>
 </html>
