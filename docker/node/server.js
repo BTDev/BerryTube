@@ -1050,6 +1050,7 @@ function _sendChat(nick, type, incoming, socket) {
 	let sendToAdmins = false;
 	let sendToUsers = true;
 	let sendToSelf = false;
+	let addToBuffer = true;
 
 	if (channel !== "main") {
 		// Someone trying to send a message to a channel they're not in?!
@@ -1067,7 +1068,7 @@ function _sendChat(nick, type, incoming, socket) {
 
 	if (isSocketBanned) {
 		sendToAdmins = true;
-		sendToUsers = false;
+		addToBuffer = sendToUsers = false;
 		sendToSelf = true;
 	}
 
@@ -1087,7 +1088,7 @@ function _sendChat(nick, type, incoming, socket) {
 
 		metadata.graymute = true;
 		sendToAdmins = true;
-		sendToUsers = false;
+		addToBuffer = sendToUsers = false;
 		sendToSelf = false;
 	}
 
@@ -1125,7 +1126,9 @@ function _sendChat(nick, type, incoming, socket) {
 
 	if (sendToUsers) {
 		emitChat(io.sockets, messageData, false);
+	}
 
+	if (addToBuffer) {
 		const targetBuffer =
 			SERVER.OUTBUFFER[channel] || (SERVER.OUTBUFFER[channel] = []);
 		targetBuffer.push(messageData);
