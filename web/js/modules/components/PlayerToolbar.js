@@ -2,6 +2,66 @@
 import { ActionDispatcher, Store } from "../actions.js";
 import { PLAYER, PLAYER_MODE } from "../bt.js";
 import { createElement } from "../lib.js";
+import { BaseComponent } from "./Base.js";
+
+export class PlayerToolbar2 extends BaseComponent {
+	async render(parent) {
+		this.modeButtons = {};
+
+		this.onCleanup(() =>
+			store.stateSet.subscribe(({ player: { mode } }) => {
+				for (const [key, button] of Object.entries(this.modeButtons)) {
+					if (key === mode) {
+						button.classList.add("is-enabled");
+					} else {
+						button.classList.remove("is-enabled");
+					}
+				}
+			}),
+		);
+
+		super.render(
+			parent,
+			createElement(
+				"div",
+				{ className: "c-player-toolbar" },
+				(this.modeButtons[PLAYER_MODE.INLINE] = createElement("div", {
+					className: "c-player-toolbar__button",
+					innerText: "[I]",
+					title: "player: inline",
+					onClick: () =>
+						actions.dispatch(PLAYER.setMode(PLAYER_MODE.INLINE)),
+				})),
+				(this.modeButtons[PLAYER_MODE.POPOUT] = createElement("div", {
+					className: "c-player-toolbar__button",
+					innerText: "[^]",
+					title: "player: popout",
+					onClick: () =>
+						actions.dispatch(PLAYER.setMode(PLAYER_MODE.POPOUT)),
+				})),
+				(this.modeButtons[PLAYER_MODE.AUDIO_ONLY] = createElement(
+					"div",
+					{
+						className: "c-player-toolbar__button",
+						innerText: "[A]",
+						title: "player: audio only",
+						onClick: () =>
+							actions.dispatch(
+								PLAYER.setMode(PLAYER_MODE.AUDIO_ONLY),
+							),
+					},
+				)),
+				(this.modeButtons[PLAYER_MODE.DISABLED] = createElement("div", {
+					className: "c-player-toolbar__button",
+					innerText: "[X]",
+					title: "player: hidden",
+					onClick: () =>
+						actions.dispatch(PLAYER.setMode(PLAYER_MODE.DISABLED)),
+				})),
+			),
+		);
+	}
+}
 
 /**
  * @param {ActionDispatcher} actions

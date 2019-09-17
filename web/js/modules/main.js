@@ -13,6 +13,7 @@ import {
 } from "./lib.js";
 
 import "./player.js";
+import { PlayerToolbar } from "./components/PlayerToolbar";
 
 // ---------------------------------------------------------------------------------------------------------------------
 // Export our store and actions
@@ -23,6 +24,9 @@ window.BT = {
 	PLAYER_STATUS,
 	store: Store,
 	dispatch: Actions.dispatch.bind(Actions),
+	components: {
+		PlayerToolbar,
+	},
 };
 
 // ---------------------------------------------------------------------------------------------------------------------
