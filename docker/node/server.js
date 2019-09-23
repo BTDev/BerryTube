@@ -685,7 +685,7 @@ function addDrink(amount, socket, callback){
 	SERVER.DRINKS += parseFloat(amount);
 
 	if (isDrinkAmountExcessive(SERVER.DRINKS)) {
-		kickUser(socket,"Berry Punch is mad at you");
+		kickForIllegalActivity(socket, "Berry Punch is mad at you");
 	}
 
 	if (callback) {
@@ -1823,7 +1823,7 @@ async function addVideoManifest(socket, data, meta, successCallback, failureCall
 				manifest
 			}
 		});
-		
+
 		successCallback({ title: manifest.title });
 	} catch (e) {
 		failureCallback(e.message || e);
