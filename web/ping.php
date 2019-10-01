@@ -1,3 +1,3 @@
 <?php
 
-echo 'pong';
+echo implode('', ['po', 'ng']);
