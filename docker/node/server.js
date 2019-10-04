@@ -1447,6 +1447,8 @@ function resolveRestrictCountries(restrictReasons) {
 		if (!Array.isArray(restrictReasons.countries)) {
 			restrictReasons.countries = restrictReasons.countries.split(/\s+/);
 		}
+		restrictReasons.totalCountries = restrictReasons.countries.length;
+		restrictReasons.countries = restrictReasons.countries.slice(0, 10);
 		restrictReasons.countryNames = restrictReasons.countries.map(code => isoCountries.getName(code, 'en'));
 	}
 }
@@ -1561,7 +1563,7 @@ function addVideoYT(socket,data,meta,successCallback,failureCallback){
 						}
 					}
 					if(countryRestriction.length > 0){
-						restrictReasons.countries = countryRestriction[1];
+						restrictReasons.countries = countryRestriction;
 						maybeError = "video has country restrictions";
 					}
 				}
