@@ -633,7 +633,7 @@ function loadPlugin(node) {
 	}
 }
 
-function showVideoRestrictionDialog(restricted, noembed, countries) {
+function showVideoRestrictionDialog(restricted, noembed, countries, totalCountries) {
 	var parent = $("body").dialogWindow({
 		title:"Confirm Queue",
 		uid:"videorestriction",
@@ -660,10 +660,17 @@ function showVideoRestrictionDialog(restricted, noembed, countries) {
 		});
 	}
 	else {
+		let countryText;
 		if (Array.isArray(countries)) {
-			countries = countries.join(', ');
+			countryText = countries.join(', ');
+			if (totalCountries > countries.length) {
+				const diff = totalCountries - countries.length;
+				countryText += ` (and ${diff} other${diff === 1 ? '' : 's'})`;
+			}
+		} else {
+			countryText = countries;
 		}
-		$('<p>').appendTo(mainOptWrap).text("The video you attempted to queue is restricted in the following countries: " + countries).css("width", "300px");
+		$('<p>').appendTo(mainOptWrap).text("The video you attempted to queue is restricted in the following countries: " + countryText).css("width", "300px");
 		$('<p>').appendTo(mainOptWrap).text("Would you like to queue the video anyway?").css("width", "300px");
 		var buttonDiv = $('<div/>').css("text-align", "center").appendTo(mainOptWrap);
 		var noBtn = $('<div/>').addClass('button').appendTo(buttonDiv);
@@ -2712,7 +2719,7 @@ function getUserQualityPreference() {
 	if (selectedQuality === null) {
 		selectedQuality = getStorageInteger(QUALITY_LOCAL_STORAGE_KEY, 1080);
 	}
-	
+
 	return selectedQuality;
 }
 

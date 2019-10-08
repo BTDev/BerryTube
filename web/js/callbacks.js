@@ -577,7 +577,7 @@ socket.on('searchHistoryResults', function(data) {
 	realignPosHelper();
 });
 socket.on('videoRestriction', function(data) {
-	showVideoRestrictionDialog(data.restricted, data.noembed, data.countryNames || data.countries);
+	showVideoRestrictionDialog(data.restricted, data.noembed, data.countryNames || data.countries, data.totalCountries);
 });
 socket.on('doorStuck', function() {
     // DOOR STUCK, DOOR STUCK
