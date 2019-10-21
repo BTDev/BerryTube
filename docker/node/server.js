@@ -942,7 +942,7 @@ const chatCommandMap = {
 	}),
 
 	// what does this even do
-	...withAliases(["shitpost"], (parsed, socket, _messageData) => {
+	...withAliases(["shitpost"], (parsed, socket, messageData) => {
 		if (!authService.can(socket.session, actions.ACTION_SHITPOST)) {
 			kickForIllegalActivity(socket);
 			return doSuppressChat;
@@ -953,7 +953,7 @@ const chatCommandMap = {
 			DefaultLog.info(
 				events.EVENT_ADMIN_SHATPOST,
 				"{mod} shatpost {title} on {type}",
-				{ mod: nick, type: "site", title: parts[0] },
+				{ mod: messageData.nick, type: "site", title: parts[0] },
 			);
 
 			io.sockets.emit("shitpost", {
