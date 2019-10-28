@@ -1,4 +1,4 @@
-ARG nginx_version=1.17.1
+ARG nginx_version=1.17.5
 
 FROM nginx:${nginx_version}-alpine AS build
 

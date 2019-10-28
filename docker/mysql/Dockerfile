@@ -1,4 +1,4 @@
-FROM mysql:8.0.16
+FROM mysql:8.0.18
 
 HEALTHCHECK --interval=10s --timeout=3s --start-period=10s CMD \
     test -f /tmp/mysql-inited-flag && \
