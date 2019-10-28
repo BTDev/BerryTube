@@ -586,9 +586,6 @@ socket.on('doorStuck', function() {
     // YOU'RE A... A GENUINE DICK SUCKER
     showDoorStuckDialog();
 });
-socket.on('midasTouch', function(data) {
-	$('#chatlist li.' + data.nick).addClass('gilded');
-});
 socket.on('forceRefresh', function(data){
 	let delay = 0;
 	if (data && data.delay) {
