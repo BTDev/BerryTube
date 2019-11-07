@@ -1341,7 +1341,7 @@ function addChatMsg(data,_to) {
 
 		$(to).children().slice(0, -500).remove();
 
-		var d = new Date(data.msg.timestamp);
+		var d = new Date(data.msg.timestamp || Date.now());
 		if ($(`li.${nick}`).length != 0) {
 			CHATLIST[nick] = d.getTime();
 		}
