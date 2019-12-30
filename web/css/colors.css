@@ -544,27 +544,3 @@ form .submit:hover {
     margin: 10px 0;
     text-align: center;
 }
-
-#chatlist li.gilded {
-	text-shadow: 0px 0px 4px #FF9E28;
-    background: url(/images/gold.png) no-repeat scroll left center rgba(0, 0, 0, 0);
-    line-height: 20px;
-    padding-left: 25px;
-}
-#goldButton {
-	text-align: center;
-}
-#goldButton div {
-	display: inline-block;
-	color: gold;
-	background-color: #444444;
-	padding: 6px;
-	margin: 10px 0px;
-	border: 1px solid gold;
-	border-radius: 4px;
-	cursor: pointer;
-	font-size: 13px;
-}
-.noAds #goldButton, .noAds .ad {
-	display: none;
-}

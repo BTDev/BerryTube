@@ -388,19 +388,13 @@ function sortUserList(){
 	});
 	$.each(listitems, function(idx, itm) { if($(itm).data('nick') != NAME) {mylist.append(itm);} });
 
-	var listitems = mylist.children('li.user.gilded, li.assistant.gilded').get();
-	listitems.sort(function(a, b) {
-	   return $(a).text().toUpperCase().localeCompare($(b).text().toUpperCase());
-	});
-	$.each(listitems, function(idx, itm) { if($(itm).data('nick') != NAME) {mylist.append(itm);} });
-
 	var listitems = mylist.children('li.user.leader, li.assistant.leader').get();
         listitems.sort(function(a, b) {
            return $(a).text().toUpperCase().localeCompare($(b).text().toUpperCase());
         });
         $.each(listitems, function(idx, itm) { if($(itm).data('nick') != NAME) {mylist.append(itm);} });
 
-	var listitems = mylist.children('li.user:not(.gilded,.leader), li.assistant:not(.gilded,.leader)').get();
+	var listitems = mylist.children('li.user:not(.leader), li.assistant:not(.leader)').get();
 	listitems.sort(function(a, b) {
 	   return $(a).text().toUpperCase().localeCompare($(b).text().toUpperCase());
 	});
@@ -911,9 +905,6 @@ function addUser(data, sortafter){
 		}
 		if (shadowbanned) {
 			newusr.addClass('sbanned');
-		}
-		if (data.gold) {
-			newusr.addClass('gilded');
 		}
 		switch(type){
 			case -1: newusr.addClass("anon"); break;
@@ -1828,7 +1819,7 @@ function initPolls(under){
 	var row = $('<tr/>').appendTo(table);
 	$('<td/>').appendTo(row);
 	td = $('<td/>').addClass("c-split-btn-row").appendTo(row);
-	
+
 	const createPollBtn = $('<div/>')
 		.addClass("btn")
 		.addClass("c-split-btn-row__button")
@@ -1950,35 +1941,6 @@ function initAreas(){
 	var header = $("<div/>").attr('id','dyn_header').addClass('dynarea').appendTo(hw);
 	var motd = $("<div/>").attr('id','dyn_motd').addClass('dynarea').insertAfter($("#pollpane"));
 	var footer = $("<div/>").attr('id','dyn_footer').addClass('dynarea').appendTo($("#main"));
-
-	var now = new Date();
-	if (now >= new Date("Tue, 1 Apr 2014 00:00:00 EDT") && now < new Date("Wed, 2 Apr 2014 00:00:00 EDT")) {
-		function getAdUrl(vertical) {
-			if (vertical) {
-				var ads = ['url(../images/tornado.png)', 'url(../images/ahf.png)', 'url(../images/syob.png)', 'url(../images/whiskey.png)'];
-				return ads[Math.floor(Math.random() * ads.length)];
-			}
-			else {
-				var ads = ['url(../images/tornado-horiz.png)', 'url(../images/ahf-horiz.png)', 'url(../images/syob-horiz.png)', 'url(../images/whiskey-horiz.png)'];
-				return ads[Math.floor(Math.random() * ads.length)];
-			}
-		}
-
-		$('<div id="goldButton"><div>Don\'t like the ads? Click here for your free trial subscription to BerryTube Gold!</div></div>')
-			.click(function() {
-				socket.emit('activateGold');
-				$('body').addClass('noAds');
-			})
-			.insertBefore(footer);
-		$('<div class="ad"/>').css({'position':'fixed', 'left':'0px', 'top':'50%', 'width':'160px', 'height':'600px',
-			'margin-top':'-300px', 'z-index':'10000', 'background-image':getAdUrl(true)}).appendTo('body');
-		$('<div class="ad"/>').css({'position':'fixed', 'bottom':'0px', 'left':'50%', 'width':'600px', 'height':'160px',
-			'margin-left':'-300px', 'z-index':'10000', 'background-image':getAdUrl(false)}).appendTo('body');
-		$('<div class="ad"/>').css({'position':'fixed', 'right':'0px', 'top':'50%', 'width':'160px', 'height':'600px',
-			'margin-top':'-300px', 'z-index':'10000', 'background-image':getAdUrl(true)}).appendTo('body');
-
-		$('<link rel="stylesheet" type="text/css" href="http://toast.berrytube.tv/evil.css">').appendTo('head');
-	}
 }
 function initMailbox() {
 	$('body').append(
