@@ -114,7 +114,6 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.2/moment.min.js" integrity="sha256-CutOzxCRucUsn6C6TcEYsauvvYilEniTXldPa6/wu0k=" crossorigin="anonymous" defer></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/moment-duration-format/2.2.2/moment-duration-format.min.js" integrity="sha256-bXC/nhRjq/J7K4hnL8yvthqXkskSKOsZNfrLgXBigYg=" crossorigin="anonymous" defer></script>
-<script src="<?= cdn('js/countdown.js') ?>" defer></script>
 
 <script src="<?= cdn('berrymotes/js/berrymotes.berrytube.js') ?>" defer></script>
 <script src="<?= cdn('berrymotes/js/berrymotes.core.js') ?>" defer></script>

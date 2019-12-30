@@ -1,4 +1,5 @@
 import { RankedPoll } from "./ranked-poll.js";
+import "./countdown.js";
 
 // ranked poll API
 let activePoll = null;
