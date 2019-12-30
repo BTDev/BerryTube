@@ -23,7 +23,7 @@
 	<!-- HEADER COUNTDOWN -->
 	<div id="countdown-error"></div>
     <table id="countdown-timers">
-        <tbody></tbody>
+        <tbody id="countdown-body"></tbody>
         <tfoot>
             <tr>
                 <td><a href="https://teamup.com/ksiyi7xykfdvgyocp3" target="_blank" rel="noopener noreferrer">full schedule</a></td>

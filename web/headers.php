@@ -112,30 +112,10 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/cookieconsent2/3.1.0/cookieconsent.min.js" integrity="sha256-y0EpKQP2vZljM73+b7xY4dvbYQkHRQXuPqRjc7sjvnA=" crossorigin="anonymous" defer></script>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.2/moment.min.js" integrity="sha256-CutOzxCRucUsn6C6TcEYsauvvYilEniTXldPa6/wu0k=" crossorigin="anonymous" defer></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/moment-duration-format/2.2.2/moment-duration-format.min.js" integrity="sha256-bXC/nhRjq/J7K4hnL8yvthqXkskSKOsZNfrLgXBigYg=" crossorigin="anonymous" defer></script>
-
 <script src="<?= cdn('berrymotes/js/berrymotes.berrytube.js') ?>" defer></script>
 <script src="<?= cdn('berrymotes/js/berrymotes.core.js') ?>" defer></script>
 
 <?php end_minified_tags(); ?>
-
-<template id="countdown-future-row">
-    <tr>
-        <th class="countdown-title" scope="row"></th>
-        <td class="countdown-start-time"></td>
-        <td class="countdown-time-diff"></td>
-        <td class="countdown-note"></td>
-    </tr>
-</template>
-
-<template id="countdown-happening-row">
-    <tr>
-        <th class="countdown-title" scope="row"></th>
-        <td class="countdown-happening" colspan="2">It's happening!</td>
-        <td class="countdown-note"></td>
-    </tr>
-</template>
 
 <script>
 	var ORIGIN = '<?= ORIGIN ?>';
@@ -149,6 +129,9 @@
 	var NOTIFY = new Audio('<?= cdn('sounds/notify.wav') ?>');
 	var DRINK = new Audio('<?= cdn('sounds/drink.wav') ?>');
 	var ATTENTION = new Audio('<?= cdn('sounds/attention.wav') ?>');
+	var WORKER_URLS = {
+		countdown: '<?= cdn_absolute('js/countdown.worker.js') ?>'
+	};
 
 	// for EU cookie law popup
 	var MY_COUNTRY = <?php

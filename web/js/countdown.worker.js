@@ -1,3 +1,9 @@
+/* global moment */
+importScripts(
+	"https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.2/moment.min.js",
+	"https://cdnjs.cloudflare.com/ajax/libs/moment-duration-format/2.2.2/moment-duration-format.min.js"
+);
+
 const API_KEY =
 	"7f33ca4b6abd4ff029d44986b52dcf9afb601aabd752017bebf6637443501487";
 const CALENDAR_KEY = "ks1vk8rt2qcy3vpk6j";
@@ -13,23 +19,20 @@ function showError(title, reasons) {
 		reasons = [reasons];
 	}
 
-	const container = document.getElementById("countdown-error");
-	container.innerHTML = "";
-
-	const titleElement = document.createElement("p");
-	titleElement.classList.add("countdown-error-title");
-	titleElement.textContent = title;
-	container.appendChild(titleElement);
-
+	let html = `<p class="countdown-error-title">${title}</p>`;
 	for (const reason of reasons) {
-		const textElement = document.createElement("p");
-		textElement.textContent = reason;
-		container.appendChild(textElement);
+		html += `<p>${reason}</p>`;
 	}
+
+	postMessage({
+		action: "innerHTML",
+		id: "countdown-error",
+		html,
+	});
 }
 
 async function fetchEvents(days, subcalendar) {
-	const startDate = window.moment.utc();
+	const startDate = moment.utc();
 	const endDate = startDate.clone();
 	endDate.add(days, "days");
 
@@ -49,7 +52,7 @@ async function fetchEvents(days, subcalendar) {
 			showError(data.title, data.message);
 		}
 	} catch (err) {
-		showError("Unhandled error", err);
+		showError("Unhandled fetch error", err);
 	}
 }
 
@@ -59,17 +62,17 @@ async function updateEvents() {
 		fetchEvents(365, SUBCALENDAR_ONEOFF),
 	]);
 
-	events = recurringEvents.concat(oneoffEvents);
+	events = (recurringEvents || []).concat(oneoffEvents || []);
 	for (const event of events) {
-		event.start_dt = window.moment(event.start_dt);
-		event.end_dt = window.moment(event.end_dt);
+		event.start_dt = moment(event.start_dt);
+		event.end_dt = moment(event.end_dt);
 		event.oneoff = !event.series_id;
 	}
 	events.sort((a, b) => a.start_dt.diff(b.start_dt));
 }
 
 async function timerLoop() {
-	const now = window.moment();
+	const now = moment();
 	const recurringCutoff = now.clone();
 	recurringCutoff.add(7, "days");
 
@@ -79,52 +82,53 @@ async function timerLoop() {
 			(event.oneoff || event.start_dt.isBefore(recurringCutoff)),
 	);
 
-	const table = document.getElementById("countdown-timers");
-	if (visibleEvents.some(event => event.notes)) {
-		table.classList.remove("countdown-no-notes");
-	} else {
-		table.classList.add("countdown-no-notes");
-	}
+	postMessage({
+		action: visibleEvents.some(event => event.notes)
+			? "removeClass"
+			: "addClass",
+		id: "countdown-timers",
+		class: "countdown-no-notes",
+	});
 
-	const tbody = document.createElement("tbody");
+	let html = "";
 	for (const event of visibleEvents) {
-		let tr;
 		if (now.isBetween(event.start_dt, event.end_dt)) {
-			tr = document.getElementById("countdown-happening-row").content;
+			html += `
+				<tr>
+					<th class="countdown-title" scope="row">${event.title}</th>
+					<td class="countdown-happening" colspan="2">It's happening!</td>
+					<td class="countdown-note">${event.notes}</td>
+				</tr>
+			`;
 		} else {
-			tr = document.getElementById("countdown-future-row").content;
+			const startTime = event.start_dt.format(
+				event.oneoff
+					? "[<small>]ddd[</small>] MMM Do, hh:mm[<small>] A[</small>]"
+					: "[<small>]ddd[</small>] hh:mm[<small>] A[</small>]",
+			);
 
-			if (event.oneoff) {
-				tr.querySelector(
-					".countdown-start-time",
-				).innerHTML = event.start_dt.format(
-					"[<small>]ddd[</small>] MMM Do, hh:mm[<small>] A[</small>]",
-				);
-			} else {
-				tr.querySelector(
-					".countdown-start-time",
-				).innerHTML = event.start_dt.format(
-					"[<small>]ddd[</small>] hh:mm[<small>] A[</small>]",
-				);
-			}
-
-			tr.querySelector(
-				".countdown-time-diff",
-			).innerHTML = window.moment
+			const timeDiff = moment
 				.duration(event.start_dt.diff(now))
 				.format(
 					"d[<small>d</small>] hh[<small>h</small>] mm[<small>m</small>]",
 				);
+
+			html += `
+				<tr>
+					<th class="countdown-title" scope="row">${event.title}</th>
+					<td class="countdown-start-time">${startTime}</td>
+					<td class="countdown-time-diff">${timeDiff}</td>
+					<td class="countdown-note">${event.notes}</td>
+				</tr>
+			`;
 		}
-
-		tr.querySelector(".countdown-title").textContent = event.title;
-		tr.querySelector(".countdown-note").innerHTML = event.notes;
-
-		tbody.appendChild(document.importNode(tr, true));
 	}
 
-	const oldTbody = document.querySelector("#countdown-timers > tbody");
-	oldTbody.parentNode.replaceChild(tbody, oldTbody);
+	postMessage({
+		action: "innerHTML",
+		id: "countdown-body",
+		html,
+	});
 
 	// update 1 second past the minute
 	setTimeout(timerLoop, 61000 - now.seconds() * 1000 - now.milliseconds());
@@ -142,14 +146,5 @@ async function init() {
 	);
 }
 
-function initSoon() {
-	// leave some extra time to not fight with page load too much
-	// randomize to reduce API spam when many clients reload simultaneously
-	setTimeout(init, 100 + 2000 * Math.random());
-}
-
-if (document.readyState === "loading") {
-	window.addEventListener("DOMContentLoaded", initSoon);
-} else {
-	initSoon();
-}
+// randomize to reduce API spam when many clients reload simultaneously
+setTimeout(init, 2000 * Math.random());

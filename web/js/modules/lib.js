@@ -5,6 +5,17 @@ export function $(...args) {
 }
 
 /**
+ * Indirectly loads a Worker with `importScripts` to avoid CORS issues.
+ * @param {string} url Absolute URL of the script to load
+ */
+// TODO: replace with a Worker of {type:"module"} when browsers support it
+export function loadWorker(url) {
+	return new Worker(
+		URL.createObjectURL(new Blob([`importScripts("${url}")`])),
+	);
+}
+
+/**
  * Gets English ordinal for the given integer, eg. 1st, 2nd, 24th
  * @param {number) num
  */
