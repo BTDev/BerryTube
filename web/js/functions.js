@@ -1051,6 +1051,10 @@ function isRegisteredUser(){
     return false;
 }
 function sendChatMsg(msg,elem){
+	//prevent sending messages without a nick
+	if (!canChat())
+		return;
+
 	if(msg.trim().length > 0){
 		HISTORY_POS = 0;
 		HISTORY.reverse();
