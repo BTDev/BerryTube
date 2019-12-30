@@ -2,9 +2,7 @@
 
 	require_once('config.php');
 
-	if (!NO_CDN) {
-		header('Link: <'.CDN_ORIGIN.'>; rel=preconnect; crossorigin', false);
-	}
+	header('Link: <'.CDN_ORIGIN.'>; rel=preconnect; crossorigin', false);
 	header('Link: <'.SOCKET_ORIGIN.'>; rel=preconnect; crossorigin', false);
 	header('Link: <https://cdnjs.cloudflare.com>; rel=preconnect; crossorigin', false);
 

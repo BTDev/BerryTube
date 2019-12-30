@@ -17,11 +17,12 @@
         $port = ':' . getenv('HTTPS_PORT');
     }
 
-    define('ORIGIN', "$scheme://$domain$port");
-    define('SOCKET_ORIGIN', "$scheme://socket.$domain$port");
-    define('CDN_ORIGIN', "$scheme://cdn.$domain$port");
 
     define('NO_CDN', getenv('NO_CDN') === 'true');
     define('NO_MINIFIED', getenv('NO_MINIFIED') === 'true');
     define('CLIENT_IP', $_SERVER['REMOTE_ADDR']);
     define("PATH","/");
+
+    define('ORIGIN', "$scheme://$domain$port");
+    define('SOCKET_ORIGIN', "$scheme://socket.$domain$port");
+	define('CDN_ORIGIN', NO_CDN ? ORIGIN : "$scheme://cdn.$domain$port");
