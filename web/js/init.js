@@ -1868,7 +1868,10 @@ function initPolls(under){
 				var $elem = $(elem);
 				var count = parseInt($elem.find('.btn').text());
 				if (!isNaN(count) && count >= threshold) {
-					ops.push($elem.find('.label').text());
+					const label = $elem.find('.label').text();
+					const isTwoThirds = label.endsWith(' (⅔ required)');
+					const text = isTwoThirds ? label.substr(0, label.length - ' (⅔ required)'.length) : label;
+					ops.push({text, isTwoThirds});
 				}
 			});
 
