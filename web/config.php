@@ -29,6 +29,14 @@
 		}
 	}
 
+	function cdn_absolute($fname) {
+		$url = cdn($fname);
+		if (substr($url, 0, 4) === 'http') {
+			return $url;
+		}
+		return CDN_ORIGIN . "/$url";
+	}
+
 	function start_minified_tags() {
 		if (NO_MINIFIED) {
 			ob_start();
