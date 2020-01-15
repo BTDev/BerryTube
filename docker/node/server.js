@@ -6,6 +6,7 @@ const { DefaultLog, events, levels, consoleLogger, createStreamLogger } = requir
 const { DatabaseService } = require("./modules/database");
 const { SessionService, getSocketName, userTypes } = require("./modules/sessions");
 const { parseRawFileUrl } = require("./modules/utils");
+const { EventServer } = require("./modules/event-server");
 const fetchYoutubeVideoInfo = require("youtube-info");
 
 // Include the SERVER.settings
@@ -15,7 +16,8 @@ SERVER.ponts = require('./bt_data/ponts.js');
 SERVER.dbcon = require('./bt_data/db_info.js');
 SERVER.nick_blacklist = require('./bt_data/nick_blacklist.js');
 
-const io = require('socket.io').listen(SERVER.settings.core.nodeport);
+const eventServer = new EventServer(SERVER.settings.core.nodeport);
+const io = require('socket.io').listen(eventServer.native);
 
 // Configure
 io.enable('browser client minification');  // send minified client
@@ -29,6 +31,7 @@ io.set('transports', [					   // enable all transports (optional if you want fla
 	, 'xhr-polling'
 	, 'jsonp-polling'
 ]);
+
 
 // our composition root
 const serviceLocator = {
@@ -659,6 +662,14 @@ function handleNewVideoChange() {
 		"changed video to {videoTitle}",
 		{ videoTitle: decodeURI(SERVER.ACTIVE.videotitle) });
 
+	eventServer.emit('videoChange', {
+		id: SERVER.ACTIVE.videoid,
+		length: SERVER.ACTIVE.videolength,
+		title: decodeURI(SERVER.ACTIVE.videotitle),
+		type: SERVER.ACTIVE.videotype,
+		volat: SERVER.ACTIVE.volat
+	});
+
 	resetDrinks();
 	resetTime();
 	// Is this a livestream? if so, stop ticking.
@@ -673,6 +684,8 @@ function sendDrinks(socket){
 	socket.emit("drinkCount",{
 		drinks: formatDrinkMessage(SERVER.DRINKS)
 	});
+
+	eventServer.emit('drinkCount', SERVER.DRINKS);
 }
 function resetDrinks(){
 	SERVER.DRINKS = 0;
