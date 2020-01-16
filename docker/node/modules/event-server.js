@@ -29,12 +29,12 @@ class EventServer {
 				res.writeHead(200, {
 					'Connection': 'close',
 					'Cache-Control': 'no-cache',
-					'Content-Type': 'text/event-stream',
+					'Content-Type': 'text/event-stream; charset=utf-8',
 					'X-Accel-Buffering': 'no'
 				}).write(': connected\n');
 				for (const body of Object.values(this.latests)) {
 					if (body) {
-						res.write(body);
+						res.write(body, 'utf8');
 					}
 				}
 				this.responses.push(res);
@@ -74,7 +74,7 @@ class EventServer {
 	_send(data) {
 		this.responses = this.responses.filter((res) => {
 			try {
-				res.write(data);
+				res.write(data, 'utf8');
 			} catch (e) {
 				// client closed or something
 				return false;
