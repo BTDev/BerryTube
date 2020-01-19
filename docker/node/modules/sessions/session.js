@@ -139,7 +139,7 @@ exports.Session = class {
 	kick(reason) {
 		this.log.info(
 			events.EVENT_ADMIN_KICKED,
-			"{nick} got kicked on {type} because {reason}",
+			"{nick} got kicked because {reason}",
 			{ nick: this.systemName, type: "user", reason },
 		);
 

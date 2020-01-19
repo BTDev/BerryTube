@@ -577,7 +577,7 @@ function kickIfUnderLevel(socket,reason,level){
 }
 function kickForIllegalActivity(socket,reason){
 	DefaultLog.info(events.EVENT_ADMIN_KICKED,
-		"{nick} got kicked on {type} because {reason} (illegal things)",
+		"{nick} got kicked because {reason} (illegal things)",
 		{ nick: getSocketName(socket), type: "user", reason });
 
 	socket.emit("kicked",reason);
@@ -785,7 +785,7 @@ function setVideoVolatile(socket,pos,isVolat){
 	elem.volat = isVolat;
 
 	DefaultLog.info(events.EVENT_ADMIN_SET_VOLATILE,
-		"{mod} set {title} to {status} on {type}",
+		"{mod} set {title} to {status}",
 		{ mod: getSocketName(socket), type: "playlist", title: decodeURIComponent(elem.videotitle), status: isVolat ? "volatile" : "not volatile" });
 
 	io.sockets.emit("setVidVolatile",{
@@ -965,7 +965,7 @@ const chatCommandMap = {
 		if (parts[0]) {
 			DefaultLog.info(
 				events.EVENT_ADMIN_SHATPOST,
-				"{mod} shatpost {title} on {type}",
+				"{mod} shatpost {title}",
 				{ mod: messageData.nick, type: "site", title: parts[0] },
 			);
 
@@ -1029,7 +1029,7 @@ const chatCommandMap = {
 
 			DefaultLog.info(
 				events.EVENT_ADMIN_USER_PASSWORD_RESET,
-				"{mod} reset {nick}'s password on {type}",
+				"{mod} reset {nick}'s password",
 				{ mod: getSocketName(socket), type: "user", nick: foundNick },
 			);
 		})();
@@ -1248,13 +1248,13 @@ function delVideo(data, socket){
 				elem.deleted = true;
 
 				DefaultLog.info(events.EVENT_ADMIN_DELETED_VIDEO,
-					"{mod} deleted {title} on {type}",
+					"{mod} deleted {title}",
 					{ mod: getSocketName(socket), type: "playlist", title: decodeURIComponent(elem.videotitle) });
 
 				break;
 			} catch(e) {
 				DefaultLog.error(events.EVENT_ADMIN_DELETED_VIDEO,
-					"{mod} could not delete {title} on {type}",
+					"{mod} could not delete {title}",
 					{ mod: getSocketName(socket),  type: "playlist", title: decodeURIComponent(elem.videotitle) }, e);
 			}
 		}
@@ -1266,7 +1266,7 @@ function delVideo(data, socket){
 			}
 		} catch(e) {
 			DefaultLog.error(events.EVENT_ADMIN_DELETED_VIDEO,
-				"{mod} could not delete {index} on {type}",
+				"{mod} could not delete {index}",
 				{ mod: getSocketName(socket), type: "playlist", index: data.index}, e);
 
 			break;
@@ -2128,7 +2128,7 @@ io.sockets.on('connection', function (ioSocket) {
 		}
 
 		DefaultLog.info(events.EVENT_ADMIN_SET_CSS,
-			"{mod} set css override to {css} on {type}",
+			"{mod} set css override to {css}",
 			{ mod: getSocketName(socket), type: "site", css: data });
 
 		setOverrideCss(data);
@@ -2140,7 +2140,7 @@ io.sockets.on('connection', function (ioSocket) {
 		}
 
 		DefaultLog.info(events.EVENT_ADMIN_EDITED_FILTERS,
-			"{mod} edited filters on {type}",
+			"{mod} edited filters",
 			{ mod: getSocketName(socket), type: "site" });
 
 		SERVER.FILTERS = data;
@@ -2184,7 +2184,7 @@ io.sockets.on('connection', function (ioSocket) {
 		const logData = { mod: getSocketName(socket), type: "playlist", id: data.videoid};
 
 		if(!data.videoid.match(/^[a-zA-Z0-9_ \-#]{3,50}$/)){
-			DefaultLog.error(events.EVENT_ADMIN_CLEARED_HISTORY, "{mod} could not delete history for invalid id {id} on {type}", logData);
+			DefaultLog.error(events.EVENT_ADMIN_CLEARED_HISTORY, "{mod} could not delete history for invalid id {id}", logData);
 			return;
 		}
 
@@ -2192,9 +2192,9 @@ io.sockets.on('connection', function (ioSocket) {
 		mysql.query(sql, [data.videoid], function(err) {
 			if (err) {
 				DefaultLog.error(events.EVENT_DB_QUERY, "query \"{sql}\" failed", { sql }, err);
-				DefaultLog.error(events.EVENT_ADMIN_CLEARED_HISTORY, "{mod} could not delete history for invalid id {id} on {type}", logData, err);
+				DefaultLog.error(events.EVENT_ADMIN_CLEARED_HISTORY, "{mod} could not delete history for invalid id {id}", logData, err);
 			} else {
-				DefaultLog.info(events.EVENT_ADMIN_CLEARED_HISTORY, "{mod} deleted history for id {id} on {type}", logData, err);
+				DefaultLog.info(events.EVENT_ADMIN_CLEARED_HISTORY, "{mod} deleted history for id {id}", logData, err);
 			}
 		});
 	});
@@ -2204,7 +2204,7 @@ io.sockets.on('connection', function (ioSocket) {
 		}
 
 		DefaultLog.info(events.EVENT_ADMIN_RANDOMIZED_PLAYLIST,
-			"{mod} randomized playlist on {type}",
+			"{mod} randomized playlist",
 			{ mod: getSocketName(socket), type: "playlist" }
 		);
 
@@ -2245,11 +2245,11 @@ io.sockets.on('connection', function (ioSocket) {
 			const logData = { mod: getSocketName(socket), type: "site", name: tn, state: ts ? "on" : "off" };
 
 			if (err) {
-				DefaultLog.error(events.EVENT_ADMIN_SET_TOGGLEABLE, "{mod} could not set {name} to {state} on {type}", logData);
+				DefaultLog.error(events.EVENT_ADMIN_SET_TOGGLEABLE, "{mod} could not set {name} to {state}", logData);
 				return;
 			}
 
-			DefaultLog.info(events.EVENT_ADMIN_SET_TOGGLEABLE, "{mod} set {name} to {state} on {type}", logData);
+			DefaultLog.info(events.EVENT_ADMIN_SET_TOGGLEABLE, "{mod} set {name} to {state}", logData);
 			sendToggleables(io.sockets);
 		});
 	});
@@ -2429,7 +2429,7 @@ io.sockets.on('connection', function (ioSocket) {
 		}
 
 		DefaultLog.info(events.EVENT_ADMIN_SKIPPED_VIDEO,
-			"{mod} skipped video on {type}",
+			"{mod} skipped video",
 			{ mod: getSocketName(socket), type: "playlist"});
 
 		playNext();
@@ -2473,7 +2473,7 @@ io.sockets.on('connection', function (ioSocket) {
 		io.sockets.emit("sortPlaylist",data);
 
 		DefaultLog.info(events.EVENT_ADMIN_MOVED_VIDEO,
-			"{mod} moved {title} on {type}",
+			"{mod} moved {title}",
 			{ mod: getSocketName(socket), title: decodeURIComponent(fromelem.videotitle), type: "playlist"});
 	});
 	socket.on("forceVideoChange",function(data){
@@ -2519,7 +2519,7 @@ io.sockets.on('connection', function (ioSocket) {
 		}
 
 		DefaultLog.info(events.EVENT_ADMIN_FORCED_VIDEO_CHANGE,
-			"{mod} forced video change on {type}",
+			"{mod} forced video change",
 			{ mod: getSocketName(socket), type: "playlist" });
 
 		handleNewVideoChange();
@@ -2584,14 +2584,14 @@ io.sockets.on('connection', function (ioSocket) {
 			logData.title = details.title;
 			DefaultLog.info(
 				events.EVENT_ADMIN_ADDED_VIDEO,
-				"{mod} added {provider} video {title} on {type}",
+				"{mod} added {provider} video {title}",
 				logData);
 		}
 
 		function onVideoAddError(error) {
 			DefaultLog.error(
 				events.EVENT_ADMIN_ADDED_VIDEO,
-				"{mod} could not add {provider} video {title} on {type}",
+				"{mod} could not add {provider} video {title}",
 				logData,
 				error);
 
@@ -2630,7 +2630,7 @@ io.sockets.on('connection', function (ioSocket) {
 			}
 
 			DefaultLog.info(events.EVENT_ADMIN_SET_BERRY,
-				"{user} relinquished berry on {type}",
+				"{user} relinquished berry",
 				{ user: getSocketName(socket), type: "playlist" });
 
 			sessionService.setBerry(null);
@@ -2643,7 +2643,7 @@ io.sockets.on('connection', function (ioSocket) {
 		}
 
 		DefaultLog.info(events.EVENT_ADMIN_SET_BERRY,
-			"{mod} gave berry to {nick} on {type}",
+			"{mod} gave berry to {nick}",
 			{ mod: getSocketName(socket), type: "playlist", nick: data });
 
 		sessionService.forNick(data, session => sessionService.setBerry(session));
@@ -2672,14 +2672,14 @@ io.sockets.on('connection', function (ioSocket) {
 				: `Shadow banned ${targetNick}`;
 
 			DefaultLog.info(temp ? events.EVENT_ADMIN_SHADOWBAN_TEMP : events.EVENT_ADMIN_SHADOWBAN_PERMANENT,
-				"{mod} shadow banned user {nick} on {type}",
+				"{mod} shadow banned user {nick}",
 				{ mod: getSocketName(socket), nick: targetNick, type: "site" });
 		}
 		else {
 			message = `Un-shadow banned ${targetNick}`;
 
 			DefaultLog.info(events.EVENT_ADMIN_SHADOWBAN_FORGIVEN,
-				"{mod} un-shadow banned {nick} on {type}",
+				"{mod} un-shadow banned {nick}",
 				{ mod: getSocketName(socket), nick: targetNick, type: "site" });
 		}
 
@@ -2722,7 +2722,7 @@ io.sockets.on('connection', function (ioSocket) {
 		content = data.content;
 
 		DefaultLog.info(events.EVENT_ADMIN_EDITED_AREA,
-			"{mod} edited {area} on {type}",
+			"{mod} edited {area}",
 			{ mod: getSocketName(socket), type: "site", area: areaname });
 
 		setAreas(areaname,content);
@@ -2796,7 +2796,7 @@ io.sockets.on('connection', function (ioSocket) {
 								}
 
 								DefaultLog.info(events.EVENT_ADMIN_SET_NOTE,
-									"{mod} set {nick}'s note to '{note}' on {type}",
+									"{mod} set {nick}'s note to '{note}'",
 									{ mod: getSocketName(socket), type: "user", nick: d.nick, note: d.note});
 
 								sessionService.forNick(d.nick, s => s.updateMeta(meta));

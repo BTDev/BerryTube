@@ -70,7 +70,7 @@ exports.PollService = class extends ServiceBase {
 
 		this.log.info(
 			events.EVENT_ADMIN_CREATED_POLL,
-			`{mod} opened poll {title} on {type} ${
+			`{mod} opened poll {title} ${
 				closePollInSeconds > 0
 					? "(will close in {pollTimeout} seconds)"
 					: ""
@@ -105,7 +105,7 @@ exports.PollService = class extends ServiceBase {
 
 			this.log.info(
 				events.EVENT_ADMIN_UPDATED_POLL,
-				`{mod} updated poll {title} on {type}: close in ${closePollInSeconds} seconds`,
+				`{mod} updated poll {title}: close in ${closePollInSeconds} seconds`,
 				{
 					mod: getSocketName(socket),
 					title: this.currentPoll.options.title,
@@ -146,7 +146,7 @@ exports.PollService = class extends ServiceBase {
 			// from being created until a server restart.
 			this.log.error(
 				events.EVENT_GENERAL,
-				"{mod} closed poll {title} on {type}, but there were some errors when we published clearPoll",
+				"{mod} closed poll {title}, but there were some errors when we published clearPoll",
 				logData,
 				e,
 			);
@@ -160,7 +160,7 @@ exports.PollService = class extends ServiceBase {
 			// make sure potential errors above don't prevent us from closing the poll for reals
 			this.log.error(
 				events.EVENT_GENERAL,
-				"{mod} closed poll {title} on {type}, but there were some errors when we cleard socket data",
+				"{mod} closed poll {title}, but there were some errors when we cleard socket data",
 				logData,
 				e,
 			);
@@ -171,7 +171,7 @@ exports.PollService = class extends ServiceBase {
 
 		this.log.info(
 			events.EVENT_ADMIN_CLOSED_POLL,
-			"{mod} closed poll {title} on {type}",
+			"{mod} closed poll {title}",
 			logData,
 		);
 	}
