@@ -2053,7 +2053,7 @@ $(function(){
 
 	var t = getStorage('myFlairID');
 	if(t != null) {
-		MY_FLAIR_ID = t;
+		MY_FLAIR_ID = parseInt(t);
 		$("#flairMenu").addClass("flair_"+MY_FLAIR_ID);
 	}
 
