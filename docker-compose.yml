@@ -42,7 +42,10 @@ services:
             tv.berrytube.cert-renew-signal: HUP
 
     php:
-        build: ./docker/php/
+        build:
+            context: ./docker/php/
+            args:
+                - MAXMIND_KEY
         restart: unless-stopped
         init: true
         environment:
