@@ -7,7 +7,7 @@ services:
         volumes:
             - ./docker/node:/packages/node
             - watcher_node_modules:/packages/watcher/node_modules
-        command: ["test:watch"]
+        command: ["test"]
 
 volumes:
     watcher_node_modules:
