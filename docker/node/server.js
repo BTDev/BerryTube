@@ -1541,9 +1541,9 @@ function addVideoYT(socket,data,meta,successCallback,failureCallback){
 			var restricted = [];
 			var embeddable = true;
 			if(vidObj &&
-				"snippet" in vidObj &&
-				"localized" in vidObj.snippet &&
-				"title" in vidObj.snippet.localized &&
+				vidObj.snippet &&
+				vidObj.snippet.localized &&
+				vidObj.snippet.localized.title &&
 				typeof(vidObj.snippet.localized.title) == "string" &&
 				vidObj.snippet.localized.title.length > 0)
 			{
