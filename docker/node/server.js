@@ -1543,7 +1543,9 @@ function addVideoYT(socket,data,meta,successCallback,failureCallback){
 			if(vidObj &&
 				"snippet" in vidObj &&
 				"localized" in vidObj.snippet &&
-				"title" in vidObj.snippet.localized)
+				"title" in vidObj.snippet.localized &&
+				typeof(vidObj.snippet.localized.title) == "string" &&
+				vidObj.snippet.localized.title.length > 0)
 			{
 				formattedTitle = vidObj.snippet.localized.title;
 			}
