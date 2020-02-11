@@ -1730,7 +1730,7 @@ function addVideoYT(socket, data, meta, successCallback, failureCallback) {
 		host: 'www.googleapis.com',
 		port: 443,
 		method: 'GET',
-		path: '/youtube/v3/videos?id=' + encodeURIComponent(videoid.toString()) + '&key=' + SERVER.settings.apikeys.youtube + '&part=snippet%2CcontentDetails%2Cstatus&hl=en',
+		path: '/youtube/v3/videos?id='+encodeURIComponent(videoid.toString())+'&key='+SERVER.settings.apikeys.youtube+'&part=snippet%2CcontentDetails%2Cstatus&hl=en'
 	};
 
 	var parseDuration = function (duration) {
@@ -1798,14 +1798,15 @@ function addVideoYT(socket, data, meta, successCallback, failureCallback) {
 			var formattedTime = "fucked";
 			var restricted = [];
 			var embeddable = true;
-
-			if (vidObj &&
+			if(vidObj &&
 				"snippet" in vidObj &&
 				"localized" in vidObj.snippet &&
-				"title" in vidObj.snippet.localized
-			) {
+				"title" in vidObj.snippet.localized)
+			{
 				formattedTitle = vidObj.snippet.localized.title;
-			} else if (vidObj &&
+			}
+			else if(
+				vidObj &&
 				vidObj.snippet &&
 				vidObj.snippet.title
 			) {
