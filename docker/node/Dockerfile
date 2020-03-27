@@ -1,4 +1,4 @@
-FROM node:10.18.0-alpine
+FROM node:10.19.0-alpine
 
 WORKDIR /app/
 ENTRYPOINT ["/app/entrypoint.sh"]
