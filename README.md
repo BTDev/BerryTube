@@ -16,7 +16,7 @@ Copy `.env.sample` to `.env` and tweak the values.
 
 -   `TLS_TYPE=selfsigned`
 
-    Generate a self-signed certificate on startup.
+    Generate a self-signed certificate on startup. Note that you must separately approve the certificate in your browser for any subdomains.
 
 -   `TLS_TYPE=letsencrypt`
 
