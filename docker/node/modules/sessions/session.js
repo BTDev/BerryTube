@@ -136,11 +136,11 @@ exports.Session = class {
 		this.sockets.splice(index, 1);
 	}
 
-	kick(reason) {
+	kick(reason, mod=undefined) {
 		this.log.info(
 			events.EVENT_ADMIN_KICKED,
-			"{nick} got kicked because {reason}",
-			{ nick: this.systemName, type: "user", reason },
+			mod ? "{mod} kicked {nick}" : "{nick} got kicked because {reason}",
+			{ nick: this.systemName, type: "user", reason, mod },
 		);
 
 		for (const socket of this.sockets.slice()) {

@@ -584,7 +584,7 @@ function kickForIllegalActivity(socket,reason){
 	socket.disconnect(); // NOT ALLOWED.
 }
 function kickUserByNick(socket,nick,reason) {
-	sessionService.forNick(nick, session => session.kick(reason));
+	sessionService.forNick(nick, session => session.kick(reason,getSocketName(socket)));
 }
 var commit = function(){
 	var elem = SERVER.PLAYLIST.first;
