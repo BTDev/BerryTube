@@ -12,10 +12,6 @@ const { now } = require("../utils");
 
 let nextSessionId = 1;
 exports.SessionService = class extends ServiceBase {
-	get hasBerry() {
-		return !!this.berrySession;
-	}
-
 	constructor(services) {
 		super(services);
 		this.services = services;
@@ -25,7 +21,6 @@ exports.SessionService = class extends ServiceBase {
 		this.db = services.db;
 		this.isUserBanned = services.isUserBanned;
 		this.banUser = services.banUser;
-		this.berrySession = null;
 		this.setServerState = services.setServerState;
 
 		this.ipAddresses = {};
@@ -43,27 +38,61 @@ exports.SessionService = class extends ServiceBase {
 		});
 	}
 
-	setBerry(sessionOrNull) {
-		if (this.berrySession === sessionOrNull) {
+	getBerries() {
+		return this.sessions.filter(sess => sess.isBerry);
+	}
+
+	addBerry(session) {
+		if (session.isBerry) {
 			return;
 		}
 
-		if (this.berrySession) {
-			this.berrySession.emit("setLeader", false);
+		session.isBerry = true;
+		session.emit("setLeader", true);
+
+		this.io.sockets.emit("leaderIs", {
+			// retain singular nick for backwards compat
+			nick: session.nick,
+			nicks: this.getBerries().map(berry => berry.nick),
+		});
+	}
+
+	removeBerry(session) {
+		if (!session.isBerry) {
+			return;
 		}
 
-		this.berrySession = sessionOrNull;
+		session.isBerry = false;
+		session.emit("setLeader", false);
 
-		if (this.berrySession) {
-			this.berrySession.emit("setLeader", true);
-			this.io.sockets.emit("leaderIs", {
-				nick: this.berrySession.nick,
-			});
+		const berries = this.getBerries();
+		this.io.sockets.emit("leaderIs", {
+			// retain singular nick for backwards compat
+			nick: berries[0] && berries[0].nick || false,
+			nicks: berries.map(berry => berry.nick),
+		});
+
+		if (berries.length === 0) {
+			this.setServerState(1);
+		}
+	}
+
+	replaceBerry(sessionOrNull) {
+		for (const berry of this.getBerries()) {
+			if (berry !== sessionOrNull) {
+				berry.isBerry = false;
+				berry.emit("setLeader", false);
+			}
+		}
+
+		if (sessionOrNull) {
+			this.addBerry(sessionOrNull);
 		} else {
 			this.io.sockets.emit("leaderIs", {
+				// retain singular nick for backwards compat
 				nick: false,
+				nicks: [],
 			});
-
 			this.setServerState(1);
 		}
 	}
@@ -223,9 +252,7 @@ exports.SessionService = class extends ServiceBase {
 	}
 
 	removeSession(session, supressLog = false) {
-		if (session === this.berrySession) {
-			this.setBerry(null);
-		}
+		this.removeBerry(session);
 
 		const index = this.sessions.indexOf(session);
 		if (index === -1) {
@@ -318,8 +345,8 @@ exports.SessionService = class extends ServiceBase {
 			this.sendUserListToSocket(socket);
 		}
 
-		if (this.berrySession && session === this.berrySession) {
-			this.berrySession.emit("setLeader", true);
+		if (session.berry) {
+			session.emit("setLeader", true);
 		}
 
 		const userCount = this.sessions.length;
@@ -358,9 +385,12 @@ exports.SessionService = class extends ServiceBase {
 
 		socket.emit("newChatList", users);
 
-		if (this.berrySession) {
+		const berries = this.getBerries();
+		if (berries.length > 0) {
 			socket.emit("leaderIs", {
-				nick: this.berrySession.nick,
+				// retain singular nick for backwards compat
+				nick: berries[0].nick,
+				nicks: berries.map(berry => berry.nick)
 			});
 		}
 	}

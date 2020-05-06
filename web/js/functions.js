@@ -47,7 +47,7 @@ class Countdown {
 
 /* MAIN */
 function setRuleTitle(titleBar, myData) {
-    titleBar.html(['<span class="name">', myData.name, '</span> <span class="code">',  myData.chatMatch, ' => ', myData.chatReplace.replace(/</g, '&lt;').replace(/>/g, '&gt'), '</span>'].join(''));
+	titleBar.html(['<span class="name">', myData.name, '</span> <span class="code">', myData.chatMatch, ' => ', myData.chatReplace.replace(/</g, '&lt;').replace(/>/g, '&gt'), '</span>'].join(''));
 }
 
 function onModuleLoaded(callback) {
@@ -60,47 +60,47 @@ function onModuleLoaded(callback) {
 		.push(callback);
 }
 
-function showAdminFilterWindow(){
+function showAdminFilterWindow() {
 
 	socket.emit('getFilters');
 
 	var parent = $("body").dialogWindow({
-		title:"Modmin Filter Config",
-		uid:"adminfilter",
-		center:true,
-		initialLoading:true
+		title: "Modmin Filter Config",
+		uid: "adminfilter",
+		center: true,
+		initialLoading: true
 	});
 
 	var mainOptWrap = $('<div/>').appendTo(parent).addClass('controlWindow');
-	mainOptWrap.data('rules',[]);
+	mainOptWrap.data('rules', []);
 	var controlBar = $('<div id="filterControls"/>').addClass('controlBar').appendTo(mainOptWrap);
 	var ruleZone = $('<div/>').addClass('ruleZone').appendTo(mainOptWrap);
 	// Add "Add" Button
 	var newRuleBtn = $('<div/>').addClass('button').appendTo(controlBar);
 	$('<span/>').appendTo(newRuleBtn).text("Add New Rule");
 
-	function addRule(data){
+	function addRule(data) {
 
 		myData = {
-			nickMatch:".*",
-			nickParam:"i",
-			chatMatch:".*",
-			chatParam:"i",
-			chatReplace:"",
-			actionSelector:'none',
-			enable:true,
-            name:""
+			nickMatch: ".*",
+			nickParam: "i",
+			chatMatch: ".*",
+			chatParam: "i",
+			chatReplace: "",
+			actionSelector: 'none',
+			enable: true,
+			name: ""
 		};
-		for(var i in data){
+		for (var i in data) {
 			myData[i] = data[i];
 		}
 
 		var newRule = $('<div/>').addClass("row").appendTo(ruleZone);
-        var titleBar = $('<div/>').addClass("titleBar").appendTo(newRule);
-        setRuleTitle(titleBar, myData);
-        titleBar.click(function(){
-            $(this).parents('.row').children('table').toggleClass('hidden');
-        });
+		var titleBar = $('<div/>').addClass("titleBar").appendTo(newRule);
+		setRuleTitle(titleBar, myData);
+		titleBar.click(function () {
+			$(this).parents('.row').children('table').toggleClass('hidden');
+		});
 		var newTable = $('<table/>').addClass("hidden").appendTo(newRule);
 
 		/* Rule Name */
@@ -108,8 +108,8 @@ function showAdminFilterWindow(){
 		var nameLabelCol = $('<td/>').appendTo(nameRow);
 		var nameDataCol = $('<td/>').appendTo(nameRow);
 		$('<span/>').text("Rule Name:").appendTo(nameLabelCol);
-		var nameText = $('<input/>').attr('type','text').val(myData.name).appendTo(nameDataCol);
-		newRule.data('name',nameText);
+		var nameText = $('<input/>').attr('type', 'text').val(myData.name).appendTo(nameDataCol);
+		newRule.data('name', nameText);
 
 		/* USERNAME */
 		var userRow = $('<tr/>').appendTo(newTable);
@@ -117,11 +117,11 @@ function showAdminFilterWindow(){
 		var userDataCol = $('<td/>').appendTo(userRow);
 		$('<span/>').text("Match Username:").appendTo(userLabelCol);
 		$('<span/>').text("/").appendTo(userDataCol);
-		var nickMatch = $('<input/>').attr('type','text').val(myData.nickMatch).appendTo(userDataCol);
-		newRule.data('nickMatch',nickMatch);
+		var nickMatch = $('<input/>').attr('type', 'text').val(myData.nickMatch).appendTo(userDataCol);
+		newRule.data('nickMatch', nickMatch);
 		$('<span/>').text("/").appendTo(userDataCol);
-		var nickParam = $('<input/>').attr('type','text').val(myData.nickParam).addClass("tiny").appendTo(userDataCol);
-		newRule.data('nickParam',nickParam);
+		var nickParam = $('<input/>').attr('type', 'text').val(myData.nickParam).addClass("tiny").appendTo(userDataCol);
+		newRule.data('nickParam', nickParam);
 
 		/* Chat */
 		var chatRow = $('<tr/>').appendTo(newTable);
@@ -129,40 +129,40 @@ function showAdminFilterWindow(){
 		var chatDataCol = $('<td/>').appendTo(chatRow);
 		$('<span/>').text("Match Chat:").appendTo(chatLabelCol);
 		$('<span/>').text("/").appendTo(chatDataCol);
-		var chatMatch = $('<input/>').attr('type','text').val(myData.chatMatch).appendTo(chatDataCol);
-		newRule.data('chatMatch',chatMatch);
+		var chatMatch = $('<input/>').attr('type', 'text').val(myData.chatMatch).appendTo(chatDataCol);
+		newRule.data('chatMatch', chatMatch);
 		$('<span/>').text("/").appendTo(chatDataCol);
-		var chatParam = $('<input/>').attr('type','text').val(myData.chatParam).addClass("tiny").appendTo(chatDataCol);
-		newRule.data('chatParam',chatParam);
+		var chatParam = $('<input/>').attr('type', 'text').val(myData.chatParam).addClass("tiny").appendTo(chatDataCol);
+		newRule.data('chatParam', chatParam);
 
 		/* Replacements */
 		var replaceRow = $('<tr/>').appendTo(newTable);
 		var replaceLabelCol = $('<td/>').appendTo(replaceRow);
 		var replaceDataCol = $('<td/>').appendTo(replaceRow);
 		$('<span/>').text("Replace Chat:").appendTo(replaceLabelCol);
-		var chatReplace = $('<input/>').attr('type','text').val(myData.chatReplace).appendTo(replaceDataCol);
-		newRule.data('chatReplace',chatReplace);
+		var chatReplace = $('<input/>').attr('type', 'text').val(myData.chatReplace).appendTo(replaceDataCol);
+		newRule.data('chatReplace', chatReplace);
 
 		/* Actions */
 		var _actions = [ // show meta allows a extra field, for whatever purposes.
-			{label:'No Action',tag:'none',showmeta:false},
-			{label:'Kick User',tag:'kick',showmeta:true},
-			{label:'Force Lowercase',tag:'hush',showmeta:false}
+			{ label: 'No Action', tag: 'none', showmeta: false },
+			{ label: 'Kick User', tag: 'kick', showmeta: true },
+			{ label: 'Force Lowercase', tag: 'hush', showmeta: false }
 		];
 		var actionRow = $('<tr/>').appendTo(newTable);
 		var actionLabelCol = $('<td/>').appendTo(actionRow);
 		var actionDataCol = $('<td/>').appendTo(actionRow);
 		$('<span/>').text("Action:").appendTo(actionLabelCol);
 		var actionSelector = $('<select/>').appendTo(actionDataCol);
-		newRule.data('actionSelector',actionSelector);
-		var actionMetadata = $('<input/>').attr('type','text').addClass("hidden").appendTo(actionDataCol);
-		newRule.data('actionMetadata',actionMetadata);
-		for(var i in _actions){
-			$('<option/>').val(_actions[i].tag).text(_actions[i].label).appendTo(actionSelector).data('showmeta',_actions[i].showmeta);
+		newRule.data('actionSelector', actionSelector);
+		var actionMetadata = $('<input/>').attr('type', 'text').addClass("hidden").appendTo(actionDataCol);
+		newRule.data('actionMetadata', actionMetadata);
+		for (var i in _actions) {
+			$('<option/>').val(_actions[i].tag).text(_actions[i].label).appendTo(actionSelector).data('showmeta', _actions[i].showmeta);
 			console.log(_actions[i].showmeta);
 		}
-		actionSelector.change(function(){
-			if($(this).children("option:selected").data('showmeta')){
+		actionSelector.change(function () {
+			if ($(this).children("option:selected").data('showmeta')) {
 				actionMetadata.removeClass("hidden");
 			} else {
 				actionMetadata.addClass("hidden");
@@ -176,72 +176,72 @@ function showAdminFilterWindow(){
 		var enableLabelCol = $('<td/>').appendTo(enableRow);
 		var enableDataCol = $('<td/>').appendTo(enableRow);
 		$('<span/>').text("Enable Rule:").appendTo(enableLabelCol);
-		var enable = $('<input/>').attr('type','checkbox').appendTo(enableDataCol);
-		if(myData.enable) {
-			enable.prop('checked',true);
+		var enable = $('<input/>').attr('type', 'checkbox').appendTo(enableDataCol);
+		if (myData.enable) {
+			enable.prop('checked', true);
 		}
-		newRule.data('enable',enable);
+		newRule.data('enable', enable);
 
 		var rules = mainOptWrap.data('rules');
 		rules.push(newRule);
 
 		var removeBtn = $('<div id="filterRemove"/>').addClass("button").prependTo(newTable);
 		$('<span/>').appendTo(removeBtn).text("Remove Rule");
-		removeBtn.click(function(){
+		removeBtn.click(function () {
 			var rules = mainOptWrap.data('rules');
-			rules.splice(rules.indexOf(newRule),1);
+			rules.splice(rules.indexOf(newRule), 1);
 			newRule.remove();
 		});
 
-        function refreshTitle(){
-            var row = $(this).parents('.row');
+		function refreshTitle() {
+			var row = $(this).parents('.row');
 			var d = {
-				chatMatch:row.data('chatMatch').val(),
-				chatReplace:row.data('chatReplace').val(),
-				name:row.data('name').val()
+				chatMatch: row.data('chatMatch').val(),
+				chatReplace: row.data('chatReplace').val(),
+				name: row.data('name').val()
 			};
-            setRuleTitle(row.children('.titleBar'), d);
-        }
-        chatMatch.change(refreshTitle);
-        chatReplace.change(refreshTitle);
-        nameText.change(refreshTitle);
+			setRuleTitle(row.children('.titleBar'), d);
+		}
+		chatMatch.change(refreshTitle);
+		chatReplace.change(refreshTitle);
+		nameText.change(refreshTitle);
 	}
 
-	newRuleBtn.click(function(){
+	newRuleBtn.click(function () {
 		addRule();
 	});
 
 	var testBar = $('<div/>').appendTo(mainOptWrap);
 	/* Test Field */
-	var testName = $('<input/>').attr('type','text').addClass("small").appendTo(testBar);
+	var testName = $('<input/>').attr('type', 'text').addClass("small").appendTo(testBar);
 	$('<span/>').appendTo(testBar).text(":");
-	var testChat = $('<input/>').attr('type','text').appendTo(testBar);
+	var testChat = $('<input/>').attr('type', 'text').appendTo(testBar);
 	var exampleArea = $('<div/>').appendTo(mainOptWrap);
 
 	/* Save Button */
 	var saveBtn = $('<div/>').addClass('button').appendTo(controlBar);
 	$('<span/>').appendTo(saveBtn).text("Save Rules");
-	saveBtn.click(function(){
+	saveBtn.click(function () {
 		var rules = mainOptWrap.data('rules');
 		var convertedRules = [];
-		for(var i=0;i<rules.length;i++){
+		for (var i = 0; i < rules.length; i++) {
 			//console.log($(rules[i]).data());
 			var d = {
-				nickMatch:$(rules[i]).data('nickMatch').val(),
-				nickParam:$(rules[i]).data('nickParam').val(),
-				chatMatch:$(rules[i]).data('chatMatch').val(),
-				chatParam:$(rules[i]).data('chatParam').val(),
-				chatReplace:$(rules[i]).data('chatReplace').val(),
-				actionSelector:$(rules[i]).data('actionSelector').val(),
-				actionMetadata:$(rules[i]).data('actionMetadata').val(),
-				enable:$(rules[i]).data('enable').is(':checked'),
-				name:$(rules[i]).data('name').val()
+				nickMatch: $(rules[i]).data('nickMatch').val(),
+				nickParam: $(rules[i]).data('nickParam').val(),
+				chatMatch: $(rules[i]).data('chatMatch').val(),
+				chatParam: $(rules[i]).data('chatParam').val(),
+				chatReplace: $(rules[i]).data('chatReplace').val(),
+				actionSelector: $(rules[i]).data('actionSelector').val(),
+				actionMetadata: $(rules[i]).data('actionMetadata').val(),
+				enable: $(rules[i]).data('enable').is(':checked'),
+				name: $(rules[i]).data('name').val()
 			};
 			convertedRules.push(d);
 		}
-		mainOptWrap.data('convertedRules',convertedRules);
-		if(canSetFilters()){
-			socket.emit("setFilters",convertedRules);
+		mainOptWrap.data('convertedRules', convertedRules);
+		if (canSetFilters()) {
+			socket.emit("setFilters", convertedRules);
 			highlight(saveBtn);
 		}
 	});
@@ -249,85 +249,85 @@ function showAdminFilterWindow(){
 	/* Test Button */
 	var testBtn = $('<div/>').addClass('button').appendTo(testBar);
 	$('<span/>').appendTo(testBtn).text("Test Rules");
-	testBtn.click(function(){
+	testBtn.click(function () {
 		var rules = mainOptWrap.data('rules');
 		var nick = testName.val();
 		var msg = testChat.val();
 		var actionChain = [];
 
-		for(var i=0;i<rules.length;i++){
+		for (var i = 0; i < rules.length; i++) {
 			var d = {
-				nickMatch:$(rules[i]).data('nickMatch').val(),
-				nickParam:$(rules[i]).data('nickParam').val(),
-				chatMatch:$(rules[i]).data('chatMatch').val(),
-				chatParam:$(rules[i]).data('chatParam').val(),
-				chatReplace:$(rules[i]).data('chatReplace').val(),
-				actionSelector:$(rules[i]).data('actionSelector').val(),
-				actionMetadata:$(rules[i]).data('actionMetadata').val(),
-				enable:$(rules[i]).data('enable').is(':checked')
+				nickMatch: $(rules[i]).data('nickMatch').val(),
+				nickParam: $(rules[i]).data('nickParam').val(),
+				chatMatch: $(rules[i]).data('chatMatch').val(),
+				chatParam: $(rules[i]).data('chatParam').val(),
+				chatReplace: $(rules[i]).data('chatReplace').val(),
+				actionSelector: $(rules[i]).data('actionSelector').val(),
+				actionMetadata: $(rules[i]).data('actionMetadata').val(),
+				enable: $(rules[i]).data('enable').is(':checked')
 			};
-            if(!d.enable) {
+			if (!d.enable) {
 				continue;
 			}
 
 			// Name Check
-			var nickCheck = new RegExp(d.nickMatch,d.nickParam);
-			var chatCheck = new RegExp(d.chatMatch,d.chatParam);
-			if(nick.match(nickCheck)){ //console.log("matched name");
-				if(msg.match(chatCheck)){ //console.log("matched chat");
+			var nickCheck = new RegExp(d.nickMatch, d.nickParam);
+			var chatCheck = new RegExp(d.chatMatch, d.chatParam);
+			if (nick.match(nickCheck)) { //console.log("matched name");
+				if (msg.match(chatCheck)) { //console.log("matched chat");
 					// Perform Action
-					actionChain.push({action:d.actionSelector,meta:d.actionMetadata});
+					actionChain.push({ action: d.actionSelector, meta: d.actionMetadata });
 				}
-				if($.trim(d.chatReplace).length > 0){ //console.log("doing a replace");
-					msg = msg.replace(chatCheck,d.chatReplace);
+				if ($.trim(d.chatReplace).length > 0) { //console.log("doing a replace");
+					msg = msg.replace(chatCheck, d.chatReplace);
 				}
 			}
 		}
 		var a = '';
-		for(var i=0;i<actionChain.length;i++){
-			if(actionChain[i].action == "none") {
+		for (var i = 0; i < actionChain.length; i++) {
+			if (actionChain[i].action == "none") {
 				continue;
 			}
 
-			if(actionChain[i].action == "hush") {
+			if (actionChain[i].action == "hush") {
 				msg = msg.toLowerCase();
 			}
 
-			a += "<div>ACTION: "+actionChain[i].action+", "+actionChain[i].meta+"</div>";
+			a += "<div>ACTION: " + actionChain[i].action + ", " + actionChain[i].meta + "</div>";
 		}
-		var out = '<div>'+nick+": "+msg+'</div>'+a;
+		var out = '<div>' + nick + ": " + msg + '</div>' + a;
 		exampleArea.html(out);
 	});
 
 	parent.window.center();
 
-	function loadExisting(){
+	function loadExisting() {
 		console.log(FILTERS);
-		for( var i in FILTERS ){
+		for (var i in FILTERS) {
 			addRule(FILTERS[i]);
 		}
 		FILTERS = false; // Reset for next load.
 		parent.window.setLoaded();
 	}
 
-	function waitForExisting(){
+	function waitForExisting() {
 		console.log("Waiting for Existing Rules");
-		setTimeout(function(){
-			if(!FILTERS){
+		setTimeout(function () {
+			if (!FILTERS) {
 				waitForExisting();
 			} else {
 				loadExisting();
 			}
-		},500);
+		}, 500);
 	}
 	waitForExisting();
 
 }
 function showIgnoreDialog() {
 	var parent = $('body').dialogWindow({
-		title:'Ignore Management',
-		uid:'ignoremanagement',
-		center:true
+		title: 'Ignore Management',
+		uid: 'ignoremanagement',
+		center: true
 	});
 
 	var mainOptWrap = $('<div/>').appendTo(parent).addClass('controlWindow');
@@ -337,8 +337,8 @@ function showIgnoreDialog() {
 		var row = $('<div/>').addClass('row').appendTo(banZone);
 		var nicks = $('<span/>').text(name);
 		$('<div/>').addClass('content').append(nicks).css('width', '290px').appendTo(row);
-		$('<div/>').addClass('unban button').text("Unignore").css('width', '52px').appendTo(row).click(function() {
-			IGNORELIST.splice(IGNORELIST.indexOf(name),1);
+		$('<div/>').addClass('unban button').text("Unignore").css('width', '52px').appendTo(row).click(function () {
+			IGNORELIST.splice(IGNORELIST.indexOf(name), 1);
 			localStorage.setItem('ignoreList', JSON.stringify(IGNORELIST));
 			$('#chatlist li.' + name).removeClass('ignored');
 			row.remove();
@@ -360,10 +360,10 @@ function showBanlistWindow() {
 	socket.emit('getBanlist');
 
 	var parent = $("body").dialogWindow({
-		title:"Ban List",
-		uid:"banlist",
-		center:true,
-		initialLoading:true
+		title: "Ban List",
+		uid: "banlist",
+		center: true,
+		initialLoading: true
 	});
 
 	var mainOptWrap = $('<div/>').appendTo(parent).addClass('controlWindow');
@@ -383,8 +383,8 @@ function showBanlistWindow() {
 			data.ips.length > 1 ? '*, ' : ', ',
 			exp.getFullYear() + '-' + (exp.getMonth() + 1) + '-' + exp.getDate() + ' ' + addZero(exp.getHours()) + ':' + addZero(exp.getMinutes()) + ':' + addZero(exp.getSeconds())
 		).appendTo(row);
-		$('<div/>').addClass('unban button').text("Unban").appendTo(row).click(function() {
-			socket.emit('ban', { nicks:data.nicks, ips:data.ips, duration:0 });
+		$('<div/>').addClass('unban button').text("Unban").appendTo(row).click(function () {
+			socket.emit('ban', { nicks: data.nicks, ips: data.ips, duration: 0 });
 			row.remove();
 		});
 		$('<div/>').addClass('clear').appendTo(row);
@@ -406,7 +406,7 @@ function showBanlistWindow() {
 
 	function waitForExisting() {
 		dbg("Waiting for ban list");
-		setTimeout(function() {
+		setTimeout(function () {
 			if (!BANLIST) {
 				waitForExisting();
 			}
@@ -420,9 +420,9 @@ function showBanlistWindow() {
 }
 function showBanDialog(nick) {
 	var parent = $("body").dialogWindow({
-		title:"Ban User",
-		uid:"banuser",
-		center:true
+		title: "Ban User",
+		uid: "banuser",
+		center: true
 	});
 
 	var mainOptWrap = $('<div/>').appendTo(parent).addClass('controlWindow');
@@ -444,42 +444,42 @@ function showBanDialog(nick) {
 	var buttonDiv = $('<div/>').css("text-align", "center").appendTo(mainOptWrap);
 	var cancelBtn = $('<div/>').addClass('button').appendTo(buttonDiv);
 	$('<span/>').appendTo(cancelBtn).text("Cancel");
-	cancelBtn.click(function() {
+	cancelBtn.click(function () {
 		parent.window.close();
 	});
 	var saveBtn = $('<div/>').addClass('button').appendTo(buttonDiv);
 	$('<span/>').appendTo(saveBtn).text("Apply");
-	saveBtn.click(function() {
-		socket.emit('ban', { nicks:[nick], ips:[$('li.' + nick).attr('ip')], duration:timeSelect.find(':selected').data('time') });
+	saveBtn.click(function () {
+		socket.emit('ban', { nicks: [nick], ips: [$('li.' + nick).attr('ip')], duration: timeSelect.find(':selected').data('time') });
 		parent.window.close();
 	});
 
 	parent.window.center();
 }
-function showCssOverrideWindow(){
+function showCssOverrideWindow() {
 
 	var curOverride = $("body").data("cssOverride");
 
 	var parent = $("body").dialogWindow({
-		title:"Admin CSS Config",
-		uid:"csseditor",
-		center:true
+		title: "Admin CSS Config",
+		uid: "csseditor",
+		center: true
 	});
 
 	var mainOptWrap = $('<div/>').appendTo(parent).addClass('controlWindow');
 	var warning = "Ok, so this will let you force a CSS include on everyone who connects. the source of the file can be remote, but please, please, please use the test button first, and make sure everything looks good before committing, because it could cause parts of the site to break if done badly. These changes are sent to everyone IMMEDIATELY.";
-	$('<p>').appendTo(mainOptWrap).text(warning).css("width","500px");
-	$('<p>').appendTo(mainOptWrap).text("Clear and save to unset the override.").css("width","500px");
+	$('<p>').appendTo(mainOptWrap).text(warning).css("width", "500px");
+	$('<p>').appendTo(mainOptWrap).text("Clear and save to unset the override.").css("width", "500px");
 	var cssOv = $('<input/>').appendTo(mainOptWrap).val(curOverride);
 	var testBtn = $('<div/>').addClass('button').appendTo(mainOptWrap);
 	$('<span/>').appendTo(testBtn).text("Test CSS Include Locally");
-	testBtn.click(function(){
+	testBtn.click(function () {
 		setColorTheme(cssOv.val());
 	});
 	var commitBtn = $('<div/>').addClass('button').appendTo(mainOptWrap);
 	$('<span/>').appendTo(commitBtn).text("Save and Propogate");
-	commitBtn.confirmClick(function(){
-		socket.emit("setOverrideCss",cssOv.val());
+	commitBtn.confirmClick(function () {
+		socket.emit("setOverrideCss", cssOv.val());
 	});
 
 	parent.window.center();
@@ -487,9 +487,9 @@ function showCssOverrideWindow(){
 }
 function showCustomSqueesWindow() {
 	var parent = $('body').dialogWindow({
-		title:'Custom Squee Management',
-		uid:'squeemanagement',
-		center:true
+		title: 'Custom Squee Management',
+		uid: 'squeemanagement',
+		center: true
 	});
 
 	var mainOptWrap = $('<div/>').appendTo(parent).addClass('controlWindow');
@@ -498,22 +498,22 @@ function showCustomSqueesWindow() {
 
 	function addName(name) {
 		var newName = $('<div/>').appendTo(nameZone);
-		newName.append($('<input/>').attr('type','text').val(name),
-			$('<div/>').addClass('button').append('<span>X</span>').click(function() { $(this).parent().remove(); }));
+		newName.append($('<input/>').attr('type', 'text').val(name),
+			$('<div/>').addClass('button').append('<span>X</span>').click(function () { $(this).parent().remove(); }));
 	}
 
 	// Control buttons
 	var newNameBtn = $('<div/>').addClass('button').appendTo(controlBar);
 	$('<span/>').appendTo(newNameBtn).text("Add New Name");
-	newNameBtn.click(function() { addName(''); });
+	newNameBtn.click(function () { addName(''); });
 
 	var saveBtn = $('<div/>').addClass('button').appendTo(controlBar);
 	$('<span/>').appendTo(saveBtn).text("Save Names");
-	saveBtn.click(function() {
+	saveBtn.click(function () {
 		$('#squeeWarningText').remove();
 		var error = false;
 		var newList = [];
-		nameZone.children().each(function(index, element) {
+		nameZone.children().each(function (index, element) {
 			var input = $(element).find('input');
 			var validationRegex = (TYPE >= 1 ? /^[a-zA-Z0-9_+*?. ]+$/ : /^[a-zA-Z0-9_]+$/);
 			if (input.val().match(validationRegex) != null) {
@@ -556,9 +556,9 @@ function showCustomSqueesWindow() {
 
 function showPluginWindow() {
 	var parent = $('body').dialogWindow({
-		title:'Plugin Management',
-		uid:'pluginmanagement',
-		center:true
+		title: 'Plugin Management',
+		uid: 'pluginmanagement',
+		center: true
 	});
 
 	var mainOptWrap = $('<div/>').addClass('controlWindow').appendTo(parent);
@@ -581,7 +581,7 @@ function showPluginWindow() {
 			if (node.enabled) {
 				checkbox.prop('checked', true);
 			}
-			checkbox.change(function() {
+			checkbox.change(function () {
 				var chk = $(this);
 				var chkNode = chk.data('node');
 				if (chkNode) {
@@ -635,9 +635,9 @@ function loadPlugin(node) {
 
 function showVideoRestrictionDialog(restricted, noembed, countries, totalCountries) {
 	var parent = $("body").dialogWindow({
-		title:"Confirm Queue",
-		uid:"videorestriction",
-		center:true
+		title: "Confirm Queue",
+		uid: "videorestriction",
+		center: true
 	});
 
 	var mainOptWrap = $('<div/>').appendTo(parent).addClass('controlWindow');
@@ -646,7 +646,7 @@ function showVideoRestrictionDialog(restricted, noembed, countries, totalCountri
 		var buttonDiv = $('<div/>').css("text-align", "center").appendTo(mainOptWrap);
 		var okayBtn = $('<div/>').addClass('button').appendTo(buttonDiv);
 		$('<span/>').appendTo(okayBtn).text("Okay");
-		okayBtn.click(function(){
+		okayBtn.click(function () {
 			parent.window.close();
 		});
 	}
@@ -655,7 +655,7 @@ function showVideoRestrictionDialog(restricted, noembed, countries, totalCountri
 		var buttonDiv = $('<div/>').css("text-align", "center").appendTo(mainOptWrap);
 		var okayBtn = $('<div/>').addClass('button').appendTo(buttonDiv);
 		$('<span/>').appendTo(okayBtn).text("Okay");
-		okayBtn.click(function(){
+		okayBtn.click(function () {
 			parent.window.close();
 		});
 	}
@@ -675,12 +675,12 @@ function showVideoRestrictionDialog(restricted, noembed, countries, totalCountri
 		var buttonDiv = $('<div/>').css("text-align", "center").appendTo(mainOptWrap);
 		var noBtn = $('<div/>').addClass('button').appendTo(buttonDiv);
 		$('<span/>').appendTo(noBtn).text("No");
-		noBtn.click(function(){
+		noBtn.click(function () {
 			parent.window.close();
 		});
 		var yesBtn = $('<div/>').addClass('button').appendTo(buttonDiv);
 		$('<span/>').appendTo(yesBtn).text("Yes");
-		yesBtn.click(function(){
+		yesBtn.click(function () {
 			if (LAST_QUEUE_ATTEMPT != null) {
 				LAST_QUEUE_ATTEMPT.force = true;
 				socket.emit("addVideo", LAST_QUEUE_ATTEMPT);
@@ -692,29 +692,29 @@ function showVideoRestrictionDialog(restricted, noembed, countries, totalCountri
 	parent.window.center();
 }
 function showDoorStuckDialog() {
-    var parent = $("body").dialogWindow({
-        title:"Playlist Error",
-        uid:"doorstuck",
-        center:true
-    });
+	var parent = $("body").dialogWindow({
+		title: "Playlist Error",
+		uid: "doorstuck",
+		center: true
+	});
 
 	var mainOptWrap = $('<div/>').appendTo(parent).addClass('controlWindow');
-    $('<p>').appendTo(mainOptWrap).text("Your playlist was broken but should be fixed now. If you were attempting a playlist-altering action, try it again.").css("width", "300px");
-    var buttonDiv = $('<div/>').css("text-align", "center").appendTo(mainOptWrap);
-    var okayBtn = $('<div/>').addClass('button').appendTo(buttonDiv);
-    $('<span/>').appendTo(okayBtn).text("Okay");
-    okayBtn.click(function(){
-        parent.window.close();
-    });
+	$('<p>').appendTo(mainOptWrap).text("Your playlist was broken but should be fixed now. If you were attempting a playlist-altering action, try it again.").css("width", "300px");
+	var buttonDiv = $('<div/>').css("text-align", "center").appendTo(mainOptWrap);
+	var okayBtn = $('<div/>').addClass('button').appendTo(buttonDiv);
+	$('<span/>').appendTo(okayBtn).text("Okay");
+	okayBtn.click(function () {
+		parent.window.close();
+	});
 
-    parent.window.center();
+	parent.window.center();
 }
 function showPasswordChangeDialog() {
 	var parent = $("body").dialogWindow({
-        title:"Change Password",
-        uid:"passwdchange",
-        center:true
-    });
+		title: "Change Password",
+		uid: "passwdchange",
+		center: true
+	});
 
 	var mainOptWrap = $('<div/>').appendTo(parent).addClass('controlWindow');
 
@@ -747,56 +747,56 @@ function showPasswordChangeDialog() {
 		errorMsg = $('<div>').css('color', 'red')
 	);
 
-    var buttonDiv = $('<div/>').css("text-align", "center").appendTo(mainOptWrap);
+	var buttonDiv = $('<div/>').css("text-align", "center").appendTo(mainOptWrap);
 
-    var okayBtn = $('<div/>').addClass('button').appendTo(buttonDiv);
-    $('<span/>').appendTo(okayBtn).text("Okay");
-    okayBtn.click(function(){
-        if (pass1.val() !== pass2.val()) {
-        	errorMsg.text("Passwords don't match!");
-        	return;
-        }
+	var okayBtn = $('<div/>').addClass('button').appendTo(buttonDiv);
+	$('<span/>').appendTo(okayBtn).text("Okay");
+	okayBtn.click(function () {
+		if (pass1.val() !== pass2.val()) {
+			errorMsg.text("Passwords don't match!");
+			return;
+		}
 
-        if (pass1.val().length < 6) {
-        	errorMsg.text("Password must be at least 6 characters long!");
-        	return;
-        }
+		if (pass1.val().length < 6) {
+			errorMsg.text("Password must be at least 6 characters long!");
+			return;
+		}
 
-        socket.emit('changePassword', {pass: pass1.val()});
-        parent.window.close();
-    });
+		socket.emit('changePassword', { pass: pass1.val() });
+		parent.window.close();
+	});
 
-    parent.window.center();
+	parent.window.center();
 }
-function windowFocused(){
-	if(CHAT_NOTIFY) {
+function windowFocused() {
+	if (CHAT_NOTIFY) {
 		clearInterval(CHAT_NOTIFY);
 		document.title = WINDOW_TITLE;
 	}
 }
-function windowBlurred(){
+function windowBlurred() {
 
 }
-function windowShown(){
+function windowShown() {
 	scrollBuffersToBottom();
 }
-function windowHidden(){
+function windowHidden() {
 
 }
-function addZero(i){
-	if(i < 10) {
-		i = "0"+i.toString();
-	}else{
+function addZero(i) {
+	if (i < 10) {
+		i = "0" + i.toString();
+	} else {
 		i = i.toString();
 	}
 	return i;
 }
-function secToTime(seconds){
-	if(seconds <= 0){
+function secToTime(seconds) {
+	if (seconds <= 0) {
 		return "- - : - -";
 	}
 
-    var minutes = 0;
+	var minutes = 0;
 	var hours = 0;
 
 	minutes = Math.floor(seconds / 60);
@@ -807,21 +807,20 @@ function secToTime(seconds){
 	seconds = addZero(seconds);
 	minutes = addZero(minutes);
 
-	var disp = minutes+":"+seconds;
-	if(hours > 0)
-	{
+	var disp = minutes + ":" + seconds;
+	if (hours > 0) {
 		hours = addZero(hours);
-		disp = hours+":"+disp;
+		disp = hours + ":" + disp;
 	}
 	return disp;
 }
-function setNick(nick){
-    NAME = nick;
-    $("#chatControls .nick").text(NAME);
+function setNick(nick) {
+	NAME = nick;
+	$("#chatControls .nick").text(NAME);
 	ORIGNAME = nick;
 	sortUserList();
 }
-function recalcStats(){
+function recalcStats() {
 	// Figure time.
 	var numberMan = $("#plstats .totalVideos");
 	var timeMan = $("#plstats .totalLength");
@@ -829,62 +828,57 @@ function recalcStats(){
 	var x = 0;
 	elem = PLAYLIST.first;
 	dbg(PLAYLIST.first.videolength);
-	for(var i=0;i<PLAYLIST.length;i++){
+	for (var i = 0; i < PLAYLIST.length; i++) {
 		x += (elem.videolength);
-		elem=elem.next;
+		elem = elem.next;
 	}
 	timeMan.text(secToTime(x));
 
 	numberMan.text(PLAYLIST.length + " Videos");
 }
 // TODO: I don't think this us used anymore?
-function hbVideoDetail(){
-    if(controlsVideo())
-    {
-        if(videoGetState() == 0 || videoGetState() == 1 || videoGetState() == 2)
-        {
-            videoGetTime(function(t){
-                socket.emit("hbVideoDetail",{
-                    time: t,
-                    state: videoGetState()
-                });
-            });
-        }
-    }
+function hbVideoDetail() {
+	if (controlsVideo()) {
+		if (videoGetState() == 0 || videoGetState() == 1 || videoGetState() == 2) {
+			videoGetTime(function (t) {
+				socket.emit("hbVideoDetail", {
+					time: t,
+					state: videoGetState()
+				});
+			});
+		}
+	}
 }
-function setToggleable(name,state,label){
-	var opt = $(".tgl-"+name);
-	if(typeof label == "undefined"){
+function setToggleable(name, state, label) {
+	var opt = $(".tgl-" + name);
+	if (typeof label == "undefined") {
 		TOGGLEABLES[name].state = state;
 	} else {
 		TOGGLEABLES[name] = {
-			state:state,
-			label:label
+			state: state,
+			label: label
 		};
 	}
 	dbg(TOGGLEABLES);
 	dbg(opt);
-	if(state){
+	if (state) {
 		opt.prop('checked', true);
 	} else {
 		opt.prop('checked', false);
 	}
 }
-function getToggleable(name){
-    if(typeof TOGGLEABLES[name] != "undefined"){
-        return TOGGLEABLES[name].state;
-    }
-    return false;
+function getToggleable(name) {
+	if (typeof TOGGLEABLES[name] != "undefined") {
+		return TOGGLEABLES[name].state;
+	}
+	return false;
 }
-function forceStateChange(){
+function forceStateChange() {
 	var s = videoGetState();
-	if(controlsVideo())
-	{
-		if(LAST_EMIT_STATE != s)
-		{
-			if(s == 1 || s == 2)
-			{
-				socket.emit("forceStateChange",{
+	if (controlsVideo()) {
+		if (LAST_EMIT_STATE != s) {
+			if (s == 1 || s == 2) {
+				socket.emit("forceStateChange", {
 					state: s
 				});
 			}
@@ -892,10 +886,10 @@ function forceStateChange(){
 		}
 	}
 }
-function handleACL(){
+function handleACL() {
 
-    try{
-        dbg("ACL INIT:");
+	try {
+		dbg("ACL INIT:");
 
 		var body = $('body');
 		body.removeClass('admin mod berry assistant');
@@ -909,171 +903,170 @@ function handleACL(){
 			body.addClass('berry');
 		}
 
-        if(isRegisteredUser()) {
-            var headbar = $('#headbar');
-            var rememberMe = headbar.find('.rememberMe');
-            // If it doesn't exist we're a cached login.
-            // If it exists but is unchecked clear our local storage
-            // If it exists and is checked, cache login credentials.
-            if(rememberMe.length){
-                rememberMe = rememberMe.is(':checked');
-                if(rememberMe) {
-                    var data = headbar.data('loginData');
-                    if(typeof localStorage != 'undefined' && data) {
-                        localStorage.setItem('nick', data.nick);
-                        localStorage.setItem('pass', data.pass);
-                    }
-                }
-                else{
-                    if(typeof localStorage != 'undefined') {
-                        localStorage.removeItem('nick');
-                        localStorage.removeItem('pass');
-                    }
-                }
-            }
-            initLogoutForm(headbar.html(''));
-        }
+		if (isRegisteredUser()) {
+			var headbar = $('#headbar');
+			var rememberMe = headbar.find('.rememberMe');
+			// If it doesn't exist we're a cached login.
+			// If it exists but is unchecked clear our local storage
+			// If it exists and is checked, cache login credentials.
+			if (rememberMe.length) {
+				rememberMe = rememberMe.is(':checked');
+				if (rememberMe) {
+					var data = headbar.data('loginData');
+					if (typeof localStorage != 'undefined' && data) {
+						localStorage.setItem('nick', data.nick);
+						localStorage.setItem('pass', data.pass);
+					}
+				}
+				else {
+					if (typeof localStorage != 'undefined') {
+						localStorage.removeItem('nick');
+						localStorage.removeItem('pass');
+					}
+				}
+			}
+			initLogoutForm(headbar.html(''));
+		}
 
-        if(canSeeAdminLog()) {
-            whenExists('#chatControls', function(chatControls){
-                if($('#chatControls .log').length == 0) {
-                    var logMenu = $('<div/>').addClass('log').appendTo(chatControls).text("Log");
-                    logMenu.click(function(){
-                        showLogMenu(logMenu);
-                    });
-                }
-            });
-        }
+		if (canSeeAdminLog()) {
+			whenExists('#chatControls', function (chatControls) {
+				if ($('#chatControls .log').length == 0) {
+					var logMenu = $('<div/>').addClass('log').appendTo(chatControls).text("Log");
+					logMenu.click(function () {
+						showLogMenu(logMenu);
+					});
+				}
+			});
+		}
 
-        if(controlsPlaylist()) {
-            whenExists("#playlistAddControls",function(pl){
-                if(pl.is(":hidden")) {
+		if (controlsPlaylist()) {
+			whenExists("#playlistAddControls", function (pl) {
+				if (pl.is(":hidden")) {
 					pl.show("blind");
 				}
-                var playlist = $("#playlist ul");
-                playlist.addClass("controlsOn");
-				if(playlist.hasClass("previouslyEnabled")){
+				var playlist = $("#playlist ul");
+				playlist.addClass("controlsOn");
+				if (playlist.hasClass("previouslyEnabled")) {
 					playlist.sortable("enable");
 				} else {
 					playlist.addClass("previouslyEnabled");
-					playlist.find("li").each(function() {
+					playlist.find("li").each(function () {
 						const el = $(this);
 						//addVolatile(entry);
 						addRequeue(el);
 						addDelete(el);
 					});
 					playlist.sortable({
-						start: function(event,ui){
+						start: function (event, ui) {
 							PLAYLIST_DRAGFROM = ui.item.index();
-                            PLAYLIST_DRAGSANITY = ui.item.data('plobject').videoid;
+							PLAYLIST_DRAGSANITY = ui.item.data('plobject').videoid;
 						},
-						update: function(event, ui){
+						update: function (event, ui) {
 							PLAYLIST_DRAGTO = ui.item.index();
-							if(controlsPlaylist())
-							{
+							if (controlsPlaylist()) {
 								var data = {
 									from: PLAYLIST_DRAGFROM,
 									to: PLAYLIST_DRAGTO,
-                                    sanityid: PLAYLIST_DRAGSANITY
+									sanityid: PLAYLIST_DRAGSANITY
 								};
 								dbg(data);
-								socket.emit("sortPlaylist",data);
+								socket.emit("sortPlaylist", data);
 							}
 							$(this).sortable('cancel');
 						},
 						items: 'li:not(.history)'
 					});
 				}
-                plul.disableSelection();
-                if (ACTIVE && ACTIVE.domobj) {
-                    scrollToPlEntry(ACTIVE.domobj.index());
-                }
-                dbg("CAN CONTROL PLAYLIST");
-            });
-        }else{
-            whenExists("#playlistAddControls",function(pl){
-				if(pl.is(":visible")) {
+				plul.disableSelection();
+				if (ACTIVE && ACTIVE.domobj) {
+					scrollToPlEntry(ACTIVE.domobj.index());
+				}
+				dbg("CAN CONTROL PLAYLIST");
+			});
+		} else {
+			whenExists("#playlistAddControls", function (pl) {
+				if (pl.is(":visible")) {
 					pl.hide("blind");
 				}
-                var playlist = $("#playlist ul");
-                playlist.removeClass("controlsOn");
-                try{
-                    playlist.sortable( "disable" );
-                }
-                catch(e){}
-                dbg("CAN NOT CONTROL PLAYLIST");
-            });
-        }
+				var playlist = $("#playlist ul");
+				playlist.removeClass("controlsOn");
+				try {
+					playlist.sortable("disable");
+				}
+				catch (e) { }
+				dbg("CAN NOT CONTROL PLAYLIST");
+			});
+		}
 
-        if(canCreatePoll()){
-            whenExists("#pollControl",function(pc){
-                if(pc.is(":hidden")) {
+		if (canCreatePoll()) {
+			whenExists("#pollControl", function (pc) {
+				if (pc.is(":hidden")) {
 					pc.show("blind");
 				}
-                dbg("CAN CONTROL POLLS");
+				dbg("CAN CONTROL POLLS");
 			});
 			$(".poll-control").addClass("enabled");
-        }else{
-            whenExists("#pollControl",function(pc){
-                if(pc.is(":visible")) {
+		} else {
+			whenExists("#pollControl", function (pc) {
+				if (pc.is(":visible")) {
 					pc.hide("blind");
 				}
-                dbg("CAN NOT CONTROL POLLS");
-            });
+				dbg("CAN NOT CONTROL POLLS");
+			});
 			$(".poll-control").removeClass("enabled");
-        }
+		}
 
-        if(canSetAreas()){
-            $('.editBtn').remove();
-            attachAreaEdit($("#dyn_header"),"header");
-            attachAreaEdit($("#dyn_footer"),"footer");
-            attachAreaEdit($("#dyn_motd"),"motd");
-            dbg("CAN EDIT AREAS");
-        } else {
-            $('.editBtn').remove();
-            dbg("CAN NOT AREAS");
-        }
+		if (canSetAreas()) {
+			$('.editBtn').remove();
+			attachAreaEdit($("#dyn_header"), "header");
+			attachAreaEdit($("#dyn_footer"), "footer");
+			attachAreaEdit($("#dyn_motd"), "motd");
+			dbg("CAN EDIT AREAS");
+		} else {
+			$('.editBtn').remove();
+			dbg("CAN NOT AREAS");
+		}
 
-        scrollBuffersToBottom();
+		scrollBuffersToBottom();
 
-        dbg("ACL DONE.");
-    } catch(e) {
-        console.log("Error in handleACL",e);
-    }
+		dbg("ACL DONE.");
+	} catch (e) {
+		console.log("Error in handleACL", e);
+	}
 }
-function loginError(data){
-    $('#headbar .loginError').text(data.message);
+function loginError(data) {
+	$('#headbar .loginError').text(data.message);
 }
-function isRegisteredUser(){
-    if (TYPE >= 0) {
+function isRegisteredUser() {
+	if (TYPE >= 0) {
 		return true;
 	}
-    return false;
+	return false;
 }
-function sendChatMsg(msg,elem){
+function sendChatMsg(msg, elem) {
 	//prevent sending messages without a nick
 	if (!canChat())
 		return;
 
-	if(msg.trim().length > 0){
+	if (msg.trim().length > 0) {
 		HISTORY_POS = 0;
 		HISTORY.reverse();
 		HISTORY.push(msg);
 		HISTORY.reverse();
 		HISTORY[HISTORY_POS] = "";
 		if (HISTORY.length > HISTORY_SIZE) {
-			HISTORY.splice(HISTORY_SIZE,1);
+			HISTORY.splice(HISTORY_SIZE, 1);
 		}
 
 		meta = {};
-		if(NAMEFLAUNT){ meta.nameflaunt = NAMEFLAUNT; }
+		if (NAMEFLAUNT) { meta.nameflaunt = NAMEFLAUNT; }
 		meta.flair = MY_FLAIR_ID;
 		meta.channel = ACTIVE_CHAT;
 
-		handleSpamChecks(function(){
-			socket.emit("chat",{
-				msg:msg,
-				metadata:meta
+		handleSpamChecks(function () {
+			socket.emit("chat", {
+				msg: msg,
+				metadata: meta
 			});
 			elem.val("");
 		});
@@ -1120,7 +1113,7 @@ function handleSpamChecks(callback) {
 	}
 }
 
-function addLogMsg(data, to){
+function addLogMsg(data, to) {
 	if (to.length == 0) {
 		return;
 	}
@@ -1135,8 +1128,8 @@ function addLogMsg(data, to){
 		hh = addZero(timestampDate.getHours()),
 		mm = addZero(timestampDate.getMinutes()),
 		ss = addZero(timestampDate.getSeconds()),
-        MM = ("" + (timestampDate.getMonth() + 1)).padStart(2, "0"),
-        dd = ("" + timestampDate.getDate()).padStart(2, "0"),
+		MM = ("" + (timestampDate.getMonth() + 1)).padStart(2, "0"),
+		dd = ("" + timestampDate.getDate()).padStart(2, "0"),
 		yyyy = timestampDate.getFullYear(),
 		eventType = data.logEvent.event.startsWith("EVENT_ADMIN_")
 			? data.logEvent.event.substring(12)
@@ -1173,7 +1166,7 @@ function addLogMsg(data, to){
 	newmsg.prependTo(to.find("tbody"));
 
 	const filterDropdown = $("#logNickFilter");
-	if ($("option:contains("+data.nick+")", filterDropdown).length === 0) {
+	if ($("option:contains(" + data.nick + ")", filterDropdown).length === 0) {
 		$("<option/>").text(data.nick).appendTo(filterDropdown);
 	}
 
@@ -1188,11 +1181,11 @@ function scrollBuffersToBottom() {
 	$('#adminbuffer').prop({ scrollTop: $('#adminbuffer').prop("scrollHeight") });
 }
 
-function addChatMsg(data,_to) {
-	whenExists(_to, function(to) {
+function addChatMsg(data, _to) {
+	whenExists(_to, function (to) {
 
 		// Added for a safe event hook for handling addons, etc.
-		btEvents.emit("chat",data);
+		btEvents.emit("chat", data);
 
 		// New format cause fuck all that argument shit. know whats cool? Objects.
 		var nick = data.msg.nick;
@@ -1200,7 +1193,7 @@ function addChatMsg(data,_to) {
 		var metadata = data.msg.metadata;
 		var isGhost = data.ghost;
 
-		if (typeof(nick != "undefined")) {
+		if (typeof (nick != "undefined")) {
 			var msgwrap = $("<div/>").appendTo(to).addClass("msg-" + nick);
 		}
 		var newmsg = $("<div/>");
@@ -1211,8 +1204,8 @@ function addChatMsg(data,_to) {
 			return;
 		}
 
-		msgwrap.addClass($("#chatlist ."+nick).attr("class"));
-		if(metadata.graymute){msgwrap.addClass("graymute");}
+		msgwrap.addClass($("#chatlist ." + nick).attr("class"));
+		if (metadata.graymute) { msgwrap.addClass("graymute"); }
 
 		var isSquee = metadata.isSquee || (nick != NAME && NAME.length > 0 && detectName(NAME, msgText));
 		var includeTimestamp = false;
@@ -1370,7 +1363,7 @@ function doSqueeNotify() {
 			NOTIFY.play();
 		}
 		clearInterval(CHAT_NOTIFY);
-		CHAT_NOTIFY = setInterval(function() {
+		CHAT_NOTIFY = setInterval(function () {
 			if (document.title == WINDOW_TITLE) {
 				document.title = NOTIFY_TITLE;
 			}
@@ -1380,34 +1373,34 @@ function doSqueeNotify() {
 		}, 1000);
 	}
 }
-function manageDrinks(dd){
-	whenExists("#drinkCounter",function(dc){
-		whenExists("#drinkWrap",function(dw){
-			whenExists("#v",function(v){
-				if(dd == 0){
-					if(dw.is(":visible")) {
+function manageDrinks(dd) {
+	whenExists("#drinkCounter", function (dc) {
+		whenExists("#drinkWrap", function (dw) {
+			whenExists("#v", function (v) {
+				if (dd == 0) {
+					if (dw.is(":visible")) {
 						dw.hide("blind");
 					}
 				} else {
-					if(dw.is(":hidden")) {
+					if (dw.is(":hidden")) {
 						dw.show("blind");
 					}
 				}
 
-				if(dd > 9000){
-					if(v.is(":hidden")) {
+				if (dd > 9000) {
+					if (v.is(":hidden")) {
 						v.show();
 					}
 				}
-				if(dd <= 9000){
-					if(v.is(":visible")) {
+				if (dd <= 9000) {
+					if (v.is(":visible")) {
 						v.hide();
 					}
 				}
 
 				//console.log(dd);
-				if(dd && dd != DRINKS){ // Added a drink
-					if(getStorage("drinkNotify") == 1){
+				if (dd && dd != DRINKS) { // Added a drink
+					if (getStorage("drinkNotify") == 1) {
 						DRINK.play();
 					}
 				}
@@ -1419,11 +1412,11 @@ function manageDrinks(dd){
 		});
 	});
 }
-function handleNumCount(data){
+function handleNumCount(data) {
 	CONNECTED = data.num;
 	var name = 'connectedCount';
 
-	whenExists("#connectedCount",function(area){
+	whenExists("#connectedCount", function (area) {
 		area.text(CONNECTED);
 	});
 }
@@ -1442,7 +1435,7 @@ function closePoll(data) {
 	} else {
 		//unbind old buttons
 		var existing = $(".poll.active");
-		existing.find(".btn").each(function(key, val) {
+		existing.find(".btn").each(function (key, val) {
 			if ($(val).hasClass("close")) {
 				return;
 			}
@@ -1456,7 +1449,7 @@ function closePoll(data) {
 	// remove old polls...
 	var keep = getStorage("keeppolls");
 	var polls = $("#pollpane").children(".poll");
-	for (var i=0; i < polls.length; i++) {
+	for (var i = 0; i < polls.length; i++) {
 		if ($(polls[i]).hasClass("active")) {
 			continue;
 		}
@@ -1466,27 +1459,27 @@ function closePoll(data) {
 		}
 	}
 }
-function toggleChatMode(){
+function toggleChatMode() {
 	var chatbuffer = $(".chatbuffer");
 	var chatinput = $("#chatinput");
 	var chatlist = $("#chatlist");
 	var chattabs = $('#chattabs');
 	var rcvOverlay = $("#rcvOverlay");
 	var connectedCountWrapper = $("#connectedCountWrapper");
-	if(chatinput.hasClass("wide")){
-	   chatbuffer.removeClass("wide");
-	   chatinput.removeClass("wide");
-	   chattabs.removeClass('wide');
-	   rcvOverlay.removeClass("wide");
-	   connectedCountWrapper.removeClass("wide");
-	   chatlist.show();
+	if (chatinput.hasClass("wide")) {
+		chatbuffer.removeClass("wide");
+		chatinput.removeClass("wide");
+		chattabs.removeClass('wide');
+		rcvOverlay.removeClass("wide");
+		connectedCountWrapper.removeClass("wide");
+		chatlist.show();
 	} else {
-	   chatbuffer.addClass("wide");
-	   chatinput.addClass("wide");
-	   chattabs.addClass('wide');
-	   rcvOverlay.addClass("wide");
-	   connectedCountWrapper.addClass("wide");
-	   chatlist.hide();
+		chatbuffer.addClass("wide");
+		chatinput.addClass("wide");
+		chattabs.addClass('wide');
+		rcvOverlay.addClass("wide");
+		connectedCountWrapper.addClass("wide");
+		chatlist.hide();
 	}
 }
 function toggleMailDiv() {
@@ -1509,7 +1502,7 @@ function addNewMailMessage(nick, msg) {
 			$('<span/>').addClass('timestamp').text('<' + addZero(now.getHours()) + ":" + addZero(now.getMinutes()) + ":" + addZero(now.getSeconds()) + '>'),
 			$('<span/>').addClass('nick').text(nick + ':'),
 			$('<span/>').html(formatChatMsg(msg, false)),
-			$('<button/>').addClass('btn').css('width', '20px').text('X').click(function() {
+			$('<button/>').addClass('btn').css('width', '20px').text('X').click(function () {
 				$(this).parent().remove();
 				if ($('#mailMessageDiv').children().length == 0) {
 					$('#mailButtonDiv').removeClass('new');
@@ -1529,29 +1522,29 @@ function addNewMailMessage(nick, msg) {
 		$('#mailButtonDiv').addClass('new');
 	}
 }
-function plSearch(term){
-    if(typeof term == "undefined" || term.match(/^$/) || term.length < 3){
-    	$("#playlist").removeClass("searching");
-        $("#plul li").removeClass("search-hidden");
+function plSearch(term) {
+	if (typeof term == "undefined" || term.match(/^$/) || term.length < 3) {
+		$("#playlist").removeClass("searching");
+		$("#plul li").removeClass("search-hidden");
 		$("#plul li.history").remove();
 		$("#plul li .title").removeAttr("active-offset");
 		smartRefreshScrollbar();
 		scrollToPlEntry(ACTIVE.domobj.index());
 		realignPosHelper();
-    } else {
+	} else {
 		if (TYPE >= 1 || LEADER) {
-			socket.emit('searchHistory', {search:term});
+			socket.emit('searchHistory', { search: term });
 		}
 
 		$("#playlist").addClass("searching");
-        $("#plul li").addClass("search-hidden");
-        $("#plul li.active").removeClass("search-hidden");
-        elem=PLAYLIST.first;
-        for(var i=0;i<PLAYLIST.length;i++){
-            name = decodeURI(elem.videotitle);
-            var rx = new RegExp(term,'i');
-            if(name.match(rx)){
-                console.log(name);
+		$("#plul li").addClass("search-hidden");
+		$("#plul li.active").removeClass("search-hidden");
+		elem = PLAYLIST.first;
+		for (var i = 0; i < PLAYLIST.length; i++) {
+			name = decodeURI(elem.videotitle);
+			var rx = new RegExp(term, 'i');
+			if (name.match(rx)) {
+				console.log(name);
 				var index = i - ACTIVE.domobj.index();
 				if (index < 0) {
 					index = '(' + index + ') ';
@@ -1562,23 +1555,23 @@ function plSearch(term){
 				else {
 					index = '';
 				}
-                $(elem.domobj).removeClass("search-hidden").find(".title").attr("active-offset", index);
-            }
-            elem=elem.next;
-        }
+				$(elem.domobj).removeClass("search-hidden").find(".title").attr("active-offset", index);
+			}
+			elem = elem.next;
+		}
 		smartRefreshScrollbar();
 		scrollToPlEntry(0);
 		realignPosHelper();
-    }
+	}
 }
-function newPoll(data){
+function newPoll(data) {
 	if (data.ghost && IGNORE_GHOST_MESSAGES) {
 		// Ghost poll on a reconnect; just revote, don't redisplay it
 		var vote = $('.voted');
 		if (vote.length > 0) {
 			// Just recast the vote - the CSS should still be set, and the response
 			// should handle making sure the numbers are all correct
-			socket.emit('votePoll', { op:vote.data('op') });
+			socket.emit('votePoll', { op: vote.data('op') });
 		}
 	} else {
 		const $existingPoll = $(".poll.active");
@@ -1595,20 +1588,20 @@ function newPoll(data){
 
 		// New poll, or ghost poll on an initial connection
 		addChatMsg({
-			msg:{
-				emote:"poll",
-				nick:data.creator,
-				type:0,
-				msg:data.title,
-				multi:0,
-				metadata:false
+			msg: {
+				emote: "poll",
+				nick: data.creator,
+				type: 0,
+				msg: data.title,
+				multi: 0,
+				metadata: false
 			},
-			ghost:false
-		},'#chatbuffer');
+			ghost: false
+		}, '#chatbuffer');
 
 		whenExists("#pollpane", stack => {
-            POLL_TITLE_FORMAT = data.title;
-            POLL_OPTIONS.splice(0, POLL_OPTIONS.length);
+			POLL_TITLE_FORMAT = data.title;
+			POLL_OPTIONS.splice(0, POLL_OPTIONS.length);
 
 			const $poll = $("<div />")
 				.addClass("poll")
@@ -1631,32 +1624,32 @@ function newPoll(data){
 				const votes = data.votes;
 				var optionwrap = $('<ul/>').appendTo($poll);
 				const options = data.options;
-				for(var i = 0; i < options.length; i++) {
-					var t = options[i].replace("&gt;",">").replace("&lt;","<");
+				for (var i = 0; i < options.length; i++) {
+					var t = options[i].replace("&gt;", ">").replace("&lt;", "<");
 					var iw = $('<li/>').appendTo(optionwrap);
 					var row = $('<tr/>').appendTo($('<table/>').appendTo(iw));
 					var optionBtn = $('<div/>').addClass("btn").text(votes[i]).appendTo($('<td/>').appendTo(row));
 
-					if(data.obscure) {
+					if (data.obscure) {
 						optionBtn.addClass("obscure");
 					}
 
 					$('<div/>').addClass("label").text(t).appendTo($('<td/>').appendTo(row));
 					$('<div/>').addClass("clear").appendTo(iw);
 
-					optionBtn.data("op",i);
-					optionBtn.data("disabled",false);
-					optionBtn.click(function(){
+					optionBtn.data("op", i);
+					optionBtn.data("disabled", false);
+					optionBtn.click(function () {
 						var $this = $(this);
-						if(!$this.is('.disabled')){
+						if (!$this.is('.disabled')) {
 							$(this).addClass('voted');
 						}
 						var d = $this.data("disabled");
-						if(!d){
-							socket.emit("votePoll",{
-								op:$this.data("op")
+						if (!d) {
+							socket.emit("votePoll", {
+								op: $this.data("op")
 							});
-							$this.data("disabled",true);
+							$this.data("disabled", true);
 							optionwrap.find(".btn").addClass("disabled");
 						}
 					});
@@ -1694,9 +1687,9 @@ function newPoll(data){
 									autoCloseTimes
 										.filter(([time]) => time > 0)
 										.map(([time, title]) => $(`<option />`)
-										.text(title)
-										.attr("value", time)))
-								.change(function() {
+											.text(title)
+											.attr("value", time)))
+								.change(function () {
 									const $this = $(this);
 									const closeInSeconds = parseInt($this.val(), 10);
 									$this.val("");
@@ -1717,19 +1710,19 @@ function newPoll(data){
 		});
 	}
 }
-function updatePoll(data){
+function updatePoll(data) {
 	const hasBem = typeof Bem !== 'undefined';
 	const $poll = $(".poll.active");
 	const $title = $poll.find('.title');
-    let pollTitle = getPollTitle(data);
+	let pollTitle = getPollTitle(data);
 
-    if (typeof Bem !== 'undefined') {
-    	pollTitle = pollTitle.replace(/\\\\([\w-]+)/i, '[](/$1)');
-        $title.html(Bem.applyEmotesToStr(pollTitle));
-        Bem.postEmoteEffects($title);
-    } else {
-        $title.text(pollTitle);
-    }
+	if (typeof Bem !== 'undefined') {
+		pollTitle = pollTitle.replace(/\\\\([\w-]+)/i, '[](/$1)');
+		$title.html(Bem.applyEmotesToStr(pollTitle));
+		Bem.postEmoteEffects($title);
+	} else {
+		$title.text(pollTitle);
+	}
 
 	if (data.pollType == "ranked") {
 		onModuleLoaded(() => {
@@ -1738,7 +1731,7 @@ function updatePoll(data){
 		});
 	} else {
 		const votes = data.votes;
-		$poll.find(".btn").each(function(key, val){
+		$poll.find(".btn").each(function (key, val) {
 			$(val).text(votes[$(val).data("op")]);
 		});
 	}
@@ -1754,7 +1747,7 @@ function updateRankedPollEmotes() {
 
 	// the ranked poll module code re-creates the results DOM
 	// so we have to re-apply our emotes when it is updated
-	$poll.find(".render-emotes").each(function() {
+	$poll.find(".render-emotes").each(function () {
 		const $this = $(this);
 		if ($this.data("bem-processed")) {
 			return;
@@ -1810,23 +1803,23 @@ function updatePollAutoClose($poll, data) {
 function getPollTitle({ votes, extended }) {
 	var title = POLL_TITLE_FORMAT;
 
-    for (var i = 0; i < votes.length; i++) {
-        title = title.replace(new RegExp('\\{' + i + '\\}', 'g'), new Array(votes[i] + 1).join(POLL_OPTIONS[i]));
+	for (var i = 0; i < votes.length; i++) {
+		title = title.replace(new RegExp('\\{' + i + '\\}', 'g'), new Array(votes[i] + 1).join(POLL_OPTIONS[i]));
 	}
 
-	if (typeof(extended) !== "undefined" && typeof(extended.voteCount) !== "undefined") {
+	if (typeof (extended) !== "undefined" && typeof (extended.voteCount) !== "undefined") {
 		return `${title} (${extended.voteCount} vote${extended.voteCount !== 1 ? "s" : ""})`;
 	}
 
-    return title;
+	return title;
 }
-function setStorage(key,value){
-	localStorage.setItem(key,value);
+function setStorage(key, value) {
+	localStorage.setItem(key, value);
 }
-function setCookie(c_name,value,exdays){
+function setCookie(c_name, value, exdays) {
 	// Kept for backwards compatability. Update references when found.
 	console.log("Old setCookie ref, update please!");
-	return setStorage(c_name,value);
+	return setStorage(c_name, value);
 	/*
 	var exdate=new Date();
 	exdate.setDate(exdate.getDate() + exdays);
@@ -1834,7 +1827,7 @@ function setCookie(c_name,value,exdays){
 	document.cookie=c_name + "=" + c_value;
 	*/
 }
-function getStorage(key){
+function getStorage(key) {
 	return localStorage.getItem(key);
 }
 
@@ -1848,7 +1841,7 @@ function getStorageInteger(key, def = 1080) {
 }
 
 function setStorageInteger(key, value) {
-	if (typeof(value) !== "number") {
+	if (typeof (value) !== "number") {
 		return;
 	}
 
@@ -1864,7 +1857,7 @@ function getStorageToggle(key) {
 	return localStorage.getItem(key) === "true";
 }
 
-function getCookie(c_name){
+function getCookie(c_name) {
 	// Kept for backwards compatability. Update references when found.
 	console.log("Old getCookie ref, update please!");
 	return getStorage(c_name);
@@ -1880,64 +1873,62 @@ function getCookie(c_name){
 	}
 	*/
 }
-function addVideo(data, queue, sanityid){
+function addVideo(data, queue, sanityid) {
 	dbg("Adding Video");
 	dbg(data);
 
-    // Sanity check
-    if (ACTIVE.videoid != sanityid) {
-        // DOOR STUCK
-        socket.emit("refreshMyPlaylist");
-    }
-    else {
-        var elem = data;
-        plul = $("#playlist ul");
+	// Sanity check
+	if (ACTIVE.videoid != sanityid) {
+		// DOOR STUCK
+		socket.emit("refreshMyPlaylist");
+	}
+	else {
+		var elem = data;
+		plul = $("#playlist ul");
 
-        if(PLAYLIST.length == 0){
-            PLAYLIST.append(elem);
-            var entry = $("<li/>").appendTo(plul);
-        }else{
-            if(queue){
-                PLAYLIST.insertAfter(ACTIVE,elem);
-                var entry = $("<li/>").insertAfter(ACTIVE.domobj);
-            }else{
-                var x = PLAYLIST.last.domobj;
-                PLAYLIST.insertAfter(PLAYLIST.last,elem);
-                var entry = $("<li/>").insertAfter(x);
-            }
-        }
+		if (PLAYLIST.length == 0) {
+			PLAYLIST.append(elem);
+			var entry = $("<li/>").appendTo(plul);
+		} else {
+			if (queue) {
+				PLAYLIST.insertAfter(ACTIVE, elem);
+				var entry = $("<li/>").insertAfter(ACTIVE.domobj);
+			} else {
+				var x = PLAYLIST.last.domobj;
+				PLAYLIST.insertAfter(PLAYLIST.last, elem);
+				var entry = $("<li/>").insertAfter(x);
+			}
+		}
 
-        entry.data('plobject',elem);
-        elem.domobj = entry;
-        entry.dblclick(function(){
-            if(controlsVideo())
-            {
-                doPlaylistJump($(this));
-            }
-        //dbg($(this).next().data('plobject'));
-        });
+		entry.data('plobject', elem);
+		elem.domobj = entry;
+		entry.dblclick(function () {
+			if (controlsVideo()) {
+				doPlaylistJump($(this));
+			}
+			//dbg($(this).next().data('plobject'));
+		});
 
-        populatePlEntry(entry,elem);
-        smartRefreshScrollbar();
-        highlight(entry);
-        revertLoaders();
-        recalcStats();
-    }
+		populatePlEntry(entry, elem);
+		smartRefreshScrollbar();
+		highlight(entry);
+		revertLoaders();
+		recalcStats();
+	}
 }
-function attachAreaEdit(elem,name){
-	if(canSetAreas())
-	{
+function attachAreaEdit(elem, name) {
+	if (canSetAreas()) {
 		var orig = $(elem);
 		dbg(orig);
 		var editbtn = $('<button>Edit</button>').addClass("editBtn").insertAfter(orig);
 
-		editbtn.hover(function(){
-			orig.css("background-image","url(" + CDN_ORIGIN + "/images/attn.png)");
-		},function(){
-			orig.css("background-image","none");
+		editbtn.hover(function () {
+			orig.css("background-image", "url(" + CDN_ORIGIN + "/images/attn.png)");
+		}, function () {
+			orig.css("background-image", "none");
 		});
 
-		editbtn.click(function(){
+		editbtn.click(function () {
 
 			var minheight = 100;
 			var editor_wrap = $('<div></div>').insertAfter(orig);
@@ -1946,25 +1937,25 @@ function attachAreaEdit(elem,name){
 			var okbtn = $('<button>Save</button>').appendTo(btndiv);
 			var nobtn = $('<button>Cancel</button>').appendTo(btndiv);
 
-			okbtn.click(function(){
+			okbtn.click(function () {
 				var newhtml = editor.val();
 				editbtn.show();
 				orig.show();
-				socket.emit("setAreas",{
-					content:newhtml,
-					areaname:name
+				socket.emit("setAreas", {
+					content: newhtml,
+					areaname: name
 				});
 				editor_wrap.remove();
 			});
 
-			nobtn.click(function(){
+			nobtn.click(function () {
 				orig.show();
 				editbtn.show();
 				editor_wrap.remove();
 			});
 
 			editor.html(orig.html());
-			editor_wrap.height(Math.max(minheight,orig.height()));
+			editor_wrap.height(Math.max(minheight, orig.height()));
 			editor_wrap.width(orig.width());
 			editor.width(orig.width());
 			editor.height(editor_wrap.height() - btndiv.height());
@@ -1974,40 +1965,40 @@ function attachAreaEdit(elem,name){
 		});
 	}
 }
-function setVidVolatile(pos,isVolat){
+function setVidVolatile(pos, isVolat) {
 	elem = PLAYLIST.first;
-	for(var i=0;i<pos;i++){
-		elem=elem.next;
+	for (var i = 0; i < pos; i++) {
+		elem = elem.next;
 	}
 
 	elem.volat = isVolat;
-	if(isVolat){
+	if (isVolat) {
 		$(elem.domobj).addClass("volatile");
 	} else {
 		$(elem.domobj).removeClass("volatile");
 	}
 	console.log(elem.domobj);
 }
-function setVidColorTag(pos,tag,volat){
+function setVidColorTag(pos, tag, volat) {
 	elem = PLAYLIST.first;
-	for(var i=0;i<pos;i++){
-		elem=elem.next;
+	for (var i = 0; i < pos; i++) {
+		elem = elem.next;
 	}
-	_setVidColorTag(elem.domobj,tag,volat);
+	_setVidColorTag(elem.domobj, tag, volat);
 }
-function _setVidColorTag(domobj,tag,volat){
+function _setVidColorTag(domobj, tag, volat) {
 	var ct = $(domobj).find(".colorTag");
 	if (!ct.length) {
 		ct = $("<div/>").addClass("colorTag").prependTo(domobj);
 	}
 
-	if(volat){
+	if (volat) {
 		ct.addClass("volatile");
 	} else {
 		ct.removeClass("volatile");
 	}
 
-	if(tag == false){
+	if (tag == false) {
 		ct.remove();
 	} else {
 		ct.removeClass('shitpost-flag');
@@ -2021,18 +2012,17 @@ function _setVidColorTag(domobj,tag,volat){
 		switch (parts[0]) {
 			case 'flag':
 				ct.addClass('shitpost-flag');
-				ct.css('background-image', 'url('+CDN_ORIGIN+'/images/famflags/'+parts[1].replace(/\.\//g, '')+'.png');
+				ct.css('background-image', 'url(' + CDN_ORIGIN + '/images/famflags/' + parts[1].replace(/\.\//g, '') + '.png');
 				break;
 			default:
-				ct.css("background-color",tag);
+				ct.css("background-color", tag);
 				break;
 		}
 	}
 }
-function setColorTheme(cssPath){
+function setColorTheme(cssPath) {
 	$('#themeCss').remove();
-	if(cssPath.length > 0)
-		{$("<link/>").insertAfter("#mainTheme").attr('href',cssPath).attr('rel','stylesheet').attr('id',"themeCss");}
+	if (cssPath.length > 0) { $("<link/>").insertAfter("#mainTheme").attr('href', cssPath).attr('rel', 'stylesheet').attr('id', "themeCss"); }
 	setStorage("siteThemePath", cssPath);
 
 	var exdate = new Date();
@@ -2041,210 +2031,209 @@ function setColorTheme(cssPath){
 	document.cookie = 'siteThemePath=' + c_value;
 }
 /* Permission Abstractions */
-function controlsVideo(){
-	return LEADER;
+function controlsVideo() {
+	return TYPE > 0 && LEADER;
 }
-function controlsPlaylist(){
-	if(TYPE > 0) {
+function controlsPlaylist() {
+	if (TYPE > 0) {
 		return true;
 	}
 	return LEADER;
 }
-function canColorTag(){
-	if(TYPE > 0) {
+function canColorTag() {
+	if (TYPE > 0) {
 		return true;
 	}
 	return false;
 }
-function canToggleVolatile(){
-	if(TYPE > 0) {
+function canToggleVolatile() {
+	if (TYPE > 0) {
 		return true;
 	}
 	return false;
 }
-function canTempShadowBan(){
-	if(TYPE >= 2) {
-		return true;
-	}
-	return false;
-}
-function canSeeAdminLog(){
-	if(TYPE >= 2) {
-		return true;
-	}
-	return false;
-}
-function canDeleteVideo(){
-	if(TYPE > 0) {
-		return true;
-	}
-	return false;
-}
-function canSetFilters(){
-	if(TYPE >= 2) {
-		return true;
-	}
-	return false;
-}
-function canRandomizeList(){
-	if(TYPE > 0) {
-		return true;
-	}
-	return false;
-}
-function canCreatePoll(){
-	if(TYPE > 0) {
-		return true;
-	}
-	return LEADER;
-}
-function canClosePoll(){
-	return canCreatePoll();
-}
-function canChat(){
-	return NAME;
-}
-function canMoveBerry(){
-	if(TYPE >= 1) {
-		return true;
-	}
-	return false;
-}
-function canKickUser(){
-	if(TYPE >= 2) {
-		return true;
-	}
-	return false;
-}
-function canShadowBan(){
-	if(TYPE >= 2) {
-		return true;
-	}
-	return false;
-}
-function canBan(){
+function canTempShadowBan() {
 	if (TYPE >= 2) {
 		return true;
 	}
 	return false;
 }
-function canSetAreas(){
-	if(TYPE >= 2) {
+function canSeeAdminLog() {
+	if (TYPE >= 2) {
+		return true;
+	}
+	return false;
+}
+function canDeleteVideo() {
+	if (TYPE > 0) {
+		return true;
+	}
+	return false;
+}
+function canSetFilters() {
+	if (TYPE >= 2) {
+		return true;
+	}
+	return false;
+}
+function canRandomizeList() {
+	if (TYPE > 0) {
+		return true;
+	}
+	return false;
+}
+function canCreatePoll() {
+	if (TYPE > 0) {
+		return true;
+	}
+	return LEADER;
+}
+function canClosePoll() {
+	return canCreatePoll();
+}
+function canChat() {
+	return NAME;
+}
+function canMoveBerry() {
+	if (TYPE >= 1) {
+		return true;
+	}
+	return false;
+}
+function canKickUser() {
+	if (TYPE >= 2) {
+		return true;
+	}
+	return false;
+}
+function canShadowBan() {
+	if (TYPE >= 2) {
+		return true;
+	}
+	return false;
+}
+function canBan() {
+	if (TYPE >= 2) {
+		return true;
+	}
+	return false;
+}
+function canSetAreas() {
+	if (TYPE >= 2) {
 		return true;
 	}
 	return false;
 }
 /* Video Control */
-function videoPlayNext(){
-	if(controlsPlaylist())
-	{
+function videoPlayNext() {
+	if (controlsPlaylist()) {
 		socket.emit("playNext");
 	}
 }
-function videoGetTime(callback){
-    if(PLAYER.getTime){
-        PLAYER.getTime(callback);
-    }
+function videoGetTime(callback) {
+	if (PLAYER.getTime) {
+		PLAYER.getTime(callback);
+	}
 }
 function videoGetState() {
-    if(PLAYER.getVideoState){
-        return PLAYER.getVideoState();
-    }
+	if (PLAYER.getVideoState) {
+		return PLAYER.getVideoState();
+	}
 }
-function videoSeekTo(pos){
-	console.log("Got seek to",secToTime(pos));
-    if(PLAYER.seek){
-        PLAYER.seek(pos);
-    }
+function videoSeekTo(pos) {
+	console.log("Got seek to", secToTime(pos));
+	if (PLAYER.seek) {
+		PLAYER.seek(pos);
+	}
 }
-function videoPlay(){
-    if(PLAYER.play){
-        PLAYER.play();
-    }
+function videoPlay() {
+	if (PLAYER.play) {
+		PLAYER.play();
+	}
 }
 function videoLoadAtTime(vidObj, time) {
-    var id = vidObj.videoid;
-    var ptype = vidObj.videotype;
+	var id = vidObj.videoid;
+	var ptype = vidObj.videotype;
 	var length = vidObj.videolength;
 
-    if (VIDEO_TYPE != ptype || !PLAYERS[ptype].playVideo) {
-        if(PLAYER.getVolume) {
+	if (VIDEO_TYPE != ptype || !PLAYERS[ptype].playVideo) {
+		if (PLAYER.getVolume) {
 			try {
-				PLAYER.getVolume(function(v){
-                    try {
-						if(v !== null) {
+				PLAYER.getVolume(function (v) {
+					try {
+						if (v !== null) {
 							VOLUME = v;
 						}
-    					PLAYER = PLAYERS[ptype];
-    					removeCurrentPlayer();
-    					VIDEO_TYPE = ptype;
-    					PLAYER.loadPlayer(id, time, VOLUME, length, vidObj.meta);
-                    }
-                    catch (e) {
+						PLAYER = PLAYERS[ptype];
+						removeCurrentPlayer();
+						VIDEO_TYPE = ptype;
+						PLAYER.loadPlayer(id, time, VOLUME, length, vidObj.meta);
+					}
+					catch (e) {
 						console.error(e);
-                    }
+					}
 				});
 			}
 			catch (e) {
 				// Private vimeos can throw exceptions at us here, and that breaks EVERYTHING
 			}
-        } else {
+		} else {
 			PLAYER = PLAYERS[ptype];
 			removeCurrentPlayer();
 			VIDEO_TYPE = ptype;
 			PLAYER.loadPlayer(id, time, VOLUME, length, vidObj.meta);
 		}
-    }
-    else {
-        PLAYER.playVideo(id, time, VOLUME);
-    }
+	}
+	else {
+		PLAYER.playVideo(id, time, VOLUME);
+	}
 }
-function videoPause(){
-    if(PLAYER.pause){
-        PLAYER.pause();
-    }
+function videoPause() {
+	if (PLAYER.pause) {
+		PLAYER.pause();
+	}
 }
 /* Utilities */
-function parseVideoURL(url,callback){
+function parseVideoURL(url, callback) {
 	console.log(url);
-	var m = url.match(new RegExp("youtube\\.com/watch.*?[&?]v=([a-zA-Z0-9_-]{11})")); if(m){	callback(m[1],"yt"); return;}
-	var m = url.match(new RegExp("youtu\\.be/([a-zA-Z0-9_-]{11})")); if(m){ callback(m[1],"yt"); return;}
-	var m = url.match(new RegExp("i\\.ytimg\\.com/an_webp/([a-zA-Z0-9_-]{11})/")); if(m){ callback(m[1],"yt"); return;}
-	var m = url.match(new RegExp("dailymotion.com/(?:embed/)?video/([a-zA-Z0-9]+)")); if(m){ callback(m[1],"dm"); return;}
-	var m = url.match(new RegExp("dai.ly/([a-zA-Z0-9]+)")); if(m){ callback(m[1],"dm"); return;}
-	var m = url.match(new RegExp("clips\\.twitch\\.tv/([A-Za-z0-9]+)")); if(m){	callback(m[1],"twitchclip",m[1]); return;}
-	var m = url.match(new RegExp("twitch\\.tv/[A-Za-z0-9]+/clip/([A-Za-z0-9]+)")); if(m){	callback(m[1],"twitchclip",m[1]); return;}
-	var m = url.match(new RegExp("twitch\\.tv/((?:videos/)?[A-Za-z0-9]+)")); if(m){	callback(m[1],"twitch",m[1]); return;}
-	var m = url.match(new RegExp("^rtmp://")); if(m){ callback(url,"osmf", "~ Raw Livestream ~"); return;}
-	var m = url.match(new RegExp("\\.f4m$")); if(m){ callback(url,"osmf", "~ Raw Livestream ~"); return;}
-	var m = url.match(new RegExp("vimeo.com/([^&]+)")); if(m){ callback(m[1],"vimeo"); return;}
-	var m = url.match(new RegExp("(https?://soundcloud.com/[^/]+/[^/?]+)")); if(m){ callback(m[1],"soundcloud"); return;}
-	var m = url.match(new RegExp("https://watch.cloudflarestream.com/([a-z0-9]+)")); if(m){ callback(`https://cloudflarestream.com/${m[1]}/manifest/video.mpd`,"dash", "~ Raw Livestream ~"); return;}
-	var m = url.match(new RegExp("\\.mpd")); if(m){ callback(url,"dash"); return;}
-	var m = url.match(new RegExp("\\.m3u8$")); if(m){ callback(url,"hls", "~ Raw Livestream ~"); return;}
-	var m = url.match(new RegExp("\\.json[^\\/]*$")); if(m){ callback(url,"manifest"); return;}
-	var m = url.match(new RegExp("\\.(?:mp4|webm)?[^\\/]*$")); if(m){ callback(url,"file"); return;}
+	var m = url.match(new RegExp("youtube\\.com/watch.*?[&?]v=([a-zA-Z0-9_-]{11})")); if (m) { callback(m[1], "yt"); return; }
+	var m = url.match(new RegExp("youtu\\.be/([a-zA-Z0-9_-]{11})")); if (m) { callback(m[1], "yt"); return; }
+	var m = url.match(new RegExp("i\\.ytimg\\.com/an_webp/([a-zA-Z0-9_-]{11})/")); if (m) { callback(m[1], "yt"); return; }
+	var m = url.match(new RegExp("dailymotion.com/(?:embed/)?video/([a-zA-Z0-9]+)")); if (m) { callback(m[1], "dm"); return; }
+	var m = url.match(new RegExp("dai.ly/([a-zA-Z0-9]+)")); if (m) { callback(m[1], "dm"); return; }
+	var m = url.match(new RegExp("clips\\.twitch\\.tv/([A-Za-z0-9]+)")); if (m) { callback(m[1], "twitchclip", m[1]); return; }
+	var m = url.match(new RegExp("twitch\\.tv/[A-Za-z0-9]+/clip/([A-Za-z0-9]+)")); if (m) { callback(m[1], "twitchclip", m[1]); return; }
+	var m = url.match(new RegExp("twitch\\.tv/((?:videos/)?[A-Za-z0-9]+)")); if (m) { callback(m[1], "twitch", m[1]); return; }
+	var m = url.match(new RegExp("^rtmp://")); if (m) { callback(url, "osmf", "~ Raw Livestream ~"); return; }
+	var m = url.match(new RegExp("\\.f4m$")); if (m) { callback(url, "osmf", "~ Raw Livestream ~"); return; }
+	var m = url.match(new RegExp("vimeo.com/([^&]+)")); if (m) { callback(m[1], "vimeo"); return; }
+	var m = url.match(new RegExp("(https?://soundcloud.com/[^/]+/[^/?]+)")); if (m) { callback(m[1], "soundcloud"); return; }
+	var m = url.match(new RegExp("https://watch.cloudflarestream.com/([a-z0-9]+)")); if (m) { callback(`https://cloudflarestream.com/${m[1]}/manifest/video.mpd`, "dash", "~ Raw Livestream ~"); return; }
+	var m = url.match(new RegExp("\\.mpd")); if (m) { callback(url, "dash"); return; }
+	var m = url.match(new RegExp("\\.m3u8$")); if (m) { callback(url, "hls", "~ Raw Livestream ~"); return; }
+	var m = url.match(new RegExp("\\.json[^\\/]*$")); if (m) { callback(url, "manifest"); return; }
+	var m = url.match(new RegExp("\\.(?:mp4|webm)?[^\\/]*$")); if (m) { callback(url, "file"); return; }
 	// ppshrug
-	callback(url,"yt");
+	callback(url, "yt");
 }
-function formatChatMsg(msg, greentext){
+function formatChatMsg(msg, greentext) {
 
 	var regexp = new RegExp("(http[s]{0,1}://[^ ]*)", 'ig');
-	msg = msg.replace(regexp,'<a href="$&">$&</a>');
+	msg = msg.replace(regexp, '<a href="$&">$&</a>');
 
 	var h = $('<span/>').html(msg);
 	$('a', h).attr("target", "_blank").attr("rel", "noopener noreferrer");
 
 	if (greentext !== false) {
-	    var re = RegExp("^>");
-		if(h.text().match(re)) {
+		var re = RegExp("^>");
+		if (h.text().match(re)) {
 			h.addClass("green");
 		}
 	}
 
 	return h;
 }
-function secondsToString(seconds){
+function secondsToString(seconds) {
 
 	var minutes = Math.floor(seconds / 60);
 	var seconds = Math.floor(seconds % 60);
@@ -2255,78 +2244,78 @@ function secondsToString(seconds){
 
 	days = days = days.toString();
 
-	if(hours < 10){
-	   hours = "0"+hours.toString();
-    }else{
-       hours = hours.toString();
-    }
+	if (hours < 10) {
+		hours = "0" + hours.toString();
+	} else {
+		hours = hours.toString();
+	}
 
-	if(minutes < 10){
-	   minutes = "0"+minutes.toString();
-    }else{
-       minutes = minutes.toString();
-    }
+	if (minutes < 10) {
+		minutes = "0" + minutes.toString();
+	} else {
+		minutes = minutes.toString();
+	}
 
-    if(seconds < 10){
-	   seconds = "0"+seconds.toString();
-    }else{
-       seconds = seconds.toString();
-    }
+	if (seconds < 10) {
+		seconds = "0" + seconds.toString();
+	} else {
+		seconds = seconds.toString();
+	}
 
-	return days + ":"+hours+":"+minutes+":"+seconds;
+	return days + ":" + hours + ":" + minutes + ":" + seconds;
 }
-function isMainGameOn(){
+function isMainGameOn() {
 	TIME = new Date();
 	// Main game runs from 4AM Saturday UTC "to" 10AM Saturday UTC.
-	if(
+	if (
 		TIME.getUTCDay() == 6 && // 6 for Saturday
 		TIME.getUTCHours() >= 4 &&
 		TIME.getUTCHours() < 10
-	){
-            return true;
+	) {
+		return true;
 	}
 	return false;
 }
-function timeToMainGame(){
-    var WEEK = 604800;
+function timeToMainGame() {
+	var WEEK = 604800;
 	TIME = new Date();
 	GAME = new Date();
-    var startDay = 6;
-    var startHr = 4;
-    var stopHr = 10;
+	var startDay = 6;
+	var startHr = 4;
+	var stopHr = 10;
 
-    var dayOffset = 0;
-    var day = TIME.getUTCDay();
-    while (day != startDay){
-        dayOffset++;
-        day++;
-        if (day>=7) {
-			day=0;
+	var dayOffset = 0;
+	var day = TIME.getUTCDay();
+	while (day != startDay) {
+		dayOffset++;
+		day++;
+		if (day >= 7) {
+			day = 0;
 		}
-    }
+	}
 
-    console.log(TIME.getUTCDate() + dayOffset);
-    GAME.setUTCDate(TIME.getUTCDate() + dayOffset);
-    GAME.setUTCHours(startHr);
-    GAME.setUTCMinutes(0);
-    GAME.setUTCSeconds(-1);
+	console.log(TIME.getUTCDate() + dayOffset);
+	GAME.setUTCDate(TIME.getUTCDate() + dayOffset);
+	GAME.setUTCHours(startHr);
+	GAME.setUTCMinutes(0);
+	GAME.setUTCSeconds(-1);
 
-    var timeUntilGameStarts = (GAME.getTime() / 1000) - (TIME.getTime() / 1000);
-    if (timeUntilGameStarts < 0) {
+	var timeUntilGameStarts = (GAME.getTime() / 1000) - (TIME.getTime() / 1000);
+	if (timeUntilGameStarts < 0) {
 		timeUntilGameStarts += WEEK;
 	}
 
-    GAME.setUTCHours(stopHr);
+	GAME.setUTCHours(stopHr);
 
-    var timeUntilGameStops = (GAME.getTime() / 1000) - (TIME.getTime() / 1000);
-    if (timeUntilGameStops < 0) {
+	var timeUntilGameStops = (GAME.getTime() / 1000) - (TIME.getTime() / 1000);
+	if (timeUntilGameStops < 0) {
 		timeUntilGameStops += WEEK;
 	}
 
-    return {
-        start:timeUntilGameStarts,
-        stop:timeUntilGameStops
-    };
+	return {
+		start: timeUntilGameStarts,
+		stop: timeUntilGameStops
+	};
 }
 /*function isMainGameOn(){
 	TIME = new Date();
@@ -2338,7 +2327,7 @@ function timeToMainGame(){
 
 	if(dow = DATE.getUTCDay()
 }*/
-function detectName(nick, msg){
+function detectName(nick, msg) {
 	var list = '';
 	if (nick) {
 		list += nick;
@@ -2351,7 +2340,7 @@ function detectName(nick, msg){
 	}
 	list = '(' + list + ')';
 
-    return (msg.match(RegExp("(^|[^\-a-zA-Z0-9_])" + list + "([^a-zA-Z0-9_]|$)",'i')) != null);
+	return (msg.match(RegExp("(^|[^\-a-zA-Z0-9_])" + list + "([^a-zA-Z0-9_]|$)", 'i')) != null);
 }
 function tabComplete(elem) {
 	var chat = elem.val();
@@ -2383,7 +2372,7 @@ function tabComplete(elem) {
 					}
 					index++;
 				}
-				result.splice(index, 0, { nick:prop, lastchat:CHATLIST[prop] });
+				result.splice(index, 0, { nick: prop, lastchat: CHATLIST[prop] });
 			}
 		}
 
@@ -2422,44 +2411,44 @@ function tabComplete(elem) {
 		elem.data('tabindex', index);
 	}
 }
-function revertLoaders(){
-	$('.loading').each(function(key,elem){
+function revertLoaders() {
+	$('.loading').each(function (key, elem) {
 		$(elem).text($(elem).data('revertTxt'));
 		$(elem).removeClass('loading');
 	});
 }
-function highlight(elem){
+function highlight(elem) {
 	$(elem).effect("highlight", {}, 1000);
 }
-function scrollToPlEntry(index){
-  var scrollbar = $('#playlist').data("plugin_tinyscrollbar");
-	try{
+function scrollToPlEntry(index) {
+	var scrollbar = $('#playlist').data("plugin_tinyscrollbar");
+	try {
 		var t = $("#playlist ul").children(":not(.search-hidden)")[index];
 		var vph = $("#playlist .overview").height();
 		var plh = $("#playlist .viewport").height();
 		var o = $(t).position().top;
-		if(o + plh > vph){
-      scrollbar.update("bottom");
+		if (o + plh > vph) {
+			scrollbar.update("bottom");
 		} else {
-      scrollbar.update(o);
+			scrollbar.update(o);
 		}
-	}catch(e){}
+	} catch (e) { }
 }
-function smartRefreshScrollbar(){
-	try{
+function smartRefreshScrollbar() {
+	try {
 		var scrollPos = parseInt($("#playlist .overview").css("top"));
 		var listHeight = $("#playlist .overview").height();
 		var viewportHeight = $("#playlist .viewport").height();
 		$("#playlist").tinyscrollbar();
-    var scrollbar = $('#playlist').data("plugin_tinyscrollbar");
-		if(scrollPos + listHeight <= viewportHeight){
-      scrollbar.update("bottom");
-		}else{
+		var scrollbar = $('#playlist').data("plugin_tinyscrollbar");
+		if (scrollPos + listHeight <= viewportHeight) {
+			scrollbar.update("bottom");
+		} else {
 			scrollbar.update(scrollPos * -1);
 		}
-	}catch(e){}
+	} catch (e) { }
 }
-function getVideoIdOfLongUrl(url){
+function getVideoIdOfLongUrl(url) {
 	var id = url.match(/v=([^&]+)/);
 	if (id == null) {
 		return false;
@@ -2467,48 +2456,46 @@ function getVideoIdOfLongUrl(url){
 	var id = url.match(/v=([^&]+)/)[1];
 	return id;
 }
-function realignPosHelper(){
-	try{
+function realignPosHelper() {
+	try {
 		var avgpos = ACTIVE.domobj.position().top + (ACTIVE.domobj.height() / 2);
-		var barloc = Math.round(100*(avgpos / $("#playlist .overview").height()));
-		$("#playlist .track").css('background-position','0px '+barloc+'%');
-	}catch(e){}
+		var barloc = Math.round(100 * (avgpos / $("#playlist .overview").height()));
+		$("#playlist .track").css('background-position', '0px ' + barloc + '%');
+	} catch (e) { }
 }
-function setPlaylistPosition(to){
+function setPlaylistPosition(to) {
 	/* Keep in mind this is a logical change,
 	nothing can change the physically playing
 	video except an order from the server. */
-	waitForFlag("PLREADY",function(){
+	waitForFlag("PLREADY", function () {
 		//unset active class
 		dbg(to);
-		if(typeof ACTIVE.domobj != "undefined") {
+		if (typeof ACTIVE.domobj != "undefined") {
 			ACTIVE.domobj.removeClass("active");
 		}
 
 		var elem = PLAYLIST.first;
 		ACTIVE = PLAYLIST.first;
-		for(var i=0;i<PLAYLIST.length;i++)
-		{
+		for (var i = 0; i < PLAYLIST.length; i++) {
 			//dbg(elem.videoid+" =?= "+to.video.videoid);
-			if(elem.videoid == to.video.videoid)
-			{
+			if (elem.videoid == to.video.videoid) {
 				ACTIVE = elem;
 				//scrollToPlEntry(i);
 				break;
 			}
-			elem=elem.next;
+			elem = elem.next;
 		}
-		if(typeof ACTIVE.domobj != "undefined") {
+		if (typeof ACTIVE.domobj != "undefined") {
 			ACTIVE.domobj.addClass("active");
 		}
 		//PL_POSITION = to;
 
 		smartRefreshScrollbar();
 		realignPosHelper();
-		if(getStorage("plFolAcVid") == 1){
+		if (getStorage("plFolAcVid") == 1) {
 			var x = ACTIVE.domobj.index();
 			x -= 2;
-			if(x < 0) {
+			if (x < 0) {
 				x = 0;
 			}
 			scrollToPlEntry(x);
@@ -2585,7 +2572,7 @@ function notifyNewMsg(channel, isSquee, isRcv) {
 						clearInterval(MAIN_NOTIFY);
 					}
 					maintab.addClass('squee');
-					MAIN_NOTIFY = setInterval(function() {
+					MAIN_NOTIFY = setInterval(function () {
 						if (maintab.hasClass('squee')) {
 							maintab.removeClass('squee');
 						}
@@ -2606,7 +2593,7 @@ function notifyNewMsg(channel, isSquee, isRcv) {
 						clearInterval(ADMIN_NOTIFY);
 					}
 					admintab.addClass('squee');
-					ADMIN_NOTIFY = setInterval(function() {
+					ADMIN_NOTIFY = setInterval(function () {
 						if (admintab.hasClass('squee')) {
 							admintab.removeClass('squee');
 							$('#chatpane').removeClass('squee');
@@ -2627,57 +2614,53 @@ function notifyNewMsg(channel, isSquee, isRcv) {
 }
 
 function sortPlaylist(data) {
-	setVal("sorting",true);
+	setVal("sorting", true);
 	var elem = PLAYLIST.first;
-	var fromelem,toelem;
-	for(var i=0;i<PLAYLIST.length;i++)
-	{
-		if(i == data.from)
-		{
+	var fromelem, toelem;
+	for (var i = 0; i < PLAYLIST.length; i++) {
+		if (i == data.from) {
 			fromelem = elem;
 			break;
 		}
-		elem=elem.next;
+		elem = elem.next;
 	}
-    // Sanity check
-    if (fromelem.videoid != data.sanityid) {
-        // DOOR STUCK
-        setVal("sorting", false);
-        socket.emit("refreshMyPlaylist");
-    }
-    else {
-        elem = PLAYLIST.first;
-        for(var i=0;i<PLAYLIST.length;i++)
-        {
-            if(i == data.to)
-            {
-                toelem = elem;
-                break;
-            }
-            elem=elem.next;
-        }
+	// Sanity check
+	if (fromelem.videoid != data.sanityid) {
+		// DOOR STUCK
+		setVal("sorting", false);
+		socket.emit("refreshMyPlaylist");
+	}
+	else {
+		elem = PLAYLIST.first;
+		for (var i = 0; i < PLAYLIST.length; i++) {
+			if (i == data.to) {
+				toelem = elem;
+				break;
+			}
+			elem = elem.next;
+		}
 
-        PLAYLIST.remove(fromelem);
-        if(data.to > data.from){
-            PLAYLIST.insertAfter(toelem,fromelem);
-            fromelem.domobj.hide("blind",function(){
-                fromelem.domobj.insertAfter(toelem.domobj).show("blind",function(){
-                    fromelem.domobj.css("display","list-item");
-                    realignPosHelper();
-                    setVal("sorting",false);
-                });
-            });
-        }else{
-            PLAYLIST.insertBefore(toelem,fromelem);
-            fromelem.domobj.hide("blind",function(){
-                fromelem.domobj.insertBefore(toelem.domobj).show("blind",function(){
-                    fromelem.domobj.css("display","list-item");
-                    realignPosHelper();
-                    setVal("sorting",false);
-                });
-            });
-        }
-    }
+		PLAYLIST.remove(fromelem);
+		if (data.to > data.from) {
+			PLAYLIST.insertAfter(toelem, fromelem);
+			fromelem.domobj.hide("blind", function () {
+				fromelem.domobj.insertAfter(toelem.domobj).show("blind", function () {
+					fromelem.domobj.css("display", "list-item");
+					realignPosHelper();
+					setVal("sorting", false);
+				});
+			});
+		} else {
+			PLAYLIST.insertBefore(toelem, fromelem);
+			fromelem.domobj.hide("blind", function () {
+				fromelem.domobj.insertBefore(toelem.domobj).show("blind", function () {
+					fromelem.domobj.css("display", "list-item");
+					realignPosHelper();
+					setVal("sorting", false);
+				});
+			});
+		}
+	}
 }
 
 function filterAdminLog() {
@@ -2729,7 +2712,7 @@ function getUserQualityPreference() {
 }
 
 function setUserQualityPreference(value) {
-	if (typeof(value) !== "number") {
+	if (typeof (value) !== "number") {
 		return;
 	}
 

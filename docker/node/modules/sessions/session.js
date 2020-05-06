@@ -18,7 +18,7 @@ const userTypesToName = (exports.userTypesToName = {
 	[userTypes.ADMINISTRATOR]: "Administrator",
 });
 
-exports.getSocketName = function(socket) {
+exports.getSocketName = function (socket) {
 	if (!socket) {
 		return "Server";
 	}
@@ -27,10 +27,6 @@ exports.getSocketName = function(socket) {
 };
 
 exports.Session = class {
-	get isBerry() {
-		return this === this.sessions.berrySession;
-	}
-
 	get publicData() {
 		return { id: this.id, type: this.type, nick: this.nick };
 	}
@@ -80,6 +76,7 @@ exports.Session = class {
 		this.type = userTypes.LURKER;
 		this.nick = "[no username]";
 		this.hasNick = false;
+		this.isBerry = false;
 		this.sockets = [];
 	}
 
@@ -136,7 +133,7 @@ exports.Session = class {
 		this.sockets.splice(index, 1);
 	}
 
-	kick(reason, mod=undefined) {
+	kick(reason, mod = undefined) {
 		this.log.info(
 			events.EVENT_ADMIN_KICKED,
 			mod ? "{mod} kicked {nick}" : "{nick} got kicked because {reason}",
@@ -187,7 +184,7 @@ class BerrySocket {
 	addOnAuthenticatedHandler(handler) {
 		if (this.isAuthenticated) {
 			handler(this);
-			return () => {};
+			return () => { };
 		}
 
 		this.onAuthenticatedHandlers.push(handler);

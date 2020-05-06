@@ -1,36 +1,33 @@
-function vimeo_player_loaded(id){
+function vimeo_player_loaded(id) {
 	//id is automatically passed
-	setVal("VIMEOPLAYERLOADED",true);
+	setVal("VIMEOPLAYERLOADED", true);
 }
 function onYouTubeIframeAPIReady() {
-	setVal("YTAPREADY",true);
+	setVal("YTAPREADY", true);
 }
 function onDailymotionPlayerReady() {
 	setVal("DMPLAYERREADY", true);
 }
-function videoEnded(){
+function videoEnded() {
 	// Playlist progression is controlled by the server now, but if someone has berry, it should still ask for next.
-    // TODO: Should we really be doing this? Could this be causing the berry delay bug?
-    if(LEADER){
-		socket.emit("playNext");
+	// TODO: Should we really be doing this? Could this be causing the berry delay bug?
+	if (LEADER) {
+		//socket.emit("playNext");
 	}
 }
-function videoSeeked(time){
+function videoSeeked(time) {
 	// Playlist progression is controlled by the server now.
-	if(controlsVideo())
-	{
+	if (controlsVideo()) {
 		console.log('videoSeek');
-		socket.emit("videoSeek",time);
+		socket.emit("videoSeek", time);
 	}
 }
-function videoPlaying(){
+function videoPlaying() {
 	//PLAYING_VID = getLiteralPlayingVidID();
-	if(controlsVideo())
-	{
-		videoGetTime(function(time){
-			SEEK_TO=time;
-			if(SEEK_TO != SEEK_FROM)
-			{
+	if (controlsVideo()) {
+		videoGetTime(function (time) {
+			SEEK_TO = time;
+			if (SEEK_TO != SEEK_FROM) {
 				videoSeeked(time);
 			}
 			SEEK_FROM = 0;
@@ -39,61 +36,57 @@ function videoPlaying(){
 		});
 	}
 }
-function videoPaused(){
-	if(controlsVideo())
-	{
-		videoGetTime(function(time){
-			if(SEEK_FROM == 0) SEEK_FROM=time;
+function videoPaused() {
+	if (controlsVideo()) {
+		videoGetTime(function (time) {
+			if (SEEK_FROM == 0) SEEK_FROM = time;
 			forceStateChange();
 			dbg("PAUSED");
 		});
 	}
 }
 
-socket.on("createPlayer",function(data){
-    console.log('createPlayer', data);
-	INIT_TIME=data.time;
+socket.on("createPlayer", function (data) {
+	console.log('createPlayer', data);
+	INIT_TIME = data.time;
 	setPlaylistPosition(data);
 	var tag = document.createElement('script');
-    tag.src = "https://www.youtube.com/iframe_api";
-    var firstScriptTag = document.getElementsByTagName('script')[0];
-    firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
-	videoLoadAtTime(data.video,data.time);
+	tag.src = "https://www.youtube.com/iframe_api";
+	var firstScriptTag = document.getElementsByTagName('script')[0];
+	firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+	videoLoadAtTime(data.video, data.time);
 });
-socket.on("renewPos",function(data){
+socket.on("renewPos", function (data) {
 	setPlaylistPosition(data);
 });
-socket.on("recvNewPlaylist",function(data){
+socket.on("recvNewPlaylist", function (data) {
 	PLAYLIST = new LinkedList.Circular();
-	for(var i in data)
-	{
+	for (var i in data) {
 		PLAYLIST.append(data[i]);
 	}
 	newPlaylist($("#plul"));
 	socket.emit("renewPos");
 });
-socket.on("recvPlaylist",function(data){
+socket.on("recvPlaylist", function (data) {
 	PLAYLIST = new LinkedList.Circular();
-	for(var i in data)
-	{
+	for (var i in data) {
 		PLAYLIST.append(data[i]);
 	}
-	whenExists("#leftpane",function(obj){
+	whenExists("#leftpane", function (obj) {
 		initPlaylist($(obj));
-		setVal("PLREADY",true);
+		setVal("PLREADY", true);
 	});
 });
-socket.on("hbVideoDetail",function(data){
+socket.on("hbVideoDetail", function (data) {
 
 	//if(videoGetState() == -1 || videoGetState() == 3 ) return;
-	if(controlsVideo()) return;
+	if (controlsVideo()) return;
 	dbg('hbVideoDetail data');
 	dbg(data);
 	//Check if video ID is the same as ours.
-	if(ACTIVE.videoid != data.video.videoid)
-	{
+	if (ACTIVE.videoid != data.video.videoid) {
 		// Ask server for a videochange/update.
-		dbg("SHIT: "+ACTIVE.videoid+" != "+data.video.videoid);
+		dbg("SHIT: " + ACTIVE.videoid + " != " + data.video.videoid);
 		socket.emit("refreshMyVideo");
 	}
 	/*else if(ACTIVE.videoid == data.video.videoid && videoGetState() == 0) // We've already finished.
@@ -101,38 +94,33 @@ socket.on("hbVideoDetail",function(data){
 		// Ho hum.
 		dbg("SHIT: ho-hum");
 	}*/
-	else if(getStorage('syncAtAll') == 1)
-	{
+	else if (getStorage('syncAtAll') == 1) {
 		dbg("SYNCH_AT_ALL");
-		videoGetTime(function(time){
-			if(Math.abs(time - data.time) > getStorage('syncAccuracy'))
-			{
-				dbg("SHIT: "+(time - data.time)+" > "+getStorage('syncAccuracy'));
+		videoGetTime(function (time) {
+			if (Math.abs(time - data.time) > getStorage('syncAccuracy')) {
+				dbg("SHIT: " + (time - data.time) + " > " + getStorage('syncAccuracy'));
 				videoSeekTo(data.time);
 			}
 
-			if(videoGetState() == 2)
-			{
-				dbg("SHIT: "+videoGetState()+" > 2");
+			if (videoGetState() == 2) {
+				dbg("SHIT: " + videoGetState() + " > 2");
 				videoSeekTo(data.time);
 			}
 
-			if(data.state == 1 && videoGetState() != 1)
-			{
-				dbg("SHIT: "+data.state+" == 1 && "+videoGetState()+" != 1");
+			if (data.state == 1 && videoGetState() != 1) {
+				dbg("SHIT: " + data.state + " == 1 && " + videoGetState() + " != 1");
 				videoPlay();
 			}
 
-			if(data.state == 2 && videoGetState() != 2)
-			{
-				dbg("SHIT: "+data.state+" == 2 && "+videoGetState()+" != 2");
+			if (data.state == 2 && videoGetState() != 2) {
+				dbg("SHIT: " + data.state + " == 2 && " + videoGetState() + " != 2");
 				videoPause();
 				videoSeekTo(data.time);
 			}
 
-			if(data.state == 3 && videoGetState() != 2) // Intentionally 2
+			if (data.state == 3 && videoGetState() != 2) // Intentionally 2
 			{
-				dbg("SHIT: "+data.state+" == 3 && "+videoGetState()+" != 2");
+				dbg("SHIT: " + data.state + " == 3 && " + videoGetState() + " != 2");
 				videoPause();
 				videoSeekTo(data.time);
 			}
@@ -140,14 +128,14 @@ socket.on("hbVideoDetail",function(data){
 	}
 	dbg("hbVideoDetail Complete");
 });
-socket.on("sortPlaylist",function(data){
+socket.on("sortPlaylist", function (data) {
 	unfuckPlaylist();
-	waitForNegativeFlag('sorting', function() { sortPlaylist(data); });
+	waitForNegativeFlag('sorting', function () { sortPlaylist(data); });
 });
-socket.on("forceVideoChange",function(data){
+socket.on("forceVideoChange", function (data) {
 	unfuckPlaylist();
 	setPlaylistPosition(data);
-	videoLoadAtTime(ACTIVE,data.time);
+	videoLoadAtTime(ACTIVE, data.time);
 	if (MONITORED_VIDEO != null) {
 		ATTENTION.play();
 		MONITORED_VIDEO.domobj.removeClass('notify');
@@ -157,20 +145,20 @@ socket.on("forceVideoChange",function(data){
 	dbg(data);
 	dbg("forceVideoChange comeplete");
 });
-socket.on("dupeAdd",function(){
+socket.on("dupeAdd", function () {
 	revertLoaders();
 });
-socket.on("badAdd",function(){
+socket.on("badAdd", function () {
 	dbg("Bad Add");
 	revertLoaders();
 });
-socket.on("setAreas",function(data){
-	for(var i=0;i<data.length;i++){
-		(function(i){
+socket.on("setAreas", function (data) {
+	for (var i = 0; i < data.length; i++) {
+		(function (i) {
 			var name = data[i].name;
 			var html = data[i].html;
-			var selName = "#dyn_"+name;
-			whenExists(selName,function(area){
+			var selName = "#dyn_" + name;
+			whenExists(selName, function (area) {
 				area.html(html);
 				$("a:not([rel])", area).attr("rel", "noopener noreferrer");
 				$("img:not([alt])", area).attr("alt", "");
@@ -178,41 +166,58 @@ socket.on("setAreas",function(data){
 		})(i);
 	}
 });
-socket.on("addVideo",function(data){
+socket.on("addVideo", function (data) {
 	unfuckPlaylist();
 	addVideo(data.video, data.queue, data.sanityid);
 });
-socket.on("addPlaylist",function(data){
+socket.on("addPlaylist", function (data) {
 	dbg(data);
 	var vs = data.videos;
-	for(var i=0;i<vs.length;i++){
-		if(vs[i] != null) addVideo(vs[i]);
+	for (var i = 0; i < vs.length; i++) {
+		if (vs[i] != null) addVideo(vs[i]);
 	}
 });
-socket.on("delVideo",function(data){
+socket.on("delVideo", function (data) {
 	unfuckPlaylist();
 	dbg(data);
 	var pos = data.position;
 	elem = $("#playlist ul").children().eq(pos).data('plobject');
-    // Sanity check
-    if (elem.videoid != data.sanityid) {
-        // DOOR STUCK
-        socket.emit("refreshMyPlaylist");
-    }
-    else {
-        elem.domobj.remove();
-        PLAYLIST.remove(elem);
-        smartRefreshScrollbar();
-        recalcStats();
-    }
+	// Sanity check
+	if (elem.videoid != data.sanityid) {
+		// DOOR STUCK
+		socket.emit("refreshMyPlaylist");
+	}
+	else {
+		elem.domobj.remove();
+		PLAYLIST.remove(elem);
+		smartRefreshScrollbar();
+		recalcStats();
+	}
 });
-socket.on("setLeader",function(data){
+socket.on("setLeader", function (data) {
+	if (data && !LEADER) {
+		addChatMsg(
+			{
+				msg: {
+					emote: "rcv",
+					nick: "server",
+					type: 0,
+					msg: "You have been given berry",
+					multi: 0,
+					metadata: { isSquee: true },
+				},
+				ghost: false,
+			},
+			"#chatbuffer",
+		);
+	}
+
 	LEADER = data;
 	handleACL();
-	if(sortUserList)sortUserList();
+	if (sortUserList) sortUserList();
 });
-socket.on("chatMsg",function(data){
-	switch(data.msg.metadata.channel) {
+socket.on("chatMsg", function (data) {
+	switch (data.msg.metadata.channel) {
 		case 'main':
 			addChatMsg(data, '#chatbuffer');
 			break;
@@ -225,172 +230,147 @@ socket.on("chatMsg",function(data){
 			break;
 	}
 });
-socket.on("setNick",function(data){
+socket.on("setNick", function (data) {
 	setNick(data);
 });
-socket.on("setType",function(data){
+socket.on("setType", function (data) {
 	TYPE = data;
 	handleACL();
 });
-socket.on("newChatList",function(data){
+socket.on("newChatList", function (data) {
 	initChatList(data);
 });
-socket.on("userJoin",function(data){
-	dbg('JOIN');dbg(data);
+socket.on("userJoin", function (data) {
+	dbg('JOIN'); dbg(data);
 	addUser(data, true);
 });
-socket.on("fondleUser", function(data) {
+socket.on("fondleUser", function (data) {
 	switch (data.action) {
 		case 'setUserNote':
 			updateUserNote(data.info.nick, data.info.note);
 			break;
 	}
 });
-socket.on("userPart",function(data){
-	dbg('PART');dbg(data);
+socket.on("userPart", function (data) {
+	dbg('PART'); dbg(data);
 	rmUser(data.nick);
 });
-socket.on("shadowBan", function(data){
-    var o = $('#chatlist ul li.'+data.nick);
-    o.addClass('sbanned');
+socket.on("shadowBan", function (data) {
+	var o = $('#chatlist ul li.' + data.nick);
+	o.addClass('sbanned');
 });
-socket.on("unShadowBan", function(data){
-    var o = $('#chatlist ul li.'+data.nick);
-    o.removeClass('sbanned');
+socket.on("unShadowBan", function (data) {
+	var o = $('#chatlist ul li.' + data.nick);
+	o.removeClass('sbanned');
 });
-socket.on("drinkCount",function(data){
+socket.on("drinkCount", function (data) {
 	manageDrinks(data.drinks);
 });
-socket.on("numConnected",function(data){
+socket.on("numConnected", function (data) {
 	handleNumCount(data);
 });
 socket.on(
 	"leaderIs",
-	(() => {
-		let lastLeader = null;
-		return data => {
-			// Keep trying to set until you do.
-			if (data.nick == false) {
-				// server is leading.
-				$("#chatlist ul li").removeClass("leader");
-				return;
-			}
+	data => {
+		// Keep trying to set until you do.
+		if (data.nick == false) {
+			// server is leading.
+			$("#chatlist ul li").removeClass("leader");
+			return;
+		}
 
-			whenExists("#chatlist ul li", function(obj) {
-				$(obj).removeClass("leader");
-				$(obj).each(function(key, val) {
-					if ($(val).data("nick") == data.nick) {
-						$("#chatlist ul li").removeClass("leader");
-						$(val).addClass("leader");
-					}
-				});
-			});
-
-			if (sortUserList) {
-				sortUserList();
-			}
-
-			if (lastLeader !== data.nick) {
-				if (data.nick === NAME) {
-					addChatMsg(
-						{
-							msg: {
-								emote: "rcv",
-								nick: "server",
-								type: 0,
-								msg: "You have been given berry",
-								multi: 0,
-								metadata: { isSquee: true },
-							},
-							ghost: false,
-						},
-						"#chatbuffer",
-					);
+		whenExists("#chatlist ul li", function (obj) {
+			$(obj).removeClass("leader");
+			$(obj).each(function (key, val) {
+				if (data.nicks.includes($(val).data("nick"))) {
+					$(val).addClass("leader");
 				}
+			});
+		});
 
-				lastLeader = data.nick;
-			}
-		};
-	})(),
+		if (sortUserList) {
+			sortUserList();
+		}
+	}
 );
-socket.on("setVidVolatile",function(data){
+socket.on("setVidVolatile", function (data) {
 	pos = data.pos;
 	isVolat = data.volat;
-	setVidVolatile(pos,isVolat);
+	setVidVolatile(pos, isVolat);
 });
-socket.on("setVidColorTag",function(data){
+socket.on("setVidColorTag", function (data) {
 	var pos = data.pos;
 	var tag = data.tag;
 	var volat = data.volat;
-	setVidColorTag(pos,tag,volat);
+	setVidColorTag(pos, tag, volat);
 });
-socket.on("kicked",function(reason){
+socket.on("kicked", function (reason) {
 	var msg = "You have been kicked";
 	if (reason) {
 		msg += ": " + reason;
 	}
 	$('<div/>').addClass("kicked").text(msg).appendTo($('.chatbuffer'));
 });
-socket.on('serverRestart', function(){
+socket.on('serverRestart', function () {
 	onSocketReconnecting('serverRestart');
 });
 /* Poll Stuff */
-socket.on("newPoll",function(data){
+socket.on("newPoll", function (data) {
 	newPoll(data);
 });
-socket.on("updatePoll",function(data){
+socket.on("updatePoll", function (data) {
 	updatePoll(data);
 });
-socket.on("setToggleable",function(data){
+socket.on("setToggleable", function (data) {
 	tn = data.name;
 	ts = data.state;
-	setToggleable(tn,ts);
+	setToggleable(tn, ts);
 });
-socket.on("setToggleables",function(data){
+socket.on("setToggleables", function (data) {
 	dbg(data);
-	for(var i in data){
+	for (var i in data) {
 		tn = i;
 		ts = data[i].state;
 		tl = data[i].label;
-		setToggleable(tn,ts,tl);
+		setToggleable(tn, ts, tl);
 	}
 });
-socket.on("clearPoll",function(data){
+socket.on("clearPoll", function (data) {
 	updatePoll(data);
 	closePoll(data);
 });
-socket.on("recvFilters",function(data){
+socket.on("recvFilters", function (data) {
 	FILTERS = data;
 });
-socket.on("recvBanlist", function(data) {
+socket.on("recvBanlist", function (data) {
 	BANLIST = data;
 });
-socket.on("recvPlugins",function(data){
-	for(var i = 0;i<data.length;i++){
+socket.on("recvPlugins", function (data) {
+	for (var i = 0; i < data.length; i++) {
 		//console.log("plugins",data[i]);
 		var obj = {};
-		for(var j in data[i]){
-			if(data[i][j].match(/^function/)){
-				obj[j] = eval("temp = "+data[i][j]);
+		for (var j in data[i]) {
+			if (data[i][j].match(/^function/)) {
+				obj[j] = eval("temp = " + data[i][j]);
 			} else {
 				obj[j] = data[i][j];
 			}
 		}
 		PLUGINS.push(obj);
 	}
-	for(var i = 0;i< PLUGINS.length;i++){
-		if(PLUGINS[i].onLoad)PLUGINS[i].onLoad();
+	for (var i = 0; i < PLUGINS.length; i++) {
+		if (PLUGINS[i].onLoad) PLUGINS[i].onLoad();
 	}
 });
 //socket.emit("setOverrideCss","http://74.67.181.100/test.css")
-socket.on("overrideCss",function(data){
+socket.on("overrideCss", function (data) {
 	setColorTheme(data);
-	$("body").data("cssOverride",data);
+	$("body").data("cssOverride", data);
 });
-socket.on("loginError",function(data){
+socket.on("loginError", function (data) {
 	loginError(data);
 });
-socket.on("debug",function(data){
+socket.on("debug", function (data) {
 	dbg(data);
 });
 
@@ -412,7 +392,7 @@ function onSocketReconnecting(from) {
 	IGNORE_GHOST_MESSAGES = true;
 }
 
-socket.on('reconnect', function() {
+socket.on('reconnect', function () {
 	// Reconnection was successful; if there's login data set, log the user back in
 	$('.chatbuffer .reconnecting').remove();
 	$('#chatinput input').prop('disabled', false);
@@ -427,29 +407,29 @@ socket.on('reconnect', function() {
 function cleanupSessionNick(s) {
 	return s.replace(/session\((\d+), ([^,]+), ([^)]+)\)/, '$2');
 }
-socket.on('adminLog', function(data){
+socket.on('adminLog', function (data) {
 	if (data.timestamp) {
-    	data.timestamp = new Date(data.timestamp);
-    }
-    if (data.nick) {
-    	data.nick = cleanupSessionNick(data.nick);
-    }
-    if (data.msg) {
-    	data.msg = cleanupSessionNick(data.msg);
-    }
-    if (data.logEvent && data.logEvent.data && data.logEvent.data.mod) {
-    	data.logEvent.data.mod = cleanupSessionNick(data.logEvent.data.mod);
-    }
-    if (data.logEvent && data.logEvent.formatted) {
-    	data.logEvent.formatted = cleanupSessionNick(data.logEvent.formatted);
-    }
-    ADMIN_LOG.push(data);
-    if(ADMIN_LOG.length > 200){
-        ADMIN_LOG.shift();
-    }
-    addLogMsg(data, $('#logBuffer'));
+		data.timestamp = new Date(data.timestamp);
+	}
+	if (data.nick) {
+		data.nick = cleanupSessionNick(data.nick);
+	}
+	if (data.msg) {
+		data.msg = cleanupSessionNick(data.msg);
+	}
+	if (data.logEvent && data.logEvent.data && data.logEvent.data.mod) {
+		data.logEvent.data.mod = cleanupSessionNick(data.logEvent.data.mod);
+	}
+	if (data.logEvent && data.logEvent.formatted) {
+		data.logEvent.formatted = cleanupSessionNick(data.logEvent.formatted);
+	}
+	ADMIN_LOG.push(data);
+	if (ADMIN_LOG.length > 200) {
+		ADMIN_LOG.shift();
+	}
+	addLogMsg(data, $('#logBuffer'));
 });
-socket.on('searchHistoryResults', function(data) {
+socket.on('searchHistoryResults', function (data) {
 	var plul = $('#playlist ul');
 	for (var i in data) {
 		var vid = data[i];
@@ -459,108 +439,109 @@ socket.on('searchHistoryResults', function(data) {
 
 		$("<div/>").addClass('title').text(decodeURIComponent(vid.videotitle)).appendTo(entry);
 
-		$("<div/>").addClass('delete').text("X").click(function() {
+		$("<div/>").addClass('delete').text("X").click(function () {
 			var video = $(this).parent().data('plobject');
 			var type = video.videotype;
 			var id = video.videoid;
 			socket.emit('delVideoHistory', {
-				videotype:type,
-				videoid:id });
+				videotype: type,
+				videoid: id
+			});
 
 			$(this).parent().remove();
-		}).mousedown(function(e) {
+		}).mousedown(function (e) {
 			e.stopPropagation();
 			e.preventDefault();
 		}).appendTo(entry);
 
-		$("<div/>").addClass('requeue').text("V").click(function() {
+		$("<div/>").addClass('requeue').text("V").click(function () {
 			var video = $(this).parent().data('plobject');
 			var type = video.videotype;
 			var id = video.videoid;
 			var videotitle = video.videotitle;
 			LAST_QUEUE_ATTEMPT = {
-				queue:true,
-				videotype:type,
-				videoid:id,
-				videotitle:videotitle,
-				volat:true
+				queue: true,
+				videotype: type,
+				videoid: id,
+				videotitle: videotitle,
+				volat: true
 			};
 			socket.emit('addVideo', LAST_QUEUE_ATTEMPT);
 
 			$(this).parent().remove();
-		}).mousedown(function(e) {
+		}).mousedown(function (e) {
 			e.stopPropagation();
 			e.preventDefault();
 		}).appendTo(entry);
 
-		$("<div/>").addClass('requeue').text("Q").click(function() {
+		$("<div/>").addClass('requeue').text("Q").click(function () {
 			var video = $(this).parent().data('plobject');
 			var type = video.videotype;
 			var id = video.videoid;
 			var videotitle = video.videotitle;
 			LAST_QUEUE_ATTEMPT = {
-				queue:true,
-				videotype:type,
-				videoid:id,
-				videotitle:videotitle,
-				volat:false
+				queue: true,
+				videotype: type,
+				videoid: id,
+				videotitle: videotitle,
+				volat: false
 			};
 			socket.emit('addVideo', LAST_QUEUE_ATTEMPT);
 
 			$(this).parent().remove();
-		}).mousedown(function(e) {
+		}).mousedown(function (e) {
 			e.stopPropagation();
 			e.preventDefault();
 		}).appendTo(entry);
 
-		entry.bind("contextmenu", function(e) {
+		entry.bind("contextmenu", function (e) {
 			var me = $(this);
 			var cmds = $("body").dialogWindow({
-				title:"Video Options",
-				uid:"videomenu",
-				offset:{
-					top:e.pageY,
-					left:e.pageX
+				title: "Video Options",
+				uid: "videomenu",
+				offset: {
+					top: e.pageY,
+					left: e.pageX
 				},
-				toolBox:true
+				toolBox: true
 			});
 			var optionList = $("<ul/>").addClass("optionList").appendTo(cmds);
-			if (me.data("plobject").videotype == "yt"){
+			if (me.data("plobject").videotype == "yt") {
 				var optBtn = $("<div/>").addClass("button").appendTo($("<li/>").appendTo(optionList));
 				$("<span/>").text("Open on YouTube").appendTo(optBtn);
-				optBtn.click(function(){
+				optBtn.click(function () {
 					var vid = me.data("plobject").videoid;
-					window.open('http://youtu.be/'+vid,'_blank');
+					window.open('http://youtu.be/' + vid, '_blank');
 				});
 			}
-			else if (me.data("plobject").videotype == "vimeo"){
+			else if (me.data("plobject").videotype == "vimeo") {
 				var optBtn = $("<div/>").addClass("button").appendTo($("<li/>").appendTo(optionList));
 				$("<span/>").text("Open on Vimeo").appendTo(optBtn);
-				optBtn.click(function(){
+				optBtn.click(function () {
 					var vid = me.data("plobject").videoid;
-					window.open('http://vimeo.com/'+vid,'_blank');
+					window.open('http://vimeo.com/' + vid, '_blank');
 				});
 			}
-            else if($(entry).data("plobject").videotype == "soundcloud"){
-                var optBtn = $("<div/>").addClass("button").appendTo($("<li/>").appendTo(optionList));
-                $("<span/>").text("Open on SoundCloud").appendTo(optBtn);
-                optBtn.click(function(){
-                    var vid = $(entry).data("plobject").meta.permalink;
-                    if (vid) {
-                        window.open(vid, '_blank');
-                    }
-                });
-            }
-            else if($(entry).data("plobject").videotype == "dm"){
-                var optBtn = $("<div/>").addClass("button").appendTo($("<li/>").appendTo(optionList));
-                $("<span/>").text("Open on DailyMotion").appendTo(optBtn);
-                optBtn.click(function(){
+			else if ($(entry).data("plobject").videotype == "soundcloud") {
+				var optBtn = $("<div/>").addClass("button").appendTo($("<li/>").appendTo(optionList));
+				$("<span/>").text("Open on SoundCloud").appendTo(optBtn);
+				optBtn.click(function () {
+					var vid = $(entry).data("plobject").meta.permalink;
+					if (vid) {
+						window.open(vid, '_blank');
+					}
+				});
+			}
+			else if ($(entry).data("plobject").videotype == "dm") {
+				var optBtn = $("<div/>").addClass("button").appendTo($("<li/>").appendTo(optionList));
+				$("<span/>").text("Open on DailyMotion").appendTo(optBtn);
+				optBtn.click(function () {
 					var vid = me.data("plobject").videoid.substr(2);
 					window.open('http://www.dailymotion.com/video/' + vid, '_blank');
-                });
-            }
+				});
+			}
 
-			if (optionList.children().length == 0){
+			if (optionList.children().length == 0) {
 				cmds.window.close();
 			}
 
@@ -576,17 +557,17 @@ socket.on('searchHistoryResults', function(data) {
 	scrollToPlEntry(0);
 	realignPosHelper();
 });
-socket.on('videoRestriction', function(data) {
+socket.on('videoRestriction', function (data) {
 	showVideoRestrictionDialog(data.restricted, data.noembed, data.countryNames || data.countries, data.totalCountries);
 });
-socket.on('doorStuck', function() {
-    // DOOR STUCK, DOOR STUCK
-    // PLEASE
-    // I BEG YOU
-    // YOU'RE A... A GENUINE DICK SUCKER
-    showDoorStuckDialog();
+socket.on('doorStuck', function () {
+	// DOOR STUCK, DOOR STUCK
+	// PLEASE
+	// I BEG YOU
+	// YOU'RE A... A GENUINE DICK SUCKER
+	showDoorStuckDialog();
 });
-socket.on('forceRefresh', function(data){
+socket.on('forceRefresh', function (data) {
 	let delay = 0;
 	if (data && data.delay) {
 		if (data.delay === true) {
@@ -601,7 +582,7 @@ socket.on('forceRefresh', function(data){
 			delay = data.delay;
 		}
 	}
-	setTimeout(function(){
+	setTimeout(function () {
 		// disable drunk mode to skip confirmation dialog
 		if (window.Bem) {
 			Bem.loggingIn = true;
@@ -609,7 +590,7 @@ socket.on('forceRefresh', function(data){
 		window.location.reload();
 	}, delay);
 });
-socket.on('shitpost', function(data){
+socket.on('shitpost', function (data) {
 	const parts = data.msg.split(' ');
 	switch (parts[0].toLowerCase()) {
 		case 'roll':
@@ -618,12 +599,12 @@ socket.on('shitpost', function(data){
 			const rollTarget = $(parts[1] || '#ytapiplayer,#chatpane');
 			const animation = parts[2] || '-zspin';
 			rollTarget.css('animation', '1.5s ' + animation);
-			setTimeout(function(){
+			setTimeout(function () {
 				rollTarget.css('animation', '');
 			}, 1500 + 100);
 			break;
 	}
 });
-socket.on('debugDump', function(data){
+socket.on('debugDump', function (data) {
 	DEBUG_DUMPS.push(data);
 });
