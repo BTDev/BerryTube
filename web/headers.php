@@ -63,7 +63,25 @@
 <link rel="stylesheet" href="<?= cdn('vendor/videojs-quality-selector/quality-selector.css') ?>" />
 
 <link rel="stylesheet" href="<?= cdn('css/colors.css') ?>" id="mainTheme"/>
-<link rel="stylesheet" href="<?= cdn('css/layout-other.css') ?>"/>
+<script>
+	const themeOverride = '<?= $themeOverride ?>';
+	if (themeOverride) {
+		localStorage.setItem('themeOverride', themeOverride);
+		localStorage.setItem('siteThemePath', themeOverride);
+	} else {
+		if (localStorage.getItem('themeOverride') === localStorage.getItem('siteThemePath')) {
+			localStorage.removeItem('siteThemePath');
+		}
+		localStorage.removeItem('themeOverride');
+	}
+
+	const initialTheme = localStorage.getItem('siteThemePath');
+	if (initialTheme) {
+		document.write(`<link rel="stylesheet" href="${initialTheme}" id="themeCss" />`);
+	}
+</script>
+
+<link rel="stylesheet" href="<?= cdn('css/layout-other.css') ?>" />
 <link rel="stylesheet" href="<?= cdn('css/uni-gui.css') ?>" />
 <link rel="stylesheet" href="<?= cdn('css/countdown.css') ?>" />
 <link rel="stylesheet" href="<?= cdn('berrymotes/css/berryemotecore.css') ?>" />
@@ -83,25 +101,6 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/videojs-contrib-dash/2.10.0/videojs-dash.min.js" integrity="sha256-xhLRr5mlvCCC7DndQjNURZOXGxwYUoB2VoF0mNUiuJc=" crossorigin="anonymous" defer></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/0.9.16/socket.io.min.js" integrity="sha256-bFYtqOZj1MLDlOrOlxCU9aruDP2zxiIKvmoo+dHsy4w=" crossorigin="anonymous" defer></script>
 <script src="<?= cdn('vendor/videojs-quality-selector/silvermine-videojs-quality-selector.js') ?>" defer></script>
-
-<?php
-	// Load any other headers, like from the theme cookie.
-	if(isset($_SESSION['overrideCss']) && !empty($_SESSION['overrideCss'])){
-		$forceTheme = $_SESSION['overrideCss'];
-	}
-
-	//$forceTheme = ""; // Used for like, holiday shit. Neat effect: Does not need to be an actual selectable theme!
-
-	if(!empty($forceTheme)){
-		//setcookie("siteThemePath", $forceTheme, time()+(60*60*24*30));
-		$_COOKIE['siteThemePath'] = $forceTheme;
-		print('<script> $(function(){ $("body").data("cssOverride","'.$forceTheme.'"); } );</script>');
-	}
-
-	if(isset($_COOKIE['siteThemePath']) && !empty($_COOKIE['siteThemePath'])){
-		print('<link rel="stylesheet" href="'.$_COOKIE['siteThemePath'].'" id="themeCss"/>');
-	}
-?>
 
 <script src="<?= cdn('js/lib.js') ?>" defer></script>
 <script src="<?= cdn('js/init.js') ?>" defer></script>

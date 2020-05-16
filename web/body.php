@@ -21,18 +21,6 @@
         </tfoot>
     </table>
 
-	<?php
-		if(isset($_SESSION['error']))
-		{
-			print '<div id="errors" class="wrapper"><ul class="error">';
-			foreach($_SESSION['error'] as $e)
-			{
-				print '<li>'.$e.'</li>';
-			}
-			print '</ul></div>';
-			unset($_SESSION['error']);
-		}
-	?>
 	<div class="wrapper">
 		<div id="headbar">
 		</div>

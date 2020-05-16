@@ -302,10 +302,7 @@ function initToastThemes(data, textStatus, jqxhr) {
 	showBonusPonies = getStoredBoolean('showBonusPonies', true);
 	slamming = false;
 	welcomeToTheJam = new Audio('plugins/toastthemes/slam.wav');
-	originalTheme = $('body').data('cssOverride');
-	if (!originalTheme) {
-		originalTheme = getStorage('siteThemePath') || '';
-	}
+	originalTheme = getStorage('siteThemePath') || '';
 	gakified = false;
 	rdwut = false;
 	rotated = false;
@@ -324,12 +321,6 @@ function initToastThemes(data, textStatus, jqxhr) {
 
 		if (!isTemp) {
 			originalTheme = theme;
-
-			// TEMPORARY MEASURE: Set the cookie, not just localStorage (PHP compatibility issues)
-			var exdate = new Date();
-			exdate.setDate(exdate.getDate() + 30);
-			var c_value = escape(theme) + '; expires=' + exdate.toUTCString();
-			document.cookie = 'siteThemePath=' + c_value;
 		}
 
 		actualSetColorTheme(theme);

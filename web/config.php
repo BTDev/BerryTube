@@ -85,14 +85,13 @@
 		die('Server is still restarting, please refresh again in a bit.');
 	}
 
-	session_start();
-
 	// Check for any theme override
+	$themeOverride = '';
 	$q = sprintf('SELECT * FROM misc WHERE name = "overrideCss"');
 	if ($result = $mysqli->query($q)) {
 		if($result->num_rows > 0){
 			$row = $result->fetch_object();
-			$_SESSION['overrideCss'] = $row->value;
+			$themeOverride = $row->value;
 		}
 		/* free result set */
 		$result->close();

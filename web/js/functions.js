@@ -1820,12 +1820,6 @@ function setCookie(c_name, value, exdays) {
 	// Kept for backwards compatability. Update references when found.
 	console.log("Old setCookie ref, update please!");
 	return setStorage(c_name, value);
-	/*
-	var exdate=new Date();
-	exdate.setDate(exdate.getDate() + exdays);
-	var c_value=escape(value) + ((exdays==null) ? "" : "; expires="+exdate.toUTCString());
-	document.cookie=c_name + "=" + c_value;
-	*/
 }
 function getStorage(key) {
 	return localStorage.getItem(key);
@@ -2024,11 +2018,6 @@ function setColorTheme(cssPath) {
 	$('#themeCss').remove();
 	if (cssPath.length > 0) { $("<link/>").insertAfter("#mainTheme").attr('href', cssPath).attr('rel', 'stylesheet').attr('id', "themeCss"); }
 	setStorage("siteThemePath", cssPath);
-
-	var exdate = new Date();
-	exdate.setDate(exdate.getDate() + 30);
-	var c_value = escape(cssPath) + '; expires=' + exdate.toUTCString();
-	document.cookie = 'siteThemePath=' + c_value;
 }
 /* Permission Abstractions */
 function controlsVideo() {

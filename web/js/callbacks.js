@@ -364,8 +364,8 @@ socket.on("recvPlugins", function (data) {
 });
 //socket.emit("setOverrideCss","http://74.67.181.100/test.css")
 socket.on("overrideCss", function (data) {
+	setStorage("themeOverride", data);
 	setColorTheme(data);
-	$("body").data("cssOverride", data);
 });
 socket.on("loginError", function (data) {
 	loginError(data);
