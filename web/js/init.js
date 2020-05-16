@@ -465,14 +465,6 @@ function showLogMenu(on) {
 	settWin.window.center();
 }
 
-function migrateFrom(url) {
-	for (const key of Object.keys(localStorage)) {
-		if (localStorage.hasOwnProperty(key)) { localStorage.removeItem(key); }
-	}
-	document.cookie = 'bt-migrated=0; path=/; domain=.' + location.hostname + '; max-age=2147483647';
-	window.location = url + '/api/migrate_page.html';
-}
-
 function showConfigMenu(on) {
 
 	/*
@@ -663,20 +655,6 @@ function showConfigMenu(on) {
 	var showIgnoreDialogBtn = $('<div/>').appendTo(row).addClass('button');
 	var showIgnoreDialogBtn_label = $('<span/>').appendTo(showIgnoreDialogBtn).text("Manage ignored users");
 	showIgnoreDialogBtn.click(showIgnoreDialog);
-	//----------------------------------------
-	/*var migrateOps = $('<fieldset/>').appendTo($('<li/>').appendTo(optWrap));
-	$('<legend/>').appendTo(migrateOps).text("Import settings");
-	var row = $('<div/>').appendTo(migrateOps);
-	$('<span/>').appendTo(migrateOps).html("Click a button to copy (most of)<br />your settings onto the new server:");
-	var row = $('<div/>').appendTo(migrateOps);
-	var migrateBtn = $('<div/>').appendTo(row).addClass('button');
-	var migrateBtn_label = $('<span/>').appendTo(migrateBtn).html("Copy from old <b>" + location.hostname + "</b>");
-	migrateBtn.click(() => migrateFrom(OLD_ORIGIN));
-	var row = $('<div/>').appendTo(migrateOps);
-	var migrateWwwBtn = $('<div/>').appendTo(row).addClass('button');
-	var migrateWwwBtn_label = $('<span/>').appendTo(migrateWwwBtn).html("Copy from old <b>www." + location.hostname + "</b>");
-	migrateWwwBtn.click(() => migrateFrom(OLD_ORIGIN_WWW));*/
-	//----------------------------------------
 	if (TYPE >= 1) {
 		var modOps = $('<fieldset/>').appendTo($('<li/>').appendTo(optWrap));
 		$('<legend/>').appendTo(modOps).text("+Options").addClass("mod");
