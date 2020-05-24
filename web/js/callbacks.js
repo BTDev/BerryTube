@@ -48,13 +48,24 @@ function videoPaused() {
 
 socket.on("createPlayer", function (data) {
 	console.log('createPlayer', data);
-	INIT_TIME = data.time;
+
+	if (!document.getElementById('youtube-iframe-api')) {
+		INIT_TIME = data.time;
+		const tag = document.createElement('script');
+		tag.id = "youtube-iframe-api";
+		tag.src = "https://www.youtube.com/iframe_api";
+		document.head.appendChild(tag);
+	}
+
+	const isNew = ACTIVE.videoid != data.video.videoid;
+
+	unfuckPlaylist();
 	setPlaylistPosition(data);
-	var tag = document.createElement('script');
-	tag.src = "https://www.youtube.com/iframe_api";
-	var firstScriptTag = document.getElementsByTagName('script')[0];
-	firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
-	videoLoadAtTime(data.video, data.time);
+
+	// avoid skipping on socket reconnects, by not reloading current video
+	if (isNew) {
+		videoLoadAtTime(ACTIVE, data.time);
+	}
 });
 socket.on("renewPos", function (data) {
 	setPlaylistPosition(data);
