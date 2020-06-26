@@ -222,7 +222,7 @@ window.PLAYERS.vimeo = {
     var frame = $("<iframe src='https://player.vimeo.com/video/"+id+"' style='width:100%;height:100%' frameborder='0' allow='autoplay; encrypted-media; fullscreen' allowfullscreen />").appendTo(currentEmbed);
     this.PLAYER = new Vimeo.Player(frame[0],{
       id:id,
-      autoplay:false
+      autoplay:true
     });
     //YoU dO nOt nEeD to WaIt FoR ReAdy tO trigger to begin adding event listeners or calling other methods.LIES
     //no really, it fails to find setvolume sometimes
@@ -279,6 +279,7 @@ window.PLAYERS.vimeo = {
       //may want to use an eventlistener like bufferfinish or whatever
       at += (Date.now() - this.preloadTime)/1000;
       if (at < 0) {
+        videoPause();
         var wait = (at * -1000);
         setTimeout(()=>{
           videoPlay();
