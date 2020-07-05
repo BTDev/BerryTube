@@ -1,11 +1,7 @@
 <?php
 
 	require_once('apiconfig.php');
-
-	header('Access-Control-Allow-Origin: '.$_SERVER['HTTP_ORIGIN']);
-    header('Access-Control-Allow-Methods: GET, PUT, POST, DELETE, OPTIONS');
-    header('Access-Control-Max-Age: 1000');
-    header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With');
+	require_once('cors.php');
 
 	$mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
 	if (mysqli_connect_error()) {

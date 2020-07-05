@@ -1,6 +1,7 @@
 <?php
 
 	require_once('apiconfig.php');
+	require_once('cors.php');
 
 	function array_to_xml($x, &$y) {
 		foreach($x as $key => $value) {
