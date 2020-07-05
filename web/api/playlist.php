@@ -53,7 +53,7 @@
 			}
 			$result->close();
 		}
-		header("Content-type: text; charset=utf-8");
+		header("Content-type: application/json; charset=utf-8");
 		print json_encode($output);
 		die();
 	}
