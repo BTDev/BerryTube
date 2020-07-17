@@ -228,7 +228,8 @@ try {
 		'reconnect': true,
 		'reconnection delay': 500 + Math.random() * 1000,
 		'reopen delay': 500 + Math.random() * 1000,
-		'max reconnection attempts': 10
+		'max reconnection attempts': 10,
+        'transports': ['websocket']
 	});
 
 	window.socket.on('error', function (reason) {
