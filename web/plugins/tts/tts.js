@@ -109,9 +109,9 @@
         .on('contextmenu', toggleQueue);
     }
 
-    $('head').append('<script type="text/js-worker"> importScripts("https://rawgit.com/kripken/speak.js/master/speakGenerator.js"); onmessage = function(event) {  postMessage(generateSpeech(event.data.text, event.data.args));};</script>');
+    $('head').append('<script type="text/js-worker"> importScripts("https://cdn.jsdelivr.net/gh/kripken/speak.js@f508326249a3fad62c1f3ba928fe9e0c0fb4597d/speakGenerator.js"); onmessage = function(event) {  postMessage(generateSpeech(event.data.text, event.data.args));};</script>');
 
-    $.getScript('https://rawgit.com/kripken/speak.js/master/speakGenerator.js', function(){
+    $.getScript('https://cdn.jsdelivr.net/gh/kripken/speak.js@f508326249a3fad62c1f3ba928fe9e0c0fb4597d/speakGenerator.js', function(){
       $.getScript('plugins/tts/speakClient.js', setupTTS);
     });
   })()
