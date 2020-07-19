@@ -52,3 +52,7 @@ RUN apk add --no-cache openssl
 COPY --from=build /usr/local/nginx/modules/*.so /usr/local/nginx/modules/
 COPY --from=build /var/dhparam.pem /var/dhparam.pem
 COPY misc/* /
+COPY config /etc/nginx.source
+
+RUN env DOMAIN=berrytube.tv HTTP_PORT=80 HTTPS_PORT=443 LEGACY_SOCKET_PORT=8344 TLS_TYPE=selfsigned /entrypoint.sh nginx -t && \
+    rm -r /var/selfsigned

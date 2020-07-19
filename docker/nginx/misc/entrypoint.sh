@@ -3,6 +3,7 @@ set -eu
 
 function generate_cert_if_needed {
     local CERT_DIR=/var/selfsigned
+	mkdir -p "$CERT_DIR"
 
     if ! [ -f "$CERT_DIR/fullchain.pem" ]; then
         echo "Self-signed cert requested and no existing cert found; generating..." >&2
