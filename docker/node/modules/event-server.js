@@ -28,7 +28,7 @@ class EventServer {
 			if (req.url === '/sse') {
 				res.writeHead(200, {
 					'Connection': 'close',
-					'Cache-Control': 'no-cache',
+					'Cache-Control': 'no-store',
 					'Content-Type': 'text/event-stream; charset=utf-8',
 					'X-Accel-Buffering': 'no'
 				}).write(': connected\n');

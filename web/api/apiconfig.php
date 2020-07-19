@@ -25,4 +25,4 @@
 
     define('ORIGIN', "$scheme://$domain$port");
     define('SOCKET_ORIGIN', "$scheme://socket.$domain$port");
-	define('CDN_ORIGIN', NO_CDN ? ORIGIN : "$scheme://cdn.$domain$port");
+    define('CDN_ORIGIN', ORIGIN);

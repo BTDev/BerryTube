@@ -23,18 +23,20 @@
 		}
 		if ($hash) {
 			$hash = strtr(rtrim(base64_encode($hash), '='), '+/', '-_');
+			if (CDN_ORIGIN === ORIGIN) {
+				return "/sha1/$hash/$fname";
+			}
 			return CDN_ORIGIN . "/sha1/$hash/$fname";
-		} else {
-			return $fname;
 		}
+		return $fname;
 	}
 
 	function cdn_absolute($fname) {
 		$url = cdn($fname);
-		if (substr($url, 0, 4) === 'http') {
+		if (substr($url, 0, 8) === 'https://') {
 			return $url;
 		}
-		return CDN_ORIGIN . "/$url";
+		return CDN_ORIGIN . '/' . ltrim($url, '/');
 	}
 
 	function start_minified_tags() {
