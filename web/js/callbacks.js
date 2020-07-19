@@ -49,12 +49,8 @@ function videoPaused() {
 socket.on("createPlayer", function (data) {
 	console.log('createPlayer', data);
 
-	if (!document.getElementById('youtube-iframe-api')) {
+	if (!INIT_TIME) {
 		INIT_TIME = data.time;
-		const tag = document.createElement('script');
-		tag.id = "youtube-iframe-api";
-		tag.src = "https://www.youtube.com/iframe_api";
-		document.head.appendChild(tag);
 	}
 
 	const isNew = ACTIVE.videoid != data.video.videoid;
