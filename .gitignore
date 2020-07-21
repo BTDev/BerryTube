@@ -3,6 +3,7 @@
 /docker/node/debug.log
 /docker/node/error_bt.log
 /.env
+/.vscode
 /database/
 /docker-compose.override.yml
 yarn.error
