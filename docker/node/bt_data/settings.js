@@ -24,7 +24,7 @@ settings.core.temp_ban_duration = 1000 * 60 * 60 * 12; // ms
 settings.core.login_fail_duration = 1000 * 60 * 10; // ms
 settings.core.max_failed_logins = 10; // Number of times an IP can password fail before getting locked out.
 settings.core.register_cooldown = 1000 * 60 * 30; //ms
-settings.core.country_restriction_ignored = ['DE', 'IL']; // Some countries are particularly restrictive, ignore them.
+settings.core.country_restriction_ignored = ['DE', 'IL', 'DK']; // Some countries are particularly restrictive, ignore them.
 settings.core.country_allow_required = ['GB', 'CA', 'US']; // Required countries if we have an allow list instead of a deny list
 settings.core.bcrypt_rounds = 10;
 
