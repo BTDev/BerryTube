@@ -703,8 +703,16 @@ function sendFilters(socket) {
 }
 function applyFilters(nick, msg, socket) {
 	var actionChain = [];
+	const flags = {
+		sendToSelf: undefined,
+		sendToUsers: undefined,
+		sendToAdmins: undefined,
+		addToBuffer: undefined,
+		serverResponseMessage: undefined
+	};
+
 	try {
-		for (var i = 0; i < SERVER.FILTERS.length; i++) {
+		for(var i=0;i<SERVER.FILTERS.length;i++){
 			var d = SERVER.FILTERS[i];
 			// Enabled?
 			if (d.enable == false) {
@@ -731,23 +739,32 @@ function applyFilters(nick, msg, socket) {
 				}
 			}
 		}
-		for (var i = 0; i < actionChain.length; i++) {
-			if (actionChain[i].action == "none") { continue; }
-			if (actionChain[i].action == "kick") {
-				kickIfUnderLevel(socket, actionChain[i].meta, 1);
-				continue;
-			}
-			if (actionChain[i].action == "hush") {
-				msg = msg.toLowerCase();
-				continue;
+
+		for (const action of actionChain) {
+			switch (action.action) {
+				case "kick":
+					kickIfUnderLevel(socket, action.meta, 1);
+					break;
+
+				case "hush":
+					msg = msg.toLowerCase();
+					break;
+
+				case "suppress":
+					flags.addToBuffer = false;
+					flags.sendToAdmins = true;
+					flags.sendToSelf = true;
+					flags.sendToUsers = false;
+					flags.serverResponseMessage = action.meta;
+					break;
 			}
 		}
-		return msg;
-	} catch (e) {
+	} catch(e) {
 		// The filters are fucked, somehow.
 		DefaultLog.error(events.EVENT_ADMIN_APPLY_FILTERS, "could not apply filters to chat message", {}, e);
 	}
-	return msg;
+
+	return { message: msg, flags };
 }
 function applyPluginFilters(msg, socket) {
 	if (getToggleable("bestponi")) {
@@ -1049,11 +1066,14 @@ function _sendChat(nick, type, incoming, socket) {
 	const { channel = "main" } = metadata;
 	const timestamp = new Date().toUTCString();
 	const isSocketBanned = isUserShadowBanned(socket);
-
-	let sendToAdmins = false;
-	let sendToUsers = true;
-	let sendToSelf = false;
-	let addToBuffer = true;
+	
+	const flags = {
+		addToBuffer: true,
+		sendToAdmins: false,
+		sendToUsers: true,
+		sendToSelf: false,
+		serverResponseMessage: undefined
+	};
 
 	if (channel !== "main") {
 		// Someone trying to send a message to a channel they're not in?!
@@ -1065,14 +1085,14 @@ function _sendChat(nick, type, incoming, socket) {
 			return;
 		}
 
-		sendToAdmins = true;
-		sendToUsers = false;
+		flags.sendToAdmins = true;
+		flags.sendToUsers = false;
 	}
 
 	if (isSocketBanned) {
-		sendToAdmins = true;
-		addToBuffer = sendToUsers = false;
-		sendToSelf = true;
+		flags.sendToAdmins = true;
+		flags.addToBuffer = flags.sendToUsers = false;
+		flags.sendToSelf = true;
 	}
 
 	if (getToggleable("mutegray") && type <= userTypes.ANONYMOUS) {
@@ -1090,13 +1110,21 @@ function _sendChat(nick, type, incoming, socket) {
 		);
 
 		metadata.graymute = true;
-		sendToAdmins = true;
-		addToBuffer = sendToUsers = false;
-		sendToSelf = false;
+		flags.sendToAdmins = true;
+		flags.addToBuffer = flags.sendToUsers = false;
+		flags.sendToSelf = false;
 	}
 
-	const filteredMessage = applyFilters(nick, messageText, socket);
-	const parsed = getCommand(filteredMessage);
+	const filterResult = applyFilters(nick, messageText, socket);
+	for (const [key, value] of Object.entries(filterResult.flags)) {
+		if (typeof(value) === "undefined") {
+			continue;
+		}
+
+		flags[key] = value;
+	}
+	
+	const parsed = getCommand(filterResult.message);
 
 	const messageData = {
 		emote: false,
@@ -1117,23 +1145,32 @@ function _sendChat(nick, type, incoming, socket) {
 		}
 	}
 
-	if (sendToAdmins) {
+	if (flags.serverResponseMessage) {
+		emitChat(socket, { nick: "server", emote: "server", msg: flags.serverResponseMessage, metadata, timestamp });
+	}
+
+	if (flags.sendToAdmins) {
 		sessionService.forCan(actions.CAN_SEE_SHADOWBANS, session =>
-			emitChat(session, messageData, false),
+			emitChat(session, {
+				...messageData,
+				metadata: {
+					...messageData.metadata,
+					graymute: true
+				}
+			}, false),
 		);
 	}
 
-	if (sendToSelf) {
+	if (flags.sendToSelf) {
 		emitChat(socket, messageData, false);
 	}
 
-	if (sendToUsers) {
+	if (flags.sendToUsers) {
 		emitChat(io.sockets, messageData, false);
 	}
 
-	if (addToBuffer) {
-		const targetBuffer =
-			SERVER.OUTBUFFER[channel] || (SERVER.OUTBUFFER[channel] = []);
+	if (flags.addToBuffer) {
+		const targetBuffer = SERVER.OUTBUFFER[channel] || (SERVER.OUTBUFFER[channel] = []);
 		targetBuffer.push(messageData);
 
 		if (targetBuffer.length > SERVER.settings.core.max_saved_buffer) {
