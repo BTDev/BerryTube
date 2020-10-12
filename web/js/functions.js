@@ -87,9 +87,10 @@ function showAdminFilterWindow() {
 			chatMatch: ".*",
 			chatParam: "i",
 			chatReplace: "",
-			actionSelector: 'none',
+			actionSelector: "none",
 			enable: true,
-			name: ""
+			name: "",
+			meta: ""
 		};
 		for (var i in data) {
 			myData[i] = data[i];
@@ -145,25 +146,32 @@ function showAdminFilterWindow() {
 
 		/* Actions */
 		var _actions = [ // show meta allows a extra field, for whatever purposes.
-			{ label: 'No Action', tag: 'none', showmeta: false },
-			{ label: 'Kick User', tag: 'kick', showmeta: true },
-			{ label: 'Force Lowercase', tag: 'hush', showmeta: false }
+			{ label: "No Action", tag:"none", showmeta: false },
+			{ label: "Kick User", tag:"kick", showmeta: true },
+			{ label: "Suppress Message", tag:"suppress", showmeta: true },
+			{ label: "Force Lowercase", tag:"hush", showmeta: false },
 		];
 		var actionRow = $('<tr/>').appendTo(newTable);
 		var actionLabelCol = $('<td/>').appendTo(actionRow);
 		var actionDataCol = $('<td/>').appendTo(actionRow);
 		$('<span/>').text("Action:").appendTo(actionLabelCol);
 		var actionSelector = $('<select/>').appendTo(actionDataCol);
-		newRule.data('actionSelector', actionSelector);
-		var actionMetadata = $('<input/>').attr('type', 'text').addClass("hidden").appendTo(actionDataCol);
-		newRule.data('actionMetadata', actionMetadata);
+		newRule.data('actionSelector',actionSelector);
+		var actionMetadata = $('<input/>').attr('type','text').addClass("hidden").appendTo(actionDataCol);
+		newRule.data('actionMetadata',actionMetadata);
 		for (var i in _actions) {
-			$('<option/>').val(_actions[i].tag).text(_actions[i].label).appendTo(actionSelector).data('showmeta', _actions[i].showmeta);
+			$("<option/>")
+				.val(_actions[i].tag)
+				.text(_actions[i].label)
+				.appendTo(actionSelector)
+				.data("showmeta", _actions[i].showmeta);
+
 			console.log(_actions[i].showmeta);
 		}
 		actionSelector.change(function () {
 			if ($(this).children("option:selected").data('showmeta')) {
 				actionMetadata.removeClass("hidden");
+				actionMetadata.val(myData.actionMetadata);
 			} else {
 				actionMetadata.addClass("hidden");
 			}
