@@ -452,6 +452,10 @@ function sendStatus(name, target) {
 			time: SERVER.TIME,
 			state: SERVER.STATE
 		});
+		eventServer.emit('videoStatus', {
+			time: Math.round(SERVER.TIME),
+			state: SERVER.STATE
+		});
 	}
 }
 function doorStuck(socket) {
@@ -675,7 +679,9 @@ function sendDrinks(socket) {
 		drinks: formatDrinkMessage(SERVER.DRINKS)
 	});
 
-	eventServer.emit('drinkCount', SERVER.DRINKS);
+	eventServer.emit('drinkCount', {
+		drinks: SERVER.DRINKS
+	});
 }
 function resetDrinks() {
 	SERVER.DRINKS = 0;
