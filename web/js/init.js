@@ -2056,7 +2056,26 @@ $(function () {
 
 	$(".chatbuffer")
 		.mouseenter(function () { KEEP_BUFFER = false; })
-		.mouseleave(function () { KEEP_BUFFER = true; scrollBuffersToBottom(); });
+		.mouseleave(function () { KEEP_BUFFER = true; scrollBuffersToBottom(); })
+		// make emotes copyable as [](/emote)
+		.on('copy', event => {
+			try {
+				let text = '';
+				for (const node of document.getSelection().getRangeAt(0).cloneContents().childNodes) {
+					if (node.nodeType === 1 && node.getAttribute('emote_id')) {
+						const emote = Bem.emotes[parseInt(node.getAttribute('emote_id'), 10)];
+						const title = node.textContent ? `*${node.textContent}*` : '';
+						text += `[${title}](/${emote.names[0]})`;
+					} else {
+						text += node.textContent;
+					}
+				}
+				event.originalEvent.clipboardData.setData('text/plain', text);
+				return false;
+			} catch (err) {
+				console.error('Error customizing copy operation', err);
+			}
+		});
 
 	setVal("INIT_FINISHED", true);
 
