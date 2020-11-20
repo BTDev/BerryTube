@@ -216,6 +216,9 @@ class BerrySocket {
 	onAuthenticated() {
 		this.emit("setNick", this.session.nick);
 		this.emit("setType", this.session.type);
+		if (this.session.isBerry) {
+			this.emit("setLeader", true);
+		}
 
 		for (const handler of this.onAuthenticatedHandlers) {
 			handler(this);
