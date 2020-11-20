@@ -1492,11 +1492,11 @@ function initChat(parent) {
 			var numUsers = $("#chatlist .user").length;
 			var numAnons = $("#chatlist .anon").length;
 			var numNobodies = CONNECTED - numAdmins - numMods - numUsers - numAnons;
-			return "Admins: " + numAdmins + "<br />" +
-				"Assistants: " + numMods + "<br />" +
-				"Users: " + numUsers + "<br />" +
-				"Anons: " + numAnons + "<br />" +
-				"Lurkers: " + numNobodies;
+			return `Admins: ${numAdmins}<br />` +
+				(numMods > 0 ? `Assistants: ${numMods}<br />` : '') +
+				`Users: ${numUsers}<br />` +
+				`Anons: ${numAnons}<br />` +
+				`Lurkers: ${numNobodies}`;
 		}
 	});
 	userCountWrap.click(function () {
