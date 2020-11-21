@@ -1157,7 +1157,7 @@ function initPlaylistControls(plwrap) {
 		}
 	});
 
-	$('<div/>').addClass("note").text("Insert Video URL or ID Below.").appendTo(videoImportWrap);
+	$('<div/>').addClass("note").html('Video or <a target="_blank" href="manifest.php">manifest</a> URL:').appendTo(videoImportWrap);
 	var container = $('<div/>').appendTo(videoImportWrap);
 	var impwrap = $('<div/>').addClass("impele").appendTo(container);
 	var videoImport = $('<input/>').appendTo(impwrap);

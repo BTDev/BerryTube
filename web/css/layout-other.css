@@ -256,7 +256,7 @@ body {
     top: 0.05em;
 }
 #playlistAddControls .note {
-    font-size: 20px;
+    font-size: 16px;
     text-align: center;
 }
 #playlistAddControls .import input {
