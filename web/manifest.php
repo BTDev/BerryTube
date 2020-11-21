@@ -133,7 +133,7 @@ $error .= ob_get_clean();
                 <?php if ($manifest) { ?>
                     <h5 class="mt-4">
                         manifest.json
-                        (<a href="data:application/json;charset=utf-8,<?= urlencode($manifest) ?>" download="manifest.json">download</a>)
+                        (<a href="data:application/json;charset=utf-8,<?= rawurlencode($manifest) ?>" download="manifest.json">download</a>)
                     </h5>
                     <p>
                         <pre><code><?= htmlspecialchars($manifest) ?></code></pre>
