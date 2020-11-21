@@ -1858,7 +1858,8 @@ function initPolls(under) {
 				socket.emit('newPoll', {
 					title: newPollTitle.val(),
 					obscure: newPollObscure.is(":checked"),
-					ops: ops
+					ops: ops,
+					closePollInSeconds: parseInt(automaticClose.val()),
 				});
 				newPollTitle.val('');
 				runoffThreshold.val('');
