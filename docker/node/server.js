@@ -2177,7 +2177,7 @@ io.sockets.on('connection', function (ioSocket) {
 			return;
 		}
 
-		const pattern = '%' + encodeURI(data.search).replace('%', '\\%') + '%';
+		const pattern = '%' + encodeURI(data.search).replace(/%/g, '\\%') + '%';
 		const { result } = await databaseService.query`
 			SELECT
 				*

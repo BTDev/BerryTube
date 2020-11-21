@@ -2337,7 +2337,7 @@ function detectName(nick, msg) {
 	}
 	list = '(' + list + ')';
 
-	return (msg.match(RegExp("(^|[^\-a-zA-Z0-9_])" + list + "([^a-zA-Z0-9_]|$)", 'i')) != null);
+	return (msg.match(RegExp("(^|[^-a-zA-Z0-9_])" + list + "([^a-zA-Z0-9_]|$)", 'i')) != null);
 }
 function tabComplete(elem) {
 	var chat = elem.val();
