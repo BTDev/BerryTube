@@ -1,4 +1,4 @@
-FROM node:10.19.0-alpine
+FROM node:10.23.0-alpine
 
 WORKDIR /app/
 ENTRYPOINT ["/app/entrypoint.sh"]
@@ -9,8 +9,8 @@ RUN echo "http://dl-cdn.alpinelinux.org/alpine/v$(cat /etc/alpine-release | cut 
     apk --no-cache add mariadb-client ffmpeg curl && \
     apk --no-cache add --virtual build-dependencies python make g++
 
-COPY package.json ./
-RUN npm install && \
+COPY package.json yarn.lock ./
+RUN yarn install --frozen-lockfile && \
     apk --no-cache del build-dependencies
 
 COPY bt_data/ ./bt_data/
