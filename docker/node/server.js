@@ -841,7 +841,7 @@ function _setVideoColorTag(elem, pos, tag, volat) {
 	});
 }
 
-function banUser(data) {
+function banUser(data, mod = undefined) {
 	var required = ['ips', 'nicks', 'duration']; // nick and ip should be arrays, even if single-element
 	data.bannedOn = new Date().getTime();
 
@@ -860,6 +860,12 @@ function banUser(data) {
 	}
 
 	prepareBans();
+
+	if (mod) {
+		DefaultLog.info(events.EVENT_ADMIN_BANNED,
+			"{mod} banned {nick} {duration}",
+			{ nick: data.nicks.join('/'), type: "user", mod, duration: data.duration > 0 ? `for ${data.duration} minutes` : 'permanently' });
+	}
 
 	for (const nick of data.nicks) {
 		sessionService.forNick(nick, s => s.kick("You have been banned."));
@@ -2872,7 +2878,7 @@ io.sockets.on('connection', function (ioSocket) {
 			return;
 		}
 
-		banUser(data);
+		banUser(data, getSocketName(socket));
 	});
 	socket.on("forceRefreshAll", function (data) {
 		if (!authService.can(socket.session, actions.ACTION_FORCE_REFRESH)) {
