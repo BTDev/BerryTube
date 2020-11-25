@@ -2,6 +2,9 @@
 
 define('MAX_SOURCES', 5);
 
+// Instead of the full exception, only its message is shown to users
+class PrettyException extends Exception { }
+
 function parse_duration($input) {
     $parts = explode(':', $input);
     $seconds = intval(array_pop($parts));
@@ -17,12 +20,32 @@ function generate_manifest() {
         'sources' => [],
     ];
     foreach ($_POST['urls'] as $i => $url) {
+        $ordinal = $i + 1; // for error messages
         $quality = $_POST['qualities'][$i];
         if ($url) {
             if (!$quality) {
-                throw new Exception('Each source URL must have a quality');
-                return;
+                throw new PrettyException("Source URL #${ordinal} doesn't have a quality");
             }
+
+            $curl = curl_init();
+            curl_setopt($curl, CURLOPT_URL, $url);
+            curl_setopt($curl, CURLOPT_NOBODY, true);
+            curl_setopt($curl, CURLOPT_FOLLOWLOCATION, true);
+            curl_setopt($curl, CURLOPT_CONNECTTIMEOUT, 5);
+            curl_setopt($curl, CURLOPT_TIMEOUT, 5);
+            curl_exec($curl);
+
+            if ($errno = curl_errno($curl)) {
+                $errstr = curl_strerror($errno);
+                throw new PrettyException("Source URL #${ordinal} doesn't seem to work (Error $errno: $errstr)");
+            }
+
+            $code = intval(curl_getinfo($curl, CURLINFO_RESPONSE_CODE));
+            curl_close($curl);
+            if ($code != 200) {
+                throw new PrettyException("Source URL #${ordinal} doesn't seem to work (HTTP $code)");
+            }
+
             $data['sources'][] = [
                 'url' => $url,
                 'contentType' => 'video/mp4',
@@ -97,7 +120,7 @@ $error .= ob_get_clean();
 
             <h4>Generator</h4>
             <?php if ($error) { ?>
-                <div class="alert alert-danger"><?= htmlspecialchars($error) ?></div>
+                <div class="alert alert-danger"><?= htmlspecialchars($error instanceof PrettyException ? $error->getMessage() : $error) ?></div>
             <?php } ?>
             <form method="POST">
                 <div class="row mb-3">
