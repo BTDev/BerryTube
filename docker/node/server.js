@@ -1332,7 +1332,10 @@ function rawAddVideo(d, successCallback, failureCallback) {
 
 		if (result.length == 1) {
 			try {
-				d.meta = JSON.parse(result[0].meta);
+				d.meta = {
+					...JSON.parse(result[0].meta),
+					...d.meta,
+				};
 			} catch (e) { }
 		}
 		var sql = 'delete from videos_history where videoid = ?';
