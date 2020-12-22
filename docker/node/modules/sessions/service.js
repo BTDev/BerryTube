@@ -449,7 +449,6 @@ exports.SessionService = class extends ServiceBase {
 		}
 
 		const existingBan = this.isUserBanned({ ips: [ip], nicks: [nick] });
-
 		const { result } = await this.db.query`
 			SELECT
 				*
@@ -458,20 +457,15 @@ exports.SessionService = class extends ServiceBase {
 			WHERE
 				name = ${nick}`;
 
+		//username didn't match any existing nicks
 		if (result.length === 0) {
 			if (nickBlacklist.has(nick.toLowerCase())) {
 				return sendFailMessage("Username blacklisted");
 			}
 
+			//don't allow banned to choose a nick
 			if (existingBan) {
-				this.banUser({
-					ips: [ip],
-					nicks: [],
-					duration: existingBan.duration,
-				});
-
-				socket.session.kick("You have been banned");
-				return sendFailMessage("You have been banned");
+				return applyBan(existingBan.duration, [ip]);
 			}
 
 			return { success: true, type: userTypes.ANONYMOUS, meta: {}, nick };
@@ -479,33 +473,20 @@ exports.SessionService = class extends ServiceBase {
 			return sendFailMessage("Multiple users for same nick. wut.");
 		}
 
-		const dbUser = result[0];
-
-		// correct casing
-		nick = dbUser.name;
-
-		// since a user was found, we do a different bancheck, this time we pass the nick as
-		// opposed to thethe anon bancheck where we did not
-		if (existingBan) {
-			this.banUser({
-				ips: [ip],
-				nicks: [nick],
-				duration: existingBan.duration,
-			});
-
-			socket.session.kick("You have been banned");
-			return sendFailMessage("You have been banned");
-		}
-
 		if (!password) {
 			return sendFailMessage("No password provided.");
 		}
 
+		const dbUser = result[0];
 		const md5Password = crypto
 			.createHash("md5")
 			.update(password)
 			.digest("hex");
 
+		//correct casing
+		nick = dbUser.name;
+
+		//check if MD5 password and update it
 		if (md5Password === dbUser.pass) {
 			const newPassword = await bcrypt.hash(
 				password,
@@ -520,8 +501,18 @@ exports.SessionService = class extends ServiceBase {
 					pass = ${newPassword}
 				WHERE
 					name = ${nick}`;
-		} else if (!(await bcrypt.compare(password, dbUser.pass))) {
+		}
+
+		const isValidPass = (md5Password === dbUser.pass) || await bcrypt.compare(password, dbUser.pass);
+
+		//password didn't match, abort
+		if (!isValidPass) {
 			return sendFailMessage("Invalid password");
+		}
+
+		//user gave correct login details to a banned account
+		if (existingBan) {
+			return applyBan(existingBan.duration, [ip], [nick]);
 		}
 
 		let meta;
@@ -556,6 +547,17 @@ exports.SessionService = class extends ServiceBase {
 			});
 
 			return { success: false };
+		}
+
+		function applyBan(duration, ips = [], nicks = []) {
+			that.banUser({
+				ips,
+				nicks,
+				duration,
+			});
+
+			socket.session.kick("You have been banned");
+			return sendFailMessage("You have been banned");
 		}
 	}
 
