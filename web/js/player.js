@@ -29,10 +29,6 @@ window.PLAYERS.dm = {
     loadPlayer: function(id, at, volume) {
         const preloadTime = Date.now();
 
-        if (volume === false){
-            volume = 1;
-        }
-
         this.PLAYER = window.DM.player('ytapiplayer', {
             video: id,
             width: '100%',
@@ -134,10 +130,8 @@ window.PLAYERS.yt = {
                 playerVars: params,
                 events: {
                     'onReady': function () {
-                        if (volume !== false) {
-                            self.PLAYER.setVolume(volume*100);
-                            self.PLAYER.unMute();
-                        }
+                        self.PLAYER.setVolume(volume);
+
                         if (at < 0) {
                             videoPlay();
                             videoPause();
@@ -198,10 +192,12 @@ window.PLAYERS.yt = {
         }
     },
 	getVolume: function(callback){
-        var volume = this.PLAYER.getVolume() / 100;
-        if(this.PLAYER.isMuted()){
-            volume = 0;
+        let volume = this.PLAYER.getVolume();
+
+        if (this.PLAYER.isMuted()) {
+    		volume = 0;
         }
+
 		if(callback)callback(volume);
 	}
 };
@@ -209,15 +205,11 @@ window.PLAYERS.yt = {
 window.PLAYERS.vimeo = {
   status: {
     time: 0,
-    volume: VOLUME,//idk if anything even sets this anymore. seems to mostly be false
     state: 3,
     ready: false
   },
   loadPlayer: function(id, at, volume) {
     this.preloadTime = Date.now();
-    if (volume === false) {
-      volume = VOLUME;
-    }
     var currentEmbed = $("#ytapiplayer");
     var frame = $("<iframe src='https://player.vimeo.com/video/"+id+"' style='width:100%;height:100%' frameborder='0' allow='autoplay; encrypted-media; fullscreen' allowfullscreen />").appendTo(currentEmbed);
     this.PLAYER = new Vimeo.Player(frame[0],{
@@ -243,7 +235,7 @@ window.PLAYERS.vimeo = {
           videoPlaying();
         },
         'volumechange': (o)=>{
-          VOLUME = o.volume;
+          window.volume.set(o.volume);
         },
         'pause': ()=>{
           this.status.state = 2;
@@ -362,9 +354,6 @@ function osmfEventHandler(playerId, event, data) {
 
 window.PLAYERS.osmf = {
     loadPlayer: function (src, at, volume) {
-        if (volume === false){
-            volume = 1;
-        }
         var player = $("<video>", {
             "style" : "width:100%;height:100%",
             "id" : "vjs_player",
@@ -383,7 +372,7 @@ window.PLAYERS.osmf = {
         videojs("vjs_player").ready(function(){
             this.volume(volume);
             this.on('volumechange',function(){
-                VOLUME = this.volume();
+                window.volume.set(this.volume());
             });
         });
 
@@ -400,30 +389,31 @@ window.PLAYERS.soundcloud = {
     },*/
     loadPlayer: function (id, at, volume, length) {
 		var self = this;
-    volume *= 100;
-
-		if (volume === false) {
-            volume = 50;
-        }
-
 		var placeHolderDiv = $('#ytapiplayer');
 		var background = $('<div id="scBackground"/>').appendTo(placeHolderDiv);
 		var player = $('<iframe id="scPlayer"/>').appendTo(placeHolderDiv);
         player.attr("allow", "autoplay; encrypted-media");
 		var volumeSliderWrap = $('<div id="scVolumeSliderWrap"/>').appendTo(placeHolderDiv);
-		var volumeSlider = $('<div id="scVolumeSlider"/>').slider({orientation:'vertical', range:'min', value:volume,
-			stop:function(event, ui) {
+		var volumeSlider = $('<div id="scVolumeSlider"/>').slider({
+			orientation:'vertical',
+			range:'min',
+			value: volume,
+			min: 0,
+			max: 100,
+			stop:function(_, ui) {
 				self.PLAYER.setVolume(ui.value);
-			}}).appendTo(volumeSliderWrap);
-    $( "#scVolumeSlider .ui-slider-range" ).css('background', '#C600AD');
+				window.volume.set(ui.value);
+			}
+		}).appendTo(volumeSliderWrap);
+
+		$( "#scVolumeSlider .ui-slider-range" ).css('background', '#C600AD');
 		player.attr('src', 'https://w.soundcloud.com/player/?url=https://api.soundcloud.com/tracks/' + id.substr(2) +
 			encodeURIComponent('?liking=false&sharing=false&show_comments=false&show_playcount=false&color=C600AD'));
 
 		this.PLAYER = SC.Widget(player[0]);
-    this.PLAYER.bind(SC.Widget.Events.READY,()=>{
+		this.PLAYER.bind(SC.Widget.Events.READY,()=>{
 			this.PLAYER.setVolume(volume);
-    });
-		// If Soundbutt ever gets its shit together, this should fix our volume woes
+		});
 
 		if (at < 0) {
             var wait = (at * -1000);
@@ -477,7 +467,7 @@ window.PLAYERS.soundcloud = {
 		this.PLAYER.getPosition(function(time) { if(callback)callback(time / 1000.0); });
     },
     getVolume: function(callback){
-		if(callback)callback($('#scVolumeSlider').slider('value') / 100.0);
+		if(callback)callback($('#scVolumeSlider').slider('value'));
     }
 };
 
@@ -485,10 +475,6 @@ const fileExtensionRegex = /(mp4|webm)([^/]*)$/;
 
 window.PLAYERS.file = {
     loadPlayer: function (src, at, volume, length, meta) {
-        if (volume === false){
-            volume = 1;
-        }
-
         var player = $("<video>", {
             "style" : "width:100%;height:100%",
             "id": "vjs_player",
@@ -545,7 +531,7 @@ window.PLAYERS.file = {
 			this.volume(volume);
 
             this.on("volumechange",function(){
-                VOLUME = this.volume();
+                window.volume.set(this.volume());
 			});
 
             this.on("seeked",function(){
@@ -583,9 +569,6 @@ window.PLAYERS.file = {
 
 window.PLAYERS.dash = {
     loadPlayer: function (src, at, volume) {
-        if (volume === false){
-            volume = 1;
-        }
         var player = $("<video>", {
             "style" : "width:100%;height:100%",
             "id" : "vjs_player",
@@ -605,7 +588,7 @@ window.PLAYERS.dash = {
         videojs("vjs_player").ready(function(){
             this.volume(volume);
             this.on('volumechange',function(){
-                VOLUME = this.volume();
+                window.volume.set(this.volume());
             });
             this.on('seeked',function(){
                 videoSeeked(this.currentTime());
@@ -634,9 +617,6 @@ window.PLAYERS.dash = {
 
 window.PLAYERS.hls = {
     loadPlayer: function (src, at, volume) {
-        if (volume === false){
-            volume = 1;
-        }
         var player = $("<video>", {
             "style" : "width:100%;height:100%",
             "id" : "vjs_player",
@@ -656,7 +636,7 @@ window.PLAYERS.hls = {
         videojs("vjs_player").ready(function(){
             this.volume(volume);
             this.on('volumechange',function(){
-                VOLUME = this.volume();
+                window.volume.set(this.volume());
             });
         });
     },
@@ -668,10 +648,6 @@ window.PLAYERS.hls = {
 var twitchplayer = null;
 window.PLAYERS.twitch = {
     loadPlayer: function (src, at, volume) {
-        if (volume === false){
-            volume = 1;
-        }
-
         const opts = {
             width: videoWidth,
             height: videoHeight
@@ -726,10 +702,6 @@ window.PLAYERS.twitch = {
 
 window.PLAYERS.twitchclip = {
     loadPlayer: function (src, at, volume) {
-        if (volume === false){
-            volume = 1;
-        }
-
         $('<iframe>', {
             id: 'twitchclipplayer',
             src: 'https://clips.twitch.tv/embed?clip=' + src,

@@ -2149,40 +2149,28 @@ function videoPlay() {
 	}
 }
 function videoLoadAtTime(vidObj, time) {
-	var id = vidObj.videoid;
-	var ptype = vidObj.videotype;
-	var length = vidObj.videolength;
+	const {
+		videoid: id,
+		videotype: ptype,
+		videolength: length
+	} = vidObj;
 
-	if (VIDEO_TYPE != ptype || !PLAYERS[ptype].playVideo) {
-		if (PLAYER.getVolume) {
-			try {
-				PLAYER.getVolume(function (v) {
-					try {
-						if (v !== null) {
-							VOLUME = v;
-						}
-						removeCurrentPlayer();
-						PLAYER = PLAYERS[ptype];
-						VIDEO_TYPE = ptype;
-						PLAYER.loadPlayer(id, time, VOLUME, length, vidObj.meta);
-					}
-					catch (e) {
-						console.error(e);
-					}
-				});
-			}
-			catch (e) {
-				// Private vimeos can throw exceptions at us here, and that breaks EVERYTHING
-			}
-		} else {
-			removeCurrentPlayer();
-			PLAYER = PLAYERS[ptype];
-			VIDEO_TYPE = ptype;
-			PLAYER.loadPlayer(id, time, VOLUME, length, vidObj.meta);
-		}
-	}
-	else {
-		PLAYER.playVideo(id, time, VOLUME);
+	//instead of attempt to acquire from players, get from volume manager
+	const volume = window.volume.get(ptype);
+	const change = VIDEO_TYPE != ptype || !PLAYERS[ptype].playVideo;
+
+	if (change) {
+		//we need to stop the volume grabbing before removing the player
+		window.volume.stop();
+
+		removeCurrentPlayer();
+		PLAYER = PLAYERS[ptype];
+		VIDEO_TYPE = ptype;
+		PLAYER.loadPlayer(id, time, volume, length, vidObj.meta);
+
+		window.volume.listen(PLAYER, ptype);
+	} else {
+		PLAYER.playVideo(id, time, volume);
 	}
 }
 function videoPause() {
