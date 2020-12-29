@@ -1,5 +1,6 @@
 import { RankedPoll } from "./ranked-poll.js";
 import { loadWorker } from "./lib.js";
+import { VolumeManager } from "./volume.js";
 
 // header countdown
 loadWorker(window.WORKER_URLS.countdown).addEventListener(
@@ -24,6 +25,7 @@ loadWorker(window.WORKER_URLS.countdown).addEventListener(
 // ranked poll API
 let activePoll = null;
 
+window.volume = new VolumeManager();
 window.rankedPolls = {
 	createRankedPoll(state, mountElement) {
 		if (activePoll) {
