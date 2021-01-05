@@ -2161,8 +2161,8 @@ function videoLoadAtTime(vidObj, time) {
 						if (v !== null) {
 							VOLUME = v;
 						}
-						PLAYER = PLAYERS[ptype];
 						removeCurrentPlayer();
+						PLAYER = PLAYERS[ptype];
 						VIDEO_TYPE = ptype;
 						PLAYER.loadPlayer(id, time, VOLUME, length, vidObj.meta);
 					}
@@ -2175,8 +2175,8 @@ function videoLoadAtTime(vidObj, time) {
 				// Private vimeos can throw exceptions at us here, and that breaks EVERYTHING
 			}
 		} else {
-			PLAYER = PLAYERS[ptype];
 			removeCurrentPlayer();
+			PLAYER = PLAYERS[ptype];
 			VIDEO_TYPE = ptype;
 			PLAYER.loadPlayer(id, time, VOLUME, length, vidObj.meta);
 		}
