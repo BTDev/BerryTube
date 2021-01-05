@@ -4,7 +4,7 @@ function removeCurrentPlayer() {
         videojs('vjs_player').dispose();
     //clean up after youtube and vimeo
     if (PLAYER && PLAYER.PLAYER && PLAYER.PLAYER.destroy) {
-      PLAYER.PLAYER.destroy();
+      PLAYER.PLAYER.destroy("ytapiplayer");
     }
     var currentEmbed = $("#ytapiplayer");
     var placeholder = $("<div/>").css({width:'100%', height:'100%', position:'relative'}).insertBefore(currentEmbed);
@@ -511,13 +511,13 @@ window.PLAYERS.file = {
 						type: source.contentType,
 						label: source.quality,
 					});
-	
+
 					if (targetSource == source) {
 						// jQuery does dumb things sometimes, we need the selected attribute to be the
 						// string literal of true
 						$source[0].setAttribute("selected", "true");
 					}
-					
+
 					player.append($source);
 				}
 			} else if (sourceCount === 1) {
@@ -534,20 +534,20 @@ window.PLAYERS.file = {
 				"src" : src,
 				"type" : `video/${fileExtension}`
 			});
-	
+
 			player.append(source);
 		}
 
         $("#ytapiplayer").append(player);
 		const videoJsPlayer = videojs("vjs_player");
-		
+
 		videoJsPlayer.ready(function(){
 			this.volume(volume);
-			
+
             this.on("volumechange",function(){
                 VOLUME = this.volume();
 			});
-			
+
             this.on("seeked",function(){
                 videoSeeked(this.currentTime());
             });
@@ -556,7 +556,7 @@ window.PLAYERS.file = {
 				setUserQualityPreference(parseInt(label));
 			});
 
-			
+
 		});
 
 		videoJsPlayer.controlBar.addChild("QualitySelector");
@@ -688,7 +688,7 @@ window.PLAYERS.twitch = {
         twitchplayer.addEventListener(Twitch.Player.READY, function(){
             if (twitchplayer) {
                 twitchplayer.setVolume(volume);
-                twitchplayer.seek(to || 0);
+                twitchplayer.seek(0);
             }
         });
         twitchplayer.addEventListener(Twitch.Player.PLAYING, function(){
