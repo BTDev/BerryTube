@@ -1,3 +1,4 @@
+# https://hub.docker.com/_/mysql
 FROM mysql:8.0.22
 
 HEALTHCHECK --interval=10s --timeout=3s --start-period=10s CMD \

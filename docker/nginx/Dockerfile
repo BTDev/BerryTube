@@ -1,7 +1,9 @@
+# https://hub.docker.com/_/nginx
 ARG nginx_version=1.18.0
 
 FROM nginx:${nginx_version}-alpine AS build
 
+# https://github.com/openresty/headers-more-nginx-module/releases
 ARG headersmore_version=0.33
 
 # https://github.com/nginxinc/docker-nginx/blob/master/mainline/alpine/Dockerfile

@@ -1,4 +1,5 @@
-FROM php:7.4.12-fpm-alpine3.12
+# https://hub.docker.com/_/php
+FROM php:7.4.14-fpm-alpine3.12
 
 ARG MAXMIND_KEY
 
