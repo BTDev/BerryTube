@@ -1,6 +1,6 @@
 const playerVolumeInfo = {
 	yt: {range: 100, listen: true},
-	dm: {range: 1, listen: true},
+	dm: {range: 1, listen: false},
 	vimeo: {range: 1, listen: false},
 	soundcloud: {range: 100, listen: false},
 	file: {range: 1, listen: false},

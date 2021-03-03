@@ -45,9 +45,12 @@ window.PLAYERS.dm = {
             }
         });
 
-        this.PLAYER.addEventListener('playback_ready', onceFunction(() => {
+        //I assume that apiready is triggered after playback_ready
+        this.PLAYER.addEventListener('apiready', onceFunction(() => {
             this.PLAYER.setVolume(volume);
+        }));
 
+        this.PLAYER.addEventListener('playback_ready', onceFunction(() => {
             // adjust in case loading the player took a while
             at += (Date.now() - preloadTime) / 1000;
 
@@ -57,6 +60,10 @@ window.PLAYERS.dm = {
                 }, at * -1000);
             }
         }));
+
+        this.PLAYER.addEventListener('volumechange', () => {
+            window.volume.set(this.PLAYER.volume);
+        });
     },
     pause: function() {
         if (this.PLAYER) {
