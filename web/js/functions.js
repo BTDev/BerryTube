@@ -2089,7 +2089,7 @@ function canClosePoll() {
 	return canCreatePoll();
 }
 function canChat() {
-	return NAME;
+	return NAME && TYPE >= -1;
 }
 function canMoveBerry() {
 	if (TYPE >= 1) {

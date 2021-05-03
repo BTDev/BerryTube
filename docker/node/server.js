@@ -2309,6 +2309,8 @@ io.sockets.on('connection', function (ioSocket) {
 
 		if (typeof (data) !== "object" || typeof (data.msg) !== "string") { throw kick("Expected data"); }
 
+		if (type < userTypes.ANONYMOUS || nick === '[no username]') { throw kick("Sending messages straight to socket"); }
+
 		const { metadata: metaAttempt, msg } = data;
 		if (msg.length > SERVER.settings.core.max_chat_size) { throw kick(`Message length exeeds max size of ${SERVER.settings.core.max_chat_size}`); }
 
