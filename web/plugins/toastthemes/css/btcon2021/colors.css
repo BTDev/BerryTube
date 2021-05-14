@@ -27,6 +27,10 @@ body.night {
     font-family: 'Roboto', sans-serif !important; 
 }
 
+#chatControls * {
+    font-family: arial !important;
+}
+
 #dyn_header a {
     color: var(--text);
 }
