@@ -1,0 +1,440 @@
+
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+
+html {
+    --scrollbarBG: #d9d9d9;
+    --thumbBG: #a2a2a2;
+    --background: #eee;
+    --chatInput: #fff;
+    --backgroundNotif: #e4eaf7;
+    --backgroundGlass: rgba(255, 255, 255, .8);
+    --volatile: rgba(255, 130, 130, .8);
+    --text: #333;
+}
+
+body.night {
+    --scrollbarBG: #4a4a4a;
+    --thumbBG: #a2a2a2;
+    --background: #212224;
+    --chatInput: #1d1d1e;
+    --backgroundNotif: #373d4a;
+    --backgroundGlass: rgba(36, 36, 36, .8);
+    --volatile: rgba(166, 54, 54, .8);
+    --text: #eee;
+}
+
+* {
+    font-family: 'Roboto', sans-serif !important; 
+}
+
+#dyn_header a {
+    color: var(--text);
+}
+
+#countdown-timers~.wrapper,
+#countdown-timers {
+    background: var(--backgroundGlass);
+}
+#countdown-timers {
+    padding: 2em 300px;
+    width:1200px;
+}
+
+
+#videobg {
+    background: none;
+}
+
+body::-webkit-scrollbar,
+body #chatbuffer::-webkit-scrollbar,
+body #adminbuffer::-webkit-scrollbar,
+body #chatlist::-webkit-scrollbar {
+    width: 11px;
+}
+
+body {
+    position: relative;
+    background: url(images/tueb.png);
+    color: var(--text);
+}
+body.night {
+    background: url(images/tueb_dark.png);
+}
+body > * {
+    z-index: 1;
+    position: relative;
+}
+
+body,
+body #chatbuffer,
+body #adminbuffer,
+body #chatlist {
+    scrollbar-width: thin;
+    scrollbar-color: var(--thumbBG) var(--scrollbarBG);
+}
+
+body #chatbuffer,
+body #adminbuffer {
+    width: 480px;
+    margin: 0 0px;
+}
+
+body::-webkit-scrollbar-track,
+body #chatbuffer::-webkit-scrollbar-track,
+body #adminbuffer::-webkit-scrollbar-track,
+body #chatlist::-webkit-scrollbar-track {
+    background: var(--scrollbarBG);
+}
+
+body::-webkit-scrollbar-thumb,
+body #chatbuffer::-webkit-scrollbar-thumb,
+body #adminbuffer::-webkit-scrollbar-thumb,
+body #chatlist::-webkit-scrollbar-thumb {
+    background-color: var(--thumbBG);
+    border: 0px solid var(--scrollbarBG);
+}
+
+body #chatpane,
+body #adminbuffer,
+body #chatpane .tab,
+body #chatbuffer,
+body #connectedCountWrapper,
+body #chatlist,
+body #chatinput,
+body #chatinput > input,
+body #chatControls {
+    color: var(--text);
+    border-color: #b9b9b9;
+}
+
+
+body #chatpane .tab.newmsg {
+    background: #e8e8e8;
+    border-color: red;
+}
+
+
+body #chatpane,
+body #pollControl,
+body #dyn_motd {
+    background: var(--backgroundGlass);
+    color: var(--text);
+    overflow: hidden;
+    border: 1px solid #ccc;
+}
+body #dyn_motd {
+    padding: 15px;
+}
+body #pollpane .poll {
+    background: rgba(140, 140, 140, .7);
+    color: var(--text);
+    overflow: hidden;
+    border: none;
+}
+body #pollpane .poll.active {
+    background: var(--transparentBG);
+}
+
+
+body #adminbuffer,
+body #connectedCountWrapper,
+body #chatlist,
+body #chatinput,
+body #chatinput > input,
+body #chatControls {
+    background: var(--background);
+}
+body #chatbuffer {
+    background: var(--background);
+}
+
+
+body #rcvOverlay {
+    background: rgb(240, 240, 240);
+}
+
+body #chatbuffer,
+body #adminbuffer {
+    border-bottom: none;
+    border-color: rgba(255, 255, 255, .2);
+}
+
+body #chatlist {
+    border: none;
+}
+
+body #connectedCountWrapper,
+body #chatlist {
+    background: var(--background);
+    border-left: 1px solid #ccc;
+}
+
+body #pollControl .options .optionWrap {
+    border: none;
+}
+
+body #chatinput{
+    display: flex;
+    flex-direction: row-reverse;
+    padding: 0 .4em;
+    box-sizing: border-box;
+    background: var(--chatInput);
+}
+body #chatinput > input {
+    background: transparent;
+}
+body #pollControl .options .optionWrap input {
+    background: var(--background);
+}
+body #chatinput > input,
+body #pollControl .options .optionWrap input {
+    width: auto;
+    height: 28px;
+    flex-grow: 1;
+    position: relative;
+    color: var(--text);
+    border-bottom: 2px solid #c4c4c4;
+}
+body #chatinput > input:focus  {
+    border-color: #78a4fd;
+    outline:none;
+}
+body #pollControl .options .optionWrap input.option {
+    background: var(--background);
+}
+body #pollControl .optionWrap label {
+    height: 28px;
+    background:  var(--background);
+}
+
+body #chatinput > #adminRainbow {
+    height: 28px;
+    width: 62px;
+    background:  var(--background);
+    text-align: center;
+    overflow: hidden;
+    box-sizing: border-box;
+}
+
+body #chatpane .tab {
+    
+    background: #777;
+    color: white;
+    border-style: solid;
+    border-color:  var(--background);
+    border-width: 0 0 3px 0;
+    margin: 0 4px;
+    padding: 3px 6px;
+    border-radius: 4px 4px 0 0;
+}
+body #chatpane .tab.active {
+    background: rgb(80, 150, 187);
+}
+
+
+body #rcvOverlay,
+body #chattabs {
+    border-width: 0;
+}
+
+
+body .chatbuffer a,
+#rcvOverlay a {
+    color: #73A6F6 !important;
+}
+
+body .chatbuffer a:visited,
+#rcvOverlay a:visited {
+    color: #0AA89D !important;
+}
+
+
+
+body .dialogWindow,
+body .berrymotes.dialogWindow {
+    background: var(--backgroundGlass);
+    overflow: hidden;
+    z-index: 20!important;
+}
+
+body .berrymotes.dialogWindow .close ,
+body .dialogWindow .close ,
+body .poll .btn.close {
+    background: transparent;
+    border: none;
+    padding: 0;
+    overflow: visible;
+    font-weight: bold;
+    display: flex;
+    justify-content: space-around;
+}
+body .berrymotes.dialogWindow .close:hover,
+body .dialogWindow .close:hover,
+body .poll .btn.close:hover {
+    background:  var(--background);
+}
+body .dialogWindow .close::after ,
+body .berrymotes.dialogWindow .close::after {
+
+    content: "X";
+}
+
+body .dialogWindow .dialogToolbar,
+body .berrymotes.dialogWindow .dialogToolbar {
+    background:  var(--background);
+    border: none;
+}
+
+body #settingsGui .button,
+body .dialogWindow .button,
+body .dialogContent button,
+body #pollControl .btn ,
+body #pollControl .options select,
+body #headbar .submit{
+    background:  var(--background);
+    border: none;
+    color: var(--text);
+}
+body #settingsGui .button:hover,
+body .dialogWindow .button:hover,
+body .dialogContent button:hover,
+body #pollControl .btn:hover ,
+body #pollControl .options select:hover,
+body #headbar .submit:hover {
+    background:  var(--background);
+}
+
+body #playlistAddControls .slideBtn {
+    border: none;
+    background:  var(--background);
+    margin: 4px 4px 0 4px;
+    color: var(--text);
+}
+body #playlistAddControls .import {
+    margin: 0 .3em .6em .3em;
+    border-width: 0 1px 1px 1px;
+    border-style: solid;
+    border-color:  var(--background);
+    color: var(--text);
+}
+body #playlistAddControls .import input {
+    color: var(--text);
+}
+body #leftpane {
+    background:  var(--backgroundGlass);
+}
+body #playlist {
+    background: transparent;
+}
+body #playlist .track {
+    background-color: var(--scrollbarBG);
+    border: none;
+}
+body #playlist .thumb {
+    background: var(--thumbBG);
+    width: 10px;
+    margin-left: 2px;
+}
+
+body #playlist .end{
+    display: none;
+}
+body #playlistAddControls .import > div:not(.note) {
+    display: flex;
+}
+body #playlistAddControls .impele,
+body #playlistAddControls .misc,
+body #playlistAddControls .impele > input {
+    border: none;
+    background:  var(--background);
+    font-size: 13px;
+}
+
+body #playlistAddControls .impele > input {
+    width: 100%;
+    padding: 0 5px;
+    box-sizing: border-box;
+}
+body #playlistAddControls .impele.btn {
+    width: 30px;
+}
+body #playlistAddControls .impele:not(.btn) {
+    flex-grow: 1;
+    width: auto;
+}
+
+body #playlist ul > li {
+    margin: 4px;
+    border: none;
+    background:  var(--background);
+    display: flex;
+    align-items: center;
+}
+body #playlist ul > li.search-hidden {
+    display: none!important;
+}
+body #playlist ul > li.active {
+    margin: 3px;
+    background: var(--backgroundGlass);
+    display: flex!important;
+    border: 1px solid #e6e6e6;
+    color: var(--text);
+}
+body #playlist ul > li.volatile {
+    margin: 3px;
+    border: 1px solid #fff;
+    background: var(--volatile);
+}
+
+body #playlist ul > li .delete {
+    order: 20;
+    border: none;
+    margin: 1px 1px 1px 6px;
+}
+body #playlist ul > li .requeue {
+    order: 15;
+    border: none;
+    margin: 1px 1px 1px 6px;
+}
+body #playlist ul > li .requeue:hover,
+body #playlist ul > li .delete:hover {
+
+    background:  var(--background);
+}
+body #playlist ul > li .time {
+    order: 1
+}
+body #playlist ul > li .title {
+    flex-grow: 1;
+    order: 0;
+}
+body #playlist ul > li .clear {
+    order: 12
+}
+
+body .dialogWindow *,
+body .dialogWindow #settingsGui {
+    background: transparent;
+    color: var(--text);
+}
+body #logBuffer th {
+    text-align: left;
+    background:  var(--background);
+}
+body .chatbuffer .highlight {
+    background:  var(--backgroundNotif);
+}
+.chatbuffer .message.request {
+    color: #73A6F6;
+    font-style: italic;
+    font-weight: bold;
+}
+#chatlist ul .admin,
+.flaunt.level_2 {
+    color: #349d36;
+}
+
+#chatlist ul .mod,
+.flaunt.level_1 {
+    color: #52b059;
+}

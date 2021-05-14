@@ -142,13 +142,17 @@ function GroupButton(id, name, hasNew, hasUpdated, suffix, themeButtons) {
 		return button;
 	}
 
-	this.addButton = function(button) {
+	this.addButton = function(button, forceIndex = null) {
 		var insertIndex = 0;
-		for (var i = 0; i < this.themeButtons.length; i++) {
-			if (button.themeName < this.themeButtons[i].themeName) {
-				break;
+		if (forceIndex !== null) {
+			insertIndex = forceIndex;
+		} else {
+			for (var i = 0; i < this.themeButtons.length; i++) {
+				if (button.themeName < this.themeButtons[i].themeName) {
+					break;
+				}
+				insertIndex++;
 			}
-			insertIndex++;
 		}
 		this.themeButtons.splice(insertIndex, 0, button);
 	}
@@ -214,13 +218,15 @@ function initToastThemes(data, textStatus, jqxhr) {
 	favoritesGroup = new GroupButton('favoritesGroup', 'Favorites', false, false, 'Fav');
 	groupList = [officialGroup, mainPonyGroup, bgPonyGroup, nonPonyGroup, fourthPartyGroup, favoritesGroup];
 
-	officialGroup.addButton(new ThemeButton('berryButton', 'BerryTube', '', '', false, false));
 	officialGroup.addButton(new ThemeButton('lunaButton', 'LunaTube', 'css/colors-woona.css', '', false, false));
 	//officialGroup.addButton(new ThemeButton('trixieButton', 'TrixieTube', 'http://backstage.berrytube.tv/miggyb/spoilertube.css', '', false, false));
 	officialGroup.addButton(new ThemeButton('malPinkieButton', 'PinkieTube', 'https://radio.berrytube.tv/themes/pinkietube.css', '', false, false));
 	officialGroup.addButton(new ThemeButton('celestiaButton', 'CelestiaTube', 'https://radio.berrytube.tv/themes/celestiatube.css', '', false, false));
 	officialGroup.addButton(new ThemeButton('appleoosaButton', 'FeastTube', 'css/colors-appleoosans.css', '', false, false));
 	officialGroup.addButton(new ThemeButton('holidayButton', 'HolidayTube', 'css/colors-holiday.css', '', false, false));
+	officialGroup.addButton(new ThemeButton('btcon2020', 'BTCon 2020', 'plugins/toastthemes/cdncss.php?theme=btcon2020', isNewOrUpdated(2020, 5, 20), false));
+	officialGroup.addButton(new ThemeButton('btcon2021', 'BTCon 2021', 'plugins/toastthemes/cdncss.php?theme=btcon2021', isNewOrUpdated(2015, 5, 20), false));
+	officialGroup.addButton(new ThemeButton('berryButton', 'BerryTube', '', '', false, false), 0);
 
 	mainPonyGroup.addButton(new ThemeButton('scootsButton', 'ScootaTube', 'plugins/toastthemes/cdncss.php?theme=scoots', '', false, false));
 	mainPonyGroup.addButton(new ThemeButton('dashieButton', 'DashieTube', 'plugins/toastthemes/cdncss.php?theme=dashie', '', false, false));
