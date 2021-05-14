@@ -23,12 +23,9 @@ body.night {
     --text: #eee;
 }
 
-* {
-    font-family: 'Roboto', sans-serif !important; 
-}
-
-#chatControls * {
-    font-family: arial !important;
+html body,
+body #playlist ul li {
+    font-family: 'Roboto', sans-serif; 
 }
 
 #dyn_header a {
