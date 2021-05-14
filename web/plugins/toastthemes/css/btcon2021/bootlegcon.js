@@ -80,7 +80,7 @@ not in sudoers file
       Math.random() + 0.3
     });
         opacity: ${Math.random() * 0.5 + 0.5};
-        z-index: -1;
+        z-index: 0;
         position:absolute;
         top:${Math.random() * document.body.clientHeight}px;
         left:${Math.random() * document.body.clientWidth}px" src="${mobie}" />
