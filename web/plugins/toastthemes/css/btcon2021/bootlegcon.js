@@ -80,7 +80,7 @@ not in sudoers file
       Math.random() + 0.3
     });
         opacity: ${Math.random() * 0.5 + 0.5};
-        z-index: 0;
+        z-index: -1;
         position:absolute;
         top:${Math.random() * document.body.clientHeight}px;
         left:${Math.random() * document.body.clientWidth}px" src="${mobie}" />
@@ -99,13 +99,4 @@ not in sudoers file
   });
 };
 
-const now = new Date();
-const startTime = new Date('2021-05-14T18:00:00Z');
-
-if (now < startTime) {
-  console.log('Waiting for con...');
-  setTimeout(bootlegInit, startTime.getTime() - now.getTime());
-} else {
-  console.log('Con time!');
-  setTimeout(bootlegInit, 2500);
-}
+setTimeout(bootlegInit, 2500);
