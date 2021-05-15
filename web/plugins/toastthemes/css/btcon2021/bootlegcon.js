@@ -91,7 +91,7 @@ not in sudoers file
     <style>
         #videobg {
             background: url(${
-              beegees + ~~(Math.random() * 15 + 1)
+              beegees + ~~(Math.random() * 19 + 1)
             }.png) no-repeat center center !important;
         }
     </style>
