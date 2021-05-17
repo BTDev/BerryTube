@@ -116,15 +116,6 @@
 <script src="https://player.twitch.tv/js/embed/v1.js" defer></script>
 <script src="https://api.dmcdn.net/all.js" defer></script>
 
-<!-- TODO: remove these end BTCon 2021 -->
-<script src="<?= cdn('plugins/toastthemes/css/btcon2021/bootlegcon.js') ?>" defer></script>
-<style>
-body > * {
-    z-index: 1;
-    position: relative;
-}
-</style>
-
 <?php end_minified_tags(); ?>
 
 <script>
