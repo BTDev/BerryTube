@@ -224,8 +224,8 @@ function initToastThemes(data, textStatus, jqxhr) {
 	officialGroup.addButton(new ThemeButton('celestiaButton', 'CelestiaTube', 'https://radio.berrytube.tv/themes/celestiatube.css', '', false, false));
 	officialGroup.addButton(new ThemeButton('appleoosaButton', 'FeastTube', 'css/colors-appleoosans.css', '', false, false));
 	officialGroup.addButton(new ThemeButton('holidayButton', 'HolidayTube', 'css/colors-holiday.css', '', false, false));
-	officialGroup.addButton(new ThemeButton('btcon2020', 'BTCon 2020', 'plugins/toastthemes/cdncss.php?theme=btcon2020', isNewOrUpdated(2020, 5, 20), false));
-	officialGroup.addButton(new ThemeButton('btcon2021', 'BTCon 2021', 'plugins/toastthemes/cdncss.php?theme=btcon2021', isNewOrUpdated(2015, 5, 20), false));
+	officialGroup.addButton(new ThemeButton('btcon2020', 'BTCon 2020', 'plugins/toastthemes/cdncss.php?theme=btcon2020', '', false, false));
+	officialGroup.addButton(new ThemeButton('btcon2021', 'BTCon 2021', 'plugins/toastthemes/cdncss.php?theme=btcon2021', '', false, false));
 	officialGroup.addButton(new ThemeButton('berryButton', 'BerryTube', '', '', false, false), 0);
 
 	mainPonyGroup.addButton(new ThemeButton('scootsButton', 'ScootaTube', 'plugins/toastthemes/cdncss.php?theme=scoots', '', false, false));
@@ -954,6 +954,12 @@ function fourthWall() {
  */
 function addThemeEffect(theme) {
 	switch(theme) {
+		case 'plugins/toastthemes/cdncss.php?theme=btcon2021':
+			$('<script>', {
+				class: 'toastthemes-theme-specific',
+				src: 'plugins/toastthemes/css/btcon2021/bootlegcon.js',
+			}).appendTo(document.head);
+			break;
 		case 'plugins/toastthemes/cdncss.php?theme=slam':
 			slamming = true;
 			welcomeToTheJam.play();
@@ -1039,6 +1045,8 @@ function clearThemeEffects() {
 	$('#playerPinkieDiv').remove();
 	$('#playlistPinkieDiv').remove();
     $('#banner').unbind();
+	$('#banner').empty();
+	$('.toastthemes-theme-specific').remove();
 }
 
 /**

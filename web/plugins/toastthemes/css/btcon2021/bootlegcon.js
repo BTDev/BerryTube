@@ -1,6 +1,6 @@
-const bootlegInit = (_) => {
+whenExists('#banner', () => {
   $.ajax({
-    url: "https://f000.backblazeb2.com/file/pubpubpub/untitled2.svg",
+    url: "plugins/toastthemes/css/btcon2021/images/banner.svg",
     method: "GET",
     dataType: "text",
   }).then((svg_sauce) => {
@@ -47,18 +47,14 @@ not in sudoers file
           .replace("fill:rgb(102,49,0)", "fill:rgb(255,40,40)");
 
     var bananer = document.getElementById("banner");
-
-    bananer.style.background = "transparent";
-    bananer.style.height = "auto";
-    bananer.style.width = "900px";
     bananer.innerHTML = svg_spicy;
 
-    var ankl = "https://f000.backblazeb2.com/file/pubpubpub/ankles.png";
+    var ankl = "plugins/toastthemes/css/btcon2021/images/ankles.png";
 
     for (let iiiiii = 0; iiiiii < 200; iiiiii++) {
       setTimeout((_) => {
         $("body").append(`
-        <img style="
+        <img class="toastthemes-theme-specific" style="
             transform: rotate(${~~(
               Math.random() * 360
             )}deg) scale(${Math.random()});
@@ -73,9 +69,9 @@ not in sudoers file
       }, 0);
     }
 
-    var mobie = "https://f000.backblazeb2.com/file/pubpubpub/movie_poster.png";
+    var mobie = "plugins/toastthemes/css/btcon2021/images/movie_poster.png";
     $("body").append(`
-    <img style="
+    <img class="toastthemes-theme-specific" style="
         transform: rotate(${~~(Math.random() * 90) - 45}deg) scale(${
       Math.random() + 0.3
     });
@@ -86,9 +82,9 @@ not in sudoers file
         left:${Math.random() * document.body.clientWidth}px" src="${mobie}" />
 `);
 
-    var beegees = "https://f000.backblazeb2.com/file/pubpubpub/bg";
+    var beegees = "plugins/toastthemes/css/btcon2021/images/bg/bg";
     $("body").append(`
-    <style>
+    <style class="toastthemes-theme-specific">
         #videobg {
             background: url(${
               beegees + ~~(Math.random() * 19 + 1)
@@ -97,6 +93,4 @@ not in sudoers file
     </style>
 `);
   });
-};
-
-setTimeout(bootlegInit, 2500);
+});

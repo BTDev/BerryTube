@@ -66,6 +66,12 @@ body > * {
     position: relative;
 }
 
+body #banner {
+    background: transparent;
+    height: auto;
+    width: 900px;
+}
+
 body,
 body #chatbuffer,
 body #adminbuffer,
