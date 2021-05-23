@@ -863,8 +863,8 @@ function banUser(data, mod = undefined) {
 
 	if (mod) {
 		DefaultLog.info(events.EVENT_ADMIN_BANNED,
-			"{mod} banned {nick} {duration}",
-			{ nick: data.nicks.join('/'), type: "user", mod, duration: data.duration > 0 ? `for ${data.duration} minutes` : 'permanently' });
+			"{mod} {action} {nick} {duration}",
+			{ nick: data.nicks.join('/'), action: data.duration === 0 ? 'unbanned' : 'banned', type: "user", mod, duration: data.duration > 0 ? `for ${data.duration} minutes` : 'permanently' });
 	}
 
 	for (const nick of data.nicks) {
