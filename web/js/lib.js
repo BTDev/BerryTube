@@ -143,12 +143,15 @@
 		}
 
 		// Remove old window if new uid matches an old one.
-		if(myData.uid != false){
-			$(windows).each(function(key,val){
-				if($(val).data('uid') == myData.uid){
-					val.close();
-				}
-			});
+		if (myData.uid != false) {
+			const win = windows.find(win => win.data('uid') === myData.uid);
+
+			if (win) {
+				win.close();
+
+				//prevent double close
+				$(document).unbind("mouseup.rmWindows");
+			}
 		}
 
 		// Create Window
@@ -161,7 +164,12 @@
 		newWindow.css('z-index','999');
 		newWindow.close = function(){
 			var windows = $(parent).data('windows');
-			windows.splice(windows.indexOf(this),1);
+			let index = windows.indexOf(this);
+
+			if (index !== -1) {
+				windows.splice(index,1);
+			}
+			
 			$(this).fadeOut('fast',function(){
 				$(this).remove();
 			});
@@ -223,10 +231,11 @@
 
 		windows.push(newWindow);
 
-		if(myData.toolBox){
-			$(document).bind("mouseup.rmWindows",function (e){
+		if (myData.toolBox) {
+			$(document).bind("mouseup.rmWindows",function (e) {
 				var container = newWindow;
-				if (container.has(e.target).length === 0){
+
+				if (container.has(e.target).length === 0) {
 					container.close();
 					$(document).unbind("mouseup.rmWindows");
 				}
