@@ -1,0 +1,127 @@
+body {
+    --colorRed: #ffa5a5;
+    --colorOrange: #e6c386;
+    --colorYellow: #f4f489;
+    --colorGreen: #9ef49e;
+    --colorBlue: #9494f0;
+    --colorPurple: #ee95ee;
+    --colorVolatile: #eee;
+    --colorText: #222;
+}
+body.night {
+    --colorRed: #c43a3a;
+    --colorOrange: #d78137;
+    --colorYellow: #9d8e2e;
+    --colorGreen: #418e41;
+    --colorBlue: #404093;
+    --colorPurple: #553173;
+    --colorVolatile: #eee;
+    --colorText: #f8f8f8;
+}
+
+#plul > li{
+    color: var(--colorText)!important;
+}
+#plul > li.active{
+    color: var(--colorText)!important;
+    font-weight:bold;
+}
+#plul > li:nth-child(6n) {
+    background-color: var(--colorRed)!important;
+}
+
+#plul > li:nth-child(6n+1) {
+    background-color: var(--colorOrange)!important;
+}
+
+#plul > li:nth-child(6n+2) {
+    background-color: var(--colorYellow)!important;
+}
+
+#plul > li:nth-child(6n+3) {
+    background-color: var(--colorGreen)!important;
+}
+
+#plul > li:nth-child(6n+4) {
+    background-color: var(--colorBlue)!important;
+}
+
+#plul > li:nth-child(6n+5) {
+    background-color: var(--colorPurple)!important;
+}
+#plul > li.volatile {
+    box-sizing: border-box;
+    border-style: solid;
+    border-width: 3px!important;
+    border-image: linear-gradient(
+        to right, 
+        var( --colorRed ), 
+        var( --colorOrange ), 
+        var( --colorYellow ), 
+        var( --colorGreen ), 
+        var( --colorBlue ), 
+        var( --colorPurple )
+    )!important;
+    border-image-slice: 1!important;
+    padding: 0;
+    position: relative;
+    overflow: hidden;
+    z-index:1;
+}
+/* Kris-mode
+#plul > li.active + li:before{
+    position: absolute;
+    content: '[GAY] [GAY] [GAY] [GAY] [GAY] [GAY] [GAY] [GAY] [GAY] [GAY] [GAY] [GAY] [GAY] [GAY] [GAY] [GAY] [GAY] [GAY] [GAY] [GAY] [GAY] [GAY] [GAY] [GAY] [GAY] [GAY] [GAY] [GAY] [GAY] [GAY] [GAY] [GAY] [GAY] [GAY] [GAY] [GAY] [GAY] [GAY] [GAY] [GAY] [GAY] [GAY] [GAY] [GAY] ';
+    font-weight: bold;
+    font-size: 2em;
+    font-family: "Comic Sans MS", "Comic Sans", cursive;
+    color: white;
+    z-index:-1;
+}*/
+#plul > li.active {
+    background-color: transparent!important;
+    position: relative;
+    overflow: hidden;
+}
+#plul > li.active::before{
+    content: ' ';
+    width:200%;
+    height:100%;
+    position: absolute;
+    z-index:-1;
+    background: linear-gradient(
+        120deg, 
+        var( --colorRed ), 
+        var( --colorOrange ), 
+        var( --colorYellow ), 
+        var( --colorGreen ), 
+        var( --colorBlue ), 
+        var( --colorPurple ), 
+        var( --colorRed ), 
+        var( --colorOrange ), 
+        var( --colorYellow ), 
+        var( --colorGreen ), 
+        var( --colorBlue ), 
+        var( --colorPurple ),
+        var( --colorRed ), 
+        var( --colorOrange ), 
+        var( --colorYellow ), 
+        var( --colorGreen ), 
+        var( --colorBlue ), 
+        var( --colorPurple ),
+        var( --colorRed )
+    )!important;
+    animation-name: weeeee;
+    animation-duration: 6s;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+}
+
+@keyframes weeeee {
+    from {
+        transform: translateX(-10%);
+    }
+    to { 
+        transform: translateX(-43.3%);
+    }
+}

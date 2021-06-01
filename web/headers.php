@@ -86,6 +86,12 @@
 <link rel="stylesheet" href="<?= cdn('css/countdown.css') ?>" />
 <link rel="stylesheet" href="<?= cdn('berrymotes/css/berryemotecore.css') ?>" />
 
+<?php
+if (date('n') == 6) {
+	echo '<link rel="stylesheet" href="', cdn('css/pride.css'), '" />';
+}
+?>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js" integrity="sha256-KM512VNnjElC30ehFwehXjx1YCHPiQkOPmqnrWtpccM=" crossorigin="anonymous" defer></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/tinyscrollbar/2.4.2/jquery.tinyscrollbar.min.js" integrity="sha256-gENsdwXJl1qiwOqS0DF+kfqTP5Dy+0gDTtxpRcWVhrU=" crossorigin="anonymous" defer></script>
