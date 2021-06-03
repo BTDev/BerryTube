@@ -77,6 +77,40 @@ body.night {
     color: white;
     z-index:-1;
 }*/
+
+#plul > li.active {
+    box-sizing: border-box;
+    border-style: solid;
+    border-width: 3px!important;
+    border-image: repeating-linear-gradient(
+        45deg,
+        var( --colorRed ), 
+        var( --colorOrange ), 
+        var( --colorYellow ), 
+        var( --colorGreen ), 
+        var( --colorBlue ), 
+        var( --colorPurple ),
+        var( --colorRed ), 
+        var( --colorOrange ), 
+        var( --colorYellow ), 
+        var( --colorGreen ), 
+        var( --colorBlue ), 
+        var( --colorPurple ),
+        var( --colorRed ), 
+        var( --colorOrange ), 
+        var( --colorYellow ), 
+        var( --colorGreen ), 
+        var( --colorBlue ), 
+        var( --colorPurple )
+      )!important;
+    border-image-slice: 1!important;
+    padding: 3px;
+    position: relative;
+    overflow: hidden;
+    z-index:1;
+}
+
+/* Rainbow now playing (breaks progress indicator)
 #plul > li.active {
     background-color: transparent!important;
     position: relative;
@@ -126,3 +160,4 @@ body.night {
         transform: translateX(-43.3%);
     }
 }
+*/
