@@ -1,4 +1,7 @@
 body {
+    --colorWidth: 10px;
+}
+body {
     --colorRed: #ffa5a5;
     --colorOrange: #e6c386;
     --colorYellow: #f4f489;
@@ -57,9 +60,8 @@ body.night {
     border-image: repeating-linear-gradient(
         45deg,
         black,
-        black 5px,
-        white 5px,
-        white 10px
+        white var(--colorWidth),
+        black calc(var(--colorWidth) * 2)
       )!important;
     border-image-slice: 1!important;
     padding: 2px;
@@ -85,23 +87,12 @@ body.night {
     border-image: repeating-linear-gradient(
         45deg,
         var( --colorRed ), 
-        var( --colorOrange ), 
-        var( --colorYellow ), 
-        var( --colorGreen ), 
-        var( --colorBlue ), 
-        var( --colorPurple ),
-        var( --colorRed ), 
-        var( --colorOrange ), 
-        var( --colorYellow ), 
-        var( --colorGreen ), 
-        var( --colorBlue ), 
-        var( --colorPurple ),
-        var( --colorRed ), 
-        var( --colorOrange ), 
-        var( --colorYellow ), 
-        var( --colorGreen ), 
-        var( --colorBlue ), 
-        var( --colorPurple )
+        var( --colorOrange ) calc(var(--colorWidth) * 1),
+        var( --colorYellow ) calc(var(--colorWidth) * 2), 
+        var( --colorGreen )  calc(var(--colorWidth) * 3), 
+        var( --colorBlue )   calc(var(--colorWidth) * 4), 
+        var( --colorPurple ) calc(var(--colorWidth) * 5),
+        var( --colorRed)     calc(var(--colorWidth) * 6)
       )!important;
     border-image-slice: 1!important;
     padding: 3px;
