@@ -9,7 +9,8 @@ body {
     --colorBlue: #9494f0;
     --colorPurple: #ee95ee;
     --colorVolatile: #eee;
-    --colorText: #222;
+    --colorText: black;
+    --colorShadow: white;
 }
 body.night {
     --colorRed: #c43a3a;
@@ -19,11 +20,13 @@ body.night {
     --colorBlue: #404093;
     --colorPurple: #553173;
     --colorVolatile: #eee;
-    --colorText: #f8f8f8;
+    --colorText: white;
+    --colorShadow: black;
 }
 
 #plul > li{
     color: var(--colorText)!important;
+    text-shadow: 0 0 2px var(--colorShadow);
 }
 #plul > li.active{
     color: var(--colorText)!important;
