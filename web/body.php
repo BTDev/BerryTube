@@ -67,6 +67,21 @@
 					});
 				</script>
 			<?php } ?>
+			<?php
+				if (date('n') == 6) {
+					if ($_COOKIE['no-pride'] !== 'true') {
+						$prideCookie = 'no-pride=true; expires=Thu, 01 Jan 2970 00:00:00 GMT';
+						$prideText = 'Disable pride month theme';
+					} else {
+						$prideCookie = 'no-pride=false; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+						$prideText = 'Enable pride month theme';
+					}
+					?>
+					<br>
+					<a style="color:white" href="#" onclick="document.cookie='<?= $prideCookie ?>; Secure'; location.reload()"><?= $prideText ?></a>
+					<?php
+				}
+			?>
 		</center>
 	</div>
 </body>

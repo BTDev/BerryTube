@@ -87,7 +87,7 @@
 <link rel="stylesheet" href="<?= cdn('berrymotes/css/berryemotecore.css') ?>" />
 
 <?php
-if (date('n') == 6) {
+if (date('n') == 6 && $_COOKIE['no-pride'] !== 'true') {
 	echo '<link rel="stylesheet" href="', cdn('css/pride.css'), '" />';
 }
 ?>
