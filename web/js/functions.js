@@ -2197,7 +2197,7 @@ function parseVideoURL(url, callback) {
 	var m = url.match(new RegExp("\\.mpd")); if (m) { callback(url, "dash"); return; }
 	var m = url.match(new RegExp("\\.m3u8$")); if (m) { callback(url, "hls", "~ Raw Livestream ~"); return; }
 	var m = url.match(new RegExp("\\.json[^\\/]*$")); if (m) { callback(url, "manifest"); return; }
-	var m = url.match(new RegExp("\\.(?:mp4|webm)?[^\\/]*$")); if (m) { callback(url, "file"); return; }
+	var m = url.match(new RegExp("\\.(?:mp4|m4v|webm)?[^\\/]*$")); if (m) { callback(url, "file"); return; }
 	// ppshrug
 	callback(url, "yt");
 }

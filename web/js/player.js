@@ -478,7 +478,7 @@ window.PLAYERS.soundcloud = {
     }
 };
 
-const fileExtensionRegex = /(mp4|webm)([^/]*)$/;
+const fileExtensionRegex = /(mp4|m4v|webm)([^/]*)$/;
 
 window.PLAYERS.file = {
     loadPlayer: function (src, at, volume, length, meta) {
@@ -490,9 +490,14 @@ window.PLAYERS.file = {
         });
 
         const fileExtensionMatch = fileExtensionRegex.exec(src);
-        const fileExtension = fileExtensionMatch
+        let fileExtension = fileExtensionMatch
             ? fileExtensionMatch[1]
             : "mp4";
+
+        // m4v is just mp4 with additional Apple bullshit
+        if (fileExtension === 'm4v') {
+            fileExtension = 'mp4';
+        }
 
 		if (meta.manifest) {
 			const sourceCount = meta.manifest.sources.length;
