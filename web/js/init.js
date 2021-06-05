@@ -631,7 +631,7 @@ function showConfigMenu(on) {
 	var row = $('<div/>').appendTo(configOps);
 	$('<span/>').text("Night mode (for select themes):").appendTo(row);
 	var nightMode = $('<input/>').attr('type', 'checkbox').appendTo(row);
-	if (getStorage("nightMode") == 1) { nightMode.prop('checked', true); }
+	if (getStorage("nightMode") != 0) { nightMode.prop('checked', true); }
 	nightMode.change(function () { //
 		if ($(this).is(":checked")) {
 			setStorage('nightMode', 1);
@@ -2020,7 +2020,7 @@ $(function () {
 	if (getStorage('plFolAcVid') == null) { setStorage('plFolAcVid', 1); }
 	if (getStorage('keeppolls') == null) { setStorage('keeppolls', 5); }
 	if (getStorage('sbchatter') == null) { setStorage('sbchatter', 0); }
-	if (getStorage('nightMode') == null) { setStorage('nightMode', 0); }
+	if (getStorage('nightMode') == null) { setStorage('nightMode', 1); }
 
 	// Reactions
 	if (getStorage('showTimestamps') == 1) { $('body').addClass('showTimestamps'); }
