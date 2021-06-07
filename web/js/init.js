@@ -392,7 +392,7 @@ function sortUserList() {
 
 		const grouped = groups.map((selector) => {
 			return list.find(selector).not('.me').sort((a, b) => {
-				//get lowercase nicks of users being compared
+				//get uppercase nicks of users being compared
 				const nicks = [a, b].map(user => $(user).data('nick').toUpperCase());
 				
 				return nicks[0].localeCompare(nicks[1]);
@@ -404,7 +404,6 @@ function sortUserList() {
 		);
 	});
 }
-
 
 function showLogMenu(on) {
 	var settWin = $("body").dialogWindow({
