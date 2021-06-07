@@ -201,13 +201,14 @@ window.PLAYERS.yt = {
 	getVolume: function(callback){
         let volume = window.volume.get('yt');
 
-        //only get volume from player when method exists 
+        //only grab volumes if youtube's api is ready, 
+        //otherwise default to current volume
         if (this.PLAYER.getVolume) {
             volume = this.PLAYER.getVolume();
         }
 
-        if (this.PLAYER.isMuted()) {
-    		volume = 0;
+        if (this.PLAYER.isMuted) {
+    		volume = this.PLAYER.isMuted() ? 0 : volume;
         }
 
 		if(callback)callback(volume);
