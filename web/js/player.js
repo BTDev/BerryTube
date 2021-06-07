@@ -203,11 +203,11 @@ window.PLAYERS.yt = {
 
         //only grab volumes if youtube's api is ready, 
         //otherwise default to current volume
-        if (this.PLAYER.getVolume) {
+        if (this.PLAYER && this.PLAYER.getVolume) {
             volume = this.PLAYER.getVolume();
         }
 
-        if (this.PLAYER.isMuted) {
+        if (this.PLAYER && this.PLAYER.isMuted) {
     		volume = this.PLAYER.isMuted() ? 0 : volume;
         }
 
