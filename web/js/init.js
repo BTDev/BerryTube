@@ -384,6 +384,7 @@ function sortUserList() {
 		
 		const groups = [
 			'.admin',
+			'.assistant',
 			'.user.leader',
 			'.user:not(.leader)',
 			'.anon',
