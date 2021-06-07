@@ -199,7 +199,12 @@ window.PLAYERS.yt = {
         }
     },
 	getVolume: function(callback){
-        let volume = this.PLAYER.getVolume();
+        let volume = window.volume.get('yt');
+
+        //only get volume from player when method exists 
+        if (this.PLAYER.getVolume) {
+            volume = this.PLAYER.getVolume();
+        }
 
         if (this.PLAYER.isMuted()) {
     		volume = 0;
