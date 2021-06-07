@@ -377,41 +377,34 @@ function doColorTag(entry, tag, volat) {
 		socket.emit("fondleVideo", data);
 	}
 }
+
 function sortUserList() {
-	var mylist = $('#chatlist ul');
+	whenExists("#chatlist ul", (list) => {
+		dbg("sorting");
+		
+		const groups = [
+			'.admin',
+			'.user.leader',
+			'.user:not(.leader)',
+			'.anon',
+			'.nobody'
+		];
 
-	var listitems = mylist.children('li.admin').get();
-	listitems.sort(function (a, b) {
-		return $(a).text().toUpperCase().localeCompare($(b).text().toUpperCase());
+		const grouped = groups.map((selector) => {
+			return list.find(selector).not('.me').sort((a, b) => {
+				//get lowercase nicks of users being compared
+				const nicks = [a, b].map(user => $(user).data('nick').toUpperCase());
+				
+				return nicks[0].localeCompare(nicks[1]);
+			});
+		});
+
+		list.append(
+			grouped.flat()
+		);
 	});
-	$.each(listitems, function (idx, itm) { if ($(itm).data('nick') != NAME) { mylist.append(itm); } });
-
-	var listitems = mylist.children('li.user.leader, li.assistant.leader').get();
-	listitems.sort(function (a, b) {
-		return $(a).text().toUpperCase().localeCompare($(b).text().toUpperCase());
-	});
-	$.each(listitems, function (idx, itm) { if ($(itm).data('nick') != NAME) { mylist.append(itm); } });
-
-	var listitems = mylist.children('li.user:not(.leader), li.assistant:not(.leader)').get();
-	listitems.sort(function (a, b) {
-		return $(a).text().toUpperCase().localeCompare($(b).text().toUpperCase());
-	});
-	$.each(listitems, function (idx, itm) { if ($(itm).data('nick') != NAME) { mylist.append(itm); } else { $(itm).addClass("me"); } });
-
-	var listitems = mylist.children('li.anon').get();
-	listitems.sort(function (a, b) {
-		return $(a).text().toUpperCase().localeCompare($(b).text().toUpperCase());
-	});
-	$.each(listitems, function (idx, itm) { if ($(itm).data('nick') != NAME) { mylist.append(itm); } });
-
-	var listitems = mylist.children('li.nobody').get();
-	listitems.sort(function (a, b) {
-		return $(a).text().toUpperCase().localeCompare($(b).text().toUpperCase());
-	});
-	$.each(listitems, function (idx, itm) { if ($(itm).data('nick') != NAME) { mylist.append(itm); } });
-
-	dbg("sorting");
 }
+
 
 function showLogMenu(on) {
 	var settWin = $("body").dialogWindow({
