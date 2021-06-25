@@ -158,6 +158,10 @@ body {
 .chatbuffer:hover {
 	background-color: #CCCCCC;
 }
+.chatbuffer.inactive {
+    display: none;
+    user-select: contain; /* maybe one day this will be supported... */
+}
 #chatpane {
 	background:white;
 }

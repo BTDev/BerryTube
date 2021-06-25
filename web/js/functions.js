@@ -2491,13 +2491,13 @@ function setPlaylistPosition(to) {
 function showChat(channel) {
 	ACTIVE_CHAT = channel;
 
-	$('.chatbuffer').css('display', 'none');
+	$('.chatbuffer').addClass('inactive');
 	$('#chattabs .tab').removeClass('active');
 	$('#chatpane').removeClass('admin');
 
 	switch (channel) {
 		case 'main':
-			$('#chatbuffer').css('display', 'block');
+			$('#chatbuffer').removeClass('inactive');
 			$('#maintab').removeClass('newmsg squee').addClass('active');
 			$('#chatinput input').css('padding-left', '0px');
 			$('#adminRainbow').css('display', 'none');
@@ -2507,7 +2507,7 @@ function showChat(channel) {
 			}
 			break;
 		case 'admin':
-			$('#adminbuffer').css('display', 'block');
+			$('#adminbuffer').removeClass('inactive');
 			$('#admintab').removeClass('newmsg squee').addClass('active');
 			$('#chatinput input').css('padding-left', '60px');
 			$('#adminRainbow').css('display', 'block');
@@ -2518,7 +2518,7 @@ function showChat(channel) {
 			}
 			break;
 		default:
-			$('#chatbuffer').css('display', 'block');
+			$('#chatbuffer').removeClass('inactive');
 			$('#maintab').removeClass('newmsg squee').addClass('active');
 			$('#chatinput input').css('padding-left', '0px');
 			$('#adminRainbow').css('display', 'none');

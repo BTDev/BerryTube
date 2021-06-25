@@ -1476,10 +1476,10 @@ function initChat(parent) {
 	var maintab = $('<div id="maintab"/>').addClass('tab active').text('#Main').click(function () { showChat('main'); }).appendTo(chattabs);
 	var admintab = $('<div id="admintab"/>').addClass('tab').text('#OPS').click(function () { showChat('admin'); }).appendTo(chattabs);
 
-	var chatbuffer = $('<div id="chatbuffer"/>').addClass('chatbuffer').css('display', 'block').appendTo(chatpane);
+	var chatbuffer = $('<div id="chatbuffer"/>').addClass('chatbuffer').appendTo(chatpane);
 	var sbstare = $('<marquee/>').html('[](/sbstare)').appendTo(chatbuffer);
 
-	var adminbuffer = $('<div id="adminbuffer"/>').addClass('chatbuffer').css('display', 'none').appendTo(chatpane);
+	var adminbuffer = $('<div id="adminbuffer"/>').addClass('chatbuffer inactive').appendTo(chatpane);
 
 	var userCountWrap = $('<div id="connectedCountWrapper"/>').appendTo(chatpane);
 	var userCount = $('<span id="connectedCount"/>').appendTo(userCountWrap);
@@ -2057,26 +2057,29 @@ $(function () {
 
 	$(".chatbuffer")
 		.mouseenter(function () { KEEP_BUFFER = false; })
-		.mouseleave(function () { KEEP_BUFFER = true; scrollBuffersToBottom(); })
-		// make emotes copyable as [](/emote)
-		.on('copy', event => {
-			try {
-				let text = '';
-				for (const node of document.getSelection().getRangeAt(0).cloneContents().childNodes) {
-					if (node.nodeType === 1 && node.getAttribute('emote_id')) {
-						const emote = Bem.emotes[parseInt(node.getAttribute('emote_id'), 10)];
-						const title = node.textContent ? `*${node.textContent}*` : '';
-						text += `[${title}](/${emote.names[0]})`;
-					} else {
-						text += node.textContent;
-					}
-				}
-				event.originalEvent.clipboardData.setData('text/plain', text);
-				return false;
-			} catch (err) {
-				console.error('Error customizing copy operation', err);
-			}
-		});
+		.mouseleave(function () { KEEP_BUFFER = true; scrollBuffersToBottom(); });
+
+	// make emotes copyable as [](/emote)
+	function collectCopy(node) {
+		if (node.nodeType === Node.ELEMENT_NODE && node.getAttribute('emote_id')) {
+			const emote = Bem.emotes[parseInt(node.getAttribute('emote_id'), 10)];
+			const title = node.textContent ? `*${node.textContent}*` : '';
+			return `[${title}](/${emote.names[0]})`;
+		} else if (node.nodeType === Node.TEXT_NODE) {
+			return node.textContent;
+		} else if (!(node.classList.contains('chatbuffer') && node.classList.contains('inactive'))) {
+			return Array.from(node.childNodes).map(collectCopy).join(' ');
+		}
+	}
+	$('body').on('copy', event => {
+		try {
+			const text = Array.from(document.getSelection().getRangeAt(0).cloneContents().childNodes).map(collectCopy).join(' ');
+			event.originalEvent.clipboardData.setData('text/plain', text);
+			return false;
+		} catch (err) {
+			console.error('Error customizing copy operation', err);
+		}
+	});
 
 	setVal("INIT_FINISHED", true);
 
