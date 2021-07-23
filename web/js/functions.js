@@ -825,6 +825,11 @@ function secToTime(seconds) {
 function setNick(nick) {
 	NAME = nick;
 	$("#chatControls .nick").text(NAME);
+
+	whenExists("#chatlist ul", (list) => {
+		list.find(`.${nick}`).addClass('me');
+	});
+
 	ORIGNAME = nick;
 	sortUserList();
 }
