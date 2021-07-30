@@ -51,7 +51,6 @@ const pollService = serviceLocator.polls = new PollService(serviceLocator);
 // all registered services receive certain events, so group them up
 const services = [databaseService, authService, pollService, sessionService];
 
-var http = require('http');
 var https = require('https');
 var et = require('elementtree');
 var fs = require('fs');
@@ -1452,12 +1451,10 @@ function _addVideoVimeo(socket, data, meta, path, successCallback, failureCallba
 
 	var options = {
 		host: 'vimeo.com',
-		port: 80,
-		method: 'GET',
 		path: path
 	};
 	var recievedBody = "";
-	var req = http.request(options, function (res) {
+	var req = https.get(options, function (res) {
 		res.setEncoding('utf8');
 		res.on('data', function (chunk) {
 			recievedBody += chunk;
@@ -1492,7 +1489,6 @@ function _addVideoVimeo(socket, data, meta, path, successCallback, failureCallba
 	req.on('error', function (e) {
 		if (failureCallback) { failureCallback(e); }
 	});
-	req.end();
 }
 
 function resolveRestrictCountries(restrictReasons) {
@@ -1514,8 +1510,6 @@ function addVideoYT(socket, data, meta, successCallback, failureCallback) {
 	}
 	var options = {
 		host: 'www.googleapis.com',
-		port: 443,
-		method: 'GET',
 		path: '/youtube/v3/videos?id=' + encodeURIComponent(videoid.toString()) + '&key=' + SERVER.settings.apikeys.youtube + '&part=snippet%2CcontentDetails%2Cstatus&hl=en'
 	};
 
@@ -1549,7 +1543,7 @@ function addVideoYT(socket, data, meta, successCallback, failureCallback) {
 	var recievedBody = "";
 	var maybeError = null;
 
-	var req = https.request(options, function (res) {
+	var req = https.get(options, function (res) {
 		res.setEncoding('utf8');
 		res.on('data', function (chunk) {
 			recievedBody += chunk;
@@ -1680,8 +1674,6 @@ function addVideoYT(socket, data, meta, successCallback, failureCallback) {
 		addYoutubeVideoFallback();
 	});
 
-	req.end();
-
 	function addYoutubeVideoFallback() {
 		fetchYoutubeVideoInfo(videoid, (err, videoData) => {
 			if (err) {
@@ -1716,7 +1708,7 @@ function addVideoYT(socket, data, meta, successCallback, failureCallback) {
 }
 
 function followRedirect(options, successCallback, failureCallback) {
-	http.get(options, function (res) {
+	https.get(options, function (res) {
 		// Detect a redirect
 		if ((res.statusCode == 301 || res.statusCode == 302) && res.headers.location) {
 			// The location for some (most) redirects will only contain the path,  not the hostname;
@@ -1729,7 +1721,7 @@ function followRedirect(options, successCallback, failureCallback) {
 				// Hostname not included; get host from requested URL (url.parse()) and prepend to location.
 				options.path = res.headers.location;
 			}
-			http.get(options, successCallback)
+			https.get(options, successCallback)
 				.on('error', function (e) {
 					if (failureCallback) { failureCallback(e); }
 				});
@@ -1761,8 +1753,6 @@ function addVideoSoundCloud(socket, data, meta, successCallback, failureCallback
 	}
 	var options = {
 		host: 'api.soundcloud.com',
-		port: 80,
-		method: 'GET',
 		path: path
 	};
 	var recievedBody = "";

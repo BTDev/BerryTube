@@ -965,7 +965,7 @@ function addVideoControls(entry, optionList) {
 		$("<span/>").text("Open on YouTube").appendTo(optBtn);
 		optBtn.click(function () {
 			var vid = $(entry).data("plobject").videoid;
-			window.open('http://youtu.be/' + vid, '_blank');
+			window.open('https://youtu.be/' + vid, '_blank');
 		});
 	}
 	else if ($(entry).data("plobject").videotype == "vimeo") {
@@ -973,7 +973,7 @@ function addVideoControls(entry, optionList) {
 		$("<span/>").text("Open on Vimeo").appendTo(optBtn);
 		optBtn.click(function () {
 			var vid = $(entry).data("plobject").videoid;
-			window.open('http://vimeo.com/' + vid, '_blank');
+			window.open('https://vimeo.com/' + vid, '_blank');
 		});
 	}
 	else if ($(entry).data("plobject").videotype == "soundcloud") {
@@ -991,7 +991,7 @@ function addVideoControls(entry, optionList) {
 		$("<span/>").text("Open on DailyMotion").appendTo(optBtn);
 		optBtn.click(function () {
 			var vid = $(entry).data("plobject").videoid.substr(2);
-			window.open('http://www.dailymotion.com/video/' + vid, '_blank');
+			window.open('https://www.dailymotion.com/video/' + vid, '_blank');
 		});
 	}
 

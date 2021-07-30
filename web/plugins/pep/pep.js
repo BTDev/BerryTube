@@ -357,16 +357,16 @@ addVideoControls = function(entry,optionList){
   var vlink = false;
   switch(plob.videotype){//hmm. Could add osmf here, but people could more easily jack streams.
     case "yt":
-      vlink = 'http://youtu.be/'+vid;
+      vlink = 'https://youtu.be/'+vid;
       break;
     case "vimeo":
-      vlink = 'http://vimeo.com/'+vid;
+      vlink = 'https://vimeo.com/'+vid;
       break;
     case "soundcloud":
       vlink = plob.meta.permalink;
       break;
     case "dm":
-      vlink = 'http://www.dailymotion.com/video/' + vid.substr(2);
+      vlink = 'https://www.dailymotion.com/video/' + vid.substr(2);
       break;
     default:
       break;
