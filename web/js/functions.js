@@ -1446,17 +1446,29 @@ function closePoll(data) {
 		onModuleLoaded(() => window.rankedPolls.closeRankedPoll());
 		$(".poll.active").removeClass("active");
 	} else {
-		//unbind old buttons
-		var existing = $(".poll.active");
-		existing.find(".btn").each(function (key, val) {
-			if ($(val).hasClass("close")) {
-				return;
-			}
+		// sort results and unbind old buttons
+		const list = $(".poll.active").removeClass("active").find("ul");
+		list
+			.find("li")
+			.detach()
+			.sort(function(a, b) {
+				const aOp = $(a).find(".btn").data("op");
+				const bOp = $(b).find(".btn").data("op");
+				const aVotes = data.votes[aOp];
+				const bVotes = data.votes[bOp];
 
-			$(val).unbind('click');
-		});
-
-		existing.removeClass("active");
+				if (aVotes === bVotes) {
+					return 0;
+				}
+				return aVotes < bVotes ? 1 : -1;
+			})
+			.each(function(_, val) {
+				$(val)
+					.appendTo(list)
+					.find(".btn")
+					.unbind("click")
+					.css("pointer-events", "none");
+			});
 	}
 
 	// remove old polls...
