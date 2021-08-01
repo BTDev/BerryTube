@@ -2066,7 +2066,13 @@ $(function () {
 	}
 	$('body').on('copy', event => {
 		try {
-			const text = Array.from(document.getSelection().getRangeAt(0).cloneContents().childNodes).map(collectCopy).join(' ');
+			const nodes = document.getSelection().getRangeAt(0).cloneContents().childNodes;
+			let text = Array.from(nodes).map(collectCopy).join(' ');
+
+			if (text === '' && nodes.length === 0 && event.target.tagName === 'INPUT') {
+				text = event.target.value;
+			}
+
 			event.originalEvent.clipboardData.setData('text/plain', text);
 			return false;
 		} catch (err) {
