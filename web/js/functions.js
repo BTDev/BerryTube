@@ -641,61 +641,95 @@ function loadPlugin(node) {
 	}
 }
 
-function showVideoRestrictionDialog(restricted, noembed, countries, totalCountries) {
+function showVideoRestrictionDialog(data) {
 	var parent = $("body").dialogWindow({
 		title: "Confirm Queue",
 		uid: "videorestriction",
 		center: true
 	});
 
-	var mainOptWrap = $('<div/>').appendTo(parent).addClass('controlWindow');
-	if (restricted) {
-		$('<p>').appendTo(mainOptWrap).text("The video you attempted to queue was either removed or marked as private.").css("width", "300px");
-		var buttonDiv = $('<div/>').css("text-align", "center").appendTo(mainOptWrap);
-		var okayBtn = $('<div/>').addClass('button').appendTo(buttonDiv);
-		$('<span/>').appendTo(okayBtn).text("Okay");
-		okayBtn.click(function () {
-			parent.window.close();
-		});
-	}
-	else if (noembed) {
-		$('<p>').appendTo(mainOptWrap).text("The video you attempted to queue cannot be embedded.").css("width", "300px");
-		var buttonDiv = $('<div/>').css("text-align", "center").appendTo(mainOptWrap);
-		var okayBtn = $('<div/>').addClass('button').appendTo(buttonDiv);
-		$('<span/>').appendTo(okayBtn).text("Okay");
-		okayBtn.click(function () {
-			parent.window.close();
-		});
-	}
-	else {
-		let countryText;
-		if (Array.isArray(countries)) {
-			countryText = countries.join(', ');
-			if (totalCountries > countries.length) {
-				const diff = totalCountries - countries.length;
-				countryText += ` (and ${diff} other${diff === 1 ? '' : 's'})`;
-			}
-		} else {
-			countryText = countries;
+	const conditions = [
+		{key: 'restricted', is: data.restricted, canForce: false},
+		{key: 'unembeddable', is: data.noembed, canForce: false},
+		{key: 'geoblock', is: data.countries, canForce: true},
+		{key: 'ageblock', is: data.ageRestrictions, canForce: !data.ageRestrictions?.adults},
+	];
+
+	//get the matched condition
+	const matched = conditions.find(n => n.is);
+	const dom = $('<div>', {class: 'controlWindow'}).append(
+		$('<div>').css('text-align', 'center')
+	).appendTo(parent);
+
+	const buttons = matched.canForce ? ['No', 'Yes'] : ['Okay'];
+
+	//append the buttons to the last div
+	dom.last().append(
+		buttons.map(n =>
+			$('<div>', {class: 'button'}).append(
+				$('<span>', {text: n})
+			)
+		)
+	);
+
+	let messages = [];
+
+	switch (matched.key) {
+		case 'restricted': {
+			messages = [
+				"The video you attempted to queue was either removed or marked as private."
+			];
+			break;
 		}
-		$('<p>').appendTo(mainOptWrap).text("The video you attempted to queue is restricted in the following countries: " + countryText).css("width", "300px");
-		$('<p>').appendTo(mainOptWrap).text("Would you like to queue the video anyway?").css("width", "300px");
-		var buttonDiv = $('<div/>').css("text-align", "center").appendTo(mainOptWrap);
-		var noBtn = $('<div/>').addClass('button').appendTo(buttonDiv);
-		$('<span/>').appendTo(noBtn).text("No");
-		noBtn.click(function () {
-			parent.window.close();
-		});
-		var yesBtn = $('<div/>').addClass('button').appendTo(buttonDiv);
-		$('<span/>').appendTo(yesBtn).text("Yes");
-		yesBtn.click(function () {
+		case 'unembeddable': {
+			messages = [
+				"The video you attempted to queue cannot be embedded.",
+			];
+			break;
+		}
+		case 'geoblock': {
+			let countryText;
+			if (Array.isArray(countries)) {
+				countryText = countries.join(', ');
+				if (totalCountries > countries.length) {
+					const diff = totalCountries - countries.length;
+					countryText += ` (and ${diff} other${diff === 1 ? '' : 's'})`;
+				}
+			} else {
+				countryText = countries;
+			}
+	
+			messages = [
+				`The video you attempted to queue is restricted in the following countries: ${countryText}`,
+				`Would you like to queue the video anyway?`,
+			];
+			break;
+		}
+		case 'ageblock': {
+			if (data.ageRestrictions.adults) {
+				messages = ['Video cannot be queued to it being age restricted.'];
+			} else {
+				messages = ['Video is marked as for kids, want to still queue it?']
+			}
+		}
+	}
+
+	dom.prepend(messages.map(msg => {
+		return $('<p>', {text: msg}).css('width', '300px');
+	}));
+
+	if (matched.canForce) {
+		dom.find('.button > :contains("Yes")').parent().on('click', () => {
 			if (LAST_QUEUE_ATTEMPT != null) {
 				LAST_QUEUE_ATTEMPT.force = true;
 				socket.emit("addVideo", LAST_QUEUE_ATTEMPT);
 			}
-			parent.window.close();
 		});
 	}
+	
+	dom.find('.button').on('click', () => {
+		parent.window.close();
+	});
 
 	parent.window.center();
 }
