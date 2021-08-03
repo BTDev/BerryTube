@@ -689,6 +689,13 @@ function showVideoRestrictionDialog(data) {
 		}
 		case 'geoblock': {
 			let countryText;
+
+			console.log(data.countryNames);
+			console.log(data.countries);
+
+			const countries = data.countryNames || data.countries;
+			const totalCountries = data.totalCountries;
+
 			if (Array.isArray(countries)) {
 				countryText = countries.join(', ');
 				if (totalCountries > countries.length) {
