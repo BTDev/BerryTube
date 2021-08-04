@@ -641,6 +641,7 @@ function loadPlugin(node) {
 	}
 }
 
+//
 function showVideoRestrictionDialog(data) {
 	var parent = $("body").dialogWindow({
 		title: "Confirm Queue",
@@ -651,90 +652,75 @@ function showVideoRestrictionDialog(data) {
 	const conditions = [
 		{key: 'restricted', is: data.restricted, canForce: false},
 		{key: 'unembeddable', is: data.noembed, canForce: false},
-		{key: 'geoblock', is: data.countries, canForce: true},
 		{key: 'ageblock', is: data.ageRestrictions, canForce: !data.ageRestrictions?.adults},
+		{key: 'geoblock', is: data.countryNames || data.countries, canForce: true},
 	];
 
-	//get the matched condition
-	const matched = conditions.find(n => n.is);
-	const dom = $('<div>', {class: 'controlWindow'}).append(
-		$('<div>').css('text-align', 'center')
-	).appendTo(parent);
-
-	const buttons = matched.canForce ? ['No', 'Yes'] : ['Okay'];
-
-	//append the buttons to the last div
-	dom.last().append(
-		buttons.map(n =>
-			$('<div>', {class: 'button'}).append(
-				$('<span>', {text: n})
+	//get the matched conditions
+	const matched = conditions.filter(n => n.is);
+	const buttons = matched.some(n => !n.canForce) ? ['Okay'] : ['No', 'Yes'];
+		const dom = $('<div>', {class: 'controlWindow'}).append(
+		$('<div>').css('text-align', 'center').append(
+			buttons.map(n =>
+				$('<div>', {class: 'button'}).attr('force', n).append(
+					$('<span>', {text: n})
+				)
 			)
 		)
-	);
+	).appendTo(parent);
 
-	let messages = [];
-
-	switch (matched.key) {
-		case 'restricted': {
-			messages = [
+	const messages = matched.map((condition) => {
+		switch (condition.key) {
+			case 'restricted': return [
 				"The video you attempted to queue was either removed or marked as private."
 			];
-			break;
-		}
-		case 'unembeddable': {
-			messages = [
+			case 'unembeddable': return [
 				"The video you attempted to queue cannot be embedded.",
 			];
-			break;
-		}
-		case 'geoblock': {
-			let countryText;
+			case 'geoblock': {
+				let countryText;
+				const countries = data.countryNames || data.countries;
 
-			const countries = data.countryNames || data.countries;
-			const totalCountries = data.totalCountries;
-
-			if (Array.isArray(countries)) {
-				countryText = countries.join(', ');
-				if (totalCountries > countries.length) {
-					const diff = totalCountries - countries.length;
-					countryText += ` (and ${diff} other${diff === 1 ? '' : 's'})`;
+				if (Array.isArray(countries)) {
+					countryText = countries.join(', ');
+					if (data.totalCountries > countries.length) {
+						const diff = data.totalCountries - countries.length;
+						countryText += ` (and ${diff} other${diff === 1 ? '' : 's'})`;
+					}
+				} else {
+					countryText = countries;
 				}
-			} else {
-				countryText = countries;
+		
+				return [
+					`The video you attempted to queue is restricted in the following countries: ${countryText}`,
+					`Would you like to queue the video anyway?`,
+				];
 			}
-	
-			messages = [
-				`The video you attempted to queue is restricted in the following countries: ${countryText}`,
-				`Would you like to queue the video anyway?`,
-			];
-			break;
-		}
-		case 'ageblock': {
-			if (data.ageRestrictions.adults) {
-				messages = ['Video cannot be queued to it being age restricted.'];
-			} else {
-				messages = ['Video is marked as for kids, want to still queue it?']
+			case 'ageblock': {
+				if (data.ageRestrictions.adults) {
+					return ['Video cannot be queued due it being age restricted.'];
+				} else {
+					return ['Video is marked as for kids, want to still queue it?'];
+				}
 			}
 		}
-	}
-
-	dom.prepend(messages.map(msg => {
-		return $('<p>', {text: msg}).css('width', '300px');
-	}));
-
-	if (matched.canForce) {
-		dom.find('.button > :contains("Yes")').parent().on('click', () => {
-			if (LAST_QUEUE_ATTEMPT != null) {
-				LAST_QUEUE_ATTEMPT.force = true;
-				socket.emit("addVideo", LAST_QUEUE_ATTEMPT);
-			}
-		});
-	}
+	}).flat();
 	
-	dom.find('.button').on('click', () => {
+	messages.splice(0, 0, 'Video has the following restrictions:');
+
+	//attach messages
+	dom.prepend(messages.map(msg => $('<p>', {text: msg}).css('width', '300px')));
+	
+	//listen for the button clicks
+	dom.on('click', '.button', (event) => {
+		if ($(event.target).is('[force="Yes"') && LAST_QUEUE_ATTEMPT != null) {
+			LAST_QUEUE_ATTEMPT.force = true;
+			socket.emit("addVideo", LAST_QUEUE_ATTEMPT);
+		}
+
 		parent.window.close();
 	});
-
+	
 	parent.window.center();
 }
 function showDoorStuckDialog() {
