@@ -641,7 +641,6 @@ function loadPlugin(node) {
 	}
 }
 
-//
 function showVideoRestrictionDialog(data) {
 	var parent = $("body").dialogWindow({
 		title: "Confirm Queue",
@@ -658,8 +657,9 @@ function showVideoRestrictionDialog(data) {
 
 	//get the matched conditions
 	const matched = conditions.filter(n => n.is);
-	const buttons = matched.some(n => !n.canForce) ? ['Okay'] : ['No', 'Yes'];
-		const dom = $('<div>', {class: 'controlWindow'}).append(
+	const canBeForced = matched.every(n => n.canForce);
+	const buttons = canBeForced ? ['No', 'Yes'] : ['Okay'];
+	const dom = $('<div>', {class: 'controlWindow'}).append(
 		$('<div>').css('text-align', 'center').append(
 			buttons.map(n =>
 				$('<div>', {class: 'button'}).attr('force', n).append(
@@ -671,12 +671,8 @@ function showVideoRestrictionDialog(data) {
 
 	const messages = matched.map((condition) => {
 		switch (condition.key) {
-			case 'restricted': return [
-				"The video you attempted to queue was either removed or marked as private."
-			];
-			case 'unembeddable': return [
-				"The video you attempted to queue cannot be embedded.",
-			];
+			case 'restricted': return "The video you attempted to queue was either removed or marked as private.";
+			case 'unembeddable': return "The video you attempted to queue cannot be embedded.";
 			case 'geoblock': {
 				let countryText;
 				const countries = data.countryNames || data.countries;
@@ -691,29 +687,34 @@ function showVideoRestrictionDialog(data) {
 					countryText = countries;
 				}
 		
-				return [
-					`The video you attempted to queue is restricted in the following countries: ${countryText}`,
-					`Would you like to queue the video anyway?`,
-				];
+				return `The video you attempted to queue is restricted in the following countries: ${countryText}`;
 			}
 			case 'ageblock': {
 				if (data.ageRestrictions.adults) {
-					return ['Video cannot be queued due it being age restricted.'];
+					return 'Video cannot be queued due it being age restricted.';
 				} else {
-					return ['Video is marked as for kids, want to still queue it?'];
+					return 'Video is marked as for kids.';
 				}
 			}
 		}
-	}).flat();
+	});
 	
+	//prepend to the messages
 	messages.splice(0, 0, 'Video has the following restrictions:');
+
+	//it can still be queued
+	if (canBeForced) {
+		messages.push(
+			'Would you like to queue the video anyway?'
+		);
+	}
 
 	//attach messages
 	dom.prepend(messages.map(msg => $('<p>', {text: msg}).css('width', '300px')));
 	
 	//listen for the button clicks
 	dom.on('click', '.button', (event) => {
-		if ($(event.target).is('[force="Yes"') && LAST_QUEUE_ATTEMPT != null) {
+		if ($(event.currentTarget).is('[force="Yes"]') && LAST_QUEUE_ATTEMPT != null) {
 			LAST_QUEUE_ATTEMPT.force = true;
 			socket.emit("addVideo", LAST_QUEUE_ATTEMPT);
 		}
