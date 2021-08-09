@@ -2066,6 +2066,11 @@ $(function () {
 	}
 	$('body').on('copy', event => {
 		try {
+			// if the selection is entirely outside the chat buffers, don't customize
+			if (Array.from(document.querySelectorAll('.chatbuffer')).every(buffer => !document.getSelection().containsNode(buffer, true))) {
+				return;
+			}
+
 			const text = Array.from(document.getSelection().getRangeAt(0).cloneContents().childNodes).map(collectCopy).join(' ');
 			event.originalEvent.clipboardData.setData('text/plain', text);
 			return false;
