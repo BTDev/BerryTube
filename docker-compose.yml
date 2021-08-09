@@ -87,6 +87,8 @@ services:
         environment:
             - MYSQL_PASSWORD
             - YOUTUBE_APIKEY
+            - SOUNDCLOUD_CLIENT_ID
+            - SOUNDCLOUD_CLIENT_SECRET
         expose:
             - '8344'
         depends_on:

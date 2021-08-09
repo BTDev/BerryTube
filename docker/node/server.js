@@ -1737,23 +1737,60 @@ function followRedirect(options, successCallback, failureCallback) {
 	});
 }
 
-function addVideoSoundCloud(socket, data, meta, successCallback, failureCallback) {
+let soundCloudToken = null;
+let soundCloudTokenExpiry = new Date();
+
+async function getSoundCloudToken() {
+	if (soundCloudToken && soundCloudTokenExpiry.getTime() > Date.now()) {
+		return soundCloudToken;
+	}
+
+	const response = await fetch('https://api.soundcloud.com/oauth2/token', {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/x-www-form-urlencoded',
+		},
+		body: new URLSearchParams({
+			client_id: process.env.SOUNDCLOUD_CLIENT_ID,
+			client_secret: process.env.SOUNDCLOUD_CLIENT_SECRET,
+			grant_type: 'client_credentials',
+		}),
+	});
+	if (!response.ok) {
+		throw new Error('Unable to fetch SoundCloud access token');
+	}
+
+	soundCloudToken = await response.json();
+	soundCloudTokenExpiry = new Date();
+	soundCloudTokenExpiry.setSeconds(soundCloudTokenExpiry.getSeconds() + soundCloudToken.expires_in * 0.9);
+	return soundCloudToken;
+}
+
+async function addVideoSoundCloud(socket, data, meta, successCallback, failureCallback) {
 	var videoid = data.videoid.trim();
 	var path;
 	if (videoid.length == 0) {
 		if (failureCallback) { failureCallback(); }
 		return;
 	}
-	//http://api.soundcloud.com/resolve.json?url=
-	// &client_id=98e8581d9fc8d2dbb59cb5a785201ffd
 	if (videoid.substring(0, 2) == "SC") {
-		path = '/tracks/' + encodeURIComponent(videoid.substring(2)) + '.json?client_id=98e8581d9fc8d2dbb59cb5a785201ffd';
+		path = '/tracks/' + encodeURIComponent(videoid.substring(2)) + '.json';
 	} else {
-		path = '/resolve.json?url=' + encodeURIComponent(videoid) + '&client_id=98e8581d9fc8d2dbb59cb5a785201ffd';
+		path = '/resolve.json?url=' + encodeURIComponent(videoid);
+	}
+	let accessToken;
+	try {
+		accessToken = (await getSoundCloudToken()).access_token;
+	} catch (err) {
+		if (failureCallback) { failureCallback(err); }
+		return;
 	}
 	var options = {
 		host: 'api.soundcloud.com',
-		path: path
+		path: path,
+		headers: {
+			'Authorization': `OAuth ${accessToken}`
+		}
 	};
 	var recievedBody = "";
 	followRedirect(options, function (res) {
