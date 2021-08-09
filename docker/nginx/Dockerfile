@@ -1,5 +1,5 @@
 # https://hub.docker.com/_/nginx
-ARG nginx_version=1.19.10
+ARG nginx_version=1.20.1
 
 FROM nginx:${nginx_version}-alpine AS build
 

@@ -1,5 +1,5 @@
 # https://hub.docker.com/_/node
-FROM node:14.17.0-alpine
+FROM node:14.17.4-alpine
 
 WORKDIR /app/
 ENTRYPOINT ["/app/entrypoint.sh"]
