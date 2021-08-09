@@ -722,7 +722,7 @@ window.PLAYERS.twitchclip = {
     loadPlayer: function (src, at, volume) {
         $('<iframe>', {
             id: 'twitchclipplayer',
-            src: 'https://clips.twitch.tv/embed?clip=' + src,
+            src: `https://clips.twitch.tv/embed?clip=${src}&parent=${document.location.hostname}`,
             width: videoWidth,
             height: videoHeight,
             frameborder: '0',
