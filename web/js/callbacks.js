@@ -1,12 +1,5 @@
-function vimeo_player_loaded(id) {
-	//id is automatically passed
-	setVal("VIMEOPLAYERLOADED", true);
-}
 function onYouTubeIframeAPIReady() {
 	setVal("YTAPREADY", true);
-}
-function onDailymotionPlayerReady() {
-	setVal("DMPLAYERREADY", true);
 }
 function videoEnded() {
 	// Playlist progression is controlled by the server now, but if someone has berry, it should still ask for next.
@@ -23,7 +16,6 @@ function videoSeeked(time) {
 	}
 }
 function videoPlaying() {
-	//PLAYING_VID = getLiteralPlayingVidID();
 	if (controlsVideo()) {
 		videoGetTime(function (time) {
 			SEEK_TO = time;
@@ -48,10 +40,6 @@ function videoPaused() {
 
 socket.on("createPlayer", function (data) {
 	console.log('createPlayer', data);
-
-	if (!INIT_TIME) {
-		INIT_TIME = data.time;
-	}
 
 	const isNew = ACTIVE.videoid != data.video.videoid;
 
@@ -85,55 +73,49 @@ socket.on("recvPlaylist", function (data) {
 	});
 });
 socket.on("hbVideoDetail", function (data) {
+	if (controlsVideo()) {
+		return;
+	}
 
-	//if(videoGetState() == -1 || videoGetState() == 3 ) return;
-	if (controlsVideo()) return;
-	dbg('hbVideoDetail data');
-	dbg(data);
-	//Check if video ID is the same as ours.
-	if (ACTIVE.videoid != data.video.videoid) {
-		// Ask server for a videochange/update.
-		dbg("SHIT: " + ACTIVE.videoid + " != " + data.video.videoid);
+	dbg('hbVideoDetail', data);
+
+	//not matching, refresh player
+	if (ACTIVE.videoid !== data.video.videoid) {
+		dbg(`ID mismatch: ${ACTIVE.videoid} !== ${data.video.videoid}`);
 		socket.emit("refreshMyVideo");
+		return;
 	}
-	/*else if(ACTIVE.videoid == data.video.videoid && videoGetState() == 0) // We've already finished.
-	{
-		// Ho hum.
-		dbg("SHIT: ho-hum");
-	}*/
-	else if (getStorage('syncAtAll') == 1) {
-		dbg("SYNCH_AT_ALL");
-		videoGetTime(function (time) {
-			if (Math.abs(time - data.time) > getStorage('syncAccuracy')) {
-				dbg("SHIT: " + (time - data.time) + " > " + getStorage('syncAccuracy'));
-				videoSeekTo(data.time);
-			}
 
-			if (videoGetState() == 2) {
-				dbg("SHIT: " + videoGetState() + " > 2");
-				videoSeekTo(data.time);
-			}
-
-			if (data.state == 1 && videoGetState() != 1) {
-				dbg("SHIT: " + data.state + " == 1 && " + videoGetState() + " != 1");
-				videoPlay();
-			}
-
-			if (data.state == 2 && videoGetState() != 2) {
-				dbg("SHIT: " + data.state + " == 2 && " + videoGetState() + " != 2");
-				videoPause();
-				videoSeekTo(data.time);
-			}
-
-			if (data.state == 3 && videoGetState() != 2) // Intentionally 2
-			{
-				dbg("SHIT: " + data.state + " == 3 && " + videoGetState() + " != 2");
-				videoPause();
-				videoSeekTo(data.time);
-			}
-		});
+	//do not sync
+	if (getStorage('syncAtAll') === 0 || !PLAYER) {
+		return;
 	}
-	dbg("hbVideoDetail Complete");
+
+	const accuracy = getStorage('syncAccuracy'); 
+	const flags = {
+		play: false,
+		seek: [false, -1]
+	};
+
+	videoGetTime((time) => {
+		const videoState = videoGetState();
+
+		flags.seek = Math.abs(time - data.time) > accuracy ? [true, data.time]: flags.seek; 
+		flags.play = data.state === 1 && videoState !== 1;
+
+		if (data.state !== videoState && !flags.play) {
+			dbg(`Player states don't match: ${data.state} !== ${videoState}`);
+			flags.seek = [true, data.time];
+		}
+
+		if (flags.play) {
+			videoPlay();
+		}
+
+		if (flags.seek[0] && time !== -1) {
+			videoSeekTo(flags.seek[1]);
+		}
+	});
 });
 socket.on("sortPlaylist", function (data) {
 	unfuckPlaylist();

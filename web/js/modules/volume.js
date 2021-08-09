@@ -84,7 +84,7 @@ export class VolumeManager {
 	 * @param {boolean} save Save the volume to localStorage
 	 */
 	set(volume, save = true) {
-		if (typeof volume !== "number") {
+		if (typeof volume !== "number" || volume < 0) {
 			return;
 		}
 
@@ -138,7 +138,7 @@ export class VolumeManager {
 		this.listener = setInterval(() => {
 			//either player hasn't finished initialization yet
 			//or we have no volume control support(?)
-			if (!player.getVolume) {
+			if (!player || !player.getVolume) {
 				return;
 			}
 

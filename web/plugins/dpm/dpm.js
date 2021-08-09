@@ -1,10 +1,16 @@
+
 $(function() {
     var startTime = -1;
 
     function doDpm() {
         if (PLAYER.getTime) {
             PLAYER.getTime(function(time) {
-                $('.dpmCounter').text(' DPM: ' + (DRINKS / (time / 60)).toFixed(2));
+				//only show DPM if we are not in an livestream
+				if (time > -1) {
+					$('.dpmCounter').text(' DPM: ' + (DRINKS / (time / 60)).toFixed(2));
+				} else {
+					$('.dpmCounter').text('');
+				}
             });
         }
         else if (startTime > -1) {
@@ -16,7 +22,7 @@ $(function() {
     }
 
     socket.on('forceVideoChange', function(data) {
-        if (PLAYERS[data.video.videotype].getTime) {
+        if (Players.playerFromVideoType(data.video.videotype).getTime) {
             startTime = -1;
         }
         else {

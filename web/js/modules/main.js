@@ -1,6 +1,7 @@
 import { RankedPoll } from "./ranked-poll.js";
 import { loadWorker } from "./lib.js";
 import { VolumeManager } from "./volume.js";
+import { Players } from "./player.js";
 
 // header countdown
 loadWorker(window.WORKER_URLS.countdown).addEventListener("message", ({ data }) => {
@@ -52,6 +53,7 @@ window.rankedPolls = {
 		activePoll = null;
 	},
 };
+window.Players = new Players();
 
 window.isModuleLoaded = true;
 
