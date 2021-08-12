@@ -543,7 +543,11 @@ window.PLAYERS.file = {
 		}
 
         $("#ytapiplayer").append(player);
-		const videoJsPlayer = videojs("vjs_player");
+		const videoJsPlayer = videojs("vjs_player", {
+            userActions: {
+				hotkeys: false
+			}
+        });
 
 		videoJsPlayer.ready(function(){
 			this.volume(volume);
