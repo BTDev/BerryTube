@@ -1136,6 +1136,8 @@ function initRCVOverlay(above) {
 	});
 	return overlay;
 }
+
+
 function initPlaylistControls(plwrap) {
 	// Add controls
 	$("#playlistAddControls").remove();
@@ -1272,7 +1274,152 @@ function initPlaylistControls(plwrap) {
 		}
 	});
 	$('<div/>').addClass("clear").appendTo(container);
+
+	initMultiqueue();
 }
+
+function initMultiqueue(){
+	window.__multiQueueUnbind && window.__multiQueueUnbind();
+	$('#batch-queuing-patch').remove();
+	$('.mq-controls').remove();
+
+	const css = `
+		.hidden {
+			display: none!important;
+		}
+		.multi-queue {
+			background: transparent;
+		}
+		#playlistAddControls .multi-queue {
+			resize: vertical;
+			height: 100px;
+			color: inherit;
+		}
+		.multi-queue-button {
+			color: inherit;
+			width: auto!important;
+			background: transparent;
+		}
+		#playlistAddControls .btn.multi-queue-button {
+			height: auto;
+		}
+		body #playlistAddControls .multi-queue-button:disabled {
+			background-color: #999;
+		}
+		.multi-queue-container { 
+			flex-direction: column;
+			display: flex;
+			padding: 5px;
+		}
+	`;
+
+	const $import = $(".import .misc.btn").parent();
+	const $inputContainer = $import;
+	const $btnContainer = $inputContainer.parent();
+	const $multiInputDiv = $('<div class="mq-controls multi-queue-container hidden"></div>');
+	const $multiInputQueueBtn = $(
+		'<button class="mq-controls misc btn multi-queue-button">Queue</button>'
+	);
+	const $multiInput = $('<textarea class="mq-controls multi-queue"></textarea>');
+	const $mButton = $(
+		'<div class="mq-controls misc btn multi-queue-button">Batch queue</div>'
+	);
+
+	$multiInputDiv.append($multiInput);
+	$multiInputDiv.append($multiInputQueueBtn);
+	$import.find('.clear').before($mButton);
+	$btnContainer.append($multiInputDiv);
+	
+	$("head").append(`<style id="batch-queuing-patch">${css}</style>`);
+
+	$mButton.on("click", function () {
+		$multiInputDiv.toggleClass(`hidden`);
+	});
+	$multiInputQueueBtn.on("click", function () {
+		batchQueue();
+	});
+
+	async function batchQueue() {
+		const val = $multiInput.val();
+		if (val === "") return;
+
+		const list = val
+			.split("\n")
+			.filter((l) => l != "")
+			.reverse();
+
+		$multiInputQueueBtn.attr("disabled", true).text("Queuing...");
+
+		for (let i = 0; i < list.length; i++) {
+			const link = list[i];
+			$multiInputQueueBtn.text(`Queuing... [${i + 1}/${list.length}]`);
+			await queueLink(link);
+		}
+
+		$multiInputQueueBtn.text("Done");
+
+		setTimeout((_) => {
+			$multiInputQueueBtn.attr("disabled", false).text("Queue");
+		}, 1500);
+	}
+
+	let isWait = null;
+	async function queueLink(link) {
+		return new Promise((res, rej) => {
+			isWait = function () {
+				isWait = null;
+				res();
+			};
+			queue(link);
+		});
+	}
+
+	const bind = (_) => {
+		const oldReq = window.doRequeue;
+		window.doRequeue = (...args) => {
+			isWait && isWait();
+			oldReq(...args);
+		};
+		const oldRev = window.revertLoaders;
+		window.revertLoaders = (...args) => {
+			isWait && isWait();
+			oldRev(...args);
+		};
+
+		// returns unbind
+		return (_) => {
+			window.doRequeue = oldReq;
+			window.revertLoaders = oldRev;
+		}
+	};
+	window.__multiQueueUnbind = bind();
+
+	function queue(link) {
+		parseVideoURL(link, function (id, type, videotitle) {
+			elem = PLAYLIST.first;
+			var found = false;
+			for (var i = 0; i < PLAYLIST.length; i++) {
+				if (elem.videoid == id) {
+					found = true;
+					doRequeue(elem.domobj);
+					break;
+				}
+				elem = elem.next;
+			}
+			if (!found) {
+				LAST_QUEUE_ATTEMPT = {
+					queue: true,
+					videotype: type,
+					videoid: id,
+					videotitle: videotitle,
+					volat: true,
+				};
+				socket.emit("addVideo", LAST_QUEUE_ATTEMPT);
+			}
+		});
+	}
+}
+
 function doPlaylistJump(elem) {
 	if (controlsPlaylist()) {
 		var index = $(elem).index();
