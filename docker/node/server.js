@@ -1637,9 +1637,22 @@ function addVideoYT(socket, data, meta, successCallback, failureCallback) {
 				}
 			}
 
-			for (var hasProperties in restrictReasons) { break; }
-			if (hasProperties) {
+			const ageChecks = {
+				adults: vidObj.contentDetails.contentRating.ytRating === 'ytAgeRestricted',
+				kids: vidObj.status.madeForKids || vidObj.status.selfDeclaredMadeForKids || false
+			};
+
+			//check for the age restrictions
+			if (!data.force && (ageChecks.adults || ageChecks.kids)) {
+				restrictReasons.ageRestrictions = ageChecks;
+				maybeError = 'video is possibly age restricted';
+			}
+
+			if (!data.force && restrictReasons.countries) {
 				resolveRestrictCountries(restrictReasons);
+			}
+
+			if (!data.force && Object.keys(restrictReasons).length > 0) {
 				socket.emit("videoRestriction", restrictReasons);
 			}
 
