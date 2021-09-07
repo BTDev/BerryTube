@@ -46,7 +46,7 @@ window.PLAYERS.dm = {
         });
 
         //I assume that apiready is triggered after playback_ready
-        this.PLAYER.addEventListener('apiready', onceFunction(() => {
+        this.PLAYER.addEventListener('play', onceFunction(() => {
             this.PLAYER.setVolume(volume);
         }));
 
