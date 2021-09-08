@@ -45,13 +45,9 @@ window.PLAYERS.dm = {
             }
         });
 
-		//just in case if there happens to be a sudden volume spike when
-		//starting to play
-        this.PLAYER.addEventListener('apiready', onceFunction(() => {
-            this.PLAYER.setVolume(volume);
-        }));
-		
-        this.PLAYER.addEventListener('play', onceFunction(() => {
+		//set volume on initial playback attempt,
+		//docs: Sent the first time the player attempts to start the playback
+        this.PLAYER.addEventListener('start', onceFunction(() => {
             this.PLAYER.setVolume(volume);
         }));
 
