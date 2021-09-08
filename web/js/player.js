@@ -45,7 +45,12 @@ window.PLAYERS.dm = {
             }
         });
 
-        //I assume that apiready is triggered after playback_ready
+		//just in case if there happens to be a sudden volume spike when
+		//starting to play
+		this.PLAYER.addEventListener('apiready', onceFunction(() => {
+			this.PLAYER.setVolume(volume);
+		}));
+		
         this.PLAYER.addEventListener('play', onceFunction(() => {
             this.PLAYER.setVolume(volume);
         }));
