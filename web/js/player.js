@@ -720,17 +720,24 @@ window.PLAYERS.twitch = {
 
 window.PLAYERS.twitchclip = {
     loadPlayer: function (src, at, volume) {
+		const parameters = [
+			`clip=${src}`,
+			`parent=${document.location.hostname}`,
+			
+			//autoplay and muted are querystring parameters
+			`autoplay=true`,
+			`muted=${volume === 0}`
+		];
+
         $('<iframe>', {
             id: 'twitchclipplayer',
-            src: `https://clips.twitch.tv/embed?clip=${src}&parent=${document.location.hostname}`,
+            src: `https://clips.twitch.tv/embed?${parameters.join('&')}`,
             width: videoWidth,
             height: videoHeight,
             frameborder: '0',
             scrolling: 'no',
             preload: 'auto',
             allowfullscreen: 'true',
-            autoplay: 'true',
-            muted: volume === 0,
             css: {
                 width: '100%',
                 height: '100%'
