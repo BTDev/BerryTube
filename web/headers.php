@@ -96,7 +96,7 @@ if (date('n') == 6 && $_COOKIE['no-pride'] !== 'true') {
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js" integrity="sha256-KM512VNnjElC30ehFwehXjx1YCHPiQkOPmqnrWtpccM=" crossorigin="anonymous" defer></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/tinyscrollbar/2.4.2/jquery.tinyscrollbar.min.js" integrity="sha256-gENsdwXJl1qiwOqS0DF+kfqTP5Dy+0gDTtxpRcWVhrU=" crossorigin="anonymous" defer></script>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/video.js/7.3.0/video.min.js" integrity="sha256-FtN3AlYCFtRDFdQIG+XM7JgkF3CYyzDkysTR34GUII4=" crossorigin="anonymous" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/video.js/7.14.3/video.min.js" integrity="sha512-kNY62HZwz6DRXwF3PP9ltv2db/E+pC9VA8CdDuABXycPlb0IxhOyUprvdkx6cKdKeG5nf+rP7t2XW7unXig6JQ==" crossorigin="anonymous" referrerpolicy="no-referrer" defer></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/videojs-flash/2.1.2/videojs-flash.min.js" integrity="sha256-2sKPIPOV8Cj34r74ZnRcdKrQ7Jqqg0o1zR2c74VDW1s=" crossorigin="anonymous" defer></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/dashjs/2.9.2/dash.all.min.js" integrity="sha256-EmXFhpSryXnCa3tOiKDfYUFhpmnkvo3PSe3Tj3KpX6o=" crossorigin="anonymous" defer></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/videojs-contrib-dash/2.10.0/videojs-dash.min.js" integrity="sha256-xhLRr5mlvCCC7DndQjNURZOXGxwYUoB2VoF0mNUiuJc=" crossorigin="anonymous" defer></script>
