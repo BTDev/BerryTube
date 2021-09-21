@@ -52,6 +52,11 @@ export class Dailymotion extends Base {
 	event(event) {
 		let payload = {};
 
+		//dailymotion loves its 1 early, my eartubes dont
+		if (event === 'volumechange' && this.status !== Status.READY) {
+			return;
+		}
+
 		switch (event) {
 			case 'pause': this.state = State.PAUSED; break;
 			case 'play': this.state = State.PLAYING; break;
