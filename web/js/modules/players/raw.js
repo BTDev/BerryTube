@@ -83,6 +83,8 @@ export class Raw extends Base {
 
 		this.events = new Map([
 			['volumechange', Event.Volume],
+			['end', Event.End],
+			['pause', Event.Pause],
 			['seeked', Event.Seek],
 			['qualitySelected', Event.Quality],
 			['error', Event.Error]
@@ -97,6 +99,7 @@ export class Raw extends Base {
 		this.sources = [];
 		this.extension = null;
 		this.mimetype = null;
+		this.state = State.PLAYING;
 	}
 
 	ready(cb) {
@@ -106,6 +109,8 @@ export class Raw extends Base {
 	event(event, data) {
 		switch (event) {
 			case Event.Volume: data.volume = this.player.volume(); break;
+			case Event.Pause: this.state = State.PAUSED; break;
+			case Event.Play: this.state = State.PLAYING; break;
 			//label can be undefined so keep the quality preference
 			case Event.Quality: setUserQualityPreference(data.label || getUserQualityPreference()); break;
 		}
@@ -220,7 +225,7 @@ export class Raw extends Base {
 	}
 
 	getVideoState() {
-		return State.PLAYING;
+		return this.state;
 	}
 
 	destroy() {
