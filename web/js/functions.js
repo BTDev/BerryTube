@@ -651,7 +651,7 @@ function showVideoRestrictionDialog(data) {
 	const conditions = [
 		{key: 'restricted', is: data.restricted, canForce: false},
 		{key: 'unembeddable', is: data.noembed, canForce: false},
-		{key: 'ageblock', is: data.ageRestrictions, canForce: !data.ageRestrictions?.adults},
+		{key: 'ageblock', is: data.ageRestrictions, canForce: false},
 		{key: 'geoblock', is: data.countryNames || data.countries, canForce: true},
 	];
 
@@ -689,13 +689,7 @@ function showVideoRestrictionDialog(data) {
 		
 				return `The video you attempted to queue is restricted in the following countries: ${countryText}`;
 			}
-			case 'ageblock': {
-				if (data.ageRestrictions.adults) {
-					return 'Video cannot be queued due it being age restricted.';
-				} else {
-					return 'Video is marked as for kids.';
-				}
-			}
+			case 'ageblock': return 'Video cannot be queued due it being age restricted.';
 		}
 	});
 	
