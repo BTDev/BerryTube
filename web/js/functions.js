@@ -651,7 +651,7 @@ function showVideoRestrictionDialog(data) {
 	const conditions = [
 		{key: 'restricted', is: data.restricted, canForce: false},
 		{key: 'unembeddable', is: data.noembed, canForce: false},
-		{key: 'ageblock', is: data.ageRestrictions, canForce: false},
+		{key: 'ageblock', is: data.ageRestricted, canForce: false},
 		{key: 'geoblock', is: data.countryNames || data.countries, canForce: true},
 	];
 
