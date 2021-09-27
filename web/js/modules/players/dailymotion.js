@@ -13,7 +13,9 @@ export class Dailymotion extends Base {
 			['seeked', Event.Seek],
 			['pause', Event.Pause],
 			['play', Event.Play],
-			
+			//used for volume
+			['video_start', Event.Play],
+
 			['volumechange', Event.Volume],
 			['playback_ready', Event.Ready],
 			['error', Event.Error],
@@ -66,6 +68,7 @@ export class Dailymotion extends Base {
 				this.delay(this.video.timestamp);
 				break;
 			}
+			case 'video_start': this.player.setVolume(this.video.volume); break;
 			case 'seeked': payload.time = this.player.currentTime; break;
 			case 'volumechange': payload.volume = this.player.volume; break;
 			case 'error': 
@@ -76,7 +79,7 @@ export class Dailymotion extends Base {
 	}
 
 	loadPlayer(id, timestamp, volume) {
-		this.video = {id, timestamp};
+		this.video = {id, timestamp, volume};
 		this.player = window.DM.player(super.frame().id, {
 			video: id,
 			params: {
@@ -92,16 +95,11 @@ export class Dailymotion extends Base {
 			for (const event of this.events.keys()) {
 				this.player.addEventListener(event, (payload) => this.event(event, payload));
 			}
-
-			//here we can safely set the volume
-			this.player.addEventListener('video_start', () => {
-				this.player.setVolume(volume);
-			});
 		});
 	}
 
-	playVideo(id, timestamp) {
-		this.video = {id, timestamp};
+	playVideo(id, timestamp, volume) {
+		this.video = {id, timestamp, volume};
 		
 		this.player.load(id, {
 			autoplay: !(timestamp < 0),
