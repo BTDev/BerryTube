@@ -32,7 +32,7 @@ export const State = {
 	BUFFER: 3,
 };
 
-//TODO: Make this into a 
+//Maybe make this into a setting?
 const MAX_REFRESH_RETRIES = 3;
 
 export class Base {
@@ -41,11 +41,7 @@ export class Base {
 		this.width = videoWidth; //player width
 	
 		this.retries = 0; //number of attempts when error occurred
-		
-		this.video = {
-			id: '',
-			timestamp: -1,
-		}; //keep the video information
+		this.video = {}; //keep the video information
 	}
 
 	//this done due to legacy player removal (+ maltweaks)
@@ -149,7 +145,8 @@ export class Base {
 
 	destroy() {}
 
+
 	syncable() {
-		return false;
+		return true;
 	}
 }

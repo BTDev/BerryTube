@@ -13,7 +13,6 @@ export class Dailymotion extends Base {
 			['seeked', Event.Seek],
 			['pause', Event.Pause],
 			['play', Event.Play],
-			//used for volume
 			['video_start', Event.Play],
 
 			['volumechange', Event.Volume],
@@ -83,7 +82,7 @@ export class Dailymotion extends Base {
 		this.player = window.DM.player(super.frame().id, {
 			video: id,
 			params: {
-				autoplay: !(timestamp < 0),
+				autoplay: timestamp >= 0,
 				start: Math.max(timestamp, 0),
 				mute: volume === 0,
 				...this.options,
@@ -93,14 +92,13 @@ export class Dailymotion extends Base {
 		this.player.addEventListener('apiready', () => {
 			//listen to the rest of the events
 			for (const event of this.events.keys()) {
-				this.player.addEventListener(event, (payload) => this.event(event, payload));
+				this.player.addEventListener(event, () => this.event(event));
 			}
 		});
 	}
 
 	playVideo(id, timestamp, volume) {
 		this.video = {id, timestamp, volume};
-		
 		this.player.load(id, {
 			autoplay: !(timestamp < 0),
 			start: Math.max(timestamp, 0)

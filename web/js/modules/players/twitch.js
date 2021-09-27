@@ -58,7 +58,7 @@ export class Twitch extends Base {
 			muted: volume === 0,
 			width: this.width,
 			height: this.height,
-			autoplay: !(timestamp < 0),
+			autoplay: timestamp >= 0,
 		};
 
 		$(this.frame()).empty();

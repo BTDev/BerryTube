@@ -100,6 +100,10 @@ export class Raw extends Base {
 		this.extension = null;
 		this.mimetype = null;
 		this.state = State.PLAYING;
+		this.config = {
+			autoplay: true,
+			controls: true,
+		};
 	}
 
 	ready(cb) {
@@ -121,6 +125,23 @@ export class Raw extends Base {
 		);
 	}
 
+	getSources(file, manifest) {
+		let extension = manifest ? null : getFileExtension(file);   
+		
+		//TODO: Implement better handling for RTMP and 
+		//other extensionless links (currently only rtmp)
+		//maybe have the info in meta?
+		if (!extension && !manifest) {
+			extension = id.startsWith('rtmp') ? 'f4m' : null;
+		}
+
+		if (manifest) {
+			return sourcesFromManifest(manifest);
+		} else {
+			return [{src: file, type: fileMimeTypes.get(extension) || 'video/mp4'}];
+		}
+	}
+
 	loadPlayer(id, timestamp, volume, length, meta) {
 		if (meta.manifest && meta.manifest.sources.length === 0) {
 			console.error('Manifest has no items');
@@ -130,7 +151,6 @@ export class Raw extends Base {
 		this.video = {id, meta, timestamp, sync: length > 0};
 		this.frame = $("<video>", {
 			id: "vjs_player",
-			"data-setup": '{ "autoplay": true, "controls": true }',
 			class: "video-js vjs-default-skin"
 		});
 	
@@ -139,24 +159,8 @@ export class Raw extends Base {
 			this.frame
 		);
 
-		this.extension = meta.manifest ? null : getFileExtension(id);   
-		
-		//TODO: Implement better handling for RTMP and 
-		//other extensionless links (currently only rtmp)
-		//maybe have the info in meta?
-		if (!this.extension && !meta.manifest) {
-			this.extension = id.startsWith('rtmp') ? 'f4m' : null;
-		}
-
-		//get the mimetype
-		this.mimetype = fileMimeTypes.get(this.extension) || 'video/mp4';
-		this.player = window.videojs(this.frame[0].id);
-		
-		if (meta.manifest) {
-			this.sources = sourcesFromManifest(meta.manifest);
-		} else {
-			this.sources = [{src: id, type: this.mimetype}];
-		}
+		this.player = window.videojs(this.frame[0].id, this.config);
+		this.sources = this.getSources(id, meta.manifest);
 	
 		//if we have multiple sources/qualities, add the quality selector 
 		if (this.sources.length > 1) {
@@ -181,20 +185,7 @@ export class Raw extends Base {
 		this.video = {id, timestamp, meta, sync: length > 0};
 		this.player.reset();
 		this.player.volume(volume);
-
-		this.extension = meta.manifest ? null : getFileExtension(id);   
-		
-
-		if (!this.extension && !meta.manifest) {
-			this.extension = id.startsWith('rtmp') ? 'f4m' : null;
-		}
-
-		this.mimetype = fileMimeTypes.get(this.extension) || 'video/mp4';
-		if (meta.manifest) {
-			this.sources = sourcesFromManifest(meta.manifest);
-		} else {
-			this.sources = [{src: id, type: this.mimetype}];
-		}
+		this.sources = this.getSources(id, meta.manifest);
 
 		if (this.sources.length > 1) {
 			this.player.controlBar.addChild('QualitySelector');

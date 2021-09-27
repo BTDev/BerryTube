@@ -8,8 +8,7 @@ export class Vimeo extends Base {
 		this.player = null;
 		this.state = 3;
 		this.options = {
-			autoplay: false,
-			autopause: true,
+			autopause: false,
 			color: 'C600AD',
 			keyboard: false,
 		};
@@ -42,7 +41,7 @@ export class Vimeo extends Base {
 
 	error(err) {
 		super.error(
-			this.errors.get(err) || Errors.PLAYER_UNKNOWN_ERROR,
+			this.errors.get(err.name) || Errors.PLAYER_UNKNOWN_ERROR,
 			this
 		);
 	}
@@ -89,6 +88,7 @@ export class Vimeo extends Base {
 		this.player = new window.Vimeo.Player(frame.children[0], {
 			id,
 			muted: volume === 0,
+			autoplay: timestamp >= 0,
 			...this.options,
 		});
 
