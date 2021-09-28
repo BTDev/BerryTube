@@ -36,17 +36,24 @@ export class Vimeo extends Base {
 		]);
 
 		this.state = State.PLAYING;
+		this.err = null;
 	}
 
 	error(err) {
+		this.err = this.errors.get(err.name) || Errors.PLAYER_UNKNOWN_ERROR;
+
 		super.error(
-			this.errors.get(err.name) || Errors.PLAYER_UNKNOWN_ERROR,
+			this.err,
 			this
 		);
 	}
 
 	ready(cb) {
-		this.player.ready().then(cb);
+		if (this.err) {
+			return;
+		}
+
+		this.player.ready().then(cb).catch(err => this.error(err));
 	}
 
 	event(event, data) {
@@ -70,6 +77,7 @@ export class Vimeo extends Base {
 
 	loadPlayer(id, timestamp, volume) {
 		this.video = {id, timestamp};
+		this.err = null;
 
 		const frame = super.frame();
 
@@ -144,5 +152,6 @@ export class Vimeo extends Base {
 		}
 
 		this.player.destroy();
+		this.err = null;
 	}
 }
