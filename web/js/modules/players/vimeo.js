@@ -6,7 +6,6 @@ export class Vimeo extends Base {
 	constructor() {
 		super();
 		this.player = null;
-		this.state = 3;
 		this.options = {
 			autopause: false,
 			color: 'C600AD',

@@ -79,8 +79,6 @@ export class Raw extends Base {
 		super();
 		
 		this.player = null;
-		this.data = {};
-
 		this.events = new Map([
 			['volumechange', Event.Volume],
 			['end', Event.End],
@@ -97,8 +95,6 @@ export class Raw extends Base {
 		]);
 
 		this.sources = [];
-		this.extension = null;
-		this.mimetype = null;
 		this.state = State.PLAYING;
 		this.config = {
 			autoplay: true,
