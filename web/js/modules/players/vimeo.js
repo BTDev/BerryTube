@@ -117,7 +117,7 @@ export class Vimeo extends Base {
 	playVideo(id, timestamp) {
 		this.video = {id, timestamp};
 		this.player.loadVideo(id).then(() => {
-			this.setCurrentTime(timestamp).catch(err => this.error(err));
+			this.delay(timestamp);
 		}).catch(err => this.error(err));
 	}
 
