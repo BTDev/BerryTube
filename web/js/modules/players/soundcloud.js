@@ -139,8 +139,4 @@ export class Soundcloud extends Base {
 		$(super.frame()).empty();
 		this.isReady = false;
 	}
-
-	syncable() {
-		return true;
-	}
 }

@@ -13,7 +13,7 @@ const fileMimeTypes = new Map([
 	['webm', 'video/webm'],
 	['m3u8', 'application/x-mpegURL'],
 	['mpd', 'application/dash+xml'],
-	['f4m', 'rtmp/mp4']
+	['rtmp', 'rtmp/mp4']
 ]);
 
 function getFileExtension(path) {
@@ -128,7 +128,7 @@ export class Raw extends Base {
 		//other extensionless links (currently only rtmp)
 		//maybe have the info in meta?
 		if (!extension && !manifest) {
-			extension = id.startsWith('rtmp') ? 'f4m' : null;
+			extension = id.startsWith('rtmp') ? 'rtmp' : null;
 		}
 
 		if (manifest) {
@@ -217,9 +217,5 @@ export class Raw extends Base {
 
 	destroy() {
 		this.player.dispose();
-	}
-
-	syncable() {
-		return true;
 	}
 }

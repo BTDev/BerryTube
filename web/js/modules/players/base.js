@@ -144,9 +144,4 @@ export class Base {
 	}
 
 	destroy() {}
-
-
-	syncable() {
-		return true;
-	}
 }

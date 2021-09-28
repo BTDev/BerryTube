@@ -93,7 +93,7 @@ export class Youtube extends Base {
 	}
 
 	loadPlayer(id, timestamp, volume, length) {
-		this.video = {id, timestamp, volume, sync: length > 0};
+		this.video = {id, timestamp, volume, length, sync: length > 0};
 		//clear up past crashes
 		this.status = Status.UNREADY;
 
@@ -114,7 +114,7 @@ export class Youtube extends Base {
 		}
 		
 		waitForFlag('YTAPREADY', () => {
-			this.video = {id, timestamp, volume, sync: length > 0};
+			this.video = {id, timestamp, volume, length, sync: length > 0};
 			this.player.cueVideoById(id);
 			this.delay(timestamp);
 		});
@@ -149,9 +149,5 @@ export class Youtube extends Base {
 
 	destroy() {
 		this.player.destroy();
-	}
-
-	syncable() {
-		return this.video.sync;
 	}
 }

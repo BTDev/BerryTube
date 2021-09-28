@@ -145,8 +145,4 @@ export class Vimeo extends Base {
 
 		this.player.destroy();
 	}
-
-	syncable() {
-		return true;
-	}
 }

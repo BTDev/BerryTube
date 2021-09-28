@@ -140,8 +140,4 @@ export class Dailymotion extends Base {
 		this.status = Status.UNREADY;
 		this.player.destroy(super.frame().id);
 	}
-
-	syncable() {
-		return true;
-	}
 }

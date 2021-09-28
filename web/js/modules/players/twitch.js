@@ -50,7 +50,7 @@ export class Twitch extends Base {
 	}
 
 	loadPlayer(id, timestamp, volume, length) {
-		this.video = {id, timestamp, volume, sync: length > 0};
+		this.video = {id, timestamp, volume, length, sync: length > 0};
 
 		const parts = parseTwitchSource(id);
 		const options = {
@@ -70,7 +70,7 @@ export class Twitch extends Base {
 	}
 
 	playVideo(id, timestamp, volume, length) {
-		this.video = {id, timestamp, volume, sync: length > 0};
+		this.video = {id, timestamp, volume, length, sync: length > 0};
 		this.ready(() => {
 			const parts = id.split('/');
 			if (parts[0] === 'videos') {
@@ -111,9 +111,5 @@ export class Twitch extends Base {
 	destroy() {
 		$(this.frame()).empty();
 		this.isReady = false;
-	}
-
-	syncable() {
-		return this.video.sync;
 	}
 }
