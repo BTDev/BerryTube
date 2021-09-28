@@ -180,14 +180,17 @@ export class Raw extends Base {
 
 		this.video = {id, timestamp, meta, sync: length > 0};
 		this.player.reset();
-		this.player.volume(volume);
+		
 		this.sources = this.getSources(id, meta.manifest);
 
 		if (this.sources.length > 1) {
 			this.player.controlBar.addChild('QualitySelector');
 		}
 
-		this.player.src(this.sources);
+		this.ready(() => {
+			this.player.volume(volume);
+			this.player.src(this.sources);
+		});
 	}
 
 	pause() {
