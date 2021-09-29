@@ -61,7 +61,7 @@ window.PLAYERS.dm = {
 				});
 			});
 			
-			this.addEventListener('playback_ready', onceFunction(() => {
+			this.addEventListener('playback_ready', onceFunction(function() {
 				// adjust in case loading the player took a while
 				at += (Date.now() - preloadTime) / 1000;
 	
