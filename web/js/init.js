@@ -872,7 +872,7 @@ function addUser(data, sortafter) {
 		var shadowbanned = data.shadowbanned;
 		var ip = ((TYPE >= 1 && data.meta !== undefined) ? data.meta.ip : false);
 
-		var newusr = $('<li/>').append($('<span/>').addClass('chatlistname').text(nick)).data('nick', nick).show("blind").appendTo(chatul).addClass(nick);
+		var newusr = $('<li/>').append($('<span/>').addClass('chatlistname').text(nick)).data('nick', nick).show("blind").appendTo(chatul).attr('nick', nick);
 		if (nick == NAME) {
 			newusr.addClass("me");
 		} else if (IGNORELIST.indexOf(nick) != -1) {

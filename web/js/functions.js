@@ -1232,7 +1232,7 @@ function addChatMsg(data, _to) {
 		var isGhost = data.ghost;
 
 		if (typeof (nick != "undefined")) {
-			var msgwrap = $("<div/>").appendTo(to).addClass("msg-" + nick);
+			var msgwrap = $("<div/>").appendTo(to).addClass('msg').attr('nick', nick);
 		}
 		var newmsg = $("<div/>");
 
@@ -1242,7 +1242,7 @@ function addChatMsg(data, _to) {
 			return;
 		}
 
-		msgwrap.addClass($("#chatlist ." + nick).attr("class"));
+		msgwrap.addClass($(`#chatlist [nick=${nick}]`).attr("class"));
 		if (metadata.graymute) { msgwrap.addClass("graymute"); }
 
 		var isSquee = metadata.isSquee || (nick != NAME && NAME.length > 0 && detectName(NAME, msgText));
