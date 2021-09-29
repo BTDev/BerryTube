@@ -45,25 +45,33 @@ window.PLAYERS.dm = {
             }
         });
 
-        //I assume that apiready is triggered after playback_ready
-        this.PLAYER.addEventListener('apiready', onceFunction(() => {
-            this.PLAYER.setVolume(volume);
-        }));
+		this.PLAYER.addEventListener('apiready', function() {
+			//attempting to set volume in apiready or playback_ready
+			//somehow is often ignored for some odd reason, 
+			//it does however work on video_start \\bpshrug
 
-        this.PLAYER.addEventListener('playback_ready', onceFunction(() => {
-            // adjust in case loading the player took a while
-            at += (Date.now() - preloadTime) / 1000;
-
-            if (at < 0) {
-                setTimeout(() => {
-                    this.play();
-                }, at * -1000);
-            }
-        }));
-
-        this.PLAYER.addEventListener('volumechange', () => {
-            window.volume.set(this.PLAYER.volume);
-        });
+			//if you manually set the volume using the slider
+			//instead of 1, it'll grab that set value
+			
+			//note: video_start fires when the player fades to black, before any sound is heard
+			this.addEventListener('video_start', function() {
+				this.setVolume(volume);
+				this.addEventListener('volumechange', function() {
+					window.volume.set(this.volume);
+				});
+			});
+			
+			this.addEventListener('playback_ready', onceFunction(function() {
+				// adjust in case loading the player took a while
+				at += (Date.now() - preloadTime) / 1000;
+	
+				if (at < 0) {
+					setTimeout(() => {
+						this.play();
+					}, at * -1000);
+				}
+			}));
+		});
     },
     pause: function() {
         if (this.PLAYER) {
