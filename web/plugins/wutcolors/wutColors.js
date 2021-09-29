@@ -82,15 +82,15 @@ function wutProcessUsername(nick){
 
     var c = wutGetUsercolor(nick);
     wutAddedStyles.push(nick);
-    wutStyleSheet.insertRule(`.msg[nick="${nick}"] { border-style: solid;  border-width: 0; border-left-width: 10px ; border-left-color : ${c} }`,0);
-    wutStyleSheet.insertRule(`.msg[nick="${nick}"] > .message { margin-left:5px;position:relative;z-index:2; }`,0);
-    wutStyleSheet.insertRule(`.msg[nick="${nick}"] > .message > .nick:not(.flaunt) { color: ${c}; }`,0);
+    wutStyleSheet.insertRule(`.msgwrap[nick="${nick}"] { border-style: solid;  border-width: 0; border-left-width: 10px ; border-left-color : ${c} }`,0);
+    wutStyleSheet.insertRule(`.msgwrap[nick="${nick}"] > .message { margin-left:5px;position:relative;z-index:2; }`,0);
+    wutStyleSheet.insertRule(`.msgwrap[nick="${nick}"] > .message > .nick:not(.flaunt) { color: ${c}; }`,0);
 
 
     wutStyleSheet.insertRule("#rcvOverlay {z-index: 3; }",0);
-    wutStyleSheet.insertRule(`.msg[nick="${nick}"] > .message > .nick.flaunt {font-size: 15px;position:relative;z-index:2; }`,0);
-    wutStyleSheet.insertRule(`.msg[nick="${nick}"] > .message > .nick.flaunt:before {color:${c};transform: rotate(-20deg);position:absolute;top:-15px;left:-15px;content:'\\e900';font-family: 'wut-icons' !important;font-style: normal;font-weight: normal;font-variant: normal;text-transform: none;line-height: 1;font-size: 30px;z-index:-1; }`,0);
-    wutStyleSheet.insertRule(`.msg[nick="${nick}"] > .message > .nick.flaunt+.msg:after {content: '';position:absolute;top:0;left:-5%;width:110%;height:100%;z-index:-1;background:rgba(0,0,0,.2);}`,0);
+    wutStyleSheet.insertRule(`.msgwrap[nick="${nick}"] > .message > .nick.flaunt {font-size: 15px;position:relative;z-index:2; }`,0);
+    wutStyleSheet.insertRule(`.msgwrap[nick="${nick}"] > .message > .nick.flaunt:before {color:${c};transform: rotate(-20deg);position:absolute;top:-15px;left:-15px;content:'\\e900';font-family: 'wut-icons' !important;font-style: normal;font-weight: normal;font-variant: normal;text-transform: none;line-height: 1;font-size: 30px;z-index:-1; }`,0);
+    wutStyleSheet.insertRule(`.msgwrap[nick="${nick}"] > .message > .nick.flaunt+.msg:after {content: '';position:absolute;top:0;left:-5%;width:110%;height:100%;z-index:-1;background:rgba(0,0,0,.2);}`,0);
 
     wutStyleSheet.insertRule(`#chatlist > ul > li[nick*="${nick}"]  { border-style: solid;  border-left-width: 10px ; border-left-color : ${c}; margin-left: 0; padding-left: 5px }`,0);
     wutStyleSheet.insertRule(`.user[nick*="${nick}"] > .chatlistname { color:${c};  }`,0);

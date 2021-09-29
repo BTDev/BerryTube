@@ -1232,7 +1232,7 @@ function addChatMsg(data, _to) {
 		var isGhost = data.ghost;
 
 		if (typeof (nick != "undefined")) {
-			var msgwrap = $("<div/>").appendTo(to).addClass('msg').attr('nick', nick);
+			var msgwrap = $("<div/>").appendTo(to).addClass('msgwrap').attr('nick', nick);
 		}
 		var newmsg = $("<div/>");
 

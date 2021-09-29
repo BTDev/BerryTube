@@ -20,19 +20,19 @@ body {
     background: url(images/berry_icon.png) no-repeat scroll left center transparent;
     padding-left: 25px;
 }
-#chatlist li.admin span, #chatlist li.mod span, .msg[nick="BATMAN"] .nick, .msg[nick="Blueshift"] .nick, .msg[nick="Cades"] .nick, .msg[nick="Lavender"] .nick, 
-.msg[nick="omnomtom"] .nick, .msg[nick="Ataris"] .nick, .msg[nick="PobodysNerfect"] .nick, .msg[nick="Salculd"] .nick,
-.msg[nick="Jerick"] .nick, .msg[nick="Littlecolt"] .nick, .msg[nick="Marminator"] .nick, .msg[nick="Q0"] .nick, .msg[nick="Toastdeib"] .nick,
-.msg[nick="klossi"] .nick, .msg[nick="Kris321"] .nick, .msg[nick="Redtoxin"] .nick, .msg[nick="RizzieMLD"] .nick, .msg[nick="Zogzor"] .nick,
-.msg[nick="derpkit"] .nick, .msg[nick="Atte"] .nick {
+#chatlist li.admin span, #chatlist li.mod span, .msgwrap[nick="BATMAN"] .nick, .msgwrap[nick="Blueshift"] .nick, .msgwrap[nick="Cades"] .nick, .msgwrap[nick="Lavender"] .nick, 
+.msgwrap[nick="omnomtom"] .nick, .msgwrap[nick="Ataris"] .nick, .msgwrap[nick="PobodysNerfect"] .nick, .msgwrap[nick="Salculd"] .nick,
+.msgwrap[nick="Jerick"] .nick, .msgwrap[nick="Littlecolt"] .nick, .msgwrap[nick="Marminator"] .nick, .msgwrap[nick="Q0"] .nick, .msgwrap[nick="Toastdeib"] .nick,
+.msgwrap[nick="klossi"] .nick, .msgwrap[nick="Kris321"] .nick, .msgwrap[nick="Redtoxin"] .nick, .msgwrap[nick="RizzieMLD"] .nick, .msgwrap[nick="Zogzor"] .nick,
+.msgwrap[nick="derpkit"] .nick, .msgwrap[nick="Atte"] .nick {
 	display: none;
 }
-.msg[nick="BATMAN"] .nick+.msg:before, .msg[nick="Blueshift"] .nick+.msg:before, .msg[nick="Cades"] .nick+.msg:before, .msg[nick="Lavender"] .nick+.msg:before,
-.msg[nick="omnomtom"] .nick+.msg:before,
-.msg[nick="Ataris"] .nick+.msg:before, .msg[nick="PobodysNerfect"] .nick+.msg:before, .msg[nick="Salculd"] .nick+.msg:before, .msg[nick="Jerick"] .nick+.msg:before,
-.msg[nick="Littlecolt"] .nick+.msg:before, .msg[nick="Marminator"] .nick+.msg:before, .msg[nick="Q0"] .nick+.msg:before, .msg[nick="Toastdeib"] .nick +.msg:before,
-.msg[nick="klossi"] .nick+.msg:before, .msg[nick="Kris321"] .nick+.msg:before, .msg[nick="Redtoxin"] .nick+.msg:before, .msg[nick="RizzieMLD"] .nick+.msg:before,
-.msg[nick="Zogzor"] .nick+.msg:before, .msg[nick="derpkit"] .nick+.msg:before, .msg[nick="Atte"] .nick+.msg:before {
+.msgwrap[nick="BATMAN"] .nick+.msg:before, .msgwrap[nick="Blueshift"] .nick+.msg:before, .msgwrap[nick="Cades"] .nick+.msg:before, .msgwrap[nick="Lavender"] .nick+.msg:before,
+.msgwrap[nick="omnomtom"] .nick+.msg:before,
+.msgwrap[nick="Ataris"] .nick+.msg:before, .msgwrap[nick="PobodysNerfect"] .nick+.msg:before, .msgwrap[nick="Salculd"] .nick+.msg:before, .msgwrap[nick="Jerick"] .nick+.msg:before,
+.msgwrap[nick="Littlecolt"] .nick+.msg:before, .msgwrap[nick="Marminator"] .nick+.msg:before, .msgwrap[nick="Q0"] .nick+.msg:before, .msgwrap[nick="Toastdeib"] .nick +.msg:before,
+.msgwrap[nick="klossi"] .nick+.msg:before, .msgwrap[nick="Kris321"] .nick+.msg:before, .msgwrap[nick="Redtoxin"] .nick+.msg:before, .msgwrap[nick="RizzieMLD"] .nick+.msg:before,
+.msgwrap[nick="Zogzor"] .nick+.msg:before, .msgwrap[nick="derpkit"] .nick+.msg:before, .msgwrap[nick="Atte"] .nick+.msg:before {
 	padding-right: 5px;
 	font-weight: bold;
 	font-family: arial;
@@ -46,261 +46,261 @@ body {
 #chatlist li[nick="BATMAN"]:before {
 	content: "BEEMAN";
 }
-.msg[nick="BATMAN"] .nick+.msg:before {
+.msgwrap[nick="BATMAN"] .nick+.msg:before {
 	content: "BEEMAN: ";
 }
-.msg[nick="BATMAN"] .act .nick+.msg:before {
+.msgwrap[nick="BATMAN"] .act .nick+.msg:before {
 	content: "BEEMAN";
 	font-weight: normal;
 }
-.msg[nick="BATMAN"] .request .nick+.msg:before {
+.msgwrap[nick="BATMAN"] .request .nick+.msg:before {
 	content: "BEEMAN";
 }
 #chatlist li[nick="Blueshift"]:before {
 	content: "Beeshift";
 }
-.msg[nick="Blueshift"] .nick+.msg:before {
+.msgwrap[nick="Blueshift"] .nick+.msg:before {
 	content: "Beeshift: ";
 }
-.msg[nick="Blueshift"] .act .nick+.msg:before {
+.msgwrap[nick="Blueshift"] .act .nick+.msg:before {
 	content: "Beeshift";
 	font-weight: normal;
 }
-.msg[nick="Blueshift"] .request .nick+.msg:before {
+.msgwrap[nick="Blueshift"] .request .nick+.msg:before {
 	content: "Beeshift";
 }
 #chatlist li[nick="Cades"]:before {
 	content: "Bees";
 }
-.msg[nick="Cades"] .nick+.msg:before {
+.msgwrap[nick="Cades"] .nick+.msg:before {
 	content: "Bees: ";
 }
-.msg[nick="Cades"] .act .nick+.msg:before {
+.msgwrap[nick="Cades"] .act .nick+.msg:before {
 	content: "Bees";
 	font-weight: normal;
 }
-.msg[nick="Cades"] .request .nick+.msg:before {
+.msgwrap[nick="Cades"] .request .nick+.msg:before {
 	content: "Bees";
 }
 #chatlist li[nick="Lavender"]:before {
 	content: "Lavenbee";
 }
-.msg[nick="Lavender"] .nick+.msg:before {
+.msgwrap[nick="Lavender"] .nick+.msg:before {
 	content: "Lavenbee: ";
 }
-.msg[nick="Lavender"] .act .nick+.msg:before {
+.msgwrap[nick="Lavender"] .act .nick+.msg:before {
 	content: "Lavenbee";
 	font-weight: normal;
 }
-.msg[nick="Lavender"] .request .nick+.msg:before {
+.msgwrap[nick="Lavender"] .request .nick+.msg:before {
 	content: "Lavenbee";
 }
 #chatlist li[nick="omnomtom"]:before {
 	content: "beenomtom";
 }
-.msg[nick="omnomtom"] .nick+.msg:before {
+.msgwrap[nick="omnomtom"] .nick+.msg:before {
 	content: "beenomtom: ";
 }
-.msg[nick="omnomtom"] .act .nick+.msg:before {
+.msgwrap[nick="omnomtom"] .act .nick+.msg:before {
 	content: "beenomtom";
 	font-weight: normal;
 }
-.msg[nick="omnomtom"] .request .nick+.msg:before {
+.msgwrap[nick="omnomtom"] .request .nick+.msg:before {
 	content: "beenomtom";
 }
 #chatlist li[nick="Ataris"]:before {
 	content: "Abeeris";
 }
-.msg[nick="Ataris"] .nick+.msg:before {
+.msgwrap[nick="Ataris"] .nick+.msg:before {
 	content: "Abeeris: ";
 }
-.msg[nick="Ataris"] .act .nick+.msg:before {
+.msgwrap[nick="Ataris"] .act .nick+.msg:before {
 	content: "Abeeris";
 	font-weight: normal;
 }
-.msg[nick="Ataris"] .request .nick+.msg:before {
+.msgwrap[nick="Ataris"] .request .nick+.msg:before {
 	content: "Abeeris";
 }
 #chatlist li[nick="PobodysNerfect"]:before {
 	content: "PobeedysNerfect";
 }
-.msg[nick="PobodysNerfect"] .nick+.msg:before {
+.msgwrap[nick="PobodysNerfect"] .nick+.msg:before {
 	content: "PobeedysNerfect: ";
 }
-.msg[nick="PobodysNerfect"] .act .nick+.msg:before {
+.msgwrap[nick="PobodysNerfect"] .act .nick+.msg:before {
 	content: "PobeedysNerfect";
 	font-weight: normal;
 }
-.msg[nick="PobodysNerfect"] .request .nick+.msg:before {
+.msgwrap[nick="PobodysNerfect"] .request .nick+.msg:before {
 	content: "PobeedysNerfect";
 }
 #chatlist li[nick="Salculd"]:before {
 	content: "Beeculd";
 }
-.msg[nick="Salculd"] .nick+.msg:before {
+.msgwrap[nick="Salculd"] .nick+.msg:before {
 	content: "Beeculd: ";
 }
-.msg[nick="Salculd"] .act .nick+.msg:before {
+.msgwrap[nick="Salculd"] .act .nick+.msg:before {
 	content: "Beeculd";
 	font-weight: normal;
 }
-.msg[nick="Salculd"] .request .nick+.msg:before {
+.msgwrap[nick="Salculd"] .request .nick+.msg:before {
 	content: "Beeculd";
 }
 #chatlist li[nick="Jerick"]:before {
 	content: "Beerick";
 }
-.msg[nick="Jerick"] .nick+.msg:before {
+.msgwrap[nick="Jerick"] .nick+.msg:before {
 	content: "Beerick: ";
 }
-.msg[nick="Jerick"] .act .nick+.msg:before {
+.msgwrap[nick="Jerick"] .act .nick+.msg:before {
 	content: "Beerick";
 	font-weight: normal;
 }
-.msg[nick="Jerick"] .request .nick+.msg:before {
+.msgwrap[nick="Jerick"] .request .nick+.msg:before {
 	content: "Beerick";
 }
 #chatlist li[nick="Littlecolt"]:before {
 	content: "Littlebee";
 }
-.msg[nick="Littlecolt"] .nick+.msg:before {
+.msgwrap[nick="Littlecolt"] .nick+.msg:before {
 	content: "Littlebee: ";
 }
-.msg[nick="Littlecolt"] .act .nick+.msg:before {
+.msgwrap[nick="Littlecolt"] .act .nick+.msg:before {
 	content: "Littlebee";
 	font-weight: normal;
 }
-.msg[nick="Littlecolt"] .request .nick+.msg:before {
+.msgwrap[nick="Littlecolt"] .request .nick+.msg:before {
 	content: "Littlebee";
 }
 #chatlist li[nick="Marminator"]:before {
 	content: "Marmbeenator";
 }
-.msg[nick="Marminator"] .nick+.msg:before {
+.msgwrap[nick="Marminator"] .nick+.msg:before {
 	content: "Marmbeenator: ";
 }
-.msg[nick="Marminator"] .act .nick+.msg:before {
+.msgwrap[nick="Marminator"] .act .nick+.msg:before {
 	content: "Marmbeenator";
 	font-weight: normal;
 }
-.msg[nick="Marminator"] .request .nick+.msg:before {
+.msgwrap[nick="Marminator"] .request .nick+.msg:before {
 	content: "Marmbeenator";
 }
 #chatlist li[nick="Q0"]:before {
 	content: "QBee";
 }
-.msg[nick="Q0"] .nick+.msg:before {
+.msgwrap[nick="Q0"] .nick+.msg:before {
 	content: "QBee: ";
 }
-.msg[nick="Q0"] .act .nick+.msg:before {
+.msgwrap[nick="Q0"] .act .nick+.msg:before {
 	content: "QBee";
 	font-weight: normal;
 }
-.msg[nick="Q0"] .request .nick+.msg:before {
+.msgwrap[nick="Q0"] .request .nick+.msg:before {
 	content: "QBee";
 }
 #chatlist li[nick="Toastdeib"]:before {
 	content: "Toastbeeb";
 }
-.msg[nick="Toastdeib"] .nick+.msg:before {
+.msgwrap[nick="Toastdeib"] .nick+.msg:before {
 	content: "Toastbeeb: ";
 }
-.msg[nick="Toastdeib"] .act .nick+.msg:before {
+.msgwrap[nick="Toastdeib"] .act .nick+.msg:before {
 	content: "Toastbeeb";
 	font-weight: normal;
 }
-.msg[nick="Toastdeib"] .request .nick+.msg:before {
+.msgwrap[nick="Toastdeib"] .request .nick+.msg:before {
 	content: "Toastbeeb";
 }
 #chatlist li[nick="klossi"]:before {
 	content: "klosbee";
 }
-.msg[nick="klossi"] .nick+.msg:before {
+.msgwrap[nick="klossi"] .nick+.msg:before {
 	content: "klosbee: ";
 }
-.msg[nick="klossi"] .act .nick+.msg:before {
+.msgwrap[nick="klossi"] .act .nick+.msg:before {
 	content: "klosbee";
 	font-weight: normal;
 }
-.msg[nick="klossi"] .request .nick+.msg:before {
+.msgwrap[nick="klossi"] .request .nick+.msg:before {
 	content: "klosbee";
 }
 #chatlist li[nick="Kris321"]:before {
 	content: "KrisBee21";
 }
-.msg[nick="Kris321"] .nick+.msg:before {
+.msgwrap[nick="Kris321"] .nick+.msg:before {
 	content: "KrisBee21: ";
 }
-.msg[nick="Kris321"] .act .nick+.msg:before {
+.msgwrap[nick="Kris321"] .act .nick+.msg:before {
 	content: "KrisBee21";
 	font-weight: normal;
 }
-.msg[nick="Kris321"] .request .nick+.msg:before {
+.msgwrap[nick="Kris321"] .request .nick+.msg:before {
 	content: "KrisBee21";
 }
 #chatlist li[nick="Redtoxin"]:before {
 	content: "Beetoxin";
 }
-.msg[nick="Redtoxin"] .nick+.msg:before {
+.msgwrap[nick="Redtoxin"] .nick+.msg:before {
 	content: "Beetoxin: ";
 }
-.msg[nick="Redtoxin"] .act .nick+.msg:before {
+.msgwrap[nick="Redtoxin"] .act .nick+.msg:before {
 	content: "Beetoxin";
 	font-weight: normal;
 }
-.msg[nick="Redtoxin"] .request .nick+.msg:before {
+.msgwrap[nick="Redtoxin"] .request .nick+.msg:before {
 	content: "Beetoxin";
 }
 #chatlist li[nick="RizzieMLD"]:before {
 	content: "RizzbeeMLD";
 }
-.msg[nick="RizzieMLD"] .nick+.msg:before {
+.msgwrap[nick="RizzieMLD"] .nick+.msg:before {
 	content: "RizzbeeMLD: ";
 }
-.msg[nick="RizzieMLD"] .act .nick+.msg:before {
+.msgwrap[nick="RizzieMLD"] .act .nick+.msg:before {
 	content: "RizzbeeMLD";
 	font-weight: normal;
 }
-.msg[nick="RizzieMLD"] .request .nick+.msg:before {
+.msgwrap[nick="RizzieMLD"] .request .nick+.msg:before {
 	content: "RizzbeeMLD";
 }
 #chatlist li[nick="Zogzor"]:before {
 	content: "Beezor";
 }
-.msg[nick="Zogzor"] .nick+.msg:before {
+.msgwrap[nick="Zogzor"] .nick+.msg:before {
 	content: "Beezor: ";
 }
-.msg[nick="Zogzor"] .act .nick+.msg:before {
+.msgwrap[nick="Zogzor"] .act .nick+.msg:before {
 	content: "Beezor";
 	font-weight: normal;
 }
-.msg[nick="Zogzor"] .request .nick+.msg:before {
+.msgwrap[nick="Zogzor"] .request .nick+.msg:before {
 	content: "Beezor";
 }
 #chatlist li[nick="derpkit"]:before {
 	content: "derpbee";
 }
-.msg[nick="derpkit"] .nick+.msg:before {
+.msgwrap[nick="derpkit"] .nick+.msg:before {
 	content: "derpbee: ";
 }
-.msg[nick="derpkit"] .act .nick+.msg:before {
+.msgwrap[nick="derpkit"] .act .nick+.msg:before {
 	content: "derpbee";
 	font-weight: normal;
 }
-.msg[nick="derpkit"] .request .nick+.msg:before {
+.msgwrap[nick="derpkit"] .request .nick+.msg:before {
 	content: "derpbee";
 }
 #chatlist li[nick="Atte"]:before {
 	content: "Atbee";
 }
-.msg[nick="Atte"] .nick+.msg:before {
+.msgwrap[nick="Atte"] .nick+.msg:before {
 	content: "Atbee: ";
 }
-.msg[nick="Atte"] .act .nick+.msg:before {
+.msgwrap[nick="Atte"] .act .nick+.msg:before {
 	content: "Atbee";
 	font-weight: normal;
 }
-.msg[nick="Atte"] .request .nick+.msg:before {
+.msgwrap[nick="Atte"] .request .nick+.msg:before {
 	content: "Atbee";
 }
 .chatbuffer .drinkWrap{
