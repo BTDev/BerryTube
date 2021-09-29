@@ -1637,14 +1637,11 @@ function addVideoYT(socket, data, meta, successCallback, failureCallback) {
 				}
 			}
 
-			const ageChecks = {
-				adults: vidObj.contentDetails.contentRating.ytRating === 'ytAgeRestricted',
-				kids: vidObj.status.madeForKids || vidObj.status.selfDeclaredMadeForKids || false
-			};
+			const ageRestricted = vidObj.contentDetails.contentRating.ytRating === 'ytAgeRestricted';
 
 			//check for the age restrictions
-			if (!data.force && (ageChecks.adults || ageChecks.kids)) {
-				restrictReasons.ageRestrictions = ageChecks;
+			if (!data.force && ageRestricted) {
+				restrictReasons.ageRestricted = ageRestricted;
 				maybeError = 'video is possibly age restricted';
 			}
 
