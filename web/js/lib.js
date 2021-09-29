@@ -62,16 +62,13 @@
 					$(btn).children("span").text(origText);
 				});
 			};
-			$(btn).dblclick(function(){
-				if(callback)callback();
-				btn.revert();
-			});
 			$(btn).click(function(){
 				if($(btn).hasClass("confirm")){
-					$(btn).dblclick();
+					if(callback)callback();
+					btn.revert();
 				} else {
 					$(btn).data("w",$(btn).width());
-					$(btn).addClass("confirm",200,function(){
+					$(btn).addClass("confirm",50,function(){
 						$(btn).width($(btn).data("w"));
 						$(btn).children("span").text("Really?");
 						setTimeout(function(){
