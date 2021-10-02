@@ -175,12 +175,10 @@ export class Raw extends Base {
 		});
 	}
 
-	playVideo(id, timestamp, volume, length, meta) {
+	playVideo(id, timestamp, _, length, meta) {
 		this.player.controlBar.removeChild('QualitySelector');
 
 		this.video = {id, timestamp, meta, sync: length > 0};
-		this.player.reset();
-		
 		this.sources = this.getSources(id, meta.manifest);
 
 		if (this.sources.length > 1) {
@@ -188,7 +186,6 @@ export class Raw extends Base {
 		}
 
 		this.ready(() => {
-			this.player.volume(volume);
 			this.player.src(this.sources);
 		});
 	}
