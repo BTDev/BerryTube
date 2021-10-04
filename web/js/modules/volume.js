@@ -89,7 +89,7 @@ export class VolumeManager {
 		}
 
 		//majority of the players do have max 3 decimals, except dailymotion
-		const converted = Number((volume > 1 ? volume / 100 : volume).toFixed(3));
+		const converted = Math.min(Number((volume > 1 ? volume / 100 : volume).toFixed(3)), 1);
 
 		//we have nothing to update
 		if (converted === this.volume) {
