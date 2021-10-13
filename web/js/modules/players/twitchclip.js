@@ -13,7 +13,8 @@ export class Twitchclip extends Base {
 		const parameters = [
 			`clip=${src}`,
 			`parent=${document.location.hostname}`,
-			`autoplay=true`
+			`autoplay=true`,
+			`muted=${volume === 0}`
 		];
 
 		$(super.frame()).empty().append(
@@ -26,7 +27,6 @@ export class Twitchclip extends Base {
 				scrolling: 'no',
 				preload: 'auto',
 				allowfullscreen: 'true',
-				muted: volume === 0,
 			})
 		);
 	}

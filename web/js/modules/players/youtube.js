@@ -107,15 +107,16 @@ export class Youtube extends Base {
 		});
 	}
 
-	playVideo(id, timestamp, volume, length) {
+	playVideo(id, timestamp, _, length) {
 		//different video, clear error status
 		if (this.status === Status.ERROR) {
 			this.status = Status.READY;
 		}
 		
 		waitForFlag('YTAPREADY', () => {
-			this.video = {id, timestamp, volume, length, sync: length > 0};
+			this.video = {id, timestamp, length, sync: length > 0};
 			this.player.cueVideoById(id);
+			this.player.setVolume(this.video.volume);
 			this.delay(timestamp);
 		});
 	}
