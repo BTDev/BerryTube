@@ -84,6 +84,7 @@ export class Raw extends Base {
 			['end', Event.End],
 			['pause', Event.Pause],
 			['seeked', Event.Seek],
+			['play', Event.Play],
 			['qualitySelected', Event.Quality],
 			['error', Event.Error]
 		]);
@@ -111,6 +112,7 @@ export class Raw extends Base {
 			case Event.Volume: data.volume = this.player.volume(); break;
 			case Event.Pause: this.state = State.PAUSED; break;
 			case Event.Play: this.state = State.PLAYING; break;
+			case Event.Seek: data.time = this.player.currentTime(); break;
 			//label can be undefined so keep the quality preference
 			case Event.Quality: setUserQualityPreference(data.label || getUserQualityPreference()); break;
 		}
