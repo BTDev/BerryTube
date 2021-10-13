@@ -2190,7 +2190,13 @@ function videoLoadAtTime(vidObj, time) {
 	//instead of attempt to acquire from players, get from volume manager
 	const volume = window.volume.get(ptype);
 	const change = VIDEO_TYPE !== ptype;
-	
+
+	//workaround for maltweaks (I hate it)
+	//destroy the previous player if we somehow lose PLAYER and VIDEO_TYPE isn't false
+	if (!PLAYER && VIDEO_TYPE && ACTIVE && Players.hasPlayer(ACTIVE.videotype)) {
+		Players.playerFromVideoType(ACTIVE.videotype).destroy();
+	}
+
 	if (change) {
 		//we need to stop the volume grabbing before removing the player
 		window.volume.stop();
@@ -2198,7 +2204,7 @@ function videoLoadAtTime(vidObj, time) {
 		//destroy current and get new one
 		[PLAYER, VIDEO_TYPE] = Players.switch(VIDEO_TYPE, ptype);
 		
-		//hack, reason: maltweaks and its faulty player removal
+		//workaround, reason: maltweaks and its faulty player removal
 		if ($('#ytapiplayer').length === 0) {
 			$('#videowrap').append($('<div>', {id: 'ytapiplayer'}));
 		}
