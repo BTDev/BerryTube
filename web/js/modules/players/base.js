@@ -33,7 +33,7 @@ export const State = {
 };
 
 //Maybe make this into a setting?
-const MAX_REFRESH_RETRIES = 3;
+const MAX_REFRESH_RETRIES = 10;
 
 export class Base {
 	constructor() {
