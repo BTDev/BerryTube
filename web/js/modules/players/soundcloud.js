@@ -2,7 +2,6 @@
 import { Event, Base, State } from "./base.js";
 
 /*
-
 Players.Soundcloud.loadPlayer('SC208485541', 0, volume.get('soundcloud'))
 */
 
@@ -70,6 +69,10 @@ export class Soundcloud extends Base {
 	}
 
 	event(event, data) {
+		switch (event) {
+			case Event.Seek: data.time = data.currentPosition / 1000; break;
+		}
+
 		super.event(event, data);
 	}
 
@@ -102,6 +105,7 @@ export class Soundcloud extends Base {
 		this.player.load(
 			`https://api.soundcloud.com/tracks/${id.substr(2)}`
 		);
+		this.player.play();
 	}
 
 	pause() {
