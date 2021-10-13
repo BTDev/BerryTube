@@ -2203,11 +2203,6 @@ function videoLoadAtTime(vidObj, time) {
 
 		//destroy current and get new one
 		[PLAYER, VIDEO_TYPE] = Players.switch(VIDEO_TYPE, ptype);
-		
-		//workaround, reason: maltweaks and its faulty player removal
-		if ($('#ytapiplayer').length === 0) {
-			$('#videowrap').append($('<div>', {id: 'ytapiplayer'}));
-		}
 
 		//load the actual video
 		PLAYER.loadPlayer(id, time, volume, length, vidObj.meta);
