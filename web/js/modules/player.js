@@ -35,6 +35,10 @@ export class Players {
 		]);
 	}
 
+	hasPlayer(videotype) {
+		return this.mappings.has(videotype);
+	}
+
 	playerFromVideoType(video) {
 		return this.mappings.get(video);
 	}
