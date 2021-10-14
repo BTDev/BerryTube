@@ -419,8 +419,8 @@ function showLogMenu() {
 	};
 
 	win.append(
-		$('<legend>', {text: 'Search Filters'}),
 		$('<fieldset>', {id: 'logFilters'}).append(
+			$('<legend>', {text: 'Search Filters'}),
 			$('<select>', {id: 'logNickFilter'}).append(
 				...filters.nick.map((kind) => $('<option>').text(kind))
 			),
