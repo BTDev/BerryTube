@@ -445,14 +445,16 @@ function showLogMenu() {
 		$('<tbody>')
 	);
 
+	const buffer = $('<div>', {id: 'logBuffer'}).append(
+		table
+	);
+
 	win.append(
-		$('<div>', {id: 'logBuffer'}).append(
-			table
-		)
+		buffer
 	);
 
 	//add the messages in the buffer
-	ADMIN_LOG.forEach(log => addLogMsg(log, table, false));
+	ADMIN_LOG.forEach(log => addLogMsg(log, buffer, false));
 
 	win.resizable({ handles: 'e' });
 	win.css('min-width', '400px');
