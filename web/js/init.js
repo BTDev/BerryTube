@@ -422,10 +422,10 @@ function showLogMenu() {
 		$('<fieldset>', {id: 'logFilters'}).append(
 			$('<legend>', {text: 'Search Filters'}),
 			$('<select>', {id: 'logNickFilter'}).append(
-				...filters.nick.map((kind) => $('<option>').text(kind))
+				...filters.nick.map((kind) => $('<option>', {text: kind}))
 			),
 			$('<select>', {id: 'logTypeFilter'}).append(
-				...filters.type.map((kind) => $('<option>').text(kind))
+				...filters.type.map((kind) => $('<option>', {text: kind}))
 			)
 		)
 	);
