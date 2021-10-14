@@ -419,6 +419,7 @@ function showLogMenu() {
 	};
 
 	win.append(
+		$('<legend>', {text: 'Search Filters'}),
 		$('<fieldset>', {id: 'logFilters'}).append(
 			$('<select>', {id: 'logNickFilter'}).append(
 				...filters.nick.map((kind) => $('<option>').text(kind))
@@ -434,7 +435,7 @@ function showLogMenu() {
 	});
 
 	const columns = ['time', 'modmin', 'event', 'message', 'type']
-	const table =$('<table>').append(
+	const table = $('<table>').append(
 		$('<thead>').append(
 			$('<tr>').append(
 				...columns.map(header => 
