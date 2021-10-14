@@ -2191,12 +2191,6 @@ function videoLoadAtTime(vidObj, time) {
 	const volume = window.volume.get(ptype);
 	const change = VIDEO_TYPE !== ptype;
 
-	//workaround for maltweaks (I hate it)
-	//destroy the previous player if we somehow lose PLAYER and VIDEO_TYPE isn't false
-	if (!PLAYER && VIDEO_TYPE && ACTIVE && Players.hasPlayer(ACTIVE.videotype)) {
-		Players.playerFromVideoType(ACTIVE.videotype).destroy();
-	}
-
 	if (change) {
 		//we need to stop the volume grabbing before removing the player
 		window.volume.stop();
