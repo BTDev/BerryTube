@@ -98,7 +98,7 @@ export class Raw extends Base {
 		this.sources = [];
 		this.state = State.PLAYING;
 		this.config = {
-			autoplay: true,
+			autoplay: false,
 			controls: true,
 		};
 	}
