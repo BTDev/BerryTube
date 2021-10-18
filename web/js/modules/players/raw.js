@@ -174,6 +174,7 @@ export class Raw extends Base {
 	
 			//add the sources
 			this.player.src(this.sources);
+			this.delay(timestamp);
 		});
 	}
 
@@ -189,6 +190,7 @@ export class Raw extends Base {
 
 		this.ready(() => {
 			this.player.src(this.sources);
+			this.delay(timestamp);
 		});
 	}
 
