@@ -1363,6 +1363,12 @@ function addChatMsg(data, _to) {
 				newmsg.addClass("server").appendTo(msgwrap);
 				$("<span/>").appendTo(newmsg).html(msgText);
 				break;
+			case "image":
+				console.warn(data);
+				newmsg.addClass('image').append(
+					$('<img>', {src: msgText})
+				).appendTo(msgwrap);
+				break;
 			default:
 				dbg("Unknown message type, emote=" + data.msg.emote);
 				return;

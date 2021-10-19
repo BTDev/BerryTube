@@ -1069,6 +1069,37 @@ const chatCommandMap = {
 			);
 		}
 	}),
+	...withAliases(["img", "image"], (parsed, socket, messageData) => {
+		if (!authService.can(socket.session, actions.ACTION_SHITPOST)) {
+			kickForIllegalActivity(socket);
+			return doSuppressChat;
+		}
+
+		let format = parsed.msg.trim().split('.').pop();
+		const supportedFormats = new Set([
+			'png',
+			'jpg',
+			'jpeg',
+			'gif',
+			'svg',
+			'webp',
+			'avif'
+		]);
+
+		//not a valid picture
+		if (format === '') {
+			return doSuppressChat;
+		}
+
+		//image source not supported, don't show an attempt
+		if (!supportedFormats.has(format)) {
+			return doSuppressChat;
+		}
+
+		messageData.emote = 'image';
+
+		return doNormalChatMessage;
+	}),
 };
 
 function _sendChat(nick, type, incoming, socket) {

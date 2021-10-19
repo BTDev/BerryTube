@@ -35,6 +35,7 @@ exports.AuthService = class extends ServiceBase {
 			[actions.CAN_SEE_PRIVILEGED_USER_DATA]: isMod,
 			[actions.CAN_SEE_SHADOWBANS]: isMod,
 			[actions.ACTION_CAN_RESET_PASSWORD]: isAdmin,
+			[actions.ACTION_POST_IMAGE]: isMod,
 		};
 
 		function isBerry({ isBerry }) {

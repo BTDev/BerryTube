@@ -1031,3 +1031,7 @@ button.ranked-poll__submit-button {
 .super-select__option:hover {
     filter: none;
 }
+
+#chatbuffer .image > img {
+	height: 120px;
+}
