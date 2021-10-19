@@ -1075,7 +1075,7 @@ const chatCommandMap = {
 			return doSuppressChat;
 		}
 
-		let format = parsed.msg.trim().split('.').pop();
+		const format = parsed.msg.trim().split('.').pop();
 		const supportedFormats = new Set([
 			'png',
 			'jpg',
