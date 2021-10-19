@@ -1070,7 +1070,7 @@ const chatCommandMap = {
 		}
 	}),
 	...withAliases(["img", "image"], (parsed, socket, messageData) => {
-		if (!authService.can(socket.session, actions.ACTION_SHITPOST)) {
+		if (!authService.can(socket.session, actions.ACTION_POST_IMAGE)) {
 			kickForIllegalActivity(socket);
 			return doSuppressChat;
 		}
