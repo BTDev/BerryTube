@@ -1364,7 +1364,6 @@ function addChatMsg(data, _to) {
 				$("<span/>").appendTo(newmsg).html(msgText);
 				break;
 			case "image":
-				console.warn(data);
 				newmsg.addClass('image').append(
 					$('<img>', {src: msgText})
 				).appendTo(msgwrap);
