@@ -1364,12 +1364,21 @@ function addChatMsg(data, _to) {
 				$("<span/>").appendTo(newmsg).html(msgText);
 				break;
 			case "image":
-				newmsg.addClass('image').append(
-					$('<img>', {
-						src: msgText,
-						referrerpolicy: "no-referrer",
-						alt: 'Loading image...',
-					})
+				const linkAttrs = {
+					href: msgText, 
+					class: 'image', 
+					target: '_blank', 
+					rel: 'noopener noreferrer'
+				};
+
+				newmsg.append(
+					$('<a>', linkAttrs).append(
+						$('<img>', {
+							src: msgText,
+							referrerpolicy: "no-referrer",
+							alt: 'Loading image...',
+						})
+					)
 				).appendTo(msgwrap);
 				break;
 			default:
