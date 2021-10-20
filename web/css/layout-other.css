@@ -664,7 +664,8 @@ body {
 }
 
 /* mod-embedded images */
-.img-filter > img {
+#chatbuffer .img-filter > img,
+#chatbuffer .image > img {
     max-height: 150px;
     max-width: 100%;
 }
@@ -1030,8 +1031,4 @@ button.ranked-poll__submit-button {
 
 .super-select__option:hover {
     filter: none;
-}
-
-#chatbuffer .image > img {
-	height: 120px;
 }

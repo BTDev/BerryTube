@@ -1365,7 +1365,11 @@ function addChatMsg(data, _to) {
 				break;
 			case "image":
 				newmsg.addClass('image').append(
-					$('<img>', {src: msgText})
+					$('<img>', {
+						src: msgText,
+						referrerpolicy: "no-referrer",
+						alt: 'Loading image...',
+					})
 				).appendTo(msgwrap);
 				break;
 			default:
