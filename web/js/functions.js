@@ -866,19 +866,7 @@ function recalcStats() {
 
 	numberMan.text(PLAYLIST.length + " Videos");
 }
-// TODO: I don't think this us used anymore?
-function hbVideoDetail() {
-	if (controlsVideo()) {
-		if (videoGetState() == 0 || videoGetState() == 1 || videoGetState() == 2) {
-			videoGetTime(function (t) {
-				socket.emit("hbVideoDetail", {
-					time: t,
-					state: videoGetState()
-				});
-			});
-		}
-	}
-}
+
 function setToggleable(name, state, label) {
 	var opt = $(".tgl-" + name);
 	if (typeof label == "undefined") {
@@ -907,11 +895,10 @@ function forceStateChange() {
 	var s = videoGetState();
 	if (controlsVideo()) {
 		if (LAST_EMIT_STATE != s) {
-			if (s == 1 || s == 2) {
-				socket.emit("forceStateChange", {
-					state: s
-				});
-			}
+			socket.emit("forceStateChange", {
+				state: s
+			});
+
 			LAST_EMIT_STATE = s;
 		}
 	}
