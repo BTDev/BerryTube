@@ -30,8 +30,7 @@ exports.LogService = class {
 	async addMessage(level, event, format, data = null, error = null) {
 		if (
 			level < this.defaultLevel ||
-			(this.levelOverrides.hasOwnProperty(event) &&
-				level < this.levelOverrides[event])
+			(this.levelOverrides.hasOwnProperty(event) && level < this.levelOverrides[event])
 		) {
 			return;
 		}
@@ -97,9 +96,7 @@ exports.LogService = class {
 
 			parseFormat(format, (type, match) => {
 				formatParts.push({ type, match });
-				formattedParts.push(
-					type == "constant" ? match : data[match] || "",
-				);
+				formattedParts.push(type == "constant" ? match : data[match] || "");
 			});
 
 			formatted = formattedParts.join("");

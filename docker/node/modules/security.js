@@ -1,4 +1,4 @@
-const crypto = require('crypto');
+const crypto = require("crypto");
 
 exports.sanitize = function(string) {
 	if (typeof string !== "string") {
@@ -9,6 +9,8 @@ exports.sanitize = function(string) {
 };
 
 exports.generateRandomPassword = function(length = 20) {
-	const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-	return Array.from(crypto.randomBytes(length)).map(b => chars[b % chars.length]).join('');
+	const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+	return Array.from(crypto.randomBytes(length))
+		.map(b => chars[b % chars.length])
+		.join("");
 };

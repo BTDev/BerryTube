@@ -44,11 +44,7 @@ describe("modules", function() {
 		});
 
 		it("sends message with data", function() {
-			this.service.error(
-				events.EVENT_VIDEO_CHANGE,
-				"THIS IS {data} A TEST",
-				{ data: 123 },
-			);
+			this.service.error(events.EVENT_VIDEO_CHANGE, "THIS IS {data} A TEST", { data: 123 });
 			expect(this.messages).to.eql([
 				{
 					level: 3,
@@ -63,12 +59,7 @@ describe("modules", function() {
 		});
 
 		it("sends an error", function() {
-			this.service.error(
-				events.EVENT_VIDEO_CHANGE,
-				"THIS IS {data} A TEST",
-				{ data: 123 },
-				new Error(),
-			);
+			this.service.error(events.EVENT_VIDEO_CHANGE, "THIS IS {data} A TEST", { data: 123 }, new Error());
 			expect(this.messages[0].error).to.instanceof(Error);
 		});
 	});

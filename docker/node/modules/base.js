@@ -47,9 +47,7 @@ exports.ServiceBase = class {
 						);
 					} catch (e) {
 						// eslint-disable-next-line no-console
-						console.error(
-							"The error handler threw an error! How embarrassing.",
-						);
+						console.error("The error handler threw an error! How embarrassing.");
 
 						if (e) {
 							// eslint-disable-next-line no-console

@@ -22,9 +22,7 @@ exports.RankedPoll = class extends PollInstance {
 			obscure: this.options.isObscured,
 			ghost: false,
 			pollType: this.options.pollType,
-			options: this.options.options.map(o =>
-				o.isTwoThirds ? `${o.text} (⅔ required)` : o.text,
-			),
+			options: this.options.options.map(o => (o.isTwoThirds ? `${o.text} (⅔ required)` : o.text)),
 			votes: [],
 
 			extended: {
@@ -73,19 +71,13 @@ exports.RankedPoll = class extends PollInstance {
 		}
 
 		if (ballot.length != options.length) {
-			throw new Error(
-				`Invalid ballot: expected ${
-					options.length
-				} rankings, but received: ${ballot.length}`,
-			);
+			throw new Error(`Invalid ballot: expected ${options.length} rankings, but received: ${ballot.length}`);
 		}
 
 		const vote = { ballot: ballot.map(Number) };
 		for (const ranking of vote.ballot) {
 			if (ranking < 1 || ranking > abstainedRank) {
-				throw new Error(
-					`Invalid ballot: all rankings in the ballot must be between 1 and ${abstainedRank}`,
-				);
+				throw new Error(`Invalid ballot: all rankings in the ballot must be between 1 and ${abstainedRank}`);
 			}
 		}
 
@@ -141,11 +133,7 @@ exports.RankedPoll = class extends PollInstance {
 		const ballots = new Array(votes.length);
 		for (let voteIndex = 0; voteIndex < votes.length; voteIndex++) {
 			const ballot = (ballots[voteIndex] = votes[voteIndex].ballot);
-			for (
-				let optionIndex = 0;
-				optionIndex < ballot.length;
-				optionIndex++
-			) {
+			for (let optionIndex = 0; optionIndex < ballot.length; optionIndex++) {
 				const rank = ballot[optionIndex];
 				if (rank != maxRankCount) {
 					finalResults[optionIndex].ballots[rank]++;
@@ -211,15 +199,9 @@ exports.RankedPoll = class extends PollInstance {
 				}
 
 				twoThirdResultIndicies.push(i);
-				const interest = count(
-					votes,
-					({ ballot }) => ballot[res.index] < maxRankCount,
-				);
+				const interest = count(votes, ({ ballot }) => ballot[res.index] < maxRankCount);
 
-				if (
-					interest < twoThirdsCutoff ||
-					interest < twoThirdsInterest
-				) {
+				if (interest < twoThirdsCutoff || interest < twoThirdsInterest) {
 					continue;
 				}
 

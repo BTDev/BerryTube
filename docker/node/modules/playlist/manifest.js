@@ -36,16 +36,9 @@ exports.sanitizeSource = function(source, index = "unknown") {
 		throw new Error(sourceError("expected string url"));
 	}
 
-	if (
-		typeof contentType !== "string" ||
-		!exports.supportedSourceMediaTypes.has(contentType)
-	) {
+	if (typeof contentType !== "string" || !exports.supportedSourceMediaTypes.has(contentType)) {
 		throw new Error(
-			sourceError(
-				`unsupported media type, expected ${Array.from(
-					exports.supportedSourceMediaTypes,
-				).join(", ")}`,
-			),
+			sourceError(`unsupported media type, expected ${Array.from(exports.supportedSourceMediaTypes).join(", ")}`),
 		);
 	}
 

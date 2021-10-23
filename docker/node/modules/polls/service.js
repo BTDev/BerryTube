@@ -59,22 +59,13 @@ exports.PollService = class extends ServiceBase {
 
 		options.creator = socket.session.nick;
 		options.creator = options.creator || "some guy";
-		this.currentPoll = new PollType(
-			this,
-			this.nextPollId++,
-			options,
-			this.log,
-		);
+		this.currentPoll = new PollType(this, this.nextPollId++, options, this.log);
 		this.votedIpAddressMap = {};
 		await this.publishToAll("newPoll");
 
 		this.log.info(
 			events.EVENT_ADMIN_CREATED_POLL,
-			`{mod} opened poll {title} ${
-				closePollInSeconds > 0
-					? "(will close in {pollTimeout} seconds)"
-					: ""
-			}`,
+			`{mod} opened poll {title} ${closePollInSeconds > 0 ? "(will close in {pollTimeout} seconds)" : ""}`,
 			{
 				mod: getSocketName(socket),
 				title: options.title,
@@ -126,10 +117,7 @@ exports.PollService = class extends ServiceBase {
 			return;
 		}
 
-		if (
-			socket &&
-			!this.auth.can(socket.session, actions.ACTION_CLOSE_POLL)
-		) {
+		if (socket && !this.auth.can(socket.session, actions.ACTION_CLOSE_POLL)) {
 			throw new Error("unauthorized");
 		}
 
@@ -153,9 +141,7 @@ exports.PollService = class extends ServiceBase {
 		}
 
 		try {
-			this.sessions.sessions.forEach(
-				session => delete session[propVoteData],
-			);
+			this.sessions.sessions.forEach(session => delete session[propVoteData]);
 		} catch (e) {
 			// make sure potential errors above don't prevent us from closing the poll for reals
 			this.log.error(
@@ -169,11 +155,7 @@ exports.PollService = class extends ServiceBase {
 		this.currentPoll = null;
 		this.votedIpAddressMap = {};
 
-		this.log.info(
-			events.EVENT_ADMIN_CLOSED_POLL,
-			"{mod} closed poll {title}",
-			logData,
-		);
+		this.log.info(events.EVENT_ADMIN_CLOSED_POLL, "{mod} closed poll {title}", logData);
 	}
 
 	/**
@@ -257,9 +239,7 @@ exports.PollService = class extends ServiceBase {
 						!publishOnlyToAuthorizedSockets ||
 						this.auth.can(session, actions.CAN_SEE_OBSCURED_POLLS);
 
-					return doPublish
-						? this.publishTo(session, eventName)
-						: Promise.resolve();
+					return doPublish ? this.publishTo(session, eventName) : Promise.resolve();
 				}),
 			);
 		} else {
@@ -276,16 +256,9 @@ exports.PollService = class extends ServiceBase {
 			return;
 		}
 
-		const canSeeVotes =
-			!this.currentPoll.isObscured ||
-			this.auth.can(session, actions.CAN_SEE_OBSCURED_POLLS);
+		const canSeeVotes = !this.currentPoll.isObscured || this.auth.can(session, actions.CAN_SEE_OBSCURED_POLLS);
 
-		session.emit(
-			eventName,
-			canSeeVotes
-				? this.currentPoll.state
-				: this.currentPoll.obscuredState,
-		);
+		session.emit(eventName, canSeeVotes ? this.currentPoll.state : this.currentPoll.obscuredState);
 	}
 
 	onTick(elapsedMilliseconds) {
@@ -302,11 +275,7 @@ exports.PollService = class extends ServiceBase {
 		this.publishTo(socket.session, "newPoll");
 
 		socket.addOnAuthenticatedHandler(() => {
-			if (
-				this.currentPoll &&
-				this.currentPoll.isObscured &&
-				socket.session.type >= 1
-			) {
+			if (this.currentPoll && this.currentPoll.isObscured && socket.session.type >= 1) {
 				this.publishTo(socket.session, "newPoll");
 			}
 		});

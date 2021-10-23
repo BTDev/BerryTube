@@ -18,7 +18,7 @@ const userTypesToName = (exports.userTypesToName = {
 	[userTypes.ADMINISTRATOR]: "Administrator",
 });
 
-exports.getSocketName = function (socket) {
+exports.getSocketName = function(socket) {
 	if (!socket) {
 		return "Server";
 	}
@@ -44,12 +44,10 @@ exports.Session = class {
 		for (const socket of this.sockets) {
 			const socketStatus = this.sessions.getShadowbanInfoForIp(socket.ip);
 
-			shadowbanStatus.shadowbanned =
-				shadowbanStatus.shadowbanned || socketStatus.is;
+			shadowbanStatus.shadowbanned = shadowbanStatus.shadowbanned || socketStatus.is;
 
 			shadowbanStatus.tempshadowbanned =
-				shadowbanStatus.tempshadowbanned ||
-				(socketStatus.is && socketStatus.isTemp);
+				shadowbanStatus.tempshadowbanned || (socketStatus.is && socketStatus.isTemp);
 		}
 
 		return shadowbanStatus;
@@ -134,11 +132,12 @@ exports.Session = class {
 	}
 
 	kick(reason, mod = undefined) {
-		this.log.info(
-			events.EVENT_ADMIN_KICKED,
-			mod ? "{mod} kicked {nick}" : "{nick} got kicked because {reason}",
-			{ nick: this.systemName, type: "user", reason, mod },
-		);
+		this.log.info(events.EVENT_ADMIN_KICKED, mod ? "{mod} kicked {nick}" : "{nick} got kicked because {reason}", {
+			nick: this.systemName,
+			type: "user",
+			reason,
+			mod,
+		});
 
 		for (const socket of this.sockets.slice()) {
 			socket.emit("kicked", reason);
@@ -184,7 +183,7 @@ class BerrySocket {
 	addOnAuthenticatedHandler(handler) {
 		if (this.isAuthenticated) {
 			handler(this);
-			return () => { };
+			return () => {};
 		}
 
 		this.onAuthenticatedHandlers.push(handler);
@@ -204,9 +203,7 @@ class BerrySocket {
 				await Promise.resolve(callback(...args));
 			} catch (e) {
 				// eslint-disable-next-line no-console
-				console.error(
-					`Unhandled exception in socket handler of ${eventName}`,
-				);
+				console.error(`Unhandled exception in socket handler of ${eventName}`);
 				// eslint-disable-next-line no-console
 				console.error(e);
 			}

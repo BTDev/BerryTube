@@ -21,55 +21,43 @@ export class RankedPoll {
 			createElement(
 				"div",
 				{ className: "ranked-poll_input-panel" },
-				createElement(
-					"div",
-					{ className: "ranked-poll__option-list" },
-					[
-						...options.map((option, optionIndex) =>
-							createElement(
-								"div",
-								{
-									className: "ranked-poll__option",
-									ref: e => optionRows.push(e),
-								},
-								[
-									...range(maxRankCount).map(rank => {
-										const isAbstain =
-											rank + 1 == maxRankCount;
-										const el = createElement("button", {
-											innerText: !isAbstain
-												? getOrdinal(rank + 1)
-												: "-",
-											onClick: onRankButtonClicked,
-											className: `ranked-poll__button ${
-												isAbstain ? "is-abstain" : ""
-											}`,
-											"data-rank": rank,
-											"data-option-index": optionIndex,
-										});
-										el.style.setProperty(
-											"--rank-color",
-											rankColors[rank],
-										);
-										return el;
-									}),
-									createElement("div", {
-										className: `ranked-poll__option-text label ${option.isTwoThirds &&
-											"is-two-thirds"}`,
-										innerText: option.text,
-									}),
-								],
-							),
+				createElement("div", { className: "ranked-poll__option-list" }, [
+					...options.map((option, optionIndex) =>
+						createElement(
+							"div",
+							{
+								className: "ranked-poll__option",
+								ref: e => optionRows.push(e),
+							},
+							[
+								...range(maxRankCount).map(rank => {
+									const isAbstain = rank + 1 == maxRankCount;
+									const el = createElement("button", {
+										innerText: !isAbstain ? getOrdinal(rank + 1) : "-",
+										onClick: onRankButtonClicked,
+										className: `ranked-poll__button ${isAbstain ? "is-abstain" : ""}`,
+										"data-rank": rank,
+										"data-option-index": optionIndex,
+									});
+									el.style.setProperty("--rank-color", rankColors[rank]);
+									return el;
+								}),
+								createElement("div", {
+									className: `ranked-poll__option-text label ${option.isTwoThirds &&
+										"is-two-thirds"}`,
+									innerText: option.text,
+								}),
+							],
 						),
-						createElement("button", {
-							innerText: "clear votes",
-							onClick: clearVotes,
-							ref: e => (clearVotedButton = e),
-							disabled: true,
-							className: "ranked-poll__clear-button",
-						}),
-					],
-				),
+					),
+					createElement("button", {
+						innerText: "clear votes",
+						onClick: clearVotes,
+						ref: e => (clearVotedButton = e),
+						disabled: true,
+						className: "ranked-poll__clear-button",
+					}),
+				]),
 			),
 			createElement("div", {
 				className: "ranked-poll__results-panel",
@@ -77,11 +65,7 @@ export class RankedPoll {
 			}),
 		));
 
-		const ballot = new Array(options.length).fill(
-			maxRankCount,
-			0,
-			options.length,
-		);
+		const ballot = new Array(options.length).fill(maxRankCount, 0, options.length);
 
 		mountElement.appendChild(pollElement);
 		updateButtons();
@@ -124,15 +108,10 @@ export class RankedPoll {
 
 			clearVotedButton.disabled = !ballot.some(b => b != maxRankCount);
 
-			for (const button of pollElement.querySelectorAll(
-				`.ranked-poll__button`,
-			)) {
+			for (const button of pollElement.querySelectorAll(`.ranked-poll__button`)) {
 				const optionIndex = parseInt(button.dataset.optionIndex);
 				const rankIndex = parseInt(button.dataset.rank);
-				button.classList.toggle(
-					"is-selected",
-					ballot[optionIndex] - 1 == rankIndex,
-				);
+				button.classList.toggle("is-selected", ballot[optionIndex] - 1 == rankIndex);
 			}
 		}
 	}

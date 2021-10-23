@@ -16,7 +16,10 @@ describe("parseFormat", function() {
 	it("parses: {left} right", function() {
 		let parts = [];
 		parseFormat("{left} right", (...args) => parts.push(args));
-		expect(parts).to.eql([["match", "left"], ["constant", " right"]]);
+		expect(parts).to.eql([
+			["match", "left"],
+			["constant", " right"],
+		]);
 	});
 
 	it("parses: {left}{left2} right", function() {
@@ -43,7 +46,10 @@ describe("parseFormat", function() {
 	it("parses: left {right}", function() {
 		let parts = [];
 		parseFormat("left {right}", (...args) => parts.push(args));
-		expect(parts).to.eql([["constant", "left "], ["match", "right"]]);
+		expect(parts).to.eql([
+			["constant", "left "],
+			["match", "right"],
+		]);
 	});
 
 	it("parses: left {right}{right2}", function() {
@@ -70,23 +76,17 @@ describe("parseFormat", function() {
 
 describe("parseRawFileUrl", function() {
 	it("parses link with single level", function() {
-		const ret = parseRawFileUrl(
-			"https://nlaq.blob.core.windows.net/triangle-THING.mp4",
-		);
+		const ret = parseRawFileUrl("https://nlaq.blob.core.windows.net/triangle-THING.mp4");
 		expect(ret.title).to.equal("triangle-THING");
 	});
 
 	it("parses link with single level with empty querystring", function() {
-		const ret = parseRawFileUrl(
-			"https://nlaq.blob.core.windows.net/triangle-THING.mp4?",
-		);
+		const ret = parseRawFileUrl("https://nlaq.blob.core.windows.net/triangle-THING.mp4?");
 		expect(ret.title).to.equal("triangle-THING");
 	});
 
 	it("parses link with single level with non-empty querystring", function() {
-		const ret = parseRawFileUrl(
-			"https://nlaq.blob.core.windows.net/triangle-THING.mp4?stuff=whoa&and=hey",
-		);
+		const ret = parseRawFileUrl("https://nlaq.blob.core.windows.net/triangle-THING.mp4?stuff=whoa&and=hey");
 		expect(ret.title).to.equal("triangle-THING");
 	});
 
@@ -98,30 +98,22 @@ describe("parseRawFileUrl", function() {
 	});
 
 	it("parses link without azure SAS token", function() {
-		const ret = parseRawFileUrl(
-			"https://nlaq.blob.core.windows.net/media/triangle-THING.mp4",
-		);
+		const ret = parseRawFileUrl("https://nlaq.blob.core.windows.net/media/triangle-THING.mp4");
 		expect(ret.title).to.equal("triangle-THING");
 	});
 
 	it("parses link with empty querystring", function() {
-		const ret = parseRawFileUrl(
-			"https://nlaq.blob.core.windows.net/media/triangle-THING.mp4?",
-		);
+		const ret = parseRawFileUrl("https://nlaq.blob.core.windows.net/media/triangle-THING.mp4?");
 		expect(ret.title).to.equal("triangle-THING");
 	});
 
 	it("rejects an invalid url", function() {
-		const ret = parseRawFileUrl(
-			"https://nlaq.blob.core.windows.net/media/there-is-no-mp4-here!",
-		);
+		const ret = parseRawFileUrl("https://nlaq.blob.core.windows.net/media/there-is-no-mp4-here!");
 		expect(ret).to.be.null;
 	});
 
 	it("rejects a completely invalid url", function() {
-		const ret = parseRawFileUrl(
-			"THIS IS NOT EVEN CLOSE TO BEING A url.mp4 !!",
-		);
+		const ret = parseRawFileUrl("THIS IS NOT EVEN CLOSE TO BEING A url.mp4 !!");
 		expect(ret).to.be.null;
 	});
 });

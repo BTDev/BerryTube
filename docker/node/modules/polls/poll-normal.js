@@ -10,13 +10,14 @@ exports.NormalPoll = class extends PollInstance {
 			obscure: this.options.isObscured,
 			ghost: false,
 			pollType: this.options.pollType,
-			options: this.options.options.map(o =>
-				o.isTwoThirds ? `${o.text} (⅔ required)` : o.text,
+			options: this.options.options.map(o => (o.isTwoThirds ? `${o.text} (⅔ required)` : o.text)),
+			votes: this.votes.reduce(
+				(arr, vote) => {
+					arr[vote.optionIndex]++;
+					return arr;
+				},
+				this.options.options.map(_ => 0),
 			),
-			votes: this.votes.reduce((arr, vote) => {
-				arr[vote.optionIndex]++;
-				return arr;
-			}, this.options.options.map(_ => 0)),
 		};
 	}
 
@@ -32,9 +33,7 @@ exports.NormalPoll = class extends PollInstance {
 		super(pollService, id, {
 			...options,
 			options: options.ops.map(o =>
-				typeof o === "string"
-					? sanitize(o)
-					: { text: sanitize(o.text), isTwoThirds: !!o.isTwoThirds },
+				typeof o === "string" ? sanitize(o) : { text: sanitize(o.text), isTwoThirds: !!o.isTwoThirds },
 			),
 		});
 

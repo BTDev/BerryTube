@@ -1,17 +1,17 @@
 const playerVolumeInfo = {
-	yt: {range: 100, listen: true},
-	dm: {range: 1, listen: false},
-	vimeo: {range: 1, listen: false},
-	soundcloud: {range: 100, listen: false},
-	file: {range: 1, listen: false},
-	dash: {range: 1, listen: false},
-	twitch: {range: 1, listen: true},
-	twitchclip: {range: 1, listen: true},
-	osmf: {range: 1, listen: false},
-	hls: {range: 1, listen: false},
+	yt: { range: 100, listen: true },
+	dm: { range: 1, listen: false },
+	vimeo: { range: 1, listen: false },
+	soundcloud: { range: 100, listen: false },
+	file: { range: 1, listen: false },
+	dash: { range: 1, listen: false },
+	twitch: { range: 1, listen: true },
+	twitchclip: { range: 1, listen: true },
+	osmf: { range: 1, listen: false },
+	hls: { range: 1, listen: false },
 
 	//defined for internal volume
-	internal: {range: 1, listen: false}
+	internal: { range: 1, listen: false },
 };
 
 export class VolumeManager {
@@ -142,7 +142,7 @@ export class VolumeManager {
 				return;
 			}
 
-			player.getVolume((volume) => this.set(volume));
+			player.getVolume(volume => this.set(volume));
 		}, 2000);
 	}
 }

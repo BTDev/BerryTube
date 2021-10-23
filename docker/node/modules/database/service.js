@@ -13,15 +13,11 @@ exports.DatabaseService = class extends ServiceBase {
 	init() {
 		super.init();
 
-		this.log.info(
-			events.EVENT_DB_CONNECTION,
-			"starting database connection to {user}@{host}:{port}",
-			{
-				host: config.host,
-				port: config.post,
-				user: config.mysql_user,
-			},
-		);
+		this.log.info(events.EVENT_DB_CONNECTION, "starting database connection to {user}@{host}:{port}", {
+			host: config.host,
+			port: config.post,
+			user: config.mysql_user,
+		});
 
 		this.connection = mysql.createConnection({
 			host: config.host,
@@ -51,12 +47,7 @@ exports.DatabaseService = class extends ServiceBase {
 			this.connection.query(sql, params, (err, result, fields) => {
 				if (err) {
 					rej(err);
-					this.log.error(
-						events.EVENT_DB_QUERY,
-						'query "{sql}" failed',
-						{ sql },
-						err,
-					);
+					this.log.error(events.EVENT_DB_QUERY, 'query "{sql}" failed', { sql }, err);
 					return;
 				}
 

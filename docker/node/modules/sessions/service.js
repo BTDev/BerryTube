@@ -68,7 +68,7 @@ exports.SessionService = class extends ServiceBase {
 		const berries = this.getBerries();
 		this.io.sockets.emit("leaderIs", {
 			// retain singular nick for backwards compat
-			nick: berries[0] && berries[0].nick || false,
+			nick: (berries[0] && berries[0].nick) || false,
 			nicks: berries.map(berry => berry.nick),
 		});
 
@@ -190,10 +190,7 @@ exports.SessionService = class extends ServiceBase {
 	 * @return {IpAddressEntry}
 	 */
 	getIpEntry(ip) {
-		return (
-			this.ipAddresses[ip] ||
-			(this.ipAddresses[ip] = new IpAddressEntry(ip))
-		);
+		return this.ipAddresses[ip] || (this.ipAddresses[ip] = new IpAddressEntry(ip));
 	}
 
 	/**
@@ -204,10 +201,7 @@ exports.SessionService = class extends ServiceBase {
 	fromIoSocket(ioSocket) {
 		const ip = ioSocket.handshake.headers["x-forwarded-for"];
 		if (!ip) {
-			this.log.info(
-				events.EVENT_SOCKET,
-				"rejecting socket because it has no IP",
-			);
+			this.log.info(events.EVENT_SOCKET, "rejecting socket because it has no IP");
 			return null;
 		}
 
@@ -291,10 +285,7 @@ exports.SessionService = class extends ServiceBase {
 	}
 
 	async login(socket, data) {
-		const { success, nick, type, meta } = await this.attemptLogin(
-			socket,
-			data,
-		);
+		const { success, nick, type, meta } = await this.attemptLogin(socket, data);
 
 		if (!success) {
 			return;
@@ -330,10 +321,7 @@ exports.SessionService = class extends ServiceBase {
 			for (const otherSession of this.sessions) {
 				otherSession.emit(
 					"userJoin",
-					this.auth.can(
-						otherSession,
-						actions.CAN_SEE_PRIVILEGED_USER_DATA,
-					)
+					this.auth.can(otherSession, actions.CAN_SEE_PRIVILEGED_USER_DATA)
 						? this.getPrivilegedDataForSession(session)
 						: publicData,
 				);
@@ -351,18 +339,15 @@ exports.SessionService = class extends ServiceBase {
 
 		const userCount = this.sessions.length;
 		const socketCount = this.sockets.length;
-		this.log.info(
-			events.EVENT_LOGIN,
-			"{session} joined, total users: {userCount}, total sockets: {socketCount}",
-			{ session: session.systemName, userCount: userCount, socketCount },
-		);
+		this.log.info(events.EVENT_LOGIN, "{session} joined, total users: {userCount}, total sockets: {socketCount}", {
+			session: session.systemName,
+			userCount: userCount,
+			socketCount,
+		});
 	}
 
 	sendUserListToSocket(socket) {
-		const canSeePrivilegedData = this.auth.can(
-			socket.session,
-			actions.CAN_SEE_PRIVILEGED_USER_DATA,
-		);
+		const canSeePrivilegedData = this.auth.can(socket.session, actions.CAN_SEE_PRIVILEGED_USER_DATA);
 
 		const users = [];
 		if (canSeePrivilegedData) {
@@ -390,7 +375,7 @@ exports.SessionService = class extends ServiceBase {
 			socket.emit("leaderIs", {
 				// retain singular nick for backwards compat
 				nick: berries[0].nick,
-				nicks: berries.map(berry => berry.nick)
+				nicks: berries.map(berry => berry.nick),
 			});
 		}
 	}
@@ -403,10 +388,7 @@ exports.SessionService = class extends ServiceBase {
 				...data.meta,
 				// TODO: protocol needs to be updated to support multiple IP addresses
 				ip: session.sockets.length ? session.sockets[0].ip : "",
-				aliases: [
-					...(data.meta.aliases || []),
-					...this.getAliasesFromSession(session),
-				],
+				aliases: [...(data.meta.aliases || []), ...this.getAliasesFromSession(session)],
 			},
 		};
 	}
@@ -436,11 +418,7 @@ exports.SessionService = class extends ServiceBase {
 			return sendFailMessage("Too many login attempts", false);
 		}
 
-		if (
-			!nick.match(/^[0-9a-zA-Z_]+$/) ||
-			nick.length < 1 ||
-			nick.length > 15
-		) {
+		if (!nick.match(/^[0-9a-zA-Z_]+$/) || nick.length < 1 || nick.length > 15) {
 			return sendFailMessage("Bad nick.");
 		}
 
@@ -488,10 +466,7 @@ exports.SessionService = class extends ServiceBase {
 
 		//check if MD5 password and update it
 		if (md5Password === dbUser.pass) {
-			const newPassword = await bcrypt.hash(
-				password,
-				settings.core.bcrypt_rounds,
-			);
+			const newPassword = await bcrypt.hash(password, settings.core.bcrypt_rounds);
 
 			// this is an old style password, update it
 			await this.db.query`
@@ -503,7 +478,7 @@ exports.SessionService = class extends ServiceBase {
 					name = ${nick}`;
 		}
 
-		const isValidPass = (md5Password === dbUser.pass) || await bcrypt.compare(password, dbUser.pass);
+		const isValidPass = md5Password === dbUser.pass || (await bcrypt.compare(password, dbUser.pass));
 
 		//password didn't match, abort
 		if (!isValidPass) {
@@ -520,12 +495,7 @@ exports.SessionService = class extends ServiceBase {
 		try {
 			meta = JSON.parse(dbUser.meta);
 		} catch (e) {
-			this.log.error(
-				events.EVENT_GENERAL,
-				"Failed to parse user meta for {nick}",
-				{ nick },
-				e,
-			);
+			this.log.error(events.EVENT_GENERAL, "Failed to parse user meta for {nick}", { nick }, e);
 		}
 
 		meta = typeof meta === "object" && meta !== null ? meta : {};
@@ -536,11 +506,11 @@ exports.SessionService = class extends ServiceBase {
 				that.getIpEntry(ip).onFailedToLogin(nick);
 			}
 
-			that.log.error(
-				events.EVENT_LOGIN,
-				"{nick} could not log from ip {ip} because {reason}",
-				{ ip: socket.ip, nick: data.nick, reason },
-			);
+			that.log.error(events.EVENT_LOGIN, "{nick} could not log from ip {ip} because {reason}", {
+				ip: socket.ip,
+				nick: data.nick,
+				reason,
+			});
 
 			socket.emit("loginError", {
 				message: reason,

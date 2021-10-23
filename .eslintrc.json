@@ -16,6 +16,7 @@
 		"semi": "error",
 		"no-unused-vars": ["warn", { "argsIgnorePattern": "^_" }],
 		"no-mixed-spaces-and-tabs": 0,
+		"no-console": 0,
 		"curly": "error"
 	},
 	"globals": {

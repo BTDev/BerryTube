@@ -10,9 +10,7 @@ export function $(...args) {
  */
 // TODO: replace with a Worker of {type:"module"} when browsers support it
 export function loadWorker(url) {
-	return new Worker(
-		URL.createObjectURL(new Blob([`importScripts("${url}")`])),
-	);
+	return new Worker(URL.createObjectURL(new Blob([`importScripts("${url}")`])));
 }
 
 /**
