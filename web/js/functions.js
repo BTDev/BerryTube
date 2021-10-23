@@ -2239,7 +2239,7 @@ function parseVideoURL(url, callback) {
 }
 function formatChatMsg(msg, greentext) {
 
-	var regexp = new RegExp("(http[s]{0,1}://[^ ]*)", 'ig');
+	var regexp = /(?<=^|\s)(https?:\/\/[^ ]*)(?=\s|$)/ig;
 	msg = msg.replace(regexp, '<a href="$&">$&</a>');
 
 	var h = $('<span/>').html(msg);
