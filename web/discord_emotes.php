@@ -60,8 +60,9 @@ function loadFromDiscord() {
     $emotes = [];
     foreach ($emojis as $emoji) {
         if ($emoji->available && $emoji->require_colons) {
+            $ext = $emoji->animated ? 'gif' : 'png';
             $emotes []= [
-                'background-image' => "https://cdn.discordapp.com/emojis/$emoji->id.png?size=$emoteSize",
+                'background-image' => "https://cdn.discordapp.com/emojis/$emoji->id.$ext?size=$emoteSize",
                 'tags' => [],
                 'sr' => 'discordserver',
                 'height' => $emoteSize,
