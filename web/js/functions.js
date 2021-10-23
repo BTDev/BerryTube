@@ -1371,7 +1371,8 @@ function addChatMsg(data, _to) {
 					rel: 'noopener noreferrer'
 				};
 
-				newmsg.append(
+				newmsg.addClass("message").append(
+					$('<span>', {class: `nick ${nick}`, text: `${nick}:`}),
 					$('<a>', linkAttrs).append(
 						$('<img>', {
 							src: msgText,
@@ -1380,6 +1381,8 @@ function addChatMsg(data, _to) {
 						})
 					)
 				).appendTo(msgwrap);
+
+				includeTimestamp = true;
 				break;
 			default:
 				dbg("Unknown message type, emote=" + data.msg.emote);
