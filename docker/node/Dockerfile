@@ -8,7 +8,7 @@ HEALTHCHECK --interval=10s --timeout=3s --start-period=10s CMD curl http://local
 
 RUN echo "https://dl-cdn.alpinelinux.org/alpine/v$(cat /etc/alpine-release | cut -d. -f1-2)/community/" >>/etc/apk/repositories && \
     apk --no-cache add mariadb-client ffmpeg curl && \
-    apk --no-cache add --virtual build-dependencies python make g++
+    apk --no-cache add --virtual build-dependencies python2 make g++
 
 COPY package.json yarn.lock ./
 RUN yarn install --frozen-lockfile && \
