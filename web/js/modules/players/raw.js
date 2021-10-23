@@ -81,7 +81,7 @@ export class Raw extends Base {
 		this.player = null;
 		this.events = new Map([
 			['volumechange', Event.Volume],
-			['end', Event.End],
+			['ended', Event.End],
 			['pause', Event.Pause],
 			['seeked', Event.Seek],
 			['play', Event.Play],
