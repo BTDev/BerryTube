@@ -1031,3 +1031,8 @@ button.ranked-poll__submit-button {
 .super-select__option:hover {
     filter: none;
 }
+
+/* Discord emotes can be slightly narrower than expected */
+.berryemote[title$=" from /r/discordserver"] {
+    background-repeat: no-repeat;
+}
