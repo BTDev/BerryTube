@@ -32,6 +32,7 @@ services:
         ports:
             - '${HTTP_PORT}:${HTTP_PORT}/tcp'
             - '${HTTPS_PORT}:${HTTPS_PORT}/tcp'
+            - '${HTTPS_PORT}:${HTTPS_PORT}/udp'
             - '${LEGACY_SOCKET_PORT}:${LEGACY_SOCKET_PORT}/tcp'
         depends_on:
             php:
@@ -55,6 +56,8 @@ services:
             - NO_MINIFIED
             - MYSQL_PASSWORD
             - TLS_TYPE
+            - DISCORD_BOT_TOKEN
+            - DISCORD_GUILD_ID
         volumes:
             - ./web:/var/www/html/web:ro
             - ./berrymotes/css:/var/www/html/web/berrymotes/css:ro
