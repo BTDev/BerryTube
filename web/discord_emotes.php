@@ -2,7 +2,7 @@
 
 // must be a power of two between 16 and 4096, Discord desktop uses 48
 $emoteSize = 48;
-$cacheTimeSeconds = 60;
+$cacheTimeSeconds = 60 * 5;
 
 header('Content-Type: application/json');
 
@@ -19,12 +19,15 @@ function loadFromCache() {
     global $cacheTimeSeconds;
 
     $result = $mysqli->query('SELECT value FROM misc WHERE name = "discord_emotes"');
-    if ($result && $result->numRows > 0) {
-        $cache = json_decode($result->fetch_column());
-        if ($cache['time'] + $cacheTimeSeconds > time()) {
-            return $cache['emotes'];
+    $json = $result ? $result->fetch_array()[0] : null;
+    if ($json) {
+        $cache = json_decode($json);
+        if ($cache->time + $cacheTimeSeconds > time()) {
+            header('X-BT-FromCache: true');
+            return $cache->emotes;
         }
     }
+    header('X-BT-FromCache: false');
     return null;
 }
 
@@ -37,6 +40,7 @@ function saveToCache($emotes) {
     ], JSON_UNESCAPED_SLASHES);
     $statement = $mysqli->prepare('INSERT INTO misc (name, value) VALUES ("discord_emotes", ?) ON DUPLICATE KEY UPDATE value = ?');
     $statement->bind_param("ss", $json, $json);
+    $statement->execute();
 }
 
 function loadFromDiscord() {
@@ -56,9 +60,8 @@ function loadFromDiscord() {
     $emotes = [];
     foreach ($emojis as $emoji) {
         if ($emoji->available && $emoji->require_colons) {
-            $id = $emoji->id;
             $emotes []= [
-                'background-image' => "https://cdn.discordapp.com/emojis/$id.png?size=$emoteSize",
+                'background-image' => "https://cdn.discordapp.com/emojis/$emoji->id.png?size=$emoteSize",
                 'tags' => [],
                 'sr' => 'discordserver',
                 'height' => $emoteSize,
