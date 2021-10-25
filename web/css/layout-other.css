@@ -220,7 +220,7 @@ body {
     margin: 0;
     padding: 0;
 }
-#playlist ul li {
+#playlist .viewport ul li {
 	font-size: 10px;
 	margin: 3px;
 	padding: 3px;
