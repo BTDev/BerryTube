@@ -221,23 +221,25 @@ body {
     padding: 0;
 }
 #playlist ul li {
-    font-size: 10px;
-    margin: 3px;
-    padding: 3px;
+	font-size: 10px;
+	margin: 3px;
+	padding: 3px;
+	display: flex !important;
+	align-items: center;
 }
 #playlist ul li.history {
 	border-style: dashed;
 	opacity: 0.75;
 }
-#playlist ul .title {
-	float: left;
+#playlist ul li .title {
+	width: 100% !important;
 }
 #playlist.searching ul li .title:before {
     content: attr(active-offset);
 	opacity: 0.75;
 }
 #playlist ul .time {
-	float: right;
+	display: flex;
 }
 #plstats {
     font-size: 1.1em;

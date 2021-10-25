@@ -301,7 +301,6 @@ body {
     background: none repeat scroll 0 0 #876C00;
     border-color: #FFCC00;
     color: #FFCC00;
-	display:block !important;
 }
 #playlist ul li.search-hidden {
     display:none !important;
@@ -320,13 +319,14 @@ body {
     cursor: pointer;
     float: right;
     font-size: 10px;
-    height: 14px;
     line-height: 14px;
     margin-left: 5px;
     padding: 0;
     text-align: center;
-    width: 14px;
 	display:none;
+
+	min-width: 14px;
+	min-height: 14px;
 }
 #playlist ul .delete.confirm {
 	background-color: #880000;
@@ -338,13 +338,14 @@ body {
     cursor: pointer;
     float: right;
     font-size: 10px;
-    height: 14px;
     line-height: 14px;
     margin-left: 5px;
     padding: 0;
     text-align: center;
-    width: 14px;
 	display:none;
+
+	min-width: 14px;
+	min-height: 14px;
 }
 #playlist ul .setVolatile{
     border: 1px solid;
