@@ -2,10 +2,8 @@ function onYouTubeIframeAPIReady() {
 	setVal("YTAPREADY", true);
 }
 function videoEnded() {
-	// Playlist progression is controlled by the server now, but if someone has berry, it should still ask for next.
-	// TODO: Should we really be doing this? Could this be causing the berry delay bug?
-	if (LEADER) {
-		//socket.emit("playNext");
+	if (controlsVideo()) {
+		forceStateChange();
 	}
 }
 function videoSeeked(time) {

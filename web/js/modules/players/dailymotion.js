@@ -14,6 +14,7 @@ export class Dailymotion extends Base {
 			['pause', Event.Pause],
 			['play', Event.Play],
 			['video_start', Event.Play],
+			['video_end', Event.End],
 
 			['volumechange', Event.Volume],
 			['playback_ready', Event.Ready],
@@ -61,7 +62,7 @@ export class Dailymotion extends Base {
 		switch (event) {
 			case 'pause': this.state = State.PAUSED; break;
 			case 'play': this.state = State.PLAYING; break;
-			
+			case 'video_end': this.state = State.ENDED; break;
 			case 'playback_ready': {
 				this.status = Status.READY; 
 				this.delay(this.video.timestamp);
