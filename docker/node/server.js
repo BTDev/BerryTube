@@ -469,7 +469,7 @@ function playNext() {
 
 	SERVER.ACTIVE = SERVER.ACTIVE.next;
 
-	if ('colorTagVolat' in active.node.meta) {
+	if (!active.node.volat && 'colorTagVolat' in active.node.meta) {
 		_setVideoColorTag(active.node, active.position, false, false);
 	}
 
@@ -2585,7 +2585,7 @@ io.sockets.on('connection', function (ioSocket) {
 			return doorStuck(socket);
 		}
 
-		if ('colorTagVolat' in prev.node.meta) {
+		if (!prev.node.volat && 'colorTagVolat' in prev.node.meta) {
 			_setVideoColorTag(prev.node, prev.position, false, false);
 		}
 	
