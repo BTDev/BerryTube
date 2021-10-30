@@ -1258,6 +1258,24 @@ function getVideoAt(index) {
 	return null;
 }
 
+function saveToHistory(node) {
+	const historyQuery = "insert into videos_history (videoid, videotitle, videolength, videotype, date_added, meta) values (?,?,?,?,NOW(),?)";
+	const historyQueryParams = [
+		String(node.videoid),
+		node.videotitle,
+		node.videolength,
+		node.videotype,
+		JSON.stringify(node.meta || {})
+	];
+
+	mysql.query(historyQuery, historyQueryParams, function (err) {
+		if (err) {
+			DefaultLog.error(events.EVENT_DB_QUERY, "query \"{sql}\" failed", { sql: historyQuery }, err);
+			return;
+		}
+	});
+}
+
 function delVideo(video, sanity, socket) {
 	const {node, position} = video;
 
@@ -1280,27 +1298,13 @@ function delVideo(video, sanity, socket) {
 
 		mysql.query(query, [String(node.videoid)], function (err) {
 			if (err) {
-				DefaultLog.error(events.EVENT_DB_QUERY, "query \"{sql}\" failed", { sql: q }, err);
+				DefaultLog.error(events.EVENT_DB_QUERY, "query \"{sql}\" failed", { sql: query }, err);
 				return;
 			}
 
 			//save to history if not a livestream
 			if (node.videolength > 0) {
-				const historyQuery = "insert into videos_history (videoid, videotitle, videolength, videotype, date_added, meta) values (?,?,?,?,NOW(),?)";
-				const historyQueryParams = [
-					String(node.videoid),
-					node.videotitle,
-					node.videolength,
-					node.videotype,
-					JSON.stringify(node.meta || {})
-				];
-
-				mysql.query(historyQuery, historyQueryParams, function (err) {
-					if (err) {
-						DefaultLog.error(events.EVENT_DB_QUERY, "query \"{sql}\" failed", { sql: historyQuery }, err);
-						return;
-					}
-				});
+				saveToHistory(node);
 			}
 		});
 
@@ -2551,18 +2555,31 @@ io.sockets.on('connection', function (ioSocket) {
 			kickForIllegalActivity(socket);
 			return;
 		}
-	
-		const previous = {
-			node: SERVER.ACTIVE,
-			position: getVideoPosition(SERVER.ACTIVE)
-		};
 
-		if ('colorTagVolat' in previous.node.meta) {
-			_setVideoColorTag(previous.node, previous.position, false, false);
+		let prev = null;
+		let next = null;
+
+		let video = SERVER.PLAYLIST.first;
+		for (let index = 0; index < SERVER.PLAYLIST.length; index++) {
+			if (video === SERVER.ACTIVE) {
+				prev = {node: video, position: index};
+			}
+
+			if (index === data.index) {
+				next = {node: video, position: index};
+			}
+
+			if (next && prev) {
+				break;
+			}
+
+			video = video.next;
 		}
 
-		const next = getVideoAt(data.index);
-		
+		if ('colorTagVolat' in prev.node.meta) {
+			_setVideoColorTag(prev.node, prev.position, false, false);
+		}
+
 		if (data.sanityid && next.node.videoid !== data.sanityid) {
 			return doorStuck();
 		}
@@ -2576,8 +2593,8 @@ io.sockets.on('connection', function (ioSocket) {
 		handleNewVideoChange();
 		sendStatus("forceVideoChange", io.sockets);
 
-		if (previous.node.volat) {
-			delVideo(previous, null, socket);
+		if (prev.node.volat) {
+			delVideo(prev, null, socket);
 		} 
 	});
 	socket.on("delVideo", function (data) {
