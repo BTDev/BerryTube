@@ -2576,12 +2576,17 @@ io.sockets.on('connection', function (ioSocket) {
 			video = video.next;
 		}
 
-		if ('colorTagVolat' in prev.node.meta) {
-			_setVideoColorTag(prev.node, prev.position, false, false);
+		//check if we actually got both
+		if (!next || !prev) {
+			return doorStuck();
 		}
 
 		if (data.sanityid && next.node.videoid !== data.sanityid) {
 			return doorStuck();
+		}
+
+		if ('colorTagVolat' in prev.node.meta) {
+			_setVideoColorTag(prev.node, prev.position, false, false);
 		}
 	
 		SERVER.ACTIVE = next.node;
