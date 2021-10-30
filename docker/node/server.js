@@ -2578,11 +2578,11 @@ io.sockets.on('connection', function (ioSocket) {
 
 		//check if we actually got both
 		if (!next || !prev) {
-			return doorStuck();
+			return doorStuck(socket);
 		}
 
 		if (data.sanityid && next.node.videoid !== data.sanityid) {
-			return doorStuck();
+			return doorStuck(socket);
 		}
 
 		if ('colorTagVolat' in prev.node.meta) {
