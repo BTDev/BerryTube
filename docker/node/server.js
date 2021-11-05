@@ -2608,7 +2608,14 @@ io.sockets.on('connection', function (ioSocket) {
 			return;
 		}
 
-		delVideo(getVideoAt(data.index), data.sanityid, socket);
+		const video = getVideoAt(data.index);
+
+		//switch before actually deleting the correct video
+		if (video.node === SERVER.ACTIVE) {
+			playNext();
+		}
+
+		delVideo(video, data.sanityid, socket);
 	});
 	socket.on("addVideo", function (data) {
 		if (!authService.can(socket.session, actions.ACTION_CONTROL_PLAYLIST)) {
