@@ -1372,7 +1372,7 @@ function addChatMsg(data, _to) {
 				};
 
 				newmsg.addClass("message").append(
-					$('<span>', {class: `nick ${nick}`, text: `${nick}:`}),
+					$('<span>', {class: `nick`, nick, text: `${nick}:`}),
 					$('<a>', linkAttrs).append(
 						$('<img>', {
 							src: msgText,
