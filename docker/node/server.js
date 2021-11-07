@@ -2612,9 +2612,12 @@ io.sockets.on('connection', function (ioSocket) {
 
 		//switch before actually deleting the correct video
 		if (video.node === SERVER.ACTIVE) {
-			playNext();
-		}
+			SERVER.ACTIVE = SERVER.ACTIVE.next;
 
+			handleNewVideoChange();
+			sendStatus("forceVideoChange", io.sockets);
+		}
+		
 		delVideo(video, data.sanityid, socket);
 	});
 	socket.on("addVideo", function (data) {
