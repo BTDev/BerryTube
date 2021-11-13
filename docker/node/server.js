@@ -2610,6 +2610,10 @@ io.sockets.on('connection', function (ioSocket) {
 
 		const video = getVideoAt(data.index);
 
+		if (video.node.videoid !== data.sanityid) {
+			return doorStuck(socket);
+		}
+
 		//switch before actually deleting the correct video
 		if (video.node === SERVER.ACTIVE) {
 			SERVER.ACTIVE = SERVER.ACTIVE.next;
