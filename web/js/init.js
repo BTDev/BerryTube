@@ -846,7 +846,7 @@ function showEditNote(nick) {
 
 	var mainOptWrap = $('<div/>').appendTo(parent).addClass('controlWindow');
 	$('<p>').appendTo(mainOptWrap).text("Editing note for " + nick + ":").css("width", "300px");
-	var input = $('<textarea>').appendTo(mainOptWrap).css("width", "300px").attr('rows', 20).val($('#chatlist li.' + nick).data('note'));
+	var input = $('<textarea>').appendTo(mainOptWrap).css("width", "300px").attr('rows', 20).val($(`#chatlist li[nick=${nick}]`).data('note'));
 	var buttonDiv = $('<div/>').css("text-align", "center").appendTo(mainOptWrap);
 	var cancelBtn = $('<div/>').addClass('button').appendTo(buttonDiv);
 	$('<span/>').appendTo(cancelBtn).text("Cancel");
@@ -875,7 +875,7 @@ function addUser(data, sortafter) {
 		var shadowbanned = data.shadowbanned;
 		var ip = ((TYPE >= 1 && data.meta !== undefined) ? data.meta.ip : false);
 
-		var newusr = $('<li/>').append($('<span/>').addClass('chatlistname').text(nick)).data('nick', nick).show("blind").appendTo(chatul).addClass(nick);
+		var newusr = $('<li/>').append($('<span/>').addClass('chatlistname').text(nick)).data('nick', nick).show("blind").appendTo(chatul).attr('nick', nick);
 		if (nick == NAME) {
 			newusr.addClass("me");
 		} else if (IGNORELIST.indexOf(nick) != -1) {
@@ -919,7 +919,7 @@ function updateUserNote(nick, note) {
 	if (note === undefined) {
 		note = '';
 	}
-	var elem = $('#chatlist li.' + nick);
+	var elem = $(`#chatlist li[nick=${nick}]`);
 	elem.data('note', note).attr('title', note);
 	if (note.length > 0) {
 		elem.addClass('note');
@@ -929,7 +929,7 @@ function updateUserNote(nick, note) {
 	}
 }
 function rmUser(nick) {
-	var o = $('#chatlist ul li.' + nick);
+	var o = $(`#chatlist ul li[nick=${nick}]`);
 	if (o.length > 0) {
 		$(o[0]).remove();
 		delete CHATLIST[nick];
