@@ -1069,7 +1069,7 @@ const chatCommandMap = {
 			);
 		}
 	}),
-	...withAliases(["img", "image"], (parsed, socket, messageData) => {
+	...withAliases(["img", "image", "video", "media"], (parsed, socket, messageData) => {
 		if (!authService.can(socket.session, actions.ACTION_POST_IMAGE)) {
 			kickForIllegalActivity(socket);
 			return doSuppressChat;
@@ -1081,27 +1081,35 @@ const chatCommandMap = {
 			format = format.split('?')[0];
 		}
 
-		const supportedFormats = new Set([
-			'png',
-			'jpg',
-			'jpeg',
-			'gif',
-			'svg',
-			'webp',
-			'avif'
-		]);
+		const supportedFormats = new Map([
+			//images
+			['png', {kind: 'image'}],
+			['jpg', {kind: 'image'}],
+			['jpeg', {kind: 'image'}],
+			['gif', {kind: 'image'}],
+			['svg', {kind: 'image'}],
+			['webp', {kind: 'image'}],
+			['avif', {kind: 'image'}],
 
-		//not a valid picture
-		if (format === '') {
+			//videos
+			['mp4', {kind: 'video'}],
+			['webm', {kind: 'video'}],
+			['gifv', {kind: 'video', real: 'mp4'}]
+		])
+
+
+		//couldn't get file extension or media not supported, don't show an attempt
+		if (format === '' || !supportedFormats.has(format)) {
 			return doSuppressChat;
 		}
 
-		//image source not supported, don't show an attempt
-		if (!supportedFormats.has(format)) {
-			return doSuppressChat;
+		const info = supportedFormats.get(format);
+
+		if (info.real) {
+			messageData.msg = parsed.msg.replace(`.${format}`, `.${info.real}`);
 		}
 
-		messageData.emote = 'image';
+		messageData.emote = info.kind;
 
 		return doNormalChatMessage;
 	}),

@@ -665,7 +665,8 @@ body {
 
 /* mod-embedded images */
 #chatbuffer .img-filter > img,
-#chatbuffer .image > img {
+#chatbuffer .image > img, 
+#chatbuffer video {
     max-height: 150px;
     max-width: 100%;
 }
