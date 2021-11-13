@@ -270,7 +270,7 @@ function addTime(entry, elem) {
 }
 function addDelete(entry) {
 	if (canDeleteVideo() && $('> .delete', entry).length == 0) {
-		var delbtn = $("<div/>").prependTo(entry);
+		var delbtn = $("<div/>").appendTo(entry);
 		delbtn.text("X");
 		delbtn.addClass('delete');
 		delbtn.confirmClick(function () {
@@ -293,7 +293,7 @@ function doDelete(entry) {
 }
 function addRequeue(entry) {
 	if (controlsPlaylist() && $('> .requeue', entry).length == 0) {
-		var qbtn = $("<div/>").prependTo(entry);
+		var qbtn = $("<div/>").appendTo(entry);
 		qbtn.text("Q");
 		qbtn.addClass('requeue');
 		qbtn.click(function () {
@@ -1078,13 +1078,14 @@ function addVideoControls(entry, optionList) {
 	}
 }
 function populatePlEntry(entry, elem) {
-	addTime(entry, elem);
+	addColorTag(entry, elem);
+	
 	addTitle(entry, elem);
-	//addVolatile(entry);
+	addTime(entry, elem);
+	
 	addRequeue(entry);
 	addDelete(entry);
-	addColorTag(entry, elem);
-	$('<div/>').addClass("clear").appendTo(entry);
+	
 	if (elem.volat) {
 		entry.addClass("volatile");
 	}
