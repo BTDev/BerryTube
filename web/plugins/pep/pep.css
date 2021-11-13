@@ -35,72 +35,7 @@
     margin-top:-2px;
     display:inline-block;
 }
-body.admin #playlist ul li div.title,
-body.assistant #playlist ul li div.title,
-body.berry #playlist ul li div.title
-{
-    width:-webkit-calc(100% - 110px);
-    width:-moz-calc(100% - 110px);
-    width:calc(100% - 110px);
-}
-#playlist ul li div.title{
-    width:-webkit-calc(100% - 90px);
-    width:-moz-calc(100% - 90px);
-    width:calc(100% - 90px);
-}
-#playlist ul li div.colorTag[style*=block] ~ div.title{
-    width:-webkit-calc(100% - 100px);
-    width:-moz-calc(100% - 100px);
-    width:calc(100% - 100px);
-}
-#playlist ul li.alarm:not(.history) div.title{
-    width:-webkit-calc(100% - 80px);
-    width:-moz-calc(100% - 80px);
-    width:calc(100% - 80px);
-}
-#playlist ul li.alarm:not(.history) div.colorTag[style*=block] ~ div.title{
-    width:-webkit-calc(100% - 90px);
-    width:-moz-calc(100% - 90px);
-    width:calc(100% - 90px);
-}
-body.admin #playlist ul li.alarm:not(.history) div.title,
-body.assistant #playlist ul li.alarm:not(.history) div.title,
-body.berry #playlist ul li.alarm:not(.history) div.title{
-    width:-webkit-calc(100% - 100px);
-    width:-moz-calc(100% - 100px);
-    width:calc(100% - 100px);
-}
-body.admin #playlist ul li.alarm:not(.history) div.colorTag[style*=block] ~ div.title,
-body.assistant #playlist ul li.alarm:not(.history) div.colorTag[style*=block] ~ div.title,
-body.berry #playlist ul li.alarm:not(.history) div.colorTag[style*=block] ~ div.title{
-    width:-webkit-calc(100% - 110px);
-    width:-moz-calc(100% - 110px);
-    width:calc(100% - 110px);
-}
-#playlist ul.showStarts li:not(.history) div.title{
-    width:-webkit-calc(100% - 110px);
-    width:-moz-calc(100% - 110px);
-    width:calc(100% - 110px);
-}
-#playlist ul.showStarts li:not(.history) div.colorTag[style*=block] ~ div.title{
-    width:-webkit-calc(100% - 120px);
-    width:-moz-calc(100% - 120px);
-    width:calc(100% - 120px);
-}
-body.admin #playlist ul.showStarts li:not(.history) div.title,
-body.assistant #playlist ul.showStarts li:not(.history) div.title,
-body.berry #playlist ul.showStarts li:not(.history) div.title{
-    width:-webkit-calc(100% - 130px);
-    width:-moz-calc(100% - 130px);
-    width:calc(100% - 130px);
-}
-body.admin #playlist ul.showStarts li:not(.history) div.colorTag[style*=block] ~ div.title,
-body.assistant #playlist ul.showStarts li:not(.history) div.colorTag[style*=block] ~ div.title,
-body.berry #playlist ul.showStarts li:not(.history) div.colorTag[style*=block] ~ div.title{
-    width:-webkit-calc(100% - 140px);
-    width:-moz-calc(100% - 140px);
-    width:calc(100% - 140px);
-}
+
 #playlist ul.showStarts li:not(.history) div.time{
     font-size:0px;
     visibility:hidden;
