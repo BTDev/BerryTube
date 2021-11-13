@@ -406,57 +406,60 @@ function sortUserList() {
 	});
 }
 
-function showLogMenu(on) {
-	var settWin = $("body").dialogWindow({
+function showLogMenu() {
+	const win = $("body").dialogWindow({
 		title: "Berrytube Log",
 		uid: "logmenu",
 		center: true
 	});
 
-	var filters = $('<fieldset id="logFilters"/>').appendTo(settWin);
-	$('<legend/>').appendTo(filters).text("Search Filters");
+	const filters = {
+		nick: ['All modmins', 'Berry', 'Server'],
+		type: ['All types', 'site', 'user', 'playlist']
+	};
 
-	var nickFilter = $('<select id="logNickFilter"/>').appendTo(filters);
-	$('<option/>').text('All modmins').appendTo(nickFilter);
-	$('<option/>').text('Berry').appendTo(nickFilter);
-	$('<option/>').text('Server').appendTo(nickFilter);
-	nickFilter.change(function () {
+	win.append(
+		$('<fieldset>', {id: 'logFilters'}).append(
+			$('<legend>', {text: 'Search Filters'}),
+			$('<select>', {id: 'logNickFilter'}).append(
+				...filters.nick.map((kind) => $('<option>', {text: kind}))
+			),
+			$('<select>', {id: 'logTypeFilter'}).append(
+				...filters.type.map((kind) => $('<option>', {text: kind}))
+			)
+		)
+	);
+	
+	win.on('change', 'select', function() {
 		filterAdminLog();
 	});
 
-	var typeFilter = $('<select id="logTypeFilter"/>').appendTo(filters);
-	$('<option/>').text('All types').appendTo(typeFilter);
-	$('<option/>').text('site').appendTo(typeFilter);
-	$('<option/>').text('user').appendTo(typeFilter);
-	$('<option/>').text('playlist').appendTo(typeFilter);
-	typeFilter.change(function () {
-		filterAdminLog();
-	});
+	const columns = ['time', 'modmin', 'event', 'message', 'type']
+	const table = $('<table>').append(
+		$('<thead>').append(
+			$('<tr>').append(
+				...columns.map(header => 
+					$('<th>', {text: header})
+				),
+			)
+		),
+		$('<tbody>')
+	);
 
-	var logBuffer = $(`
-		<div>
-			<table>
-				<thead>
-					<tr>
-						<th>time</th>
-						<th>modmin</th>
-						<th>event</th>
-						<th>message</th>
-						<th>type</th>
-					</tr>
-				</thead>
-				<tbody />
-			</table>
-		</div>`).attr('id', 'logBuffer')
-		.appendTo(settWin);
+	const buffer = $('<div>', {id: 'logBuffer'}).append(
+		table
+	);
 
-	for (var i = 0; i < ADMIN_LOG.length; ++i) {
-		addLogMsg(ADMIN_LOG[i], logBuffer);
-	}
+	win.append(
+		buffer
+	);
 
-	settWin.resizable({ handles: 'e' });
-	settWin.css('min-width', '400px');
-	settWin.window.center();
+	//add the messages in the buffer
+	ADMIN_LOG.forEach(log => addLogMsg(log, buffer, false));
+
+	win.resizable({ handles: 'e' });
+	win.css('min-width', '400px');
+	win.window.center();
 }
 
 function showConfigMenu(on) {

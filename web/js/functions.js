@@ -1145,8 +1145,26 @@ function handleSpamChecks(callback) {
 	}
 }
 
-function addLogMsg(data, to) {
-	if (to.length == 0) {
+function getLogTimestamp(msg) {
+	const time = new Date(msg.logEvent.createdAt);
+	
+	//month, day, hours, minutes and seconds are padded with zero
+	const padded = [
+		time.getMonth() + 1,
+		time.getDate(),
+		time.getHours(), 
+		time.getMinutes(), 
+		time.getSeconds()
+	].map(part => addZero(part));
+
+	const date = [time.getFullYear().toString(), ...padded.slice(0, 2)].join('-');
+	const timestamp = padded.slice(2).join(':'); 
+
+	return `${date} ${timestamp}`;
+}
+
+function addLogMsg(data, to, filter = true) {
+	if (to.length === 0) {
 		return;
 	}
 
@@ -1154,55 +1172,37 @@ function addLogMsg(data, to) {
 		return;
 	}
 
-	const timestampDate = new Date(data.logEvent.createdAt);
+	const time = getLogTimestamp(data);
 
-	const
-		hh = addZero(timestampDate.getHours()),
-		mm = addZero(timestampDate.getMinutes()),
-		ss = addZero(timestampDate.getSeconds()),
-		MM = ("" + (timestampDate.getMonth() + 1)).padStart(2, "0"),
-		dd = ("" + timestampDate.getDate()).padStart(2, "0"),
-		yyyy = timestampDate.getFullYear(),
-		eventType = data.logEvent.event.startsWith("EVENT_ADMIN_")
-			? data.logEvent.event.substring(12)
-			: data.logEvent.event;
+	//The only time we don't have a nick is when someone gives up berry (I think?)
+	const nick = data.logEvent.data.mod || data.nick || 'Berry';
+	const type = data.logEvent.data.type;
+	const mesg = data.logEvent.formatted;
+	const event = data.logEvent.event.replace('EVENT_ADMIN_', '');
 
-	var newmsg =
-		$("<tr />")
-			.addClass("message")
-			.addClass(data.nick)
-			.addClass(data.type)
-			.append(
-				$("<td />")
-					.addClass("createdAt")
-					.append(
-						$("<span />").addClass("date").text(`${yyyy}-${MM}-${dd}`),
-						$("<span />").addClass("time").text(`${hh}:${mm}:${ss}`)
-					),
-				$("<td />")
-					.addClass("nick")
-					.text(data.logEvent.data.mod || data.nick),
-				$("<td />")
-					.addClass("event")
-					.text(eventType),
-				$("<td />")
-					.addClass("message")
-					.text(data.logEvent.formatted),
-				$("<td />")
-					.addClass("message")
-					.text(data.logEvent.data.type));
+	const message = $('<tr>', {nick, type}).append(
+		$('<td>', {text: time, class: 'createdAt'}),
+		$('<td>', {text: nick, class: 'nick'}),
+		$('<td>', {text: event, class: 'event'}),
+		$('<td>', {text: mesg, class: 'message'}),
+		$('<td>', {text: type, class: 'message'})
+	);
 
-	if (data.berry) {
-		newmsg.addClass("Berry");
-	}
-	newmsg.prependTo(to.find("tbody"));
+	to.find('tbody').prepend(
+		message
+	);
 
-	const filterDropdown = $("#logNickFilter");
-	if ($("option:contains(" + data.nick + ")", filterDropdown).length === 0) {
-		$("<option/>").text(data.nick).appendTo(filterDropdown);
+	const nickFilters = to.parent().find('#logNickFilter');
+
+	if (nickFilters.find(`option:contains(${nick})`).length === 0) {
+		nickFilters.append(
+			$('<option>', {text: nick})
+		)
 	}
 
-	filterAdminLog();
+	if (filter) {
+		filterAdminLog();
+	}
 }
 
 function scrollBuffersToBottom() {
@@ -2685,18 +2685,27 @@ function sortPlaylist(data) {
 }
 
 function filterAdminLog() {
-	var nickFilter = $('#logNickFilter').find(':selected').text();
-	var typeFilter = $('#logTypeFilter').find(':selected').text();
-	var buf = $('#logBuffer tbody');
-	buf.children().addClass('filtered');
-	var selector = '';
-	if (nickFilter != 'All modmins') {
-		selector += '.' + nickFilter;
+	const buffer = $('#logBuffer');
+	const parent = buffer.parent();
+
+	const filters = {
+		nick: parent.find('#logNickFilter > :selected').text(),
+		type: parent.find('#logTypeFilter > :selected').text()
 	}
-	if (typeFilter != 'All types') {
-		selector += '.' + typeFilter;
+
+	const body = buffer.find('tbody');
+	let selector = '';
+
+	if (filters.nick !== 'All modmins') {
+		selector += `[nick=${filters.nick}]`;
+	} 
+
+	if (filters.type !== 'All types') {
+		selector += `[type=${filters.type}]`;
 	}
-	buf.children(selector).removeClass('filtered');
+
+	body.children().addClass('filtered');
+	body.children(selector).removeClass('filtered');
 }
 
 function unfuckPlaylist() {

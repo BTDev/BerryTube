@@ -499,6 +499,10 @@ body {
     display: none !important;
 }
 
+#logBuffer > table {
+	width: 100%;
+}
+
 /* Polls */
 #pollControl {
 	display: none;
