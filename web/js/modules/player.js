@@ -27,6 +27,7 @@ export class Players {
 			['twitch', this.Twitch],
 			['twitchclip', this.Twitchclip],
 
+			['soundcloud', this.Soundcloud],
 			['osmf', this.Raw],
 			['manifest', this.Raw],
 			['file', this.Raw],
