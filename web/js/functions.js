@@ -1236,7 +1236,12 @@ function addChatMsg(data, _to) {
 			return;
 		}
 
-		msgwrap.addClass($(`#chatlist [nick=${nick}]`).attr("class"));
+		const chatlistUser = $(`#chatlist [nick="${nick}"]`);
+
+		if (chatlistUser.length > 0) {
+			msgwrap.addClass(chatlistUser.attr('class'));
+		}
+		
 		if (metadata.graymute) { msgwrap.addClass("graymute"); }
 
 		var isSquee = metadata.isSquee || (nick != NAME && NAME.length > 0 && detectName(NAME, msgText));
@@ -1371,7 +1376,8 @@ function addChatMsg(data, _to) {
 		$(to).children().slice(0, -500).remove();
 
 		var d = new Date(data.msg.timestamp);
-		if ($(`li[nick=${nick}]`).length != 0) {
+
+		if (chatlistUser.length > 0) {
 			CHATLIST[nick] = d.getTime();
 		}
 
