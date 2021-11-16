@@ -263,11 +263,11 @@ socket.on("userPart", function (data) {
 	rmUser(data.nick);
 });
 socket.on("shadowBan", function (data) {
-	var o = $(`#chatlist ul li[nick=${data.nick}]`);
+	var o = $(`#chatlist ul li[nick="${data.nick}"]`);
 	o.addClass('sbanned');
 });
 socket.on("unShadowBan", function (data) {
-	var o = $(`#chatlist ul li[nick=${data.nick}]`);
+	var o = $(`#chatlist ul li[nick="${data.nick}"]`);
 	o.removeClass('sbanned');
 });
 socket.on("drinkCount", function (data) {

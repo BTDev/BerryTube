@@ -348,7 +348,7 @@ function showIgnoreDialog() {
 		$('<div/>').addClass('unban button').text("Unignore").css('width', '52px').appendTo(row).click(function () {
 			IGNORELIST.splice(IGNORELIST.indexOf(name), 1);
 			localStorage.setItem('ignoreList', JSON.stringify(IGNORELIST));
-			$(`#chatlist li[nick=${name}]`).removeClass('ignored');
+			$(`#chatlist li[nick="${name}"]`).removeClass('ignored');
 			row.remove();
 		});
 		$('<div/>').addClass('clear').appendTo(row);
@@ -458,7 +458,7 @@ function showBanDialog(nick) {
 	var saveBtn = $('<div/>').addClass('button').appendTo(buttonDiv);
 	$('<span/>').appendTo(saveBtn).text("Apply");
 	saveBtn.click(function () {
-		socket.emit('ban', { nicks: [nick], ips: [$(`li[nick=${nick}]`).attr('ip')], duration: timeSelect.find(':selected').data('time') });
+		socket.emit('ban', { nicks: [nick], ips: [$(`li[nick="${nick}"]`).attr('ip')], duration: timeSelect.find(':selected').data('time') });
 		parent.window.close();
 	});
 
@@ -846,7 +846,7 @@ function setNick(nick) {
 	$("#chatControls .nick").text(NAME);
 
 	whenExists("#chatlist ul", (list) => {
-		list.find(`[nick=${nick}]`).addClass('me');
+		list.find(`[nick="${nick}"]`).addClass('me');
 	});
 
 	ORIGNAME = nick;
@@ -1236,7 +1236,12 @@ function addChatMsg(data, _to) {
 			return;
 		}
 
-		msgwrap.addClass($(`#chatlist [nick=${nick}]`).attr("class"));
+		const chatlistUser = $(`#chatlist [nick="${nick}"]`);
+
+		if (chatlistUser.length > 0) {
+			msgwrap.addClass(chatlistUser.attr('class'));
+		}
+		
 		if (metadata.graymute) { msgwrap.addClass("graymute"); }
 
 		var isSquee = metadata.isSquee || (nick != NAME && NAME.length > 0 && detectName(NAME, msgText));
@@ -1371,7 +1376,8 @@ function addChatMsg(data, _to) {
 		$(to).children().slice(0, -500).remove();
 
 		var d = new Date(data.msg.timestamp);
-		if ($(`li[nick=${nick}]`).length != 0) {
+
+		if (chatlistUser.length > 0) {
 			CHATLIST[nick] = d.getTime();
 		}
 
@@ -2697,7 +2703,7 @@ function filterAdminLog() {
 	let selector = '';
 
 	if (filters.nick !== 'All modmins') {
-		selector += `[nick=${filters.nick}]`;
+		selector += `[nick="${filters.nick}"]`;
 	} 
 
 	if (filters.type !== 'All types') {
