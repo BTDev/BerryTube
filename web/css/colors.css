@@ -302,7 +302,7 @@ body {
     border-color: #FFCC00;
     color: #FFCC00;
 }
-#playlist ul li.search-hidden {
+#playlist .viewport ul li.search-hidden {
     display:none !important;
 }
 #playlist ul li.volatile {
