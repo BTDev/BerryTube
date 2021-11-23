@@ -162,6 +162,7 @@ var CHAT_NOTIFY = false;
 var VIDEO_TYPE = false;
 var MY_FLAIR_ID = 0;
 var DRINKS = 0;
+var NOTIFY_TITLE = "Chat!";
 var NOTIFY = window.NOTIFY || new Audio(CDN_ORIGIN + "/sounds/notify.wav"); // buffers automatically when created
 var DRINK = window.DRINK || new Audio(CDN_ORIGIN + "/sounds/drink.wav"); // buffers automatically when created
 var ATTENTION = window.ATTENTION || new Audio(CDN_ORIGIN + "/sounds/attention.wav"); // [](/shift6)
