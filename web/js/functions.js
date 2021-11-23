@@ -990,19 +990,17 @@ function handleACL() {
 					});
 					playlist.sortable({
 						start: function (event, ui) {
-							PLAYLIST_DRAGFROM = ui.item.index();
-							PLAYLIST_DRAGSANITY = ui.item.data('plobject').videoid;
+							ui.item.parent().data('drag', {
+								from: ui.item.index(),
+								sanityid: ui.item.data('plobject').videoid
+							});
 						},
 						update: function (event, ui) {
-							PLAYLIST_DRAGTO = ui.item.index();
 							if (controlsPlaylist()) {
-								var data = {
-									from: PLAYLIST_DRAGFROM,
-									to: PLAYLIST_DRAGTO,
-									sanityid: PLAYLIST_DRAGSANITY
-								};
-								dbg(data);
-								socket.emit("sortPlaylist", data);
+								socket.emit("sortPlaylist", {
+									...ui.item.parent().data('drag'),
+									to: ui.item.index()
+								});
 							}
 							$(this).sortable('cancel');
 						},
