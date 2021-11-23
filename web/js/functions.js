@@ -1403,7 +1403,7 @@ function doSqueeNotify() {
 		clearInterval(CHAT_NOTIFY);
 		CHAT_NOTIFY = setInterval(function () {
 			if (document.title == WINDOW_TITLE) {
-				document.title = NOTIFY_TITLE;
+				document.title = "Chat!";
 			}
 			else {
 				document.title = WINDOW_TITLE;
