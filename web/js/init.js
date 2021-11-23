@@ -143,7 +143,6 @@ var btEvents = (function () {
 var PLAYER = false;
 var LEADER = false;
 var NAME = false;
-var TIME = new Date();
 var TYPE = -1;
 var CHATLIST = {};
 var TOGGLEABLES = {};
