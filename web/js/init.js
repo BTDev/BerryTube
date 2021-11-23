@@ -177,7 +177,6 @@ var VOLUME = false;
 var PLAYERS = {};
 var IGNORE_GHOST_MESSAGES = false;
 var ADMIN_LOG = [];
-var HIGHLIGHT_LIST = [];
 var ACTIVE_CHAT = 'main';
 var MAIN_NOTIFY = false;
 var ADMIN_NOTIFY = false;
@@ -186,18 +185,7 @@ var POLL_TITLE_FORMAT = '';
 var POLL_OPTIONS = [];
 var DEBUG_DUMPS = [];
 
-(function () {
-	// This isn't 100% necessary, but it keeps things a bit tidier by not making storedList global
-	var storedList = localStorage.getItem('highlightList');
-	if (storedList != null) {
-		var storedListArray = storedList.split(';');
-		for (var i in storedListArray) {
-			if (storedListArray[i].length > 0) {
-				HIGHLIGHT_LIST.push(storedListArray[i]);
-			}
-		}
-	}
-})();
+var HIGHLIGHT_LIST = (localStorage.getItem('highlightList') || '').split(';').filter(n => n.length > 0);
 
 try {
 	const stored = localStorage.getItem('ignoreList');
