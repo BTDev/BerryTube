@@ -10,15 +10,13 @@ import { Youtube } from "./players/youtube.js";
 
 export class Players {
 	constructor() {
-		whenExists('#ytapiplayer', () => {
-			this.Youtube = new Youtube();
-			this.Vimeo = new Vimeo();
-			this.Dailymotion = new Dailymotion();
-			this.Soundcloud = new Soundcloud();
-			this.Twitch = new Twitch();
-			this.Twitchclip = new Twitchclip();
-			this.Raw = new Raw();
-		});
+		this.Youtube = new Youtube();
+		this.Vimeo = new Vimeo();
+		this.Dailymotion = new Dailymotion();
+		this.Soundcloud = new Soundcloud();
+		this.Twitch = new Twitch();
+		this.Twitchclip = new Twitchclip();
+		this.Raw = new Raw();
 
 		this.mappings = new Map([
 			['yt', this.Youtube],
