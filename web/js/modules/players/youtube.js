@@ -6,7 +6,6 @@ export class Youtube extends Base {
 	constructor() {
 		super();
 
-		this.status = Status.UNREADY;
 		this.player = null;
 		this.options = {
 			playerVars: {
@@ -141,7 +140,12 @@ export class Youtube extends Base {
 	}
 
 	getVolume(cb) {
-		this.ready(() => cb(this.player.getVolume()));
+		this.ready(() => {
+			const muted = this.player.isMuted();
+			const volume = muted ? 0 : this.player.getVolume();
+
+			cb(volume);
+		});
 	}
 
 	getVideoState() {
@@ -149,6 +153,7 @@ export class Youtube extends Base {
 	}
 
 	destroy() {
+		this.status = Status.UNREADY;
 		this.player.destroy();
 	}
 }

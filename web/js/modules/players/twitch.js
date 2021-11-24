@@ -1,5 +1,5 @@
 /* eslint-disable no-undef */
-import { Event, Base, State } from "./base.js";
+import { Event, Base, State, Status } from "./base.js";
 
 function parseTwitchSource(src) {
 	const parts = src.split('/');
@@ -16,8 +16,6 @@ export class Twitch extends Base {
 		super();
 
 		this.player = null;
-		this.isReady = false;
-
 		this.events = new Map([
 			[window.Twitch.Player.SEEK, Event.Seek],
 			[window.Twitch.Player.PLAYING, Event.Play],
@@ -26,7 +24,7 @@ export class Twitch extends Base {
 	}
 
 	ready(cb) {
-		if (this.isReady) {
+		if (this.status === Status.READY) {
 			return cb();
 		}
 	}
@@ -34,7 +32,7 @@ export class Twitch extends Base {
 	event(event, data) {
 		switch (event) {
 			case Event.Ready: {
-				this.isReady = true; 
+				this.status = Status.READY; 
 				this.player.setVolume(this.video.volume);
 				this.delay(this.video.timestamp);
 				break;
@@ -109,7 +107,7 @@ export class Twitch extends Base {
 	}
 
 	destroy() {
+		this.status = Status.UNREADY;
 		$(this.frame()).empty();
-		this.isReady = false;
 	}
 }

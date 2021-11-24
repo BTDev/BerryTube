@@ -1,5 +1,5 @@
 /* eslint-disable no-undef */
-import { Event, Base, State } from "./base.js";
+import { Event, Base, State, Status } from "./base.js";
 
 /*
 Players.Soundcloud.loadPlayer('SC208485541', 0, volume.get('soundcloud'))
@@ -22,10 +22,7 @@ export class Soundcloud extends Base {
 		];
 		
 		this.source = 'https://w.soundcloud.com/player/?url=https://api.soundcloud.com/tracks/';
-		
 		this.slider = null;
-		this.isReady = false;
-
 		this.events = new Map([
 			[SC.Widget.Events.PLAY, Event.Play],
 			[SC.Widget.Events.PAUSE, Event.Pause],
@@ -64,7 +61,7 @@ export class Soundcloud extends Base {
 	}
 
 	ready(cb) {
-		if (this.isReady) {
+		if (this.status === Status.READY) {
 			return cb();
 		}
 	}
@@ -79,8 +76,7 @@ export class Soundcloud extends Base {
 
 	loadPlayer(id, timestamp, volume) {
 		this.video = {id, timestamp};
-		
-		this.isReady = false;
+
 		this.iframe = this.ui($(super.frame()), volume);
 		this.iframe.attr(
 			'src',
@@ -90,7 +86,7 @@ export class Soundcloud extends Base {
 
 		//keep Events.READY separate
 		this.player.bind(SC.Widget.Events.READY, () => {
-			this.isReady = true;
+			this.status = Status.READY;
 			
 			this.player.setVolume(volume);
 			this.delay(timestamp);
@@ -137,11 +133,12 @@ export class Soundcloud extends Base {
 	}
 
 	destroy() {
+		this.status = Status.UNREADY;
+
 		for (const key of this.events.keys()) {
 			this.player.unbind(key);
 		}
 
 		$(super.frame()).empty();
-		this.isReady = false;
 	}
 }

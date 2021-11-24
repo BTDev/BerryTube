@@ -213,7 +213,7 @@ export class Raw extends Base {
 	}
 
 	getVolume(cb) {
-		this.ready(() => cb(this.player.volume()));
+		this.ready(() => cb(this.player.muted() ? 0 : this.player.volume()));
 	}
 
 	getVideoState() {

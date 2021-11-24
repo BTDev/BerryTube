@@ -42,6 +42,9 @@ export class Base {
 	
 		this.retries = 0; //number of attempts when error occurred
 		this.video = {}; //keep the video information
+
+		//player status and state
+		this.status = Status.UNREADY;
 	}
 
 	//this done due to legacy player removal (+ maltweaks)
@@ -93,6 +96,8 @@ export class Base {
 			//incase the player has error event mixed
 			case Event.Error: this.error(data.error, data.player); break;
 			
+			//there are more events that are not handled atm, but could be in the future
+			//only bugger in debug mode
 			default: {
 				if (DEBUG) {
 					console.info(`Player ${VIDEO_TYPE} gave an unhandled event ${event}`);
@@ -141,6 +146,10 @@ export class Base {
 
 	getVideoState() {
 		return State.PLAYING;
+	}
+
+	isReady() {
+		return this.status === Status.READY;
 	}
 
 	destroy() {}

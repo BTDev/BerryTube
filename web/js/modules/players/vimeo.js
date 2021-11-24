@@ -1,5 +1,5 @@
 /* eslint-disable no-undef */
-import { Base, Event, State } from "./base.js";
+import { Base, Event, State, Status } from "./base.js";
 import { Errors } from "./errors.js";
 
 export class Vimeo extends Base {
@@ -49,7 +49,7 @@ export class Vimeo extends Base {
 	}
 
 	ready(cb) {
-		if (this.err) {
+		if (this.err || this.status !== Status.READY) {
 			return;
 		}
 
@@ -106,27 +106,27 @@ export class Vimeo extends Base {
 		this.events.forEach((value, key) => {
 			this.player.on(key, (data) => this.event(value, data));
 		});
-
 		//wait for ready
-		this.ready(() => {
+		this.player.ready().then(() => {
+			this.status = Status.READY;
 			this.player.setVolume(volume);
 			this.delay(timestamp);
-		});
+		}).catch(err => this.error(err));
 	}
 
 	playVideo(id, timestamp) {
 		this.video = {id, timestamp};
 		this.player.loadVideo(id).then(() => {
 			this.delay(timestamp);
-		}).catch(err => this.error(err));
+		});
 	}
 
 	pause() {
-		this.ready(() => this.player.pauseVideo().catch(err => this.error(err)));
+		this.ready(() => this.player.pauseVideo());
 	}
 
 	play() {
-		this.ready(() => this.player.play().catch(err => this.error(err)));
+		this.ready(() => this.player.play());
 	}
 
 	seek(to) {
@@ -135,11 +135,11 @@ export class Vimeo extends Base {
 	}
 
 	getTime(cb) {
-		this.ready(() => this.player.getCurrentTime().then(cb).catch(err => this.error(err)));
+		this.ready(() => this.player.getCurrentTime().then(cb));
 	}
 
 	getVolume(cb) {
-		this.ready(() => this.player.getVolume().then(cb).catch(err => this.error(err)));
+		this.ready(() => this.player.getVolume().then(cb));
 	}
 
 	getVideoState() {
@@ -147,11 +147,15 @@ export class Vimeo extends Base {
 	}
 
 	destroy() {
+		this.status = Status.UNREADY;
+
 		for (const key of this.events.keys()) {
 			this.player.off(key);
 		}
 
-		this.player.destroy();
 		this.err = null;
+		this.player.unload().then(() => {
+			this.player.destroy();
+		});
 	}
 }

@@ -7,8 +7,6 @@ export class Dailymotion extends Base {
 		super();
 		
 		this.player = null;
-		this.status = Status.UNREADY;
-
 		this.events = new Map([
 			['seeked', Event.Seek],
 			['pause', Event.Pause],
@@ -35,7 +33,7 @@ export class Dailymotion extends Base {
 			['DM002', Errors.PLAYER_UNPLAYABLE_VIDEO],
 			['DM004', Errors.PLAYER_UNPLAYABLE_VIDEO],
 			['DM005', Errors.PLAYER_UNPLAYABLE_VIDEO],
-			['DM007', Errors.VIDEO_GEOBLOCKED],
+			['DM007', Errors.PLAYER_UNPLAYABLE_VIDEO],
 			['DM014', Errors.PLAYER_UNPLAYABLE_VIDEO],
 			['DM016', Errors.PLAYER_UNPLAYABLE_VIDEO],
 		]);
@@ -50,7 +48,7 @@ export class Dailymotion extends Base {
 	}
 
 	//dailymotion events have no data, so in some cases need to
-	//attach some data (mainly volume)
+	//attach some data
 	event(event) {
 		let payload = {};
 
@@ -130,7 +128,7 @@ export class Dailymotion extends Base {
 	}
 
 	getVolume(cb) {
-		this.ready(() => cb(this.player.volume));
+		this.ready(() => cb(this.player.muted ? 0 : this.player.volume));
 	}
 
 	getVideoState() {
