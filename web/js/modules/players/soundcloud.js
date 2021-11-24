@@ -17,7 +17,8 @@ export class Soundcloud extends Base {
 			'sharing=false',
 			'show_comments=false',
 			'show_playcount=false',
-			'color=C600AD'
+			'color=C600AD',
+			'single_active=false'
 		];
 		
 		this.source = 'https://w.soundcloud.com/player/?url=https://api.soundcloud.com/tracks/';
