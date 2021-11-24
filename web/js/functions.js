@@ -1070,10 +1070,7 @@ function loginError(data) {
 	$('#headbar .loginError').text(data.message);
 }
 function isRegisteredUser() {
-	if (TYPE >= 0) {
-		return true;
-	}
-	return false;
+	return TYPE >= 0;
 }
 function sendChatMsg(msg, elem) {
 	//prevent sending messages without a nick
@@ -2074,58 +2071,31 @@ function controlsVideo() {
 	return TYPE > 0 && LEADER;
 }
 function controlsPlaylist() {
-	if (TYPE > 0) {
-		return true;
-	}
-	return LEADER;
+	return TYPE > 0 || LEADER;
 }
 function canColorTag() {
-	if (TYPE > 0) {
-		return true;
-	}
-	return false;
+	return TYPE > 0;
 }
 function canToggleVolatile() {
-	if (TYPE > 0) {
-		return true;
-	}
-	return false;
+	return TYPE > 0;
 }
 function canTempShadowBan() {
-	if (TYPE >= 2) {
-		return true;
-	}
-	return false;
+	return TYPE >= 2;
 }
 function canSeeAdminLog() {
-	if (TYPE >= 2) {
-		return true;
-	}
-	return false;
+	return TYPE >= 2;
 }
 function canDeleteVideo() {
-	if (TYPE > 0) {
-		return true;
-	}
-	return false;
+	return TYPE > 0;
 }
 function canSetFilters() {
-	if (TYPE >= 2) {
-		return true;
-	}
-	return false;
+	return TYPE >= 2;
 }
 function canRandomizeList() {
-	if (TYPE > 0) {
-		return true;
-	}
-	return false;
+	return TYPE >= 2;
 }
 function canCreatePoll() {
-	if (TYPE > 0) {
-		return true;
-	}
-	return LEADER;
+	return TYPE > 0 || LEADER;
 }
 function canClosePoll() {
 	return canCreatePoll();
@@ -2134,34 +2104,19 @@ function canChat() {
 	return NAME && TYPE >= -1;
 }
 function canMoveBerry() {
-	if (TYPE >= 1) {
-		return true;
-	}
-	return false;
+	return TYPE >= 2;
 }
 function canKickUser() {
-	if (TYPE >= 2) {
-		return true;
-	}
-	return false;
+	return TYPE >= 2;
 }
 function canShadowBan() {
-	if (TYPE >= 2) {
-		return true;
-	}
-	return false;
+	return TYPE >= 2;
 }
 function canBan() {
-	if (TYPE >= 2) {
-		return true;
-	}
-	return false;
+	return TYPE >= 2;
 }
 function canSetAreas() {
-	if (TYPE >= 2) {
-		return true;
-	}
-	return false;
+	return TYPE >= 2;
 }
 /* Video Control */
 function videoPlayNext() {

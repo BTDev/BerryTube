@@ -1273,7 +1273,7 @@ function initPlaylistControls(plwrap) {
 	window.MISC_CONTROL = container;
 	var randomizeBtn = $('<div/>').addClass("misc").addClass("btn").text("Randomize List").appendTo(container);
 	randomizeBtn.click(function () {
-		if (controlsPlaylist()) {
+		if (canRandomizeList()) {
 			if (confirm("Really Randomize list? This should be done SPARINGLY! Its a decent bit of overhead, and will LAG PEOPLE FOR A LITTLE WHILE.")) { socket.emit("randomizeList"); }
 		}
 	});
