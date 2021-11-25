@@ -2151,6 +2151,10 @@ async function getRedditVideoURL(url) {
 	[1] -> comments (only what's loaded on initial page load)
 	*/
 
+	if (json.length < 2) {
+		throw new Error(`Invalid JSON response from: ${url}`);
+	}
+
 	const videoBlock = json[0]?.data?.children[0]?.data?.media?.reddit_video;
 
 	if (!videoBlock) {
