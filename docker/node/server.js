@@ -2122,6 +2122,51 @@ function addVideoDailymotion(socket, data, meta, successCallback, failureCallbac
 	});
 }
 
+async function getRedditVideoURL(url) {
+	if (!url.endsWith('/')) {
+		url += '/'
+	}
+
+	const response = await fetch(`${url}.json`, {
+		headers: {
+			'Accept': 'application/json'
+		}
+	});
+
+	if (!response.ok) {
+		const data = await response.json();
+		throw new Error(`${data.error}: ${data.message}`);
+	}
+
+	const json = await response.json();
+
+	/*
+	JSON response (I assume) is like this:
+	[0] -> the post itself
+	[1] -> comments (only what's loaded on initial page load)
+	*/
+
+	const videoBlock = json[0]?.data?.children[0]?.data?.media?.reddit_video;
+
+	if (!videoBlock) {
+		throw new Error(`Given reddit URL has no video: ${url}`);
+	}
+
+	return videoBlock.dash_url;
+}
+
+async function addVideoReddit(socket, data, meta, successCallback, failureCallback) {
+	var volat = data.volat;
+	if (meta.type <= 0) { volat = true; }
+	if (volat === undefined) { volat = false; }
+
+	getRedditVideoURL(data.videoid).then(url => {
+		addVideoDash(socket, {...data, videoid: url}, meta, successCallback, failureCallback);
+	}).catch(error => {
+		if (failureCallback) { failureCallback(error)}
+	})
+}
+
 function isTrackingTime() {
 	if (SERVER.LIVE_MODE) { return false; }
 	return true;
@@ -2629,6 +2674,9 @@ io.sockets.on('connection', function (ioSocket) {
 		else if (data.videotype == "twitchclip") { addVideoTwitchClip(socket, data, meta, onVideoAddSuccess, onVideoAddError); }
 		else if (data.videotype === "manifest") {
 			addVideoManifest(socket, data, meta, onVideoAddSuccess, onVideoAddError);
+		}
+		else if (data.videotype === "reddit") {
+			addVideoReddit(socket, data, meta, onVideoAddSuccess, onVideoAddError);
 		}
 		else {
 			// Okay, so, it wasn't vimeo and it wasn't youtube, assume it's a livestream and just queue it.
