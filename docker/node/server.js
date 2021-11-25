@@ -2123,6 +2123,11 @@ function addVideoDailymotion(socket, data, meta, successCallback, failureCallbac
 }
 
 async function getRedditVideoURL(url) {
+	//gave v.redd.it link
+	if (url.endsWith('.mpd')) {
+		return url;
+	}
+
 	if (!url.endsWith('/')) {
 		url += '/'
 	}
@@ -2156,12 +2161,27 @@ async function getRedditVideoURL(url) {
 }
 
 async function addVideoReddit(socket, data, meta, successCallback, failureCallback) {
-	var volat = data.volat;
-	if (meta.type <= 0) { volat = true; }
-	if (volat === undefined) { volat = false; }
-
 	getRedditVideoURL(data.videoid).then(url => {
-		addVideoDash(socket, {...data, videoid: url}, meta, successCallback, failureCallback);
+		const sql = 'select videoid from videos where videoid = ?';
+		const videoid = url.split('?')[0];
+
+		//reddit has two sources, only 
+		mysql.query(sql, [videoid], function(err, result) {
+			if (err) {
+				DefaultLog.error(events.EVENT_DB_QUERY, "query \"{sql}\" failed", { sql }, err);
+				if (failureCallback) { failureCallback(err); }
+				return;
+			}
+
+			//doesn't already exist
+			if (!result.length) {
+				addVideoDash(socket, {...data, videoid}, meta, successCallback, failureCallback);
+			} else {
+				if (failureCallback) { 
+					failureCallback(new Error(`Reddit video is already on playlist: ${videoid}`)); 
+				}
+			}
+		});
 	}).catch(error => {
 		if (failureCallback) { failureCallback(error)}
 	})
