@@ -2164,8 +2164,9 @@ async function addVideoReddit(socket, data, meta, successCallback, failureCallba
 	getRedditVideoURL(data.videoid).then(url => {
 		const sql = 'select videoid from videos where videoid = ?';
 		const videoid = url.split('?')[0];
+		const videotitle = videoid.split('/').reverse()[1];
 
-		//reddit has two sources, only 
+		//reddit has two sources, thread and v.redd.it
 		mysql.query(sql, [videoid], function(err, result) {
 			if (err) {
 				DefaultLog.error(events.EVENT_DB_QUERY, "query \"{sql}\" failed", { sql }, err);
@@ -2175,7 +2176,7 @@ async function addVideoReddit(socket, data, meta, successCallback, failureCallba
 
 			//doesn't already exist
 			if (!result.length) {
-				addVideoDash(socket, {...data, videoid}, meta, successCallback, failureCallback);
+				addVideoDash(socket, {...data, videoid, videotitle}, meta, successCallback, failureCallback);
 			} else {
 				if (failureCallback) { 
 					failureCallback(new Error(`Reddit video is already on playlist: ${videoid}`)); 
