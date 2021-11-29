@@ -1,5 +1,3 @@
-/* eslint-disable no-undef */
-
 import { Dailymotion } from "./players/dailymotion.js";
 import { Raw } from "./players/raw.js";
 import { Soundcloud } from "./players/soundcloud.js";
