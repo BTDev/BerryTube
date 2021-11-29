@@ -1,4 +1,3 @@
-/* eslint-disable no-undef */
 import { Base, Event, State, Status } from "./base.js";
 import { Errors } from "./errors.js";
 
@@ -83,8 +82,8 @@ export class Vimeo extends Base {
 
 		//vimeo keeps the "Loading...", so clear it
 		//parent and actual frame also needs 100% on width and height
-		$(frame).empty().append(
-			$('<iframe>', {
+		window.$(frame).empty().append(
+			window.$('<iframe>', {
 				src: `https://player.vimeo.com/video/${id}`,
 				class: 'player_vimeo',
 				frameborder: '0',

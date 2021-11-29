@@ -1,4 +1,3 @@
-/* eslint-disable no-undef */
 import { Base, Event, State, Status } from "./base.js";
 import { Errors } from "./errors.js";
 

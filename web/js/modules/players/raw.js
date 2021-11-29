@@ -1,5 +1,3 @@
-/* eslint-disable no-undef */
-/* eslint-disable no-console */
 import { Event, Base, State } from "./base.js";
 import { Errors } from "./errors.js";
 
@@ -131,7 +129,7 @@ export class Raw extends Base {
 		//other extensionless links (currently only rtmp)
 		//maybe have the info in meta?
 		if (!extension && !manifest) {
-			extension = id.startsWith('rtmp') ? 'rtmp' : null;
+			extension = file.startsWith('rtmp') ? 'rtmp' : null;
 		}
 
 		if (manifest) {
@@ -148,13 +146,13 @@ export class Raw extends Base {
 		}
 
 		this.video = {id, meta, timestamp, sync: length > 0};
-		this.frame = $("<video>", {
+		this.frame = window.$("<video>", {
 			id: "vjs_player",
 			class: "video-js vjs-default-skin"
 		});
 	
 		//clear frame and add player
-		$(super.frame()).empty().append(
+		window.$(super.frame()).empty().append(
 			this.frame
 		);
 

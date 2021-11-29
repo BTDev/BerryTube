@@ -1,4 +1,3 @@
-/* eslint-disable no-undef */
 import { Event, Base, State, Status } from "./base.js";
 
 /*
@@ -24,11 +23,11 @@ export class Soundcloud extends Base {
 		this.source = 'https://w.soundcloud.com/player/?url=https://api.soundcloud.com/tracks/';
 		this.slider = null;
 		this.events = new Map([
-			[SC.Widget.Events.PLAY, Event.Play],
-			[SC.Widget.Events.PAUSE, Event.Pause],
-			[SC.Widget.Events.FINISH, Event.End],
-			[SC.Widget.Events.SEEK, Event.Seek],
-			[SC.Widget.Events.ERROR, Event.Error]
+			[window.SC.Widget.Events.PLAY, Event.Play],
+			[window.SC.Widget.Events.PAUSE, Event.Pause],
+			[window.SC.Widget.Events.FINISH, Event.End],
+			[window.SC.Widget.Events.SEEK, Event.Seek],
+			[window.SC.Widget.Events.ERROR, Event.Error]
 		]);
 
 		this.iframe = null;
@@ -36,10 +35,10 @@ export class Soundcloud extends Base {
 
 	ui(parent, volume) {
 		parent.empty().append(
-			$('<div>', {id: 'scBackground'}),
-			$('<iframe>', {id: 'scPlayer'}).attr('allow', 'autoplay; encrypted-media'),
-			$('<div>', {id: 'scVolumeSliderWrap'}).append(
-				$('<div>', {id: 'scVolumeSlider'})
+			window.$('<div>', {id: 'scBackground'}),
+			window.$('<iframe>', {id: 'scPlayer'}).attr('allow', 'autoplay; encrypted-media'),
+			window.$('<div>', {id: 'scVolumeSliderWrap'}).append(
+				window.$('<div>', {id: 'scVolumeSlider'})
 			),
 		);
 		
@@ -77,15 +76,15 @@ export class Soundcloud extends Base {
 	loadPlayer(id, timestamp, volume) {
 		this.video = {id, timestamp};
 
-		this.iframe = this.ui($(super.frame()), volume);
+		this.iframe = this.ui(window.$(super.frame()), volume);
 		this.iframe.attr(
 			'src',
 			`${this.source}${id.substr(2)}?${encodeURIComponent(this.parameters.join('&'))}`
 		);
-		this.player = SC.Widget(this.iframe[0]);
+		this.player = window.SC.Widget(this.iframe[0]);
 
 		//keep Events.READY separate
-		this.player.bind(SC.Widget.Events.READY, () => {
+		this.player.bind(window.SC.Widget.Events.READY, () => {
 			this.status = Status.READY;
 			
 			this.player.setVolume(volume);
@@ -139,6 +138,6 @@ export class Soundcloud extends Base {
 			this.player.unbind(key);
 		}
 
-		$(super.frame()).empty();
+		window.$(super.frame()).empty();
 	}
 }

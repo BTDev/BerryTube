@@ -1,4 +1,3 @@
-/* eslint-disable no-undef */
 import { Base, Event, Status } from "./base.js";
 import { Errors } from "./errors.js";
 
@@ -24,7 +23,7 @@ export class Youtube extends Base {
 			}
 		};
 
-		if (getStorage("legacyPlayer") == 0) {
+		if (window.getStorage("legacyPlayer") == 0) {
 			this.options.playerVars.wmode = "transparent";
 		}
 		
@@ -96,8 +95,8 @@ export class Youtube extends Base {
 		//clear up past crashes
 		this.status = Status.UNREADY;
 
-		waitForFlag('YTAPREADY', () => {
-			this.player = new YT.Player(this.frame().id, {
+		window.waitForFlag('YTAPREADY', () => {
+			this.player = new window.YT.Player(this.frame().id, {
 				videoId: id,
 				width: this.width,
 				height: this.height,
@@ -112,7 +111,7 @@ export class Youtube extends Base {
 			this.status = Status.READY;
 		}
 		
-		waitForFlag('YTAPREADY', () => {
+		window.waitForFlag('YTAPREADY', () => {
 			this.video = {id, timestamp, volume, length, sync: length > 0};
 			this.player.cueVideoById(id);
 			this.player.setVolume(volume);

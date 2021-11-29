@@ -1,5 +1,3 @@
-/* eslint-disable no-console */
-/* eslint-disable no-undef */
 import { Base, State } from "./base.js";
 
 export class Twitchclip extends Base {
@@ -17,8 +15,8 @@ export class Twitchclip extends Base {
 			`muted=${volume === 0}`
 		];
 
-		$(super.frame()).empty().append(
-			$('<iframe>', {
+		window.$(super.frame()).empty().append(
+			window.$('<iframe>', {
 				id: 'twitchclipplayer',
 				src: `https://clips.twitch.tv/embed?${parameters.join('&')}`,
 				width: this.width,

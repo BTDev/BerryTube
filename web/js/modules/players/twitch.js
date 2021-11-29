@@ -1,4 +1,3 @@
-/* eslint-disable no-undef */
 import { Event, Base, State, Status } from "./base.js";
 
 function parseTwitchSource(src) {
@@ -59,7 +58,7 @@ export class Twitch extends Base {
 			autoplay: timestamp >= 0,
 		};
 
-		$(this.frame()).empty();
+		window.$(this.frame()).empty();
 
 		this.player = new window.Twitch.Player(this.frame().id, options);
 		this.events.forEach((value, key) => {
@@ -108,6 +107,6 @@ export class Twitch extends Base {
 
 	destroy() {
 		this.status = Status.UNREADY;
-		$(this.frame()).empty();
+		window.$(this.frame()).empty();
 	}
 }

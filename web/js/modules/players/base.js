@@ -1,6 +1,3 @@
-/* eslint-disable no-undef */
-/* eslint-disable no-console */
-
 import { Errors } from "./errors.js";
 
 export const Event = {
@@ -37,8 +34,8 @@ const MAX_REFRESH_RETRIES = 10;
 
 export class Base {
 	constructor() {
-		this.height = videoHeight; //player height
-		this.width = videoWidth; //player width
+		this.height = window.videoHeight; //player height
+		this.width = window.videoWidth; //player width
 	
 		this.retries = 0; //number of attempts when error occurred
 		this.video = {}; //keep the video information
@@ -55,9 +52,9 @@ export class Base {
 	}
 
 	error(error) {
-		if (DEBUG) {
+		if (window.DEBUG) {
 			console.error(
-				`Player ${VIDEO_TYPE} errored:`,
+				`Player ${window.VIDEO_TYPE} errored:`,
 				error
 			);
 		}
@@ -66,7 +63,7 @@ export class Base {
 		if (this.retries >= MAX_REFRESH_RETRIES || error === Errors.PLAYER_UNPLAYABLE_VIDEO) {
 			return;
 		} else {
-			if (DEBUG) {
+			if (window.DEBUG) {
 				console.warn(
 					'Error is probably recoverable, attempting to refresh player'
 				);
@@ -76,7 +73,7 @@ export class Base {
 			this.loadPlayer(
 				this.video.id,
 				this.video.timestamp,
-				window.volume.get(VIDEO_TYPE),
+				window.volume.get(window.VIDEO_TYPE),
 				this.video.length,
 				this.video.meta,	
 			);
@@ -87,10 +84,10 @@ export class Base {
 
 	event(event, data) {
 		switch (event) {
-			case Event.End: videoEnded(); break; 
-			case Event.Pause: videoPaused(); break;
-			case Event.Seek: videoSeeked(data.time); break;
-			case Event.Play: videoPlaying(); break;
+			case Event.End: window.videoEnded(); break; 
+			case Event.Pause: window.videoPaused(); break;
+			case Event.Seek: window.videoSeeked(data.time); break;
+			case Event.Play: window.videoPlaying(); break;
 			case Event.Volume: window.volume.set(data.volume); break;
 			
 			//incase the player has error event mixed
@@ -99,8 +96,8 @@ export class Base {
 			//there are more events that are not handled atm, but could be in the future
 			//only bugger in debug mode
 			default: {
-				if (DEBUG) {
-					console.info(`Player ${VIDEO_TYPE} gave an unhandled event ${event}`);
+				if (window.DEBUG) {
+					console.info(`Player ${window.VIDEO_TYPE} gave an unhandled event ${event}`);
 				}
 			}
 		}
