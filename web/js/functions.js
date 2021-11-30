@@ -2104,7 +2104,7 @@ function canChat() {
 	return NAME && TYPE >= -1;
 }
 function canMoveBerry() {
-	return TYPE >= 2;
+	return TYPE >= 1;
 }
 function canKickUser() {
 	return TYPE >= 2;
