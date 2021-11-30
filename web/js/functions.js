@@ -2092,7 +2092,7 @@ function canSetFilters() {
 	return TYPE >= 2;
 }
 function canRandomizeList() {
-	return TYPE >= 2;
+	return TYPE >= 1;
 }
 function canCreatePoll() {
 	return TYPE > 0 || LEADER;

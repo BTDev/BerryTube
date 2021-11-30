@@ -19,7 +19,7 @@ exports.AuthService = class extends ServiceBase {
 			[actions.ACTION_GET_FILTERS]: isAdmin,
 			[actions.ACTION_KICK_USER]: isAdmin,
 			[actions.ACTION_MOVE_BERRY_TO_USER]: isMod,
-			[actions.ACTION_RANDOMIZE_LIST]: isAdmin,
+			[actions.ACTION_RANDOMIZE_LIST]: isMod,
 			[actions.ACTION_RELINQUISH_BERRY]: isModOrBerry,
 			[actions.ACTION_SEARCH_HISTORY]: isModOrBerry,
 			[actions.ACTION_SET_AREAS]: isAdmin,
