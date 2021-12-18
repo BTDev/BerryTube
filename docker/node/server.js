@@ -1631,10 +1631,11 @@ function addVideoYT(socket, data, meta, successCallback, failureCallback) {
 						maybeError = "video has country restrictions";
 					}
 				}
-				if (!embeddable) {
-					restrictReasons.noembed = true;
-					maybeError = "video cannot be embedded";
-				}
+			}
+
+			if (!embeddable) {
+				restrictReasons.noembed = true;
+				maybeError = "video cannot be embedded";
 			}
 
 			const ageRestricted = vidObj.contentDetails.contentRating.ytRating === 'ytAgeRestricted';
