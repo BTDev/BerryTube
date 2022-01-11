@@ -462,32 +462,21 @@ function doorStuck(socket) {
 	socket.emit('doorStuck');
 }
 function playNext() {
-	var Old = SERVER.ACTIVE;
-	if (SERVER.ACTIVE.volat) {
-		var elem = SERVER.PLAYLIST.first;
-		for (var i = 0; i < SERVER.PLAYLIST.length; i++) {
-			if (elem == SERVER.ACTIVE) {
-				SERVER.ACTIVE = SERVER.ACTIVE.next;
-				delVideo({ index: i });
-				break;
-			}
-			elem = elem.next;
-		}
-	} else {
-		// Check for a volatile color tag
-		if ("colorTagVolat" in Old.meta) {
-			var elem = SERVER.PLAYLIST.first;
-			for (var i = 0; i < SERVER.PLAYLIST.length; i++) {
-				if (elem == SERVER.ACTIVE) {
-					setVideoColorTag(i, false, false);
-					break;
-				}
-				elem = elem.next;
-			}
-		}
-		SERVER.ACTIVE = SERVER.ACTIVE.next;
+	const active = {
+		position: getVideoPosition(SERVER.ACTIVE),
+		node: SERVER.ACTIVE
+	};
+
+	SERVER.ACTIVE = SERVER.ACTIVE.next;
+
+	if (!active.node.volat && 'colorTagVolat' in active.node.meta) {
+		_setVideoColorTag(active.node, active.position, false, false);
 	}
-	SERVER.ACTIVE.position = SERVER.ACTIVE.prev.position + 1;
+
+	if (active.node.volat) {
+		delVideo(active);
+	}
+
 	handleNewVideoChange();
 	sendStatus("forceVideoChange", io.sockets);
 }
@@ -1234,80 +1223,101 @@ function sendToggleables(socket) {
 	socket.emit("setToggleables", data);
 }
 
-function delVideo(data, socket) {
-	elem = SERVER.PLAYLIST.first;
-	for (var i = 0; i < SERVER.PLAYLIST.length; i++) {
-		if (i == data.index) {
-			if (data.sanityid && elem.videoid != data.sanityid) { return doorStuck(socket); }
+function getVideoPosition(node) {
+	let video = SERVER.PLAYLIST.first;
 
-			if (elem.deleted) { break; }
-			if (elem == SERVER.ACTIVE) { playNext(); }
-
-			try {
-				SERVER.PLAYLIST.remove(elem);
-				io.sockets.emit('delVideo', {
-					position: i,
-					sanityid: elem.videoid
-				});
-				var q = 'delete from ' + SERVER.dbcon.video_table + ' where videoid = ? limit 1';
-				var historyQuery = "";
-				var historyQueryParams;
-
-				const isLivestream = elem.videolength <= 0;
-				const shouldArchive = !isLivestream;
-
-				if (shouldArchive) {
-					historyQuery = "insert into videos_history (videoid, videotitle, videolength, videotype, date_added, meta) values (?,?,?,?,NOW(),?)";
-					historyQueryParams = [
-						'' + elem.videoid,
-						elem.videotitle,
-						elem.videolength,
-						elem.videotype,
-						JSON.stringify(elem.meta || {})
-					];
-				}
-
-				mysql.query(q, ['' + elem.videoid], function (err) {
-					if (err) {
-						DefaultLog.error(events.EVENT_DB_QUERY, "query \"{sql}\" failed", { sql: q }, err);
-						return;
-					}
-					if (historyQuery) {
-						mysql.query(historyQuery, historyQueryParams, function (err) {
-							if (err) {
-								DefaultLog.error(events.EVENT_DB_QUERY, "query \"{sql}\" failed", { sql: historyQuery }, err);
-								return;
-							}
-						});
-					}
-				});
-
-				elem.deleted = true;
-
-				DefaultLog.info(events.EVENT_ADMIN_DELETED_VIDEO,
-					"{mod} deleted {title}",
-					{ mod: getSocketName(socket), type: "playlist", title: decodeURIComponent(elem.videotitle) });
-
-				break;
-			} catch (e) {
-				DefaultLog.error(events.EVENT_ADMIN_DELETED_VIDEO,
-					"{mod} could not delete {title}",
-					{ mod: getSocketName(socket), type: "playlist", title: decodeURIComponent(elem.videotitle) }, e);
-			}
+	for (let index = 0; index < SERVER.PLAYLIST.length; index++) {
+		if (video === node) {
+			return index;
 		}
-		try {
-			if (typeof elem != "undefined" && elem != null) {
-				elem = elem.next;
-			} else {
-				break;
-			}
-		} catch (e) {
-			DefaultLog.error(events.EVENT_ADMIN_DELETED_VIDEO,
-				"{mod} could not delete {index}",
-				{ mod: getSocketName(socket), type: "playlist", index: data.index }, e);
 
-			break;
+		video = video.next;
+	}
+
+	return -1;
+}
+
+function getVideoAt(index) {
+	if (index < 0 || index > SERVER.PLAYLIST.length) {
+		return null;
+	}
+
+	let video = SERVER.PLAYLIST.first;
+
+	for (let i = 0; i < SERVER.PLAYLIST.length; i++) {
+		if (i === index) {
+			return {
+				position: index,
+				node: video
+			};
 		}
+
+		video = video.next;
+	}
+
+	return null;
+}
+
+function saveToHistory(node) {
+	const historyQuery = "insert into videos_history (videoid, videotitle, videolength, videotype, date_added, meta) values (?,?,?,?,NOW(),?)";
+	const historyQueryParams = [
+		String(node.videoid),
+		node.videotitle,
+		node.videolength,
+		node.videotype,
+		JSON.stringify(node.meta || {})
+	];
+
+	mysql.query(historyQuery, historyQueryParams, function (err) {
+		if (err) {
+			DefaultLog.error(events.EVENT_DB_QUERY, "query \"{sql}\" failed", { sql: historyQuery }, err);
+			return;
+		}
+	});
+}
+
+function delVideo(video, sanity, socket) {
+	const {node, position} = video;
+
+	if (node.deleted) {
+		return;
+	}
+
+	if (sanity && node.videoid !== sanity) {
+		return doorStuck(socket);
+	}
+
+	try {
+		SERVER.PLAYLIST.remove(node);
+		io.sockets.emit('delVideo', {
+			position,
+			sanityid: node.videoid
+		});
+		
+		const query = `delete from ${SERVER.dbcon.video_table} where videoid = ? limit 1`;
+
+		mysql.query(query, [String(node.videoid)], function (err) {
+			if (err) {
+				DefaultLog.error(events.EVENT_DB_QUERY, "query \"{sql}\" failed", { sql: query }, err);
+				return;
+			}
+
+			//save to history if not a livestream
+			if (node.videolength > 0) {
+				saveToHistory(node);
+			}
+		});
+
+		node.deleted = true;
+
+		DefaultLog.info(events.EVENT_ADMIN_DELETED_VIDEO,
+			"{mod} deleted {title}",
+			{ mod: getSocketName(socket), type: "playlist", title: decodeURIComponent(node.videotitle) });
+
+	} catch (e) {
+		DefaultLog.error(events.EVENT_ADMIN_DELETED_VIDEO,
+			"{mod} could not delete {title}",
+			{ mod: getSocketName(socket), type: "playlist", title: decodeURIComponent(node.videotitle) }, e);
 	}
 }
 
@@ -2546,51 +2556,51 @@ io.sockets.on('connection', function (ioSocket) {
 			return;
 		}
 
-		var elem = SERVER.PLAYLIST.first;
-		var delme = -1;
-		if (SERVER.ACTIVE.volat) {
-			for (var i = 0; i < SERVER.PLAYLIST.length; i++) {
-				if (elem == SERVER.ACTIVE) {
-					delme = i;
-					break;
-				}
-				elem = elem.next;
-			}
-		}
+		let prev = null;
+		let next = null;
 
-		if ("colorTagVolat" in SERVER.ACTIVE.meta) {
-			var elem = SERVER.PLAYLIST.first;
-			for (var i = 0; i < SERVER.PLAYLIST.length; i++) {
-				if (elem == SERVER.ACTIVE) {
-					setVideoColorTag(i, false, false);
-					break;
-				}
-				elem = elem.next;
+		let video = SERVER.PLAYLIST.first;
+		for (let index = 0; index < SERVER.PLAYLIST.length; index++) {
+			if (video === SERVER.ACTIVE) {
+				prev = {node: video, position: index};
 			}
-		}
 
-		elem = SERVER.PLAYLIST.first;
-		for (var i = 0; i < SERVER.PLAYLIST.length; i++) {
-			if (i == data.index) {
-				if (data.sanityid && elem.videoid != data.sanityid) { return doorStuck(socket); }
-				SERVER.ACTIVE = elem;
-				SERVER.ACTIVE.position = i;
+			if (index === data.index) {
+				next = {node: video, position: index};
+			}
+
+			if (next && prev) {
 				break;
 			}
-			elem = elem.next;
+
+			video = video.next;
 		}
 
+		//check if we actually got both
+		if (!next || !prev) {
+			return doorStuck(socket);
+		}
+
+		if (data.sanityid && next.node.videoid !== data.sanityid) {
+			return doorStuck(socket);
+		}
+
+		if (!prev.node.volat && 'colorTagVolat' in prev.node.meta) {
+			_setVideoColorTag(prev.node, prev.position, false, false);
+		}
+	
+		SERVER.ACTIVE = next.node;
+	
 		DefaultLog.info(events.EVENT_ADMIN_FORCED_VIDEO_CHANGE,
 			"{mod} forced video change",
 			{ mod: getSocketName(socket), type: "playlist" });
-
+	
 		handleNewVideoChange();
 		sendStatus("forceVideoChange", io.sockets);
 
-		if (delme > -1) {
-			delVideo({ index: delme });
-		}
-
+		if (prev.node.volat) {
+			delVideo(prev, null, socket);
+		} 
 	});
 	socket.on("delVideo", function (data) {
 		if (!authService.can(socket.session, actions.ACTION_DELETE_VIDEO)) {
@@ -2598,7 +2608,21 @@ io.sockets.on('connection', function (ioSocket) {
 			return;
 		}
 
-		delVideo(data, socket);
+		const video = getVideoAt(data.index);
+
+		if (video.node.videoid !== data.sanityid) {
+			return doorStuck(socket);
+		}
+
+		//switch before actually deleting the correct video
+		if (video.node === SERVER.ACTIVE) {
+			SERVER.ACTIVE = SERVER.ACTIVE.next;
+
+			handleNewVideoChange();
+			sendStatus("forceVideoChange", io.sockets);
+		}
+		
+		delVideo(video, data.sanityid, socket);
 	});
 	socket.on("addVideo", function (data) {
 		if (!authService.can(socket.session, actions.ACTION_CONTROL_PLAYLIST)) {
