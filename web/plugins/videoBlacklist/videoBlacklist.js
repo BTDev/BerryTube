@@ -179,9 +179,11 @@ new function(){
     ns.installBlackListType = function(){
         var wrap = $("<div/>").addClass("blacklistwrap");
         var progress = $("<div/>").addClass("blacklistprogress");
-        PLAYERS.blacklist = {
+        Players.register('blacklist', {
             playVideo: function (id, at) {},
             loadPlayer: function (id, at, volume) {
+                $('#ytapiplayer').empty();
+
                 ns.tcLastSeek = new Date().getTime();
                 ns.tcCurrentTime = at;
                 wrap.appendTo($("#ytapiplayer"));
@@ -203,8 +205,12 @@ new function(){
                     width: (perc * 100)+"%"
                 });
                 callback(x);
-            }
-        };
+            },
+            destroy: function() {
+				$('#ytapiplayer').empty();
+			},
+            resetRetries: function() {}
+        });
     }
 
     ns.init = function(){

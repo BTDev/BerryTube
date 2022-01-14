@@ -84,12 +84,12 @@ export class VolumeManager {
 	 * @param {boolean} save Save the volume to localStorage
 	 */
 	set(volume, save = true) {
-		if (typeof volume !== "number") {
+		if (typeof volume !== "number" || volume < 0) {
 			return;
 		}
 
 		//majority of the players do have max 3 decimals, except dailymotion
-		const converted = Number((volume > 1 ? volume / 100 : volume).toFixed(3));
+		const converted = Math.min(Number((volume > 1 ? volume / 100 : volume).toFixed(3)), 1);
 
 		//we have nothing to update
 		if (converted === this.volume) {
@@ -138,7 +138,7 @@ export class VolumeManager {
 		this.listener = setInterval(() => {
 			//either player hasn't finished initialization yet
 			//or we have no volume control support(?)
-			if (!player.getVolume) {
+			if (!player || !player.getVolume) {
 				return;
 			}
 

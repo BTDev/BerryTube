@@ -1,8 +1,6 @@
 let lastPollCountdown = null;
-let selectedQuality = null;
 
 const integerRegex = /^\d+$/;
-const QUALITY_LOCAL_STORAGE_KEY = "quality";
 
 class Countdown {
 	constructor(totalTimeInSeconds, startedAt, handlers) {
@@ -868,19 +866,7 @@ function recalcStats() {
 
 	numberMan.text(PLAYLIST.length + " Videos");
 }
-// TODO: I don't think this us used anymore?
-function hbVideoDetail() {
-	if (controlsVideo()) {
-		if (videoGetState() == 0 || videoGetState() == 1 || videoGetState() == 2) {
-			videoGetTime(function (t) {
-				socket.emit("hbVideoDetail", {
-					time: t,
-					state: videoGetState()
-				});
-			});
-		}
-	}
-}
+
 function setToggleable(name, state, label) {
 	var opt = $(".tgl-" + name);
 	if (typeof label == "undefined") {
@@ -909,11 +895,10 @@ function forceStateChange() {
 	var s = videoGetState();
 	if (controlsVideo()) {
 		if (LAST_EMIT_STATE != s) {
-			if (s == 1 || s == 2) {
-				socket.emit("forceStateChange", {
-					state: s
-				});
-			}
+			socket.emit("forceStateChange", {
+				state: s
+			});
+
 			LAST_EMIT_STATE = s;
 		}
 	}
@@ -2170,25 +2155,17 @@ function videoPlayNext() {
 	}
 }
 function videoGetTime(callback) {
-	if (PLAYER.getTime) {
-		PLAYER.getTime(callback);
-	}
+	PLAYER.getTime(callback);
 }
 function videoGetState() {
-	if (PLAYER.getVideoState) {
-		return PLAYER.getVideoState();
-	}
+	return PLAYER.getVideoState();
 }
 function videoSeekTo(pos) {
 	console.log("Got seek to", secToTime(pos));
-	if (PLAYER.seek) {
-		PLAYER.seek(pos);
-	}
+	PLAYER.seek(pos);
 }
 function videoPlay() {
-	if (PLAYER.play) {
-		PLAYER.play();
-	}
+	PLAYER.play();
 }
 function videoLoadAtTime(vidObj, time) {
 	const {
@@ -2199,26 +2176,27 @@ function videoLoadAtTime(vidObj, time) {
 
 	//instead of attempt to acquire from players, get from volume manager
 	const volume = window.volume.get(ptype);
-	const change = VIDEO_TYPE != ptype || !PLAYERS[ptype].playVideo;
+	const change = VIDEO_TYPE !== ptype;
 
 	if (change) {
 		//we need to stop the volume grabbing before removing the player
 		window.volume.stop();
 
-		removeCurrentPlayer();
-		PLAYER = PLAYERS[ptype];
-		VIDEO_TYPE = ptype;
+		//destroy current and get new one
+		[PLAYER, VIDEO_TYPE] = Players.switch(VIDEO_TYPE, ptype);
+
+		//load the actual video
 		PLAYER.loadPlayer(id, time, volume, length, vidObj.meta);
 
+		//listen again
 		window.volume.listen(PLAYER, ptype);
 	} else {
-		PLAYER.playVideo(id, time, volume);
+		PLAYER.resetRetries();
+		PLAYER.playVideo(id, time, volume, length, vidObj.meta);
 	}
 }
 function videoPause() {
-	if (PLAYER.pause) {
-		PLAYER.pause();
-	}
+	PLAYER.pause();
 }
 /* Utilities */
 function parseVideoURL(url, callback) {
@@ -2741,33 +2719,4 @@ function secondsToHuman(seconds) {
 	}
 
 	return `${seconds} second${seconds != 1 ? "s" : ""}`;
-}
-
-function getUserQualityPreference() {
-	if (selectedQuality === null) {
-		selectedQuality = getStorageInteger(QUALITY_LOCAL_STORAGE_KEY, 1080);
-	}
-
-	return selectedQuality;
-}
-
-function setUserQualityPreference(value) {
-	if (typeof (value) !== "number") {
-		return;
-	}
-
-	selectedQuality = value;
-	setStorageInteger(QUALITY_LOCAL_STORAGE_KEY, value);
-}
-
-function pickSourceAtQuality(sources, quality) {
-	// make this smarter sometime? dunno
-
-	for (const source of sources) {
-		if (source.quality === quality) {
-			return source;
-		}
-	}
-
-	return sources.length > 0 ? sources[0] : null;
 }

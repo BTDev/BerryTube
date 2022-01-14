@@ -1042,3 +1042,16 @@ button.ranked-poll__submit-button {
 .berryemote[title$=" from /r/discordserver"] {
     background-repeat: no-repeat;
 }
+
+/* Maximize the players */
+#ytapiplayer,
+#ytapiplayer > iframe:not(#scPlayer),
+#ytapiplayer #vjs_player {
+	width: 100% !important;
+	height: 100% !important;
+	position: relative;
+}
+
+#scVolumeSlider .ui-slider-range {
+	background: #C600AD;
+}

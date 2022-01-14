@@ -153,14 +153,9 @@ var IGNORELIST = [];
 var CONNECTED = 0;
 var PLAYLIST = new LinkedList.Circular();
 var ACTIVE = new Video();
-var PLAYING_VID;
-var HB_DELAY = 5000;
-var leaderHeartbeat = false;
 var PLAYLIST_DRAGFROM = 0;
 var PLAYLIST_DRAGTO = 0;
 var PLAYLIST_DRAGSANITY = '';
-var LEGACY_PLAYER = false;
-var INIT_TIME = 0;
 var SEEK_FROM = 0;
 var SEEK_TO = 0;
 var HISTORY = [];
@@ -186,7 +181,11 @@ var BANLIST = false;
 var PLUGINS = [];
 var NAMEFLAUNT = false;
 var VOLUME = false;
+
+//the only thing this does is prevent maltweaks from breaking \\fsnotmad
+//Note: Deprecated and legacy, use Players instead 
 var PLAYERS = {};
+
 var IGNORE_GHOST_MESSAGES = false;
 var ADMIN_LOG = [];
 var HIGHLIGHT_LIST = [];

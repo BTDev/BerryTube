@@ -97,30 +97,29 @@ if (date('n') == 6 && $_COOKIE['no-pride'] !== 'true') {
 <script src="https://cdnjs.cloudflare.com/ajax/libs/tinyscrollbar/2.4.2/jquery.tinyscrollbar.min.js" integrity="sha256-gENsdwXJl1qiwOqS0DF+kfqTP5Dy+0gDTtxpRcWVhrU=" crossorigin="anonymous" defer></script>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/video.js/7.15.4/video.min.js" integrity="sha512-dsg6qxwnVPFvhJhbRxyhW9gFvzytQ//4fCinJgKZQuoH6v6JYryP4OOjDGY7MfdVHjv1trJRDmJWdL2dNsbm6A==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/videojs-flash/2.1.2/videojs-flash.min.js" integrity="sha256-2sKPIPOV8Cj34r74ZnRcdKrQ7Jqqg0o1zR2c74VDW1s=" crossorigin="anonymous" defer></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/dashjs/2.9.2/dash.all.min.js" integrity="sha256-EmXFhpSryXnCa3tOiKDfYUFhpmnkvo3PSe3Tj3KpX6o=" crossorigin="anonymous" defer></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/videojs-contrib-dash/2.10.0/videojs-dash.min.js" integrity="sha256-xhLRr5mlvCCC7DndQjNURZOXGxwYUoB2VoF0mNUiuJc=" crossorigin="anonymous" defer></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/0.9.16/socket.io.min.js" integrity="sha256-bFYtqOZj1MLDlOrOlxCU9aruDP2zxiIKvmoo+dHsy4w=" crossorigin="anonymous" defer></script>
 
 <script src="<?= cdn('vendor/videojs-quality-selector/silvermine-videojs-quality-selector.js') ?>" defer></script>
-
-<script src="<?= cdn('js/lib.js') ?>" defer></script>
-<script src="<?= cdn('js/init.js') ?>" defer></script>
-<script src="<?= cdn('js/functions.js') ?>" defer></script>
-<script src="<?= cdn('js/callbacks.js') ?>" defer></script>
-<script src="<?= cdn('js/player.js') ?>" defer></script>
-<script src="<?= cdn('js/modules/main.js') ?>" type="module"></script>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/cookieconsent2/3.1.0/cookieconsent.min.js" integrity="sha256-y0EpKQP2vZljM73+b7xY4dvbYQkHRQXuPqRjc7sjvnA=" crossorigin="anonymous" defer></script>
-
-<script src="<?= cdn('berrymotes/js/berrymotes.berrytube.js') ?>" defer></script>
-<script src="<?= cdn('berrymotes/js/berrymotes.core.js') ?>" defer></script>
 
 <script src="https://www.youtube.com/iframe_api" defer id="youtube-iframe-api"></script>
 <script src="https://w.soundcloud.com/player/api.js" defer></script>
 <script src="https://player.vimeo.com/api/player.js" defer></script>
 <script src="https://player.twitch.tv/js/embed/v1.js" defer></script>
 <script src="https://api.dmcdn.net/all.js" defer></script>
+
+<script src="<?= cdn('js/lib.js') ?>" defer></script>
+<script src="<?= cdn('js/init.js') ?>" defer></script>
+<script src="<?= cdn('js/functions.js') ?>" defer></script>
+<script src="<?= cdn('js/callbacks.js') ?>" defer></script>
+<script src="<?= cdn('js/modules/main.js') ?>" type="module"></script>
+<script src="<?= cdn('js/modules/player.js') ?>" type="module"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cookieconsent2/3.1.0/cookieconsent.min.js" integrity="sha256-y0EpKQP2vZljM73+b7xY4dvbYQkHRQXuPqRjc7sjvnA=" crossorigin="anonymous" defer></script>
+
+<script src="<?= cdn('berrymotes/js/berrymotes.berrytube.js') ?>" defer></script>
+<script src="<?= cdn('berrymotes/js/berrymotes.core.js') ?>" defer></script>
+
+
 
 <?php end_minified_tags(); ?>
 
