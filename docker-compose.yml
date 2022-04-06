@@ -23,8 +23,9 @@ services:
             - ./berrymotes/images:/var/www/html/web/berrymotes/images:ro
             - ./berrymotes/js:/var/www/html/web/berrymotes/js:ro
             - ./berrymotes/single_emotes:/var/www/html/web/berrymotes/single_emotes:ro
-            - ${LETSENCRYPT_DIR}:/etc/letsencrypt:ro
-            - ${EXTRA_DIR}:/var/www/html/extra:ro
+            - ${LETSENCRYPT_DIR:-/dev/null}:/etc/letsencrypt:ro
+            - ${CERT_DIR:-/dev/null}:/var/cert:ro
+            - ${EXTRA_DIR:-/dev/null}:/var/www/html/extra:ro
             - selfsigned:/var/selfsigned
         tmpfs:
             - /etc/nginx
@@ -79,7 +80,7 @@ services:
             - DOMAIN
             - HTTPS_PORT
         volumes:
-            - ${EXTRA_DIR}:/var/www/html/extra
+            - ${EXTRA_DIR:-/dev/null}:/var/www/html/extra
         expose:
             - '9000'
 

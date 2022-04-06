@@ -22,6 +22,10 @@ Copy `.env.sample` to `.env` and tweak the values.
 
     Use certificates from `$LETSENCRYPT_DIR` (e.g. /etc/letsencrypt). The cert name must match `$DOMAIN`.
 
+-   `TLS_TYPE=bindmount`
+
+    Use certificate files from `$CERT_DIR` (e.g. /etc/letsencrypt/live/berrytube.tv).
+
 ## Running
 
 To run (or apply changes): `docker-compose up -d --build`
@@ -40,4 +44,4 @@ Each run will perform a `yarn install` - however, the node_moduels directory is 
 
 ## Database
 
-The database is placed in a docker volume. To get an SQL prompt, run `docker exec -it berrytube_mysql_1 mysql -uberrytube -pberrytube berrytube`.
+The database is placed in a docker volume. To get an SQL prompt, run `docker-compose exec mysql mysql -uberrytube -pberrytube berrytube`.

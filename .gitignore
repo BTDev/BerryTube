@@ -2,7 +2,9 @@
 /docker/node/bt.log
 /docker/node/debug.log
 /docker/node/error_bt.log
+/.direnv
 /.env
+/.envrc.private
 /.vscode
 /database/
 /docker-compose.override.yml
