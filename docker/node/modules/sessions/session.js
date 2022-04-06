@@ -1,3 +1,4 @@
+const crypto = require('crypto');
 const { events } = require("../log/events");
 const settings = require("../../bt_data/settings");
 const { now } = require("../utils");
@@ -71,6 +72,8 @@ exports.Session = class {
 		this.id = id;
 		this.auth = services.auth;
 		this.log = services.log;
+		this.db = services.db;
+		this.token = null;
 		this.type = userTypes.LURKER;
 		this.nick = "[no username]";
 		this.hasNick = false;
@@ -101,6 +104,18 @@ exports.Session = class {
 		}
 
 		this.meta = meta;
+	}
+
+	async generateToken() {
+		if (!this.token) {
+			this.token = crypto.randomUUID();
+			await this.db.query`
+				INSERT INTO tokens
+				(token, nick)
+				VALUES (${this.token}, ${this.nick})
+			`;
+		}
+		return this.token;
 	}
 
 	addIoSocket(ioSocket) {
@@ -216,6 +231,10 @@ class BerrySocket {
 		if (this.session.isBerry) {
 			this.emit("setLeader", true);
 		}
+
+		this.session.generateToken().then(token => {
+			this.emit("setToken", token);
+		});
 
 		for (const handler of this.onAuthenticatedHandlers) {
 			handler(this);

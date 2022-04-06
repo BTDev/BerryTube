@@ -1,0 +1,38 @@
+<!--
+
+An application embedded in a frame on the tube can ask for a token representing the currently logged in user.
+This file contains an simple example implementation.
+
+To check the token from your own backend, make a form POST request `token=the-token-goes-here` to `/api/token.php`.
+
+----------
+
+Scripts running on BT itself can subscribe to changes to the token along the lines of:
+
+	let myToken = null;
+	onModuleLoaded(() => {
+		myToken = window.token.get();
+		window.token.addEventListener('token', ({ detail }) => {
+			myToken = detail.token;
+		});
+	});
+
+-->
+<!DOCTYPE html>
+<html>
+	<head>
+		<script>
+			if (window.parent !== window) {
+				window.addEventListener('message', ({ data }) => {
+					if (data?.action === 'setToken') {
+						console.log('token in frame', data.token);
+					}
+				});
+
+				window.parent.postMessage({
+					action: 'getToken'
+				}, '*');
+			}
+		</script>
+	</head>
+</html>

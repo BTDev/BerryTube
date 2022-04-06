@@ -244,6 +244,11 @@ socket.on("setType", function (data) {
 	TYPE = data;
 	handleACL();
 });
+socket.on("setToken", function (data) {
+	onModuleLoaded(() => {
+		window.token.set(data);
+	});
+});
 socket.on("newChatList", function (data) {
 	initChatList(data);
 });
