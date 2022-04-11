@@ -107,13 +107,17 @@ exports.Session = class {
 	}
 
 	async generateToken() {
-		if (!this.token) {
+		if (!this.token && this.userTypes >= userTypes.USER) {
 			this.token = crypto.randomUUID();
-			await this.db.query`
-				INSERT INTO tokens
-				(token, nick)
-				VALUES (${this.token}, ${this.nick})
-			`;
+			try {
+				await this.db.query`
+					INSERT INTO tokens
+					(token, nick)
+					VALUES (${this.token}, ${this.nick})
+				`;
+			} catch (err) {
+				console.error(err);
+			}
 		}
 		return this.token;
 	}
