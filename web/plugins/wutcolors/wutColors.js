@@ -82,7 +82,7 @@ function wutProcessUsername(nick){
 
     var c = wutGetUsercolor(nick);
     wutAddedStyles.push(nick);
-    wutStyleSheet.insertRule(`.msgwrap[nick="${nick}"] { border-style: solid;  border-width: 0; border-left-width: 10px ; border-left-color : ${c} }`,0);
+    wutStyleSheet.insertRule(`.msgwrap[nick="${nick}"]:not(.drinkWrap) { border-style: solid;  border-width: 0; border-left-width: 10px ; border-left-color : ${c} }`,0);
     wutStyleSheet.insertRule(`.msgwrap[nick="${nick}"] > .message { margin-left:5px;position:relative;z-index:2; }`,0);
     wutStyleSheet.insertRule(`.msgwrap[nick="${nick}"] > .message > .nick:not(.flaunt) { color: ${c}; }`,0);
 
