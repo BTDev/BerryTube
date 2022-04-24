@@ -117,6 +117,7 @@ exports.Session = class {
 				`;
 			} catch (err) {
 				console.error(err);
+				this.token = null;
 			}
 		}
 		return this.token;
