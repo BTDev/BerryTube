@@ -676,7 +676,8 @@ window.PLAYERS.twitch = {
     loadPlayer: function (src, at, volume) {
         const opts = {
             width: videoWidth,
-            height: videoHeight
+            height: videoHeight,
+            parent: [document.location.hostname],
         };
 
         const parts = src.split('/');

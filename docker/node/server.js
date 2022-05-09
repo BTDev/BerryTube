@@ -1512,6 +1512,37 @@ function resolveRestrictCountries(restrictReasons) {
 	}
 }
 
+function parseDuration(duration) {
+	var matches = duration.match(/[0-9]+[DHMS]/gi);
+	var seconds = 0;
+	matches.forEach(function (part) {
+		var unit = part.charAt(part.length - 1);
+		var amount = parseInt(part.slice(0, -1));
+		switch (unit) {
+			case 'D':
+			case 'd':
+				seconds += amount * 60 * 60 * 12;
+				break;
+			case 'H':
+			case 'h':
+				seconds += amount * 60 * 60;
+				break;
+			case 'M':
+			case 'm':
+				seconds += amount * 60;
+				break;
+			case 'S':
+			case 's':
+				seconds += amount;
+				break;
+			default:
+			// noop
+		}
+	});
+
+	return seconds;
+};
+
 function addVideoYT(socket, data, meta, successCallback, failureCallback) {
 	var videoid = data.videoid.trim();
 	if (videoid.length == 0) {
@@ -1521,33 +1552,6 @@ function addVideoYT(socket, data, meta, successCallback, failureCallback) {
 	var options = {
 		host: 'www.googleapis.com',
 		path: '/youtube/v3/videos?id=' + encodeURIComponent(videoid.toString()) + '&key=' + SERVER.settings.apikeys.youtube + '&part=snippet%2CcontentDetails%2Cstatus&hl=en'
-	};
-
-	var parseDuration = function (duration) {
-		var matches = duration.match(/[0-9]+[DHMS]/g);
-		var seconds = 0;
-		matches.forEach(function (part) {
-			var unit = part.charAt(part.length - 1);
-			var amount = parseInt(part.slice(0, -1));
-			switch (unit) {
-				case 'D':
-					seconds += amount * 60 * 60 * 12;
-					break;
-				case 'H':
-					seconds += amount * 60 * 60;
-					break;
-				case 'M':
-					seconds += amount * 60;
-					break;
-				case 'S':
-					seconds += amount;
-					break;
-				default:
-				// noop
-			}
-		});
-
-		return seconds;
 	};
 
 	var recievedBody = "";
@@ -1978,26 +1982,44 @@ function addVideoDash(socket, data, meta, successCallback, failureCallback) {
 }
 
 async function twitchApi(path, params = {}) {
+	// TODO: use an actual OAuth client and cache the token etc.
+	const tokenResponse = await fetch('https://id.twitch.tv/oauth2/token', {
+		method: 'POST',
+		body: new URLSearchParams({
+			client_id: process.env.TWITCH_CLIENT_ID,
+			client_secret: process.env.TWITCH_CLIENT_SECRET,
+			grant_type: 'client_credentials',
+		}),
+	});
+	if (!tokenResponse.ok) {
+		throw new Error(`token fetch error: ${await tokenResponse.text()}`);
+	}
+	const token = await tokenResponse.json();
+
 	if (Array.isArray(path)) {
 		path = path.join('/');
 	}
-	params = Object.keys(params)
-		.map(key => encodeURIComponent(key) + '=' + encodeURIComponent(params[key]))
-		.join('&');
 
-	const response = await fetch('https://api.twitch.tv/kraken/' + path + (params ? ('?' + params) : ''), {
+	const url = new URL(path, 'https://api.twitch.tv/helix/');
+	for (const [key, value] of Object.entries(params)) {
+		url.searchParams.set(key, value);
+	}
+
+	const response = await fetch(url.toString(), {
 		headers: {
-			'Accept': 'application/vnd.twitchtv.v5+json',
-			'Client-ID': '16m5lm4sc21blhrrpyorpy4tco0pa9'
-		}
+			'Client-Id': process.env.TWITCH_CLIENT_ID,
+			'Authorization': `Bearer ${token.access_token}`,
+		},
 	});
 
+	const data = await response.json();
+	console.log('twitch', url.toString(), data);
+
 	if (!response.ok) {
-		const data = await response.json();
 		throw new Error(`${data.error}: ${data.message}`);
 	}
 
-	return response.json();
+	return data.data;
 }
 
 function addVideoTwitch(socket, data, meta, successCallback, failureCallback) {
@@ -2007,8 +2029,14 @@ function addVideoTwitch(socket, data, meta, successCallback, failureCallback) {
 
 	const parts = data.videoid.trim().split('/');
 	if (parts[0] === 'videos') {
-		twitchApi(['videos', parts[1]]).then(response => {
-			let videoid = response._id;
+		twitchApi('videos', { id: parts[1] }).then(response => {
+			response = response?.[0];
+			if (!response) {
+				if (failureCallback) { failureCallback('no such video'); }
+				return;
+			}
+
+			let videoid = response.id;
 			if (videoid[0] === 'v') {
 				videoid = videoid.substr(1);
 			}
@@ -2017,7 +2045,7 @@ function addVideoTwitch(socket, data, meta, successCallback, failureCallback) {
 				pos: SERVER.PLAYLIST.length,
 				videoid: 'videos/' + videoid,
 				videotitle: encodeURI(response.title),
-				videolength: Math.ceil(response.length),
+				videolength: parseDuration(response.duration),
 				videotype: "twitch",
 				who: meta.nick,
 				queue: data.queue,
@@ -2031,8 +2059,8 @@ function addVideoTwitch(socket, data, meta, successCallback, failureCallback) {
 			if (failureCallback) { failureCallback(error); }
 		});
 	} else {
-		twitchApi(['search', 'channels'], { query: parts[0], limit: 1 }).then(response => {
-			response = response && response.channels && response.channels[0];
+		twitchApi(['search', 'channels'], { query: parts[0], first: 1 }).then(response => {
+			response = response?.[0];
 			if (!response) {
 				if (failureCallback) { failureCallback('no such channel'); }
 				return;
@@ -2040,7 +2068,7 @@ function addVideoTwitch(socket, data, meta, successCallback, failureCallback) {
 
 			rawAddVideo({
 				pos: SERVER.PLAYLIST.length,
-				videoid: response.name,
+				videoid: response.id,
 				videotitle: encodeURI(response.display_name),
 				videolength: 0,
 				videotype: "twitch",
@@ -2063,10 +2091,16 @@ function addVideoTwitchClip(socket, data, meta, successCallback, failureCallback
 	if (meta.type <= 0) { volat = true; }
 	if (volat === undefined) { volat = false; }
 
-	twitchApi(['clips', data.videoid]).then(response => {
+	twitchApi('clips', { id: data.videoid }).then(response => {
+		response = response?.[0];
+		if (!response) {
+			if (failureCallback) { failureCallback('no such clip'); }
+			return;
+		}
+
 		rawAddVideo({
 			pos: SERVER.PLAYLIST.length,
-			videoid: response.slug,
+			videoid: response.id,
 			videotitle: encodeURI(response.title),
 			videolength: Math.ceil(response.duration),
 			videotype: "twitchclip",
