@@ -2068,7 +2068,7 @@ function addVideoTwitch(socket, data, meta, successCallback, failureCallback) {
 
 			rawAddVideo({
 				pos: SERVER.PLAYLIST.length,
-				videoid: response.id,
+				videoid: response.broadcaster_login,
 				videotitle: encodeURI(response.display_name),
 				videolength: 0,
 				videotype: "twitch",
