@@ -1,7 +1,7 @@
 const url = require("url");
 
 const formatRegex = /\{(\w+)\}/g;
-const rawLinkRegex = /(\/)?([^/]*?)\.(mp4|m4v|webm)$/;
+const rawLinkRegex = /(\/)?([^/]*?)\.(mp4|m4v|webm|mov)$/;
 
 /**
  * @argument {string} format the format string; ex: "this is a constant, this is a {match} and {another}"
