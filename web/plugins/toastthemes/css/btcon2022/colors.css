@@ -1,0 +1,429 @@
+html {
+  --scrollbarBG: #21487d;
+  --thumbBG: #eee422;
+  --transparentBG: rgba(9, 11, 23, .8);
+}
+
+body::-webkit-scrollbar,
+body #chatbuffer::-webkit-scrollbar,
+body #adminbuffer::-webkit-scrollbar,
+body #chatlist::-webkit-scrollbar {
+  width: 11px;
+}
+
+body,
+body #chatbuffer,
+body #adminbuffer,
+body #chatlist {
+  scrollbar-width: thin;
+  scrollbar-color: var(--thumbBG) var(--scrollbarBG);
+}
+
+body::-webkit-scrollbar-track,
+body #chatbuffer::-webkit-scrollbar-track,
+body #adminbuffer::-webkit-scrollbar-track,
+body #chatlist::-webkit-scrollbar-track {
+  background: var(--scrollbarBG);
+}
+
+body::-webkit-scrollbar-thumb,
+body #chatbuffer::-webkit-scrollbar-thumb,
+body #adminbuffer::-webkit-scrollbar-thumb,
+body #chatlist::-webkit-scrollbar-thumb {
+  background-color: var(--thumbBG);
+  border-radius: 6px;
+  border: 3px solid var(--scrollbarBG);
+}
+
+body #chatpane,
+body #adminbuffer,
+body #chatpane .tab,
+body #chatbuffer,
+body #connectedCountWrapper,
+body #chatlist,
+body #chatinput,
+body #chatinput > input,
+body #chatControls {
+  color: #d7d7d7;
+  border-color: #b9b9b9;
+}
+
+
+body #chatpane .tab.newmsg {
+  background: #725dfd;
+  border-color: red;
+}
+
+
+body #chatpane,
+body #pollControl,
+body #dyn_motd {
+  background: var(--transparentBG);
+  color: white;
+  margin: .5em;
+  border-radius: 5px;
+  overflow: hidden;
+  box-shadow: 0px 0px 5px 3px rgba(17, 24, 55, .77);
+  border: none;
+}
+body #dyn_motd {
+  padding: 15px;
+}
+body #pollpane .poll {
+  background: rgba(140, 140, 140, .7);
+  color: white;
+  margin: .5em;
+  border-radius: 5px;
+  overflow: hidden;
+  box-shadow: 0px 0px 5px 3px rgba(17, 18, 55, .77);
+  border: none;
+}
+body #pollpane .poll.active {
+  background: var(--transparentBG);
+}
+
+
+body #adminbuffer,
+body #chatpane .tab,
+body #chatbuffer,
+body #connectedCountWrapper,
+body #chatlist,
+body #chatinput,
+body #chatinput > input,
+body #chatControls {
+  background: transparent;
+}
+
+body #rcvOverlay {
+  background: rgb(17, 9, 23);
+}
+
+body #chatbuffer,
+body #adminbuffer {
+  border-bottom: none;
+  border-color: rgba(255, 255, 255, .2);
+}
+
+body #chatlist {
+  border: none;
+}
+
+body #connectedCountWrapper,
+body #chatlist {
+  background: rgba(14, 15, 51, .48);
+}
+
+body #pollControl .options .optionWrap {
+  border: none;
+}
+
+body #chatinput{
+  display: flex;
+  flex-direction: row-reverse;
+  padding: 0 .2em .2em .2em;
+  box-sizing: border-box;
+}
+body #chatinput > input,
+body #pollControl .options .optionWrap input {
+  border-radius: 4px;
+  width: auto;
+  height: 28px;
+  flex-grow: 1;
+  padding-left: .5em!important;
+  position: relative;
+  background: rgb(29, 26, 60);
+  color: white;
+}
+body #pollControl .options .optionWrap input.option {
+  border-radius: 4px 0 0 4px;
+}
+body #pollControl .optionWrap label {
+  border-radius: 0 4px 4px 0;
+  height: 28px;
+  background: rgb(65, 40, 115);
+}
+
+body #chatinput > #adminRainbow {
+  height: 28px;
+  width: 62px;
+  background: rgb(52, 52, 145);
+  border-radius: 4px;
+  text-align: center;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+body #chatpane .tab {
+  color: #EAEAEA;
+  background: rgb(45, 46, 115);
+  border-style: solid;
+  border-color: rgb(45, 55, 115);
+  border-width: 0 0 3px 0;
+}
+body #chatpane .tab.active {
+  border-color: rgb(159, 162, 253);
+}
+
+
+body #rcvOverlay,
+body #chattabs {
+  border-width: 0;
+}
+
+
+body .chatbuffer a,
+#rcvOverlay a {
+  color: #73A6F6 !important;
+}
+
+body .chatbuffer a:visited,
+#rcvOverlay a:visited {
+  color: #0AA89D !important;
+}
+
+
+
+body .dialogWindow,
+body .berrymotes.dialogWindow {
+  background: var(--transparentBG);
+  border-radius: 5px;
+  overflow: hidden;
+  z-index: 20!important;
+}
+
+body .berrymotes.dialogWindow .close ,
+body .dialogWindow .close ,
+body .poll .btn.close {
+  background: transparent;
+  border: none;
+  padding: 0;
+  overflow: visible;
+  font-weight: bold;
+  display: flex;
+  justify-content: space-around;
+}
+body .berrymotes.dialogWindow .close:hover,
+body .dialogWindow .close:hover,
+body .poll .btn.close:hover {
+  background: rgb(24, 38, 94);
+}
+body .dialogWindow .close::after ,
+body .berrymotes.dialogWindow .close::after {
+
+  content: "✖";
+}
+
+body .dialogWindow .dialogToolbar,
+body .berrymotes.dialogWindow .dialogToolbar {
+  background: rgb(23, 33, 74);
+  padding: .4em;
+  border: none;
+}
+
+body #settingsGui .button,
+body .dialogWindow .button,
+body .dialogContent button,
+body #pollControl .btn ,
+body #pollControl .options select,
+body #headbar .submit{
+  background: rgb(23, 31, 74);
+  border: none;
+  padding: .2em .6em;
+  border-radius: 5px;
+  color: white;
+}
+body #settingsGui .button:hover,
+body .dialogWindow .button:hover,
+body .dialogContent button:hover,
+body #pollControl .btn:hover ,
+body #pollControl .options select:hover,
+body #headbar .submit:hover {
+  background: rgb(24, 38, 94);
+}
+
+body #playlistAddControls .slideBtn {
+  border: none;
+  background: rgb(23, 36, 74);
+  margin: 4px 4px 0 4px;
+}
+body #playlistAddControls .import {
+  margin: 0 .3em .6em .3em;
+  padding: 4px;
+  border-width: 0 1px 1px 1px;
+  border-style: solid;
+  border-color: rgb(23, 35, 74);
+  border-radius: 4px;
+}
+body #leftpane {
+  background: rgba(6, 6, 15, .85);
+  border-radius: 5px;
+  margin: 6px 0;
+  box-shadow: 0px 0px 5px 3px rgba(17, 29, 55, .77);
+}
+body #playlist {
+  background: transparent;
+  margin-top: 5px;
+  margin-right: 2px;
+}
+body #playlist .track {
+  background-color: var(--scrollbarBG);
+  border: none;
+  border-radius: 4px;
+}
+body #playlist .thumb {
+  background: var(--thumbBG);
+  border-radius: 4px;
+  width: 8px;
+  margin-left: 3px;
+}
+
+body #playlist .end{
+  display: none;
+}
+body #playlistAddControls .import > div:not(.note) {
+  display: flex;
+}
+body #playlistAddControls .impele,
+body #playlistAddControls .misc,
+body #playlistAddControls .impele > input {
+  border: none;
+  background: rgb(23, 29, 74);
+  font-size: 13px;
+  border-radius: 4px;
+}
+
+body #playlistAddControls .impele > input {
+  width: 100%;
+  padding: 0 5px;
+  box-sizing: border-box;
+}
+body #playlistAddControls .impele.btn {
+  width: 30px;
+}
+body #playlistAddControls .impele:not(.btn) {
+  flex-grow: 1;
+  width: auto;
+}
+
+body #playlist ul > li {
+  border-radius: 3px;
+  margin: 4px;
+  border: none;
+  background: rgb(18, 29, 55);
+  display: flex;
+  align-items: center;
+}
+body #playlist ul > li.search-hidden {
+  display: none!important;
+}
+body #playlist ul > li.active {
+  margin: 3px;
+  background: #0d204a;
+  display: flex!important;
+  border: 1px solid #4e70b3;
+}
+body #playlist ul > li.volatile {
+  margin: 3px;
+  border: 1px solid #665724;
+  background: #423b10;
+}
+
+body #playlist ul > li .delete {
+  order: 20;
+  border: none;
+  margin: 1px 1px 1px 6px;
+}
+body #playlist ul > li .requeue {
+  order: 15;
+  border: none;
+  margin: 1px 1px 1px 6px;
+}
+body #playlist ul > li .requeue:hover,
+body #playlist ul > li .delete:hover {
+
+  background: rgb(24, 39, 94);
+}
+body #playlist ul > li .time {
+  order: 1
+}
+body #playlist ul > li .title {
+  padding: 0 0 0 .3em;
+  flex-grow: 1;
+  order: 0;
+}
+body #playlist ul > li .clear {
+  order: 12
+}
+
+body .dialogWindow *,
+body .dialogWindow #settingsGui {
+  background: transparent;
+  color: #d7d7d7;
+}
+body #logBuffer th {
+  text-align: left;
+  background: rgb(24, 52, 94);
+}
+body .chatbuffer .highlight {
+  background: rgb(24, 52, 94);
+}
+.chatbuffer .message.request {
+  color: #73A6F6;
+  font-style: italic;
+  font-weight: bold;
+}
+#chatlist ul .admin,
+.flaunt.level_2 {
+  color: #349d36;
+}
+
+#chatlist ul .mod,
+.flaunt.level_1 {
+  color: #52b059;
+}
+
+#videobg {
+  /* 
+  * Managed via js
+  *
+  * background: url(/plugins/toastthemes/css/btcon2020/images/player_back2.png) no-repeat center center;
+  */
+}
+
+
+#banner {
+  background: url(images/banner.png) no-repeat center;
+  width: 100%;
+  background-size: contain;
+  height: 500px;
+  margin: 0 auto;
+  border-radius: 10px;
+}
+
+#chatpane.admin #adminbuffer {
+  background-image: url(images/bjork.png) !important;
+}
+
+
+.chatbuffer .message.drink {
+  background: url(images/dronk.png) no-repeat scroll right center transparent;
+}
+
+
+#chatlist ul .leader {
+  background: url(images/drinkball.png) no-repeat scroll left center transparent !important;
+  padding-left: 25px!important;
+}
+
+body {
+  background: url(images/bg_i_guess_lol.png) repeat #f3d2bf;
+  color: white;
+}
+
+#v {
+  display: none;
+  background: url(images/toomuchdrink.png);
+  width: 604px;
+  height: 340px;
+  margin: 0 auto;
+}
