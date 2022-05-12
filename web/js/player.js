@@ -754,3 +754,30 @@ window.PLAYERS.twitchclip = {
         }).appendTo('#ytapiplayer');
     }
 };
+
+window.PLAYERS.cloudflare = {
+    loadPlayer: function (src, at, volume) {
+		const url = new URL(src, 'https://iframe.cloudflarestream.com');
+        url.searchParams.set('autoplay', 'true');
+        url.searchParams.set('preload', 'auto');
+        if (volume === 0) {
+            url.searchParams.set('muted', 'true');
+        }
+
+        $('<iframe>', {
+            id: 'cloudflareplayer',
+            src: url,
+            width: videoWidth,
+            height: videoHeight,
+            frameborder: '0',
+            scrolling: 'no',
+            preload: 'auto',
+            allow: 'autoplay; encrypted-media',
+            allowfullscreen: 'true',
+            css: {
+                width: '100%',
+                height: '100%'
+            }
+        }).appendTo('#ytapiplayer');
+    }
+};
