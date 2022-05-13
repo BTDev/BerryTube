@@ -61,6 +61,7 @@ const isoDuration = require('iso8601-duration');
 const fetch = require('node-fetch');
 const bcrypt = require('bcrypt');
 const isoCountries = require('i18n-iso-countries');
+const { randomUUID } = require("crypto");
 
 process.on("uncaughtException", function (err) {
 	console.error(`Uncaught ${err.code}: ${err.message}`);
@@ -979,6 +980,7 @@ const chatCommandMap = {
 			io.sockets.emit("shitpost", {
 				msg: parsed.msg,
 				random: Math.random(),
+				randomMessage: SERVER.OUTBUFFER.main?.[Math.floor(Math.random() * SERVER.OUTBUFFER.main?.length)]?.metadata?.uuid,
 			});
 		}
 
@@ -2468,6 +2470,7 @@ io.sockets.on('connection', function (ioSocket) {
 		if (msg.length > SERVER.settings.core.max_chat_size) { throw kick(`Message length exeeds max size of ${SERVER.settings.core.max_chat_size}`); }
 
 		const metadata = {
+			uuid: randomUUID(),
 			nameflaunt: !!metaAttempt.nameflaunt,
 			flair: ["string", "number"].includes(typeof (metaAttempt.flair))
 				? metaAttempt.flair

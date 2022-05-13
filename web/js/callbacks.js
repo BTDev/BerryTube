@@ -603,6 +603,7 @@ socket.on('forceRefresh', function (data) {
 	}, delay);
 });
 socket.on('shitpost', function (data) {
+	console.log('shitpost', data);
 	const parts = data.msg.split(' ');
 	switch (parts[0].toLowerCase()) {
 		case 'roll':
@@ -616,16 +617,11 @@ socket.on('shitpost', function (data) {
 			}, 1500 + 100);
 			break;
 		case 'ikea':
-			const visibleMessages = Array.from($('#chatbuffer .message')).filter((el) => el.offsetTop > el.offsetParent.scrollTop);
-			let targets = $('> .msg', visibleMessages)/*.add('#chatControls')*/.filter(':not(.ikea)');
-			if (parts[1]) {
-				targets = targets.filter(parts[1]);
-			}
-			if (targets.length === 0) {
+			const target = $(`#chatbuffer .msgwrap[data-uuid=${data.randomMessage}] .msg`).filter(':not(.ikea)')[0];
+			if (!target) {
 				return;
 			}
 
-			const target = targets[Math.floor(targets.length * data.random)];
 			target.classList.add('ikea');
 			if (getComputedStyle(target).display === 'inline') {
 				target.classList.add('ikea-inline');
