@@ -615,6 +615,27 @@ socket.on('shitpost', function (data) {
 				rollTarget.css('animation', '');
 			}, 1500 + 100);
 			break;
+		case 'ikea':
+			const visibleMessages = Array.from($('#chatbuffer .message')).filter((el) => el.offsetTop > el.offsetParent.scrollTop);
+			let targets = $('> .msg', visibleMessages)/*.add('#chatControls')*/.filter(':not(.ikea)');
+			if (parts[1]) {
+				targets = targets.filter(parts[1]);
+			}
+			if (targets.length === 0) {
+				return;
+			}
+
+			const target = targets[Math.floor(targets.length * data.random)];
+			target.classList.add('ikea');
+			if (getComputedStyle(target).display === 'inline') {
+				target.classList.add('ikea-inline');
+			}
+
+			setTimeout(function() {
+				target.classList.remove('ikea');
+				target.classList.remove('ikea-inline');
+			}, 1000 * (5 + 2 + 3) + 100);
+			break;
 	}
 });
 socket.on('debugDump', function (data) {

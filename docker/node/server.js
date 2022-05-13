@@ -978,6 +978,7 @@ const chatCommandMap = {
 
 			io.sockets.emit("shitpost", {
 				msg: parsed.msg,
+				random: Math.random(),
 			});
 		}
 

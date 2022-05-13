@@ -549,3 +549,82 @@ form .submit:hover {
     margin: 10px 0;
     text-align: center;
 }
+
+.ikea {
+    transform-origin: 90% 50%;
+    animation:
+        5s ease-in-out swing,
+        2s ease-in 5s fall,
+        3s linear 7s fadein
+    ;
+}
+.ikea-inline {
+    display: inline-block;
+}
+@keyframes swing {
+    from {
+        transform: rotate(0deg);
+    }
+
+    10% {
+        transform: rotate(calc(-90deg - 60deg));
+    }
+
+    20% {
+        transform: rotate(calc(-90deg + 50deg));
+    }
+
+    30% {
+        transform: rotate(calc(-90deg - 40deg));
+    }
+
+    40% {
+        transform: rotate(calc(-90deg + 30deg));
+    }
+
+    50% {
+        transform: rotate(calc(-90deg - 20deg));
+    }
+
+    60% {
+        transform: rotate(calc(-90deg + 15deg));
+    }
+
+    70% {
+        transform: rotate(calc(-90deg - 10deg));
+    }
+
+    80% {
+        transform: rotate(calc(-90deg + 5deg));
+    }
+
+    90% {
+        transform: rotate(calc(-90deg - 5deg));
+    }
+
+    to {
+        transform: rotate(calc(-90deg + 5deg));
+    }
+}
+@keyframes fall {
+    from {
+        transform: rotate(calc(-90deg + 5deg));
+    }
+
+    to {
+        transform: translateY(100vh) rotate(calc(-90deg - 20deg));
+    }
+}
+@keyframes fadein {
+    from {
+        opacity: 0;
+    }
+
+    50% {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
