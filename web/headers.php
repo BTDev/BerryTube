@@ -111,8 +111,6 @@ if (date('n') == 6 && $_COOKIE['no-pride'] !== 'true') {
 <script src="<?= cdn('js/player.js') ?>" defer></script>
 <script src="<?= cdn('js/modules/main.js') ?>" type="module"></script>
 
-<script src="<?= cdn('plugins/toastthemes/css/btcon2022/videobg.js') ?>" defer></script>
-
 <script src="https://cdnjs.cloudflare.com/ajax/libs/cookieconsent2/3.1.0/cookieconsent.min.js" integrity="sha256-y0EpKQP2vZljM73+b7xY4dvbYQkHRQXuPqRjc7sjvnA=" crossorigin="anonymous" defer></script>
 
 <script src="<?= cdn('berrymotes/js/berrymotes.berrytube.js') ?>" defer></script>
