@@ -27,23 +27,35 @@ function generate_manifest() {
                 throw new PrettyException("Source URL #${ordinal} doesn't have a quality");
             }
 
-            $curl = curl_init();
-            curl_setopt($curl, CURLOPT_URL, $url);
-            curl_setopt($curl, CURLOPT_NOBODY, true);
-            curl_setopt($curl, CURLOPT_FOLLOWLOCATION, true);
-            curl_setopt($curl, CURLOPT_CONNECTTIMEOUT, 5);
-            curl_setopt($curl, CURLOPT_TIMEOUT, 5);
-            curl_exec($curl);
+            if (!$_POST['skipchecks']) {
+                $curl = curl_init();
+                curl_setopt($curl, CURLOPT_URL, $url);
+                curl_setopt($curl, CURLOPT_NOBODY, true);
+                curl_setopt($curl, CURLOPT_FOLLOWLOCATION, true);
+                curl_setopt($curl, CURLOPT_CONNECTTIMEOUT, 5);
+                curl_setopt($curl, CURLOPT_TIMEOUT, 5);
+                curl_exec($curl);
 
-            if ($errno = curl_errno($curl)) {
-                $errstr = curl_strerror($errno);
-                throw new PrettyException("Source URL #${ordinal} doesn't seem to work (Error $errno: $errstr)");
-            }
+                if ($errno = curl_errno($curl)) {
+                    $errstr = curl_strerror($errno);
+                    throw new PrettyException("Source URL #${ordinal} doesn't seem to work (Error $errno: $errstr)");
+                }
 
-            $code = intval(curl_getinfo($curl, CURLINFO_RESPONSE_CODE));
-            curl_close($curl);
-            if ($code != 200) {
-                throw new PrettyException("Source URL #${ordinal} doesn't seem to work (HTTP $code)");
+                $code = intval(curl_getinfo($curl, CURLINFO_RESPONSE_CODE));
+                curl_close($curl);
+                if ($code != 200) {
+                    throw new PrettyException("Source URL #${ordinal} doesn't seem to work (HTTP $code)");
+                }
+
+                passthru('/usr/bin/ffprobe ' . escapeshellarg($url));
+                if (exec('/usr/bin/ffprobe ' . escapeshellarg($url), $ffmpeg) === 0) {
+                    var_dump($ffmpeg);
+                    if (preg_match('/^\s*Duration: ([^,]+)/m', implode('\n', $ffmpeg), $matches) === false) {
+                        throw new PrettyException("Unable to determined duration of source URL #${ordinal}");
+                    }
+                    $duration = parse_duration($matches[1]);
+                    $data['duration'] = $duration;
+                }
             }
 
             $data['sources'][] = [
@@ -53,16 +65,19 @@ function generate_manifest() {
             ];
         }
     }
+    if ($data['duration'] === 0) {
+        throw new PrettyException("Unable to determine the duration of the video! If the given URLs are not yet available, you have to specify the duration manually.");
+    }
     return json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR);
 }
 
-function retain_value($name, $subkey = null) {
+function retain_value($name, $subkey = null, $attr = 'value') {
     if (array_key_exists($name, $_POST)) {
         if ($subkey === null) {
-            return 'value="' . htmlspecialchars($_POST[$name]) . '"';
+            return $attr . '="' . htmlspecialchars($_POST[$name]) . '"';
         }
         if (array_key_exists($subkey, $_POST[$name])) {
-            return 'value="' . htmlspecialchars($_POST[$name][$subkey]) . '"';
+            return $attr . '="' . htmlspecialchars($_POST[$name][$subkey]) . '"';
         }
     }
     return '';
@@ -130,7 +145,7 @@ $error .= ob_get_clean();
                     </div>
                     <div class="col-sm-3">
                         <label for="duration" class="form-label">Duration (<code>hh:mm:ss</code>)</label>
-                        <input type="text" class="form-control" name="duration" required minlength="1" pattern="^(\d+:)?(\d+:)?\d+$" <?= retain_value('duration') ?> />
+                        <input type="text" class="form-control" name="duration" placeholder="autodetect" pattern="^((\d+:)?(\d+:)?\d+|autodetect)$" <?= retain_value('duration') ?> />
                     </div>
                 </div>
                 <div class="row">
@@ -151,6 +166,12 @@ $error .= ob_get_clean();
                         </div>
                     </div>
                 <?php } ?>
+                
+                <div>
+                    <input type="checkbox" name="skipchecks" <?= retain_value('skipchecks', null, 'checked') ?> />
+                    <label for="skipchecks">Skip validity checks</label>
+                </div>
+
                 <button type="submit" class="btn btn-primary">Generate</button>
 
                 <?php if ($manifest) { ?>
