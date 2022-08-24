@@ -357,6 +357,9 @@ socket.on("recvFilters", function (data) {
 socket.on("recvBanlist", function (data) {
 	BANLIST = data;
 });
+socket.on("recvPartyRoomList", function (data) {
+	PARTYROOMLIST = data;
+});
 socket.on("recvPlugins", function (data) {
 	for (var i = 0; i < data.length; i++) {
 		//console.log("plugins",data[i]);

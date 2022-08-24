@@ -48,6 +48,10 @@
 	margin:3px;
 	background:#DEDEDE;
 }
+.dialogWindow .button.disabled{
+	opacity: .3;
+	pointer-events:none;
+}
 .dialogWindow .button:hover{
 	background:#F9F9F9;
 }

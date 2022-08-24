@@ -183,6 +183,7 @@ var KEEP_BUFFER = true;
 var RCV_HOLDTIME = 1000 * 30;
 var FILTERS = false;
 var BANLIST = false;
+var PARTYROOMLIST = false;
 var PLUGINS = [];
 var NAMEFLAUNT = false;
 var VOLUME = false;
@@ -709,6 +710,14 @@ function showConfigMenu(on) {
 				showBanlistWindow();
 			});
 
+			// Party Room list
+			var row = $('<div/>').appendTo(modOps);
+			var showPartyRoomListBtn = $('<div/>').appendTo(row).addClass('button');
+			var showPartyRoomListBtn_label = $('<span/>').appendTo(showPartyRoomListBtn).text("Show Party Room List");
+			showPartyRoomListBtn.click(function () {
+				showPartyRoomListWindow();
+			});
+
 		}
 	}
 	//----------------------------------------
@@ -820,6 +829,14 @@ function showUserActions(who) {
 		});
 	}
 
+	if (canApplyPartyRoom()) {
+		var partyRoom = $('<li/>').text("Grant Party Room").addClass('btn').appendTo(optWrap);
+		partyRoom.click(function () {
+			showPartyRoomDialog(target);
+			cmds.window.close();
+		});
+	}
+
 	if (TYPE >= 1 && target != NAME && !who.hasClass('anon')) {
 		var edit = $('<li/>').text("Edit note").addClass('btn').appendTo(optWrap);
 		edit.click(function () {
@@ -870,9 +887,11 @@ function showEditNote(nick) {
 }
 function addUser(data, sortafter) {
 	whenExists('#chatlist ul', function (chatul) {
+		console.log(data);
 		var nick = data.nick;
 		var type = data.type;
 		var shadowbanned = data.shadowbanned;
+		var partyRoom = data.partyRoom.duration !== 0;
 		var ip = ((TYPE >= 1 && data.meta !== undefined) ? data.meta.ip : false);
 
 		var newusr = $('<li/>').append($('<span/>').addClass('chatlistname').text(nick)).data('nick', nick).show("blind").appendTo(chatul).attr('nick', nick);
@@ -883,6 +902,9 @@ function addUser(data, sortafter) {
 		}
 		if (shadowbanned) {
 			newusr.addClass('sbanned');
+		}
+		if (partyRoom) {
+			newusr.addClass('partyRoom');
 		}
 		switch (type) {
 			case -1: newusr.addClass("anon"); break;

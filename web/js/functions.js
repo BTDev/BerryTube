@@ -364,6 +364,122 @@ function showIgnoreDialog() {
 
 	parent.window.center();
 }
+
+function showPartyRoomListWindow() {
+	socket.emit('getPartyRoomList');
+
+	var parent = $("body").dialogWindow({
+		title: "Party Room List",
+		uid: "partyroomlist",
+		center: true,
+		initialLoading: true
+	});
+
+	var mainOptWrap = $('<div/>').appendTo(parent).addClass('controlWindow');
+	var partyRoomZone = $('<div/>').addClass('partyRoomZone').appendTo(mainOptWrap);
+
+
+	var table = $('<table>').appendTo(partyRoomZone).css({'text-align':'center',border:'1px solid','border-collapse':'collapse',width:'600px'});
+	$('<tr><th>Note</th><th>Votes</th><th>IP</th><th>Orig. Nick</th><th>Time Rem.</th><th>Remove</th></tr>').appendTo(table);
+	function addPartyRoomRow(data) {
+		let remaining = "indefinite";
+		if (data.duration > 0) {
+			let now = new Date().getTime();
+			let later = new Date(data.partyRoomAppliedOn + (data.duration * 60000)).getTime();
+			remaining = Math.floor((later - now)/3600000) + new Date(later - now).toISOString().substring(13, 19);
+		}
+		partyRow = $(`<tr><td>${data.note}</td><td>${data.maxVotes}</td><td>${data.ips.join('/')}</td><td>${data.nicks.join(',')}</td><td>${remaining}</td></tr>`);
+		$('<div/>').addClass('button').css('width','50%').text("X").click(function () {
+			socket.emit('partyRoom', { nicks: data.nicks, ips: data.ips, duration: 0, maxVotes: 1, note: data.note});
+			partyRow.remove();
+		}).wrap('<td>').appendTo(partyRow);
+		partyRow.appendTo(table);
+	}
+
+	function loadExisting() {
+		dbg(PARTYROOMLIST);
+		if (PARTYROOMLIST.length == 0) {
+			$('<div/>').text("No Party Roomed Users/IPs right now").css('width', '280px').css('margin', '10px').appendTo(partyRoomZone);
+		}
+		else {
+			for (var i in PARTYROOMLIST) {
+				addPartyRoomRow(PARTYROOMLIST[i]);
+			}
+		}
+		PARTYROOMLIST = false;
+		parent.window.setLoaded();
+	}
+
+	function waitForExisting() {
+		dbg("Waiting for ban list");
+		setTimeout(function () {
+			if (!PARTYROOMLIST) {
+				waitForExisting();
+			}
+			else {
+				loadExisting();
+				parent.window.center();
+			}
+		}, 500);
+	}
+
+	waitForExisting();
+}
+function showPartyRoomDialog(nick) {
+	var parent = $("body").dialogWindow({
+		title: "Apply Party Room",
+		uid: "partyroomuser",
+		center: true
+	});
+
+	var mainOptWrap = $('<div/>').appendTo(parent).addClass('controlWindow');
+	$('<p>').appendTo(mainOptWrap).text("Applying Party Room to " + nick + ":").css('margin', '10px 5px 10px 5px');
+	var row = $('<div/>').appendTo(mainOptWrap).css('margin', '0px 5px 10px 5px');
+	$('<label for="note">').text('Note: ').appendTo(row);
+	var note = $('<input name="note" placeholder="Con Name/Group/etc">').appendTo(row);
+	row = $('<div/>').appendTo(mainOptWrap).css('margin', '0px 5px 10px 5px');
+	$('<label for="duration">').text('Duration: ').appendTo(row);
+	var timeSelect = $('<select name="duration"/>').appendTo(row);
+	//$("<option/>").appendTo(timeSelect).data("time", .02).text("72 Seconds");//testing
+	$("<option/>").appendTo(timeSelect).data("time", 1).text("1 hour");
+	$("<option/>").appendTo(timeSelect).data("time", 6).text("6 hours");
+	$("<option/>").appendTo(timeSelect).data("time", 12).text("12 hours");
+	$("<option/>").appendTo(timeSelect).data("time", 24).text("24 hours");
+	$("<option/>").appendTo(timeSelect).data("time", 36).text("36 hours");
+	$("<option/>").appendTo(timeSelect).data("time", 48).text("48 hours");
+	$("<option/>").appendTo(timeSelect).data("time", 72).text("72 hours");
+	if (TYPE >= 2) {
+		$("<option/>").appendTo(timeSelect).data("time", -1).text("Indefinite");
+	}
+	row = $('<div/>').appendTo(mainOptWrap).css('margin', '0px 5px 10px 5px');
+	$('<label for="maxVotes">').text('Allotted Votes: ').appendTo(row);
+	var maxVotes = $('<input type="number" name="maxVotes" min="1" value="2" max="30">').appendTo(row);
+	var buttonDiv = $('<div/>').css("text-align", "center").appendTo(mainOptWrap);
+	var cancelBtn = $('<div/>').addClass('button').appendTo(buttonDiv);
+	$('<span/>').appendTo(cancelBtn).text("Cancel");
+	cancelBtn.click(function () {
+		parent.window.close();
+	});
+	var saveBtn = $('<div/>').addClass('button disabled').appendTo(buttonDiv);
+	note.keyup(function(){
+		if (!$(this).val()) {
+			saveBtn.addClass('disabled');
+		} else {
+			saveBtn.removeClass('disabled');
+		}
+	});
+	$('<span/>').appendTo(saveBtn).text("Apply");
+	saveBtn.click(function () {
+		if(!note.val()) return;
+		socket.emit('partyRoom', { nicks: [nick], ips: [$(`li[nick="${nick}"]`).attr('ip')],
+		duration: timeSelect.find(':selected').data('time') * 60, maxVotes:parseInt(maxVotes.val()),
+			note:note.val()});
+		parent.window.close();
+	});
+
+	parent.window.center();
+}
+
 function showBanlistWindow() {
 	socket.emit('getBanlist');
 
@@ -2114,6 +2230,9 @@ function canShadowBan() {
 }
 function canBan() {
 	return TYPE >= 2;
+}
+function canApplyPartyRoom() {
+	return TYPE >= 1;
 }
 function canSetAreas() {
 	return TYPE >= 2;

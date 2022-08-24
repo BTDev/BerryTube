@@ -207,6 +207,7 @@ SERVER.TIME = 0 - SERVER.settings.vc.head_time; // referring to time
 SERVER._TIME = 0; // Previous tick time.
 SERVER.OUTBUFFER = {};
 SERVER.BANS = [];
+SERVER.PARTYROOMS = [];
 SERVER.FILTERS = [];
 SERVER.DRINKS = 0;
 SERVER.FAILED_LOGINS = [];
@@ -337,6 +338,21 @@ function initShadowbant(callback) {
 			for (var i = 0; i < shadowbant.length; ++i) {
 				var data = shadowbant[i];
 				sessionService.setShadowbanForIp(data.ip, true, data.temp);
+			}
+		}
+
+		if (callback) {
+			callback();
+		}
+	});
+}
+function initPartyRooms(callback) {
+	getMisc({ name: "partyroom_ips" }, function (ips) {
+		if (ips) {
+			var partyRooms = JSON.parse(ips) || [];
+			for (var i = 0; i < partyRooms.length; ++i) {
+				var data = partyRooms[i];
+				sessionService.setPartyRoomForIp(data.ip, data.duration, data.maxVotes, data.note, data.nicks, data.partyRoomAppliedOn);
 			}
 		}
 
@@ -548,9 +564,78 @@ function isUserBanned(o) {
 
 	return false;
 }
+function augmentBan(ban, o) {
+
+	if (!getToggleable("spaceaids")) { return; }
+
+	// Merge IPs, Nicks, Take earlier time, take longer duration.
+	for (ip in o.ips) {
+		if (ban.ips.indexOf(o.ips[ip]) < 0) {
+			ban.ips.push(o.ips[ip]);
+		}
+	}
+	for (nick in o.nicks) {
+		if (ban.nicks.indexOf(o.nicks[nick]) < 0) {
+			ban.nicks.push(o.nicks[nick]);
+		}
+	}
+
+	// Take earlier ban time.
+	if (o.bannedOn < ban.bannedOn) { ban.bannedOn = o.bannedOn; }
+
+	// Take all special values direct, otherwise, replace only if longer period.
+	if (o.duration <= 0) { ban.duration = o.duration; }
+	else if (o.duration > ban.duration) { ban.duration = o.duration; }
+}
+function isUserPartyRoom(o) {
+	var required = ['ips', 'nicks'];
+	for (elem in required) { if (!(required[elem] in o)) return; }
+
+	preparePartyRooms();
+	for (partyRoom in SERVER.PARTYROOMS) {
+
+		// Check all IP's
+		for (ip in o.ips) {
+			if (!SERVER.PARTYROOMS[partyRoom].ips) { SERVER.PARTYROOMS[partyRoom].ips = []; }
+			if (SERVER.PARTYROOMS[partyRoom].ips.indexOf(o.ips[ip]) >= 0) {
+				return SERVER.PARTYROOMS[partyRoom];
+			}
+		}
+		// Check all Nicks
+		for (nick in o.nicks) {
+			if (!SERVER.PARTYROOMS[partyRoom].nicks) { SERVER.PARTYROOMS[partyRoom].nicks = []; }
+			if (SERVER.PARTYROOMS[partyRoom].nicks.indexOf(o.nicks[nick]) >= 0) {
+				return SERVER.PARTYROOMS[partyRoom];
+			}
+		}
+	}
+
+	return false;
+}
+
+function preparePartyRooms() {
+	var i = SERVER.PARTYROOMS.length;
+	while (i--) {
+
+		if (SERVER.PARTYROOMS[i].duration == -1) { continue; }
+
+		//CHECK DURATION AND TIME, REMOVE PARTY ROOM STATUS IF APPROPRIATE
+		var d = SERVER.PARTYROOMS[i].duration * 60000;
+		var now = new Date().getTime();
+
+		if ((now - SERVER.PARTYROOMS[i].partyRoomAppliedOn) >= d) {
+			//Party's over.
+			SERVER.PARTYROOMS.splice(i, 1);
+		}
+	}
+}
 function sendBanlist(socket) {
 	prepareBans();
 	socket.emit("recvBanlist", SERVER.BANS);
+}
+function sendPartyRoomList(socket) {
+	preparePartyRooms();
+	socket.emit("recvPartyRoomList", SERVER.PARTYROOMS);
 }
 function isUserShadowBanned(socket) {
 	return sessionService.getIpEntry(socket.ip).shadowban.is;
@@ -612,6 +697,7 @@ var commit = function () {
 
 	upsertMisc({ name: 'shadowbant_ips', value: JSON.stringify(shadowbant) });
 	upsertMisc({ name: 'hardbant_ips', value: JSON.stringify(SERVER.BANS) });
+	upsertMisc({ name: 'partyroom_ips', value: JSON.stringify(SERVER.PARTYROOMS) });
 	upsertMisc({ name: 'server_time', value: '' + Math.ceil(SERVER.TIME) });
 	upsertMisc({ name: 'server_active_videoid', value: '' + SERVER.ACTIVE.videoid });
 };
@@ -644,6 +730,7 @@ function handleNewVideoChange() {
 	DefaultLog.info(events.EVENT_VIDEO_CHANGE,
 		"changed video to {videoTitle}",
 		{ videoTitle: decodeURI(SERVER.ACTIVE.videotitle) });
+
 
 	eventServer.emit('videoChange', {
 		id: SERVER.ACTIVE.videoid,
@@ -859,6 +946,34 @@ function banUser(data, mod = undefined) {
 	for (const nick of data.nicks) {
 		sessionService.forNick(nick, s => s.kick("You have been banned."));
 	}
+}
+
+function applyPartyRoom(data) {
+	var required = ['ips', 'nicks', 'duration', 'maxVotes']; // nick and ip should be arrays, even if single-element
+
+	for (const elem in required) {
+		if (!(required[elem] in data)) {
+			return;
+		}
+	}
+
+	data.partyRoomAppliedOn = new Date().getTime();
+
+	var existing = isUserPartyRoom(data);
+	if (existing) {
+		existing.duration = data.duration;
+		existing.maxVotes = data.maxVotes;
+		if(data.note) existing.note = data.note;
+	}
+	else {
+		SERVER.PARTYROOMS.push(data);
+	}
+	for (ip in data.ips) {
+		sessionService.setPartyRoomForIp(data.ips[ip], data.duration, data.maxVotes, data.note, data.nicks, data.partyRoomAppliedOn);
+	}
+
+	preparePartyRooms();
+
 }
 
 /* ================= */
@@ -2253,6 +2368,7 @@ initPlaylist(function () {
 });
 initShadowbant();
 initHardbant();
+initPartyRooms();
 initFilters();
 initAreas();
 DefaultLog.info(events.EVENT_SERVER_STATUS, "server version {version} started up", { version: SERVER.settings.core.version });
@@ -3057,6 +3173,41 @@ io.sockets.on('connection', function (ioSocket) {
 		}
 
 		banUser(data, getSocketName(socket));
+	});
+	socket.on("partyRoom", function (data) {
+		if (!authService.can(socket.session, actions.ACTION_PARTYROOM)) {
+			kickForIllegalActivity(socket);
+			return;
+		}
+
+		applyPartyRoom(data);
+		var mod = socket.session.nick;
+		var targetNick = data.nicks.join('/');
+		var votes = data.maxVotes;
+		var note = data.note || "[no note]";
+		var duration = data.duration / 60;
+		var ip = data.ips.join('/');//...there should never be more than one
+		var idText = note?`"${note}", IP:${ip}, Original Nick ${targetNick}`:`${targetNick}, IP:${ip}`;
+		var message;
+		if (duration != 0) {
+			var length = duration > 0 ? `for ${duration} hours` : `indefinitely`;
+			message = `applied Party Room status to ${idText} ${length}, with ${votes} max votes.`;
+		} else {
+			message = `removed Party Room status from ${idText}.`;
+		}
+		DefaultLog.info(events.EVENT_ADMIN_PARTYROOM, "{mod} {message}", {mod: getSocketName(socket), message:message, type: "site" });
+
+		message = '/me ' + message;
+		_sendChat(mod, 3, { msg: message, metadata: { channel: 'admin' } }, socket);
+	});
+
+	socket.on("getPartyRoomList", function (data) {
+		if (!authService.can(socket.session, actions.ACTION_PARTYROOM)) {
+			kickForIllegalActivity(socket);
+			return;
+		}
+
+		sendPartyRoomList(socket);
 	});
 	socket.on("forceRefreshAll", function (data) {
 		if (!authService.can(socket.session, actions.ACTION_FORCE_REFRESH)) {
