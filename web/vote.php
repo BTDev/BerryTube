@@ -1,6 +1,9 @@
 <?php
 
 	require_once('config.php');
+	if(!isset($_COOKIE['retainVote'])) {
+		setcookie('retainVote', 1, time()+60, '/', $domain);
+	}
 
 	if (CDN_ORIGIN !== ORIGIN) {
 		array_unshift($preconnects, CDN_ORIGIN);

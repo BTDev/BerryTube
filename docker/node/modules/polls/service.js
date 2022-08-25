@@ -239,6 +239,8 @@ exports.PollService = class extends ServiceBase {
 	 * @param {*} socket socket.io to unset votes for
 	 */
 	async clearVote(socket) {
+		//okay, thought I could use the vote.php referrer for vote retention, but that doesn't seem to show in the socket's headers
+		if(socket.retainVote) return;
 		const ipAddress = socket.ip;
 		const voteData = socket.session[propVoteData];
 		if (!voteData) {

@@ -208,6 +208,9 @@ class BerrySocket {
 	get browserCookie() {
 		return this.socket.handshake.headers['cookie']?.match(/uniqueBrowser=([a-f0-9\-]+)/)?.[1];
 	}
+	get retainVote() {
+		return this.socket.handshake.headers['cookie']?.match(/retainVote=(\d)/)?.[1];
+	}
 
 	constructor({ log }, socket) {
 		this.log = log;
