@@ -34,6 +34,7 @@ body{min-width:auto;}
 		<div id="rightpane">
 
 		</div>
+		<span>Polls appear here, if one is active!</span>
 </div>
 </body>
 </html>
