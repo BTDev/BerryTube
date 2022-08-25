@@ -891,7 +891,7 @@ function addUser(data, sortafter) {
 		var nick = data.nick;
 		var type = data.type;
 		var shadowbanned = data.shadowbanned;
-		var partyRoom = data.partyRoom.duration !== 0;
+		var partyRoom = data.partyRoom?.duration||0 !== 0;
 		var ip = ((TYPE >= 1 && data.meta !== undefined) ? data.meta.ip : false);
 
 		var newusr = $('<li/>').append($('<span/>').addClass('chatlistname').text(nick)).data('nick', nick).show("blind").appendTo(chatul).attr('nick', nick);
