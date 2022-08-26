@@ -348,7 +348,7 @@ function initPlaylist(callback) {
 }
 function initResumePosition(callback) {
 	getMisc({ name: 'server_active_videoid' }, function (old_videoid) {
-		SERVER.ACTIVE = PLAYLIST.find(video => video.videoid() === old_videoid);
+		SERVER.ACTIVE = SERVER.PLAYLIST.find(video => video.videoid === old_videoid);
 		
 		if (SERVER.ACTIVE) {
 			getMisc({ name: 'server_time' }, function (old_time) {
@@ -547,7 +547,7 @@ function doorStuck(socket) {
 }
 function playNext() {
 	const active = {
-		position: SERVER.PLAYLIST.indexOf(SERVER.ACTIVE),
+		position: SERVER.PLAYLIST.indexOf(video => video.videoid === SERVER.ACTIVE.videoid),
 		node: SERVER.ACTIVE
 	};
 
@@ -724,7 +724,7 @@ function kickUserByNick(socket, nick, reason) {
 	sessionService.forNick(nick, session => session.kick(reason, getSocketName(socket)));
 }
 var commit = function () {
-	SERVER.PLAYLIST.each(video => {
+	SERVER.PLAYLIST.each((video, i) => {
 		var sql = `update ${SERVER.dbcon.video_table} set position = ? where videoid = ?`;
 		mysql.query(sql, [i, '' + video.videoid], function (err) {
 			if (err) {
