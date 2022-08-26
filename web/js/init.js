@@ -96,6 +96,61 @@ LinkedList.Circular.prototype.remove = function (node) {
 	node.next = null;
 	this.length--;
 };
+
+LinkedList.Circular.prototype.some = function(cb) {
+	return this.find(cb) !== null;
+}
+
+LinkedList.Circular.prototype.find = function(cb) {
+	let video = this.first;
+
+	for (let i = 0; i < this.length; i++) {
+		if (cb(video, i)) {
+			return video;
+		}
+
+		video = video.next;
+	}
+
+	return null;
+}
+LinkedList.Circular.prototype.multiple = function(indexes) {
+	let map = new Map(
+		indexes.map(i => [i, null])
+	);
+
+	let video = this.first;
+	let max = Math.max(...indexes);
+
+	for (let i = 0; i <= max; i++) {
+		if (map.has(i)) {
+			map.set(i, video);
+		}
+
+		video = video.next;
+	}
+
+	return indexes.map(i => map.get(i));
+}
+LinkedList.Circular.prototype.at = function(index) {
+	let video = this.first;
+
+	for (let i = 0; i < index; i++) {
+		video = video.next;
+	}
+
+	return video;
+}
+
+LinkedList.Circular.prototype.each = function(cb) {
+	let video = this.first;
+
+	for (let i = 0; i < this.length; i++) {
+		cb(video, i);
+		video = video.next;
+	}
+}
+
 LinkedList.Circular.prototype.toArray = function () {
 	var elem = this.first;
 	var out = [];
@@ -1200,17 +1255,11 @@ function initPlaylistControls(plwrap) {
 		if (controlsPlaylist()) {
 			var btn = $(this);
 			parseVideoURL($(videoImport).val(), function (id, type, videotitle) {
-				elem = PLAYLIST.first; var found = false;
-				for (var i = 0; i < PLAYLIST.length; i++) {
-					if (elem.videoid == id) {
-						found = true;
-						doRequeue(elem.domobj);
-						console.log("found");
-						break;
-					}
-					elem = elem.next;
-				}
-				if (!found) {
+				const video = PLAYLIST.find(video => video.videoid === id);
+
+				if (video) {
+					doRequeue(video.domobj);
+				} else {
 					btn.data('revertTxt', "Q");
 					btn.text('').addClass("loading");
 					LAST_QUEUE_ATTEMPT = {
@@ -1231,18 +1280,12 @@ function initPlaylistControls(plwrap) {
 		if (controlsPlaylist()) {
 			var btn = $(this);
 			parseVideoURL($(videoImport).val(), function (id, type, videotitle) {
-				elem = PLAYLIST.first; var found = false;
-				for (var i = 0; i < PLAYLIST.length; i++) {
-					if (elem.videoid == id) {
-						found = true;
-						doRequeue(elem.domobj);
-						console.log("found");
-						break;
-					}
-					elem = elem.next;
-				}
-				if (!found) {
-					btn.data('revertTxt', "V");
+				const video = PLAYLIST.find(video => video.videoid === id);
+
+				if (video) {
+					doRequeue(video.domobj);
+				} else {
+					btn.data('revertTxt', "Q");
 					btn.text('').addClass("loading");
 					LAST_QUEUE_ATTEMPT = {
 						queue: true,
@@ -1256,39 +1299,6 @@ function initPlaylistControls(plwrap) {
 			});
 		}
 	});
-
-	/*
-	var vaddBtn = $('<div/>').addClass("impele").addClass("btn").text("+").appendTo(container);
-	vaddBtn.click(function(){
-		if(controlsPlaylist()){
-			var btn = $(this);
-			parseVideoURL($(videoImport).val(),function(id,type,videotitle){
-				elem=PLAYLIST.first; var found = false;
-				for(var i=0;i<PLAYLIST.length;i++){
-					if(elem.videoid == id){
-						found = true;
-						doRequeue(elem.domobj);
-						console.log("found");
-						break;
-					}
-					elem=elem.next;
-				}
-				if(!found){
-					btn.data('revertTxt',"+");
-					btn.text('').addClass("loading");
-					LAST_QUEUE_ATTEMPT = {
-						queue:false,
-						videotype:type,
-						videoid:id,
-                        videotitle:videotitle,
-						volat:false
-					};
-					socket.emit("addVideo", LAST_QUEUE_ATTEMPT);
-				}
-			});
-		}
-	});
-	*/
 
 	videoImport.keyup(function (e) { if (e.keyCode == 13) { vvBtn.click(); } });
 	$('<div/>').addClass("clear").appendTo(container);
@@ -1434,23 +1444,19 @@ function initMultiqueue(){
 
 	function queue(link) {
 		parseVideoURL(link, function (id, type, videotitle) {
-			elem = PLAYLIST.first;
-			var found = false;
-			for (var i = 0; i < PLAYLIST.length; i++) {
-				if (elem.videoid == id) {
-					found = true;
-					doRequeue(elem.domobj);
-					break;
-				}
-				elem = elem.next;
-			}
-			if (!found) {
+			const video = PLAYLIST.find(video => video.videoid === id);
+
+			if (video) {
+				doRequeue(video.domobj);
+			} else {
+				btn.data('revertTxt', "Q");
+				btn.text('').addClass("loading");
 				LAST_QUEUE_ATTEMPT = {
 					queue: true,
 					videotype: type,
 					videoid: id,
 					videotitle: videotitle,
-					volat: true,
+					volat: true
 				};
 				socket.emit("addVideo", LAST_QUEUE_ATTEMPT);
 			}
@@ -1468,17 +1474,15 @@ function doPlaylistJump(elem) {
 function newPlaylist(plul) {
 
 	$(plul).children().remove();
-	var elem = PLAYLIST.first;
-	for (var i = 0; i < PLAYLIST.length; i++) {
-		var entry = $("<li/>").appendTo(plul);
-		entry.data('plobject', elem);
-		elem.domobj = entry;
+	PLAYLIST.each(video => {
+		const entry = $('<li>').appendTo(plul);
 
-		populatePlEntry(entry, elem);
+		entry.data('plobject', video);
+		video.domobj = entry;
 
-		elem = elem.next;
-	}
-	dbg(PLAYLIST.first.videolength);
+		populatePlEntry(entry, video);
+	});
+
 	recalcStats();
 }
 function initPlaylist(parent) {

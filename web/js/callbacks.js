@@ -68,17 +68,19 @@ socket.on("renewPos", function (data) {
 });
 socket.on("recvNewPlaylist", function (data) {
 	PLAYLIST = new LinkedList.Circular();
-	for (var i in data) {
-		PLAYLIST.append(data[i]);
+	for (const video of data) {
+		PLAYLIST.append(video);
 	}
+
 	newPlaylist($("#plul"));
 	socket.emit("renewPos");
 });
 socket.on("recvPlaylist", function (data) {
 	PLAYLIST = new LinkedList.Circular();
-	for (var i in data) {
-		PLAYLIST.append(data[i]);
+	for (const video of data) {
+		PLAYLIST.append(video);
 	}
+	
 	whenExists("#leftpane", function (obj) {
 		initPlaylist($(obj));
 		setVal("PLREADY", true);
