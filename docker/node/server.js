@@ -2793,7 +2793,7 @@ io.sockets.on('connection', function (ioSocket) {
 
 		const prev = {
 			node: SERVER.ACTIVE,
-			position: SERVER.PLAYLIST.indexOf(video => video.videoid === node.videoid)
+			position: SERVER.PLAYLIST.indexOf(video => video.videoid === SERVER.ACTIVE.videoid)
 		};
 		const next = {
 			node: SERVER.PLAYLIST.at(data.index),
