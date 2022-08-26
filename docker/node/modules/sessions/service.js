@@ -97,6 +97,44 @@ exports.SessionService = class extends ServiceBase {
 		}
 	}
 
+	setPartyRoomForIp(ip, duration = 0, maxVotes = 1, note = "[no note]", nicks = [], partyRoomAppliedOn) {
+		const entry = this.getIpEntry(ip);
+
+		if (entry.partyRoom.timer) {
+			clearTimeout(entry.partyRoom.timer);
+		}
+
+		if (duration > 0) {
+			entry.partyRoom.timer = setTimeout(() => {
+				this.setPartyRoomForIp(ip, 0, 1, note, nicks, partyRoomAppliedOn);
+			}, duration * 60000);
+		}
+
+		entry.partyRoom.duration = duration;
+		entry.partyRoom.maxVotes = maxVotes;
+		entry.partyRoom.note = note;
+		entry.partyRoom.nicks = nicks;
+		entry.partyRoom.partyRoomAppliedOn = partyRoomAppliedOn;
+		entry.partyRoom.currentVotes = 0;
+		this.sendPartyRoomStatusToMods(ip);
+	}
+
+	sendPartyRoomStatusToMods(ip) {
+		const entry = this.getIpEntry(ip);
+		const nicks = this.getSessionsForIp(ip)
+			.filter(s => s.hasNick)
+			.map(s => s.nick);
+		this.forCan(actions.CAN_SEE_PARTY_ROOMS, s =>
+			nicks.forEach(nick => {
+				const { timer, ...noTimer} = entry.partyRoom;
+				s.emit("partyRoom", noTimer);
+			}),
+		);
+	}
+
+	getPartyRoomInfoForIp(ip) {
+		return this.getIpEntry(ip).partyRoom;
+	}
 	setShadowbanForNick(nick, is, isTemp) {
 		this.forNick(nick, session => {
 			const ips = new Set();
@@ -574,6 +612,7 @@ class IpAddressEntry {
 		this.failedLoginAttemptByNick = {};
 		this.sockets = [];
 		this.shadowban = { is: false, isTemp: false, timer: null };
+		this.partyRoom = {duration: 0, timer: null, maxVotes: 1, currentVotes: 0, nicks: [], note:"none"};
 
 		// ???
 		this.timestamp = now();

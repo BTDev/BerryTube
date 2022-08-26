@@ -17,7 +17,7 @@ exports.PollService = class extends ServiceBase {
 		this.nextPollId = 1;
 		this.currentPoll = null;
 		this.auth = services.auth;
-		this.votedIpAddressMap = {};
+		this.uniqueVoterMap = {partyUsers:{},partyCookies:{},ips:{}};
 		this.io = services.io;
 		this.sessions = services.sessions;
 
@@ -60,7 +60,7 @@ exports.PollService = class extends ServiceBase {
 		options.creator = socket.session.nick;
 		options.creator = options.creator || "some guy";
 		this.currentPoll = new PollType(this, this.nextPollId++, options, this.log);
-		this.votedIpAddressMap = {};
+		this.uniqueVoterMap = {partyUsers:{},partyCookies:{},ips:{}};
 		await this.publishToAll("newPoll");
 
 		this.log.info(
@@ -127,6 +127,11 @@ exports.PollService = class extends ServiceBase {
 
 		this.currentPoll.isObscured = false;
 
+		//clear the party
+		for (const ip in this.sessions.ipAddresses) {
+			this.sessions.ipAddresses[ip].partyRoom.currentVotes = 0;
+		}
+
 		try {
 			await this.publishToAll("clearPoll");
 		} catch (e) {
@@ -153,9 +158,43 @@ exports.PollService = class extends ServiceBase {
 		}
 
 		this.currentPoll = null;
-		this.votedIpAddressMap = {};
+		this.uniqueVoterMap = {};
 
 		this.log.info(events.EVENT_ADMIN_CLOSED_POLL, "{mod} closed poll {title}", logData);
+	}
+
+	//cludgy
+	canPartyRoomVote(ip, justChecking = false) {
+		const pr = this.sessions.ipAddresses[ip].partyRoom;
+		const maxxed = (pr.currentVotes >= pr.maxVotes);
+		//current logic would allow an extra vote from IP, so throw an error if vote is actually being attempted
+		//needs tidying
+		if (maxxed && !justChecking)
+			throw new Error("Party room has reached its vote cap" );
+		return (pr.duration !== 0 && !maxxed);
+	}
+
+	voterID(socket) {
+		const ip = socket.ip;
+		if (!ip) {
+			throw new Error("Could not determine IP address of socket");
+		}
+		const uniq = {key:"ips",val:ip,name:"IP"};
+		if (this.canPartyRoomVote(ip)) {
+			//maybe later implement specific-user limitations for indefinites?
+			if (socket.session.hasNick && socket.session.type >= 0) {
+				uniq.key = "partyUsers";
+				uniq.val = socket.session.nick;
+				uniq.name = "Party User";
+			} else if (socket.browserCookie && this.sessions.ipAddresses[ip].partyRoom.duration > 0) {
+				//cookie differentiation might abused more, if provided to indefinite(-1) "party rooms"
+				//so they'll be limited to nicks
+				uniq.key = "partyCookies";
+				uniq.val = socket.browserCookie;
+				uniq.name = "Party Cookie";
+			}
+		}
+		return uniq;
 	}
 
 	/**
@@ -173,18 +212,12 @@ exports.PollService = class extends ServiceBase {
 			throw new Error("unauthorized");
 		}
 
-		const ipAddress = socket.ip;
-		if (!ipAddress) {
-			throw new Error("Could not determine IP address of socket");
-		}
-
-		if (
-			ipAddress != "172.20.0.1" &&
-			this.votedIpAddressMap.hasOwnProperty(ipAddress) &&
-			this.votedIpAddressMap[ipAddress] != socket.id
+		const uniq = this.voterID(socket);
+		if (this.uniqueVoterMap[uniq.key].hasOwnProperty(uniq.val) &&
+			this.uniqueVoterMap[uniq.key][uniq.val] != socket.id
 		) {
-			throw new Error("IP has already voted");
-		}
+			throw new Error(`${uniq.name} "${uniq.val}" has already voted`);
+		} 
 
 		const existingVote = socket.session[propVoteData];
 		if (existingVote && existingVote.isComplete) {
@@ -194,7 +227,9 @@ exports.PollService = class extends ServiceBase {
 		const newVote = this.currentPoll.castVote(options, existingVote);
 		socket.session[propVoteData] = newVote;
 
-		this.votedIpAddressMap[ipAddress] = socket.id;
+		this.uniqueVoterMap[uniq.key][uniq.val] = socket.id;
+		if (this.canPartyRoomVote(socket.ip))
+			this.sessions.ipAddresses[socket.ip].partyRoom.currentVotes++;
 		await this.publishToAll("updatePoll", true);
 	}
 
@@ -204,14 +239,17 @@ exports.PollService = class extends ServiceBase {
 	 * @param {*} socket socket.io to unset votes for
 	 */
 	async clearVote(socket) {
+		//okay, thought I could use the vote.php referrer for vote retention, but that doesn't seem to show in the socket's headers
+		if(socket.retainVote) return;
 		const ipAddress = socket.ip;
-		if (ipAddress) {
-			delete this.votedIpAddressMap[ipAddress];
-		}
-
 		const voteData = socket.session[propVoteData];
 		if (!voteData) {
 			return;
+		} else if (ipAddress) { //we don't want to be subtracting if the vote never happened.
+			const uniq = this.voterID(socket);
+			if (this.canPartyRoomVote(ipAddress))
+				this.sessions.ipAddresses[ipAddress].partyRoom.currentVotes--;
+			delete this.uniqueVoterMap[uniq.key][uniq.val];
 		}
 
 		if (!this.currentPoll) {

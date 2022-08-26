@@ -33,7 +33,24 @@ exports.Session = class {
 	}
 
 	get privilegedData() {
-		return { ...this.publicData, ...this.shadowbanStatus, meta: this.meta };
+		return { ...this.publicData, ...this.shadowbanStatus, partyRoom: {...this.partyRoomStatus}, meta: this.meta };
+	}
+
+	get partyRoomStatus() {
+		const partyRoomStatus = {};
+		for (const socket of this.sockets) {
+			if(socket.ip) {
+				const socketStatus = this.sessions.getPartyRoomInfoForIp(socket.ip);
+				partyRoomStatus.partyRoom = socketStatus.ip;
+				partyRoomStatus.maxVotes = socketStatus.maxVotes;
+				partyRoomStatus.partyRoomAppliedOn = socketStatus.partyRoomAppliedon;
+				partyRoomStatus.nicks = socketStatus.nicks;
+				partyRoomStatus.duration = socketStatus.duration;
+			}
+			
+			if (partyRoomStatus.duration != 0) return partyRoomStatus;
+		}
+		return partyRoomStatus;
 	}
 
 	get shadowbanStatus() {
@@ -186,6 +203,13 @@ class BerrySocket {
 
 	get ip() {
 		return this.socket.handshake.headers["x-forwarded-for"];
+	}
+	
+	get browserCookie() {
+		return this.socket.handshake.headers['cookie']?.match(/uniqueBrowser=([a-f0-9\-]+)/)?.[1];
+	}
+	get retainVote() {
+		return this.socket.handshake.headers['cookie']?.match(/retainVote=(\d)/)?.[1];
 	}
 
 	constructor({ log }, socket) {
