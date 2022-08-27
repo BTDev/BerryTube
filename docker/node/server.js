@@ -2767,8 +2767,8 @@ io.sockets.on('connection', function (ioSocket) {
 
 		const [fromelem, toelem] = SERVER.PLAYLIST.multiple([data.from, data.to]);
 
-		if (data.sanityid && fromelem.videoid === data.sanityid) {
-			doorStuck();
+		if (data.sanityid && fromelem.videoid !== data.sanityid) {
+			return doorStuck(socket);
 		}
 
 		SERVER.PLAYLIST.remove(fromelem);
@@ -2795,6 +2795,7 @@ io.sockets.on('connection', function (ioSocket) {
 			node: SERVER.ACTIVE,
 			position: SERVER.PLAYLIST.indexOf(video => video.videoid === SERVER.ACTIVE.videoid)
 		};
+
 		const next = {
 			node: SERVER.PLAYLIST.at(data.index),
 			position: data.index
