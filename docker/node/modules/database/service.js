@@ -26,15 +26,16 @@ exports.DatabaseService = class extends ServiceBase {
 			password: config.mysql_pass,
 		});
 
+		let self = this;
 		this.connection.on("error", function(err) {
-			this.log.error(
+			self.log.error(
 				events.EVENT_DB_CONNECTION,
 				"the database connection threw an error: attempting reconnect",
 				{},
 				err,
 			);
 			setTimeout(function() {
-				this.init();
+				self.init();
 			}, 1000);
 		});
 
