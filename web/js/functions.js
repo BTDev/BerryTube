@@ -165,8 +165,6 @@ function showAdminFilterWindow() {
 				.text(_actions[i].label)
 				.appendTo(actionSelector)
 				.data("showmeta", _actions[i].showmeta);
-
-			console.log(_actions[i].showmeta);
 		}
 		actionSelector.change(function () {
 			if ($(this).children("option:selected").data('showmeta')) {
@@ -316,6 +314,22 @@ function showAdminFilterWindow() {
 		}
 		FILTERS = false; // Reset for next load.
 		parent.window.setLoaded();
+
+		let startIndex = null;
+		ruleZone.sortable({
+			delay: 100,
+			distance: 5,
+			handle: '.titleBar',
+			helper: 'clone',
+			start: (event, ui) => {
+				startIndex = ui.item.index();
+			},
+			update: (event, ui) => {
+				const endIndex = ui.item.index();
+				const rules = mainOptWrap.data('rules');
+				rules.splice(endIndex, 0, rules.splice(startIndex, 1)[0]);
+			}
+		});
 	}
 
 	function waitForExisting() {
