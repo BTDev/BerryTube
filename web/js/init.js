@@ -1285,7 +1285,7 @@ function initPlaylistControls(plwrap) {
 				if (video) {
 					doRequeue(video.domobj);
 				} else {
-					btn.data('revertTxt', "Q");
+					btn.data('revertTxt', "V");
 					btn.text('').addClass("loading");
 					LAST_QUEUE_ATTEMPT = {
 						queue: true,

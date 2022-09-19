@@ -1736,14 +1736,14 @@ function plSearch(term) {
 			const item = video.domobj[0];
 			const diff = index - activeIndex;
 
-			let str = '';
+			let offsetIndex = '';
 
 			if (diff !== 0) {
-				str = diff < 0 ? `(${diff}) ` : `(+${diff}) `;
+				offsetIndex = diff < 0 ? `(${diff}) ` : `(+${diff}) `;
 			}
 				
 			item.classList.remove('search-hidden');
-			item.querySelector('.title').setAttribute('active-offset', str);
+			item.querySelector('.title').setAttribute('active-offset', offsetIndex);
 		}
 	})
 
