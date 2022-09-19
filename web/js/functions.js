@@ -1707,9 +1707,10 @@ function addNewMailMessage(nick, msg) {
 function plSearch(term) {
 	const refresh = (index) => {
 		smartRefreshScrollbar();
-		scrollToPlEntry();
+		scrollToPlEntry(index);
 		realignPosHelper();
 	};
+
 	if (typeof term == "undefined" || term.match(/^$/) || term.length < 3) {
 		$("#playlist").removeClass("searching");
 		$("#plul li").removeClass("search-hidden");
@@ -1732,17 +1733,18 @@ function plSearch(term) {
 	const activeIndex = ACTIVE.domobj.index();
 
 	PLAYLIST.each((video, index) => {
-		if (rx.test(decodeURI(elem.videotitle))) {
-			const name = decodeURI(video.videotitle);
+		if (rx.test(decodeURI(video.videotitle))) {
 			const item = video.domobj[0];
-	
-			if (rx.test(name)) {
-				const diff = index - activeIndex;
-				const str = diff !== 0 ? `(${diff > 0 ? '+' : '-'})` : '';
-				
-				item.classList.remove('search-hidden');
-				item.querySelector('.title').setAttribute('active-offset', str);
+			const diff = index - activeIndex;
+
+			let str = '';
+
+			if (diff !== 0) {
+				str = `(${diff}) `;
 			}
+				
+			item.classList.remove('search-hidden');
+			item.querySelector('.title').setAttribute('active-offset', str);
 		}
 	})
 
@@ -2147,13 +2149,7 @@ function setVidVolatile(pos, isVolat) {
 	const video = PLAYLIST.at(pos);
 
 	video.volat = isVolat;
-	if (isVolat) {
-		$(video.domobj).addClass("volatile");
-	} else {
-		$(video.domobj).removeClass("volatile");
-	}
-
-	console.log(video.domobj);
+	video.domobj.toggleClass('volatile', isVolat);
 }
 function setVidColorTag(pos, tag, volat) {
 	_setVidColorTag(PLAYLIST.at(pos).domobj, tag, volat);
@@ -2752,6 +2748,7 @@ function sortPlaylist(data) {
 		}
 	});
 
+	realignPosHelper();
 	setVal("sorting", false);
 }
 

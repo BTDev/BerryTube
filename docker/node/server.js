@@ -936,7 +936,7 @@ function setVideoVolatile(socket, video, pos, isVolat) {
 	
 	DefaultLog.info(events.EVENT_ADMIN_SET_VOLATILE,
 		"{mod} set {title} to {status}",
-		{ mod: getSocketName(socket), type: "playlist", title: decodeURIComponent(elem.videotitle), status: isVolat ? "volatile" : "not volatile" });
+		{ mod: getSocketName(socket), type: "playlist", title: decodeURIComponent(video.videotitle), status: isVolat ? "volatile" : "not volatile" });
 
 	io.sockets.emit("setVidVolatile", {
 		pos: pos,
