@@ -581,6 +581,18 @@ function showConfigMenu(on) {
 	});
 	//----------------------------------------
 	var row = $('<div/>').appendTo(configOps);
+	$('<span/>').text("Reset flair on page refresh:").appendTo(row);
+	var resetFlairOnPageLoad = $('<input/>').attr('type', 'checkbox').appendTo(row);
+	if (getStorage("resetFlairOnPageLoad") == 1) { resetFlairOnPageLoad.prop('checked', true); }
+	resetFlairOnPageLoad.change(function () { //
+		if ($(this).is(":checked")) {
+			setStorage('resetFlairOnPageLoad', 1);
+		} else {
+			setStorage('resetFlairOnPageLoad', 0);
+		}
+	});
+	//----------------------------------------
+	var row = $('<div/>').appendTo(configOps);
 	$('<span/>').text("Playlist follows active video:").appendTo(row);
 	var plFolAcVid = $('<input/>').attr('type', 'checkbox').appendTo(row);
 	if (getStorage("plFolAcVid") == 1) { plFolAcVid.prop('checked', true); }
@@ -2183,6 +2195,7 @@ $(function () {
 	if (getStorage('legacyPlayer') == null) { setStorage('legacyPlayer', 0); }
 	if (getStorage('showTimestamps') == null) { setStorage('showTimestamps', 0); }
 	if (getStorage('showChatflair') == null) { setStorage('showChatflair', 1); }
+	if (getStorage('resetFlairOnPageLoad') == null) { setStorage('resetFlairOnPageLoad', 0); }
 	if (getStorage('plFolAcVid') == null) { setStorage('plFolAcVid', 1); }
 	if (getStorage('keeppolls') == null) { setStorage('keeppolls', 5); }
 	if (getStorage('sbchatter') == null) { setStorage('sbchatter', 0); }
@@ -2194,10 +2207,14 @@ $(function () {
 	if (getStorage('showChatflair') == 0) { $('body').addClass('hideChatFlair'); }
 	if (getStorage('nightMode') == 1) { $('body').addClass('night'); }
 
-	var t = getStorage('myFlairID');
-	if (t != null) {
-		MY_FLAIR_ID = parseInt(t, 10);
-		$("#flairMenu").addClass("flair_" + MY_FLAIR_ID);
+	if (getStorage('resetFlairOnPageLoad') == 1) {
+		setStorage('myFlairID', 0);
+	} else {
+		var t = getStorage('myFlairID');
+		if (t != null) {
+			MY_FLAIR_ID = parseInt(t, 10);
+			$("#flairMenu").addClass("flair_" + MY_FLAIR_ID);
+		}
 	}
 
 	$(window).focus(function () {
