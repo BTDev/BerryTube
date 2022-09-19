@@ -2593,6 +2593,10 @@ function setPlaylistPosition(to) {
 			return video.videoid === to.video.videoid;
 		});
 
+		if (!ACTIVE) {
+			ACTIVE = PLAYLIST.first;
+		}
+
 		if (typeof ACTIVE.domobj != "undefined") {
 			ACTIVE.domobj.addClass("active");
 		}

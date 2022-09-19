@@ -1449,8 +1449,6 @@ function initMultiqueue(){
 			if (video) {
 				doRequeue(video.domobj);
 			} else {
-				btn.data('revertTxt', "Q");
-				btn.text('').addClass("loading");
 				LAST_QUEUE_ATTEMPT = {
 					queue: true,
 					videotype: type,
@@ -1458,6 +1456,7 @@ function initMultiqueue(){
 					videotitle: videotitle,
 					volat: true
 				};
+				
 				socket.emit("addVideo", LAST_QUEUE_ATTEMPT);
 			}
 		});
