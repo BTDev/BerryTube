@@ -1726,8 +1726,7 @@ function plSearch(term) {
 	}
 
 	$("#playlist").addClass("searching");
-	$("#plul li").addClass("search-hidden");
-	$("#plul li.active").removeClass("search-hidden");
+	$("#plul li:not(.active)").addClass("search-hidden");
 
 	const rx = new RegExp(term, 'i');
 	const activeIndex = ACTIVE.domobj.index();
@@ -1740,7 +1739,7 @@ function plSearch(term) {
 			let str = '';
 
 			if (diff !== 0) {
-				str = `(${diff}) `;
+				str = diff < 0 ? `(${diff}) ` : `(+${diff}) `;
 			}
 				
 			item.classList.remove('search-hidden');

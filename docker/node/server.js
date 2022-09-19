@@ -348,9 +348,11 @@ function initPlaylist(callback) {
 }
 function initResumePosition(callback) {
 	getMisc({ name: 'server_active_videoid' }, function (old_videoid) {
-		SERVER.ACTIVE = SERVER.PLAYLIST.find(video => video.videoid === old_videoid);
+		const active = SERVER.PLAYLIST.find(video => video.videoid === old_videoid);
 		
-		if (SERVER.ACTIVE) {
+		if (active) {
+			SERVER.ACTIVE = active;
+			
 			getMisc({ name: 'server_time' }, function (old_time) {
 				if (+old_time) {
 					SERVER.TIME = +old_time + 1;
