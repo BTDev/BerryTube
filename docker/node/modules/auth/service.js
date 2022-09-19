@@ -11,7 +11,7 @@ exports.AuthService = class extends ServiceBase {
 			[actions.ACTION_CALL_DRINKS]: isModOrBerry,
 			[actions.ACTION_CAN_SET_CSS]: isAdmin,
 			[actions.ACTION_CLOSE_POLL]: isModOrBerry,
-			[actions.ACTION_CONTROL_PLAYLIST]: isModOrBerry,
+			[actions.ACTION_CONTROL_PLAYLIST]: isModOrBerryQueue,
 			[actions.ACTION_CONTROL_VIDEO]: isBerry,
 			[actions.ACTION_CREATE_POLL]: isModOrBerry,
 			[actions.ACTION_DELETE_VIDEO]: isMod,
@@ -21,7 +21,7 @@ exports.AuthService = class extends ServiceBase {
 			[actions.ACTION_MOVE_BERRY_TO_USER]: isMod,
 			[actions.ACTION_RANDOMIZE_LIST]: isMod,
 			[actions.ACTION_RELINQUISH_BERRY]: isModOrBerry,
-			[actions.ACTION_SEARCH_HISTORY]: isModOrBerry,
+			[actions.ACTION_SEARCH_HISTORY]: isModOrBerryQueue,
 			[actions.ACTION_SET_AREAS]: isAdmin,
 			[actions.ACTION_SET_FILTERS]: isAdmin,
 			[actions.ACTION_SET_TOGGLEABLS]: isAdmin,
@@ -48,6 +48,10 @@ exports.AuthService = class extends ServiceBase {
 
 		function isModOrBerry({ type, isBerry }) {
 			return isBerry || type >= userTypes.MODERATOR;
+		}
+
+		function isModOrBerryQueue({ type, isBerry }) {
+			return (isBerry && services.getToggleable("berryqueue")) || type >= userTypes.MODERATOR;
 		}
 
 		function isAdmin({ type }) {

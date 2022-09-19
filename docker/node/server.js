@@ -39,7 +39,8 @@ const serviceLocator = {
 	io,
 	isUserBanned,
 	banUser,
-	setServerState
+	setServerState,
+	getToggleable,
 };
 
 // init all services, circular references in the ctors are not allowed

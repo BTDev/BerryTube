@@ -365,7 +365,7 @@ body {
 .admin #playlist ul .setVolatile, .mod #playlist ul .setVolatile, .assistant #playlist ul .setVolatile {
 	display:block;
 }
-.admin #playlist ul .requeue, .mod #playlist ul .requeue, .berry #playlist ul .requeue, .assistant #playlist ul .requeue{
+.admin #playlist ul .requeue, .mod #playlist ul .requeue, .berry.toggleable-berryqueue #playlist ul .requeue, .assistant #playlist ul .requeue{
 	display:block;
 }
 #playlist ul li.notify .title:after {

@@ -1014,6 +1014,12 @@ function setToggleable(name, state, label) {
 	} else {
 		opt.prop('checked', false);
 	}
+
+	$(document.body).toggleClass(`toggleable-${name}`, state);
+
+	if (name === 'berryqueue') {
+		handleACL();
+	}
 }
 function getToggleable(name) {
 	if (typeof TOGGLEABLES[name] != "undefined") {
@@ -1695,7 +1701,7 @@ function plSearch(term) {
 		scrollToPlEntry(ACTIVE.domobj.index());
 		realignPosHelper();
 	} else {
-		if (TYPE >= 1 || LEADER) {
+		if (TYPE >= 1 || (LEADER && getToggleable('berryqueue'))) {
 			socket.emit('searchHistory', { search: term });
 		}
 
@@ -2187,7 +2193,7 @@ function controlsVideo() {
 	return TYPE > 0 && LEADER;
 }
 function controlsPlaylist() {
-	return TYPE > 0 || LEADER;
+	return TYPE > 0 || (LEADER && getToggleable('berryqueue'));
 }
 function canColorTag() {
 	return TYPE > 0;

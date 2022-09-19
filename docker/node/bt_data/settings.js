@@ -34,6 +34,7 @@ settings.toggles.wobniar = [false,'wobniaR'];
 settings.toggles.mutegray = [false,'Mute Greynames'];
 settings.toggles.allowreg = [true,'Allow Registration'];
 settings.toggles.spaceaids = [true,'Bans are Contagious'];
+settings.toggles.berryqueue = [true,'Berries can queue'];
 
 // Init Videocontrol settings
 settings.vc.tail_time = 2; // seconds
