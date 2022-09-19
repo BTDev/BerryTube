@@ -252,18 +252,18 @@ LinkedList.Circular.prototype.each = function(cb) {
 	}
 }
 
-LinkedList.Circular.prototype.indexOf = function (cb) {
-	let index = -1;
-	
-	this.find((video, idx) => {
-		if (cb(video)) {
-			index = idx;
+LinkedList.Circular.prototype.indexOf = function(cb) {
+	let video = this.first;
+
+	for (let i = 0; i < this.length; i++) {
+		if (cb(video, i)) {
+			return i;
 		}
 
-		return index > -1;
-	});
+		video = video.next;
+	}
 
-	return index;
+	return -1;
 }
 
 /* VAR INIT */
