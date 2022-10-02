@@ -1096,19 +1096,19 @@ function handleACL() {
 			initLogoutForm(headbar.html(''));
 		}
 
-		if (canSeeAdminLog()) {
-			whenExists('#chatControls', function (chatControls) {
+		whenExists('#chatControls', function (chatControls) {
+			if (canSeeAdminLog()) {
 				if ($('#chatControls .log').length == 0) {
 					var logMenu = $('<div/>').addClass('log').appendTo(chatControls).text("Log");
 					logMenu.click(function () {
 						showLogMenu(logMenu);
 					});
 				}
-			});
-		}
+			}
+		});
 
-		if (controlsPlaylist()) {
-			whenExists("#playlistAddControls", function (pl) {
+		whenExists("#playlistAddControls", function (pl) {
+			if (controlsPlaylist()) {
 				if (pl.is(":hidden")) {
 					pl.show("blind");
 				}
@@ -1150,9 +1150,7 @@ function handleACL() {
 					scrollToPlEntry(ACTIVE.domobj.index());
 				}
 				dbg("CAN CONTROL PLAYLIST");
-			});
-		} else {
-			whenExists("#playlistAddControls", function (pl) {
+			} else {
 				if (pl.is(":visible")) {
 					pl.hide("blind");
 				}
@@ -1163,26 +1161,25 @@ function handleACL() {
 				}
 				catch (e) { }
 				dbg("CAN NOT CONTROL PLAYLIST");
-			});
-		}
+			}
+		});
 
-		if (canCreatePoll()) {
-			whenExists("#pollControl", function (pc) {
+		
+		whenExists("#pollControl", function (pc) {
+			if (canCreatePoll()) {
 				if (pc.is(":hidden")) {
 					pc.show("blind");
 				}
 				dbg("CAN CONTROL POLLS");
-			});
-			$(".poll-control").addClass("enabled");
-		} else {
-			whenExists("#pollControl", function (pc) {
+				$(".poll-control").addClass("enabled");
+			} else {
 				if (pc.is(":visible")) {
 					pc.hide("blind");
 				}
 				dbg("CAN NOT CONTROL POLLS");
-			});
-			$(".poll-control").removeClass("enabled");
-		}
+				$(".poll-control").removeClass("enabled");
+			}
+		});
 
 		if (canSetAreas()) {
 			$('.editBtn').remove();
