@@ -1,6 +1,5 @@
 # https://hub.docker.com/_/node
-# can't use newer due to python2 requirement
-FROM node:16.15.0-alpine
+FROM node:16.12.0-alpine
 
 WORKDIR /app/
 ENTRYPOINT ["/app/entrypoint.sh"]
