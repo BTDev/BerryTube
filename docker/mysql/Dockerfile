@@ -1,5 +1,5 @@
 # https://hub.docker.com/_/mysql
-FROM mysql:8.0.25
+FROM mysql:8.0.31
 
 HEALTHCHECK --interval=10s --timeout=3s --start-period=10s CMD \
     test -f /tmp/mysql-inited-flag && \
