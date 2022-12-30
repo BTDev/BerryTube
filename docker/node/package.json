@@ -3,6 +3,9 @@
 	"version": "1.0.0",
 	"description": "BerryTube",
 	"main": "server.js",
+	"bin": {
+		"berrytube": "./server.js"
+	},
 	"dependencies": {
 		"bcrypt": "^5.0.0",
 		"elementtree": "^0.1.7",

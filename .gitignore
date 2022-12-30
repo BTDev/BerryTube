@@ -11,3 +11,4 @@
 yarn.error
 yarn-error.log
 node_modules
+/result

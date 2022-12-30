@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 const { PollService } = require("./modules/polls");
 const { AuthService, actions } = require("./modules/auth");
 const { sanitize, generateRandomPassword } = require("./modules/security");

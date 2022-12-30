@@ -8,7 +8,7 @@ settings.apikeys = {};
 
 // Init Core settings
 settings.core.version = "2.1.0";
-settings.core.nodeport = 8344; // the server listening port.
+settings.core.nodeport = process.env.BERRYTUBE_LISTEN_PORT || 8344; // the server listening port.
 settings.core.log_file_name = "bt.log";
 settings.core.error_file_name = "error_bt.log";
 settings.core.debug_file_name = "debug.log";
