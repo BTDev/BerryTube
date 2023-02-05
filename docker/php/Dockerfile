@@ -1,5 +1,5 @@
 # https://hub.docker.com/_/php
-FROM php:7.4.19-fpm-alpine
+FROM php:8.1.14-fpm-alpine
 
 ARG MAXMIND_KEY
 
@@ -7,7 +7,7 @@ HEALTHCHECK --interval=10s --timeout=3s --start-period=10s CMD test "$(/opt/PHP-
 
 RUN apk add --no-cache ffmpeg
 
-RUN docker-php-ext-install pdo_mysql mysqli json && \
+RUN docker-php-ext-install pdo_mysql mysqli && \
     curl -SsL "https://github.com/adoy/PHP-FastCGI-Client/archive/master.zip" >/tmp/fcgi-client.zip && \
     mkdir -p /opt/ && \
     unzip /tmp/fcgi-client.zip -d /opt/ && \

@@ -60,7 +60,7 @@
 
 				$integrity = $el->attributes->getNamedItem('integrity');
 				if ($integrity) {
-					$integrity->value = null;
+					$integrity->value = '';
 				}
 			}
 
