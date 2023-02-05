@@ -66,6 +66,7 @@ services:
             - ./berrymotes/images:/var/www/html/web/berrymotes/images:ro
             - ./berrymotes/js:/var/www/html/web/berrymotes/js:ro
             - ./berrymotes/single_emotes:/var/www/html/web/berrymotes/single_emotes:ro
+            - ./secrets:/var/secrets:ro
         expose:
             - '9000'
         depends_on:
