@@ -2316,7 +2316,7 @@ function parseVideoURL(url, callback) {
 	console.log(url);
 	var m = url.match(new RegExp("youtube\\.com/watch.*?[&?]v=([a-zA-Z0-9_-]{11})")); if (m) { callback(m[1], "yt"); return; }
 	var m = url.match(new RegExp("youtu\\.be/([a-zA-Z0-9_-]{11})")); if (m) { callback(m[1], "yt"); return; }
-	var m = url.match(new RegExp("youtube\\.com/shorts/.*?[&?]v=([a-zA-Z0-9_-]{11}")); if (m) {callback(m[1], "yt"); return; }
+	var m = url.match(new RegExp("youtube\\.com/shorts/([a-zA-Z0-9_-]{11})")); if (m) {callback(m[1], "yt"); return; }
 	
 	var m = url.match(new RegExp("i\\.ytimg\\.com/an_webp/([a-zA-Z0-9_-]{11})/")); if (m) { callback(m[1], "yt"); return; }
 	var m = url.match(new RegExp("dailymotion.com/(?:embed/)?video/([a-zA-Z0-9]+)")); if (m) { callback(m[1], "dm"); return; }
