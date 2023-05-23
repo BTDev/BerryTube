@@ -65,6 +65,7 @@ function loadFromDiscord() {
             $ext = $emoji->animated ? 'gif' : 'png';
             $emote = [
                 'background-image' => "https://cdn.discordapp.com/emojis/$emoji->id.$ext?size=$emoteSize",
+                'background-repeat' => "no-repeat",
                 'tags' => ['discordemoji'],
                 'sr' => 'discordserver',
                 'height' => $emoteSize,
@@ -83,6 +84,7 @@ function loadFromDiscord() {
         if ($sticker->available && $sticker->type === 2 && ($sticker->format_type === 1 || $sticker->format_type === 2)) {
             $emote = [
                 'background-image' => "https://cdn.discordapp.com/stickers/$sticker->id.png?size=$stickerSize",
+                'background-repeat' => "no-repeat",
                 'tags' => ['discordsticker'],
                 'sr' => 'discordserver',
                 'height' => $stickerSize,
