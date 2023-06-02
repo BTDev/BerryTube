@@ -44,7 +44,8 @@
 		'The soundtrack of a perfect porno',
 		'WHO NINAsfa FUCMER',
 		'Lion-O is in the set of "not Snoop Lion".',
-		'Horse marriage simulator'
+		'Horse marriage simulator',
+		'The gum on the sole of the internet'
 	);
 	$TITLE = 'BerryTube :: ' . $titles[array_rand($titles)];
 ?>
