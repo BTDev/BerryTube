@@ -7,8 +7,7 @@ $cacheTimeSeconds = 60 * 5;
 header('Content-Type: application/json');
 
 $botToken = getenv('DISCORD_BOT_TOKEN');
-$guildId = getenv('DISCORD_GUILD_ID');
-if (!$botToken || !$guildId) {
+if (!$botToken) {
     die('[]');
 }
 
@@ -45,7 +44,6 @@ function saveToCache($emotes) {
 
 function loadFromDiscord() {
     global $botToken;
-    global $guildId;
     global $emoteSize;
     global $stickerSize;
 
@@ -58,44 +56,47 @@ function loadFromDiscord() {
     ]);
     
     $emotes = [];
-
-    $emojis = json_decode(file_get_contents("https://discord.com/api/v9/guilds/$guildId/emojis", false, $context));
-    foreach ($emojis as $emoji) {
-        if ($emoji->available && $emoji->require_colons) {
-            $ext = $emoji->animated ? 'gif' : 'png';
-            $emote = [
-                'background-image' => "https://cdn.discordapp.com/emojis/$emoji->id.$ext?size=$emoteSize",
-                'background-repeat' => "no-repeat",
-                'tags' => ['discordemoji'],
-                'sr' => 'discordserver',
-                'height' => $emoteSize,
-                'width' => $emoteSize,
-                'names' => [$emoji->name]
-            ];
-            if ($emoji->animated) {
-                $emote['tags'] []= 'animated';
+    
+    $guilds = json_decode(file_get_contents("https://discord.com/api/v9/users/@me/guilds", false, $context));
+    foreach ($guilds as $guild) {
+        $emojis = json_decode(file_get_contents("https://discord.com/api/v9/guilds/$guild->id/emojis", false, $context));
+        foreach ($emojis as $emoji) {
+            if ($emoji->available && $emoji->require_colons) {
+                $ext = $emoji->animated ? 'gif' : 'png';
+                $emote = [
+                    'background-image' => "https://cdn.discordapp.com/emojis/$emoji->id.$ext?size=$emoteSize",
+                    'background-repeat' => "no-repeat",
+                    'tags' => ['discordemoji'],
+                    'sr' => 'discordserver',
+                    'height' => $emoteSize,
+                    'width' => $emoteSize,
+                    'names' => [$emoji->name]
+                ];
+                if ($emoji->animated) {
+                    $emote['tags'] []= 'animated';
+                }
+                $emotes []= $emote;
             }
-            $emotes []= $emote;
         }
-    }
 
-    $stickers = json_decode(file_get_contents("https://discord.com/api/v9/guilds/$guildId/stickers", false, $context));
-    foreach ($stickers as $sticker) {
-        if ($sticker->available && $sticker->type === 2 && ($sticker->format_type === 1 || $sticker->format_type === 2)) {
-            $emote = [
-                'background-image' => "https://cdn.discordapp.com/stickers/$sticker->id.png?size=$stickerSize",
-                'background-repeat' => "no-repeat",
-                'tags' => ['discordsticker'],
-                'sr' => 'discordserver',
-                'height' => $stickerSize,
-                'width' => $stickerSize,
-                'names' => [$sticker->name],
-            ];
-            if ($sticker->format_type === 2) {
-                $emote['tags'] []= 'animated';
-                $emote['apng_url'] = $emote['background-image'];
+        $stickers = json_decode(file_get_contents("https://discord.com/api/v9/guilds/$guild->id/stickers", false, $context));
+        foreach ($stickers as $sticker) {
+            if ($sticker->available && $sticker->type === 2 && ($sticker->format_type === 1 || $sticker->format_type === 2)) {
+                $emote = [
+                    'background-image' => "https://cdn.discordapp.com/stickers/$sticker->id.png?size=$stickerSize",
+                    'background-repeat' => "no-repeat",
+                    'tags' => ['discordsticker'],
+                    'sr' => 'discordserver',
+                    'height' => $stickerSize,
+                    'width' => $stickerSize,
+                    'names' => [$sticker->name],
+                ];
+                if ($sticker->format_type === 2) {
+                    $emote['tags'] []= 'animated';
+                    $emote['apng_url'] = $emote['background-image'];
+                }
+                $emotes []= $emote;
             }
-            $emotes []= $emote;
         }
     }
 
