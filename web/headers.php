@@ -7,47 +7,8 @@
 <style>html { background: #421C52; }</style>
 
 <?php // Pick random title.
-	$titles = array(
-		'This is why I drink!',
-		'It seemed like a good idea at the time.',
-		'IM SO FRESH YOU CAN SUCK MY NUTS SWAG',
-		'The 24/7 out of control party abomination that is berrytube.tv!',
-		'What could go wrong?',
-		'Love the mods with mouth',
-		'This website runs on electricity and Stockholm Syndrome.',
-		'"If you dont like the wordfilters, you can fuck off back to synchtube".',
-		'"If you dont like the wordfilters, you can sexual intercourse off back to synchtube."',
-		'In which two dapper strapping lads attempt to flirt with me.',
-		'I made a Rainbow Dash Space Marine Army. Friendship is Bolters.',
-		'Of all the substances in the movie, that is the most ejaculate-like.',
-		'We are all about special treatment, not ascii statistics.',
-		'Like 500 picoHitlers.',
-		'STAPHG HO NOP',
-		'Really little pony if you were open up my always and now it through this crystal Greer its a roof sunrise.',
-		'Shes too busy with her titties to stop the changelings.',
-		'Now were cooking with nipples.',
-		'Drunk is a universal language.',
-		'GO TO BERRYTUBE.TV FOR MORE AMAAAAZING PONY VIDEOS #YOLO #SWAG',
-		'Blueshift: aw, EternalLullaby isnt here, i had an orgy related question for him',
-		'I forgot I had amplification on.',
-		'Its where alcohol and ponies merge and there are no survivors',
-		'The desk needs foreplay',
-		'its easier to deal with omnomtom than peta',
-		'Im sorry I made your dick twitch.',
-		'What is this? A Daycare for the sexually deviant?',
-		'It appears to run on some form of alcohol.',
-		'Its basically a drinking site with a pony problem.',
-		'Theres too many mouths and only one dick. Please take turns.',
-		'You can always be deeper.',
-		'Strive to be as honest as hitler.',
-		'Hats and Lies.',
-		'The soundtrack of a perfect porno',
-		'WHO NINAsfa FUCMER',
-		'Lion-O is in the set of "not Snoop Lion".',
-		'Horse marriage simulator',
-		'The gum on the sole of the internet'
-	);
-	$TITLE = 'BerryTube :: ' . $titles[array_rand($titles)];
+	$titles = json_decode(file_get_contents('titles.json'));
+	$TITLE = str_replace('%s', 'BerryTube', $titles[array_rand($titles)]);
 ?>
 <title><?php echo $TITLE; ?></title>
 
