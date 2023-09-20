@@ -26,3 +26,5 @@
     define('ORIGIN', "$scheme://$domain$port");
     define('SOCKET_ORIGIN', "$scheme://socket.$domain$port");
     define('CDN_ORIGIN', ORIGIN);
+
+	define('SEQUEL_MODE', false);

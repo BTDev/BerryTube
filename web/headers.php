@@ -7,7 +7,7 @@
 <style>html { background: #421C52; }</style>
 
 <?php // Pick random title.
-	$titles = json_decode(file_get_contents('titles.json'));
+	$titles = json_decode(file_get_contents(SEQUEL_MODE ? 'sequel_titles.json' : 'titles.json'));
 	$TITLE = str_replace('%s', 'BerryTube', $titles[array_rand($titles)]);
 ?>
 <title><?php echo $TITLE; ?></title>
@@ -93,6 +93,8 @@ if (date('n') == 6) {
 	var videoWidth = <?= $playerDims['w'] ?>;
 	var videoHeight = <?= $playerDims['h'] ?>;
 	var WINDOW_TITLE = '<?= $TITLE ?>';
+	var WINDOW_TITLES = <?= json_encode($titles) ?>;
+	var SEQUEL_MODE = <?= SEQUEL_MODE ? 'true' : 'false' ?>;
 
 	// here for caching reasons
 	var NOTIFY = new Audio('<?= cdn('sounds/notify.wav') ?>');

@@ -1398,7 +1398,10 @@ function addChatMsg(data, _to) {
 						$("<div/>").addClass("flair").addClass("flair_" + metadata.flair).appendTo(name);
 						name.append(":");
 					}
-					else {
+					else if (window.SEQUEL_MODE) {
+						const template = window.WINDOW_TITLES[Math.floor(Math.random() * window.WINDOW_TITLES.length)];
+						name.text(template.replace(/%s/g, nick) + ":");
+					} else {
 						name.text(nick + ":");
 					}
 					includeTimestamp = true;
