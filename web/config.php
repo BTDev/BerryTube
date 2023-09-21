@@ -14,8 +14,7 @@
 
 		$cutoff = mt_rand() / mt_getrandmax() * $totalWeight;
 		$weightSoFar = 0.0;
-		for ($i = 0; $i < count($array); ++$i) {
-			$el = $array[$i];
+		foreach ($array as $el) {
 			if (is_array($el)) {
 				$weightSoFar += $el['weight'] ?? $defaultWeight;
 			} else {
@@ -23,11 +22,12 @@
 			}
 
 			if ($weightSoFar >= $cutoff) {
-				break;
+				return $el;
 			}
 		}
 
-		return $array[$i];
+		// something something floating point inaccuracy
+		return $array[0];
 	}
 
 	function sha1_dir($dirname) {

@@ -1346,30 +1346,20 @@ function scrollBuffersToBottom() {
 function weightedRandom(array, defaultWeight = 1.0) {
 	let totalWeight = 0.0;
 	for (const el of array) {
-		if (typeof el === 'object') {
-			totalWeight += el['weight'] ?? defaultWeight;
-		} else {
-			totalWeight += defaultWeight;
-		}
+		totalWeight += el.weight ?? defaultWeight;
 	}
 
 	const cutoff = Math.random() * totalWeight;
 	let weightSoFar = 0.0;
-	let i;
-	for (i = 0; i < array.length; ++i) {
-		const el = array[i];
-		if (typeof el === 'object') {
-			weightSoFar += el['weight'] ?? defaultWeight;
-		} else {
-			weightSoFar += defaultWeight;
-		}
-
+	for (const el of array) {
+		weightSoFar += el.weight ?? defaultWeight;
 		if (weightSoFar >= cutoff) {
-			break;
+			return el;
 		}
 	}
 
-	return array[i];
+	// something something floating point inaccuracy
+	return array[0];
 }
 
 function addChatMsg(data, _to) {

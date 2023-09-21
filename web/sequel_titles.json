@@ -2,7 +2,7 @@
     "%s 2: Drink Harder",
     "2 %s 2 Furious",
     "%ss",
-    "%s 1½",
+    {"weight": 0.001, "value": "%s 1½"},
     "The %s Strikes Back",
     "%s 2: Electric Scootaloo",
     "%s Rising: Revengeance",
