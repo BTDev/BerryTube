@@ -12,5 +12,6 @@
     "%s 2: Last Call",
     "%s II: The Secret of the Booze",
     "%s 2: Judgement Day",
-    "%s 2: The Two Towers"
+    "%s 2: The Two Towers",
+    {"weight": 0.001, "value": "%s 3"}
 ]

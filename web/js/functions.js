@@ -1343,6 +1343,35 @@ function scrollBuffersToBottom() {
 	$('#adminbuffer').prop({ scrollTop: $('#adminbuffer').prop("scrollHeight") });
 }
 
+function weightedRandom(array, defaultWeight = 1.0) {
+	let totalWeight = 0.0;
+	for (const el of array) {
+		if (typeof el === 'object') {
+			totalWeight += el['weight'] ?? defaultWeight;
+		} else {
+			totalWeight += defaultWeight;
+		}
+	}
+
+	const cutoff = Math.random() * totalWeight;
+	let weightSoFar = 0.0;
+	let i;
+	for (i = 0; i < array.length; ++i) {
+		const el = array[i];
+		if (typeof el === 'object') {
+			weightSoFar += el['weight'] ?? defaultWeight;
+		} else {
+			weightSoFar += defaultWeight;
+		}
+
+		if (weightSoFar >= cutoff) {
+			break;
+		}
+	}
+
+	return array[i];
+}
+
 function addChatMsg(data, _to) {
 	whenExists(_to, function (to) {
 
@@ -1399,7 +1428,10 @@ function addChatMsg(data, _to) {
 						name.append(":");
 					}
 					else if (window.SEQUEL_MODE) {
-						const template = window.WINDOW_TITLES[Math.floor(Math.random() * window.WINDOW_TITLES.length)];
+						let template = weightedRandom(window.WINDOW_TITLES);
+						if (typeof template === 'object') {
+							template = template.value;
+						}
 						name.text(template.replace(/%s/g, nick) + ":");
 					} else {
 						name.text(nick + ":");

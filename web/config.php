@@ -2,6 +2,34 @@
 
 	require_once('api/apiconfig.php');
 
+	function array_rand_weighted($array, $defaultWeight = 1.0) {
+		$totalWeight = 0.0;
+		foreach ($array as $el) {
+			if (is_array($el)) {
+				$totalWeight += $el['weight'] ?? $defaultWeight;
+			} else {
+				$totalWeight += $defaultWeight;
+			}
+		}
+
+		$cutoff = mt_rand() / mt_getrandmax() * $totalWeight;
+		$weightSoFar = 0.0;
+		for ($i = 0; $i < count($array); ++$i) {
+			$el = $array[$i];
+			if (is_array($el)) {
+				$weightSoFar += $el['weight'] ?? $defaultWeight;
+			} else {
+				$weightSoFar += $defaultWeight;
+			}
+
+			if ($weightSoFar >= $cutoff) {
+				break;
+			}
+		}
+
+		return $array[$i];
+	}
+
 	function sha1_dir($dirname) {
 		$hashes = '';
 		$iter = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($dirname, FilesystemIterator::SKIP_DOTS));

@@ -7,8 +7,13 @@
 <style>html { background: #421C52; }</style>
 
 <?php // Pick random title.
-	$titles = json_decode(file_get_contents(SEQUEL_MODE ? 'sequel_titles.json' : 'titles.json'));
-	$TITLE = str_replace('%s', 'BerryTube', $titles[array_rand($titles)]);
+	$titles = json_decode(file_get_contents(SEQUEL_MODE ? 'sequel_titles.json' : 'titles.json'), true);
+
+	$TITLE = array_rand_weighted($titles);
+	if (is_array($TITLE)) {
+		$TITLE = $TITLE['value'];
+	}
+	$TITLE = str_replace('%s', 'BerryTube', $TITLE);
 ?>
 <title><?php echo $TITLE; ?></title>
 
