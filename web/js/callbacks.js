@@ -635,6 +635,11 @@ socket.on('shitpost', function (data) {
 				target.classList.remove('ikea-inline');
 			}, 1000 * (5 + 2 + 3) + 100);
 			break;
+		case 'titles':
+			setTimeout(() => {
+				fetch(window.SEQUEL_MODE ? '/sequel_titles.json' : '/titles.json').then(r => r.json()).then(titles => { window.WINDOW_TITLES = titles; });
+			}, Math.random() * 10000);
+			break;
 	}
 });
 socket.on('debugDump', function (data) {
