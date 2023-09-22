@@ -227,6 +227,7 @@ function initToastThemes(data, textStatus, jqxhr) {
 	officialGroup.addButton(new ThemeButton('btcon2020', 'BTCon 2020', 'plugins/toastthemes/cdncss.php?theme=btcon2020', '', false, false));
 	officialGroup.addButton(new ThemeButton('btcon2021', 'BTCon 2021', 'plugins/toastthemes/cdncss.php?theme=btcon2021', '', false, false));
 	officialGroup.addButton(new ThemeButton('btcon2022', 'BTCon 2022', 'plugins/toastthemes/cdncss.php?theme=btcon2022', '', false, false));
+	officialGroup.addButton(new ThemeButton('btcon2023', 'BTCon 2023', 'plugins/toastthemes/cdncss.php?theme=btcon2023', '', false, false));
 	officialGroup.addButton(new ThemeButton('berryButton', 'BerryTube', '', '', false, false), 0);
 
 	mainPonyGroup.addButton(new ThemeButton('scootsButton', 'ScootaTube', 'plugins/toastthemes/cdncss.php?theme=scoots', '', false, false));
@@ -965,6 +966,12 @@ function addThemeEffect(theme) {
 			$('<script>', {
 				class: 'toastthemes-theme-specific',
 				src: 'plugins/toastthemes/css/btcon2022/videobg.js',
+			}).appendTo(document.head);
+			break;
+		case 'plugins/toastthemes/cdncss.php?theme=btcon2023':
+			$('<script>', {
+				class: 'toastthemes-theme-specific',
+				src: 'plugins/toastthemes/css/btcon2023/videobg.js',
 			}).appendTo(document.head);
 			break;
 		case 'plugins/toastthemes/cdncss.php?theme=slam':
