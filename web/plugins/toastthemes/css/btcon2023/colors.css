@@ -455,6 +455,10 @@ body {
   margin: 0 auto;
 }
 
+#videobg {
+  position: relative;
+}
+
 .btcon2-marquee-container>* {
   box-sizing: border-box;
 }
@@ -465,19 +469,17 @@ body {
   position: absolute;
   display: flex;
   justify-content: center;
-  height: 480px;
+  height: 100%;
+  pointer-events: none;
 }
 
 .btcon2-marquee {
   align-self: center;
-  height: 480px;
 }
 
 .btcon2-marquee-content {
   display: flex;
   animation: scrolling 2000s linear infinite;
-  will-change: transform;
-  height: 480px;
 }
 
 .btcon2-marquee-item {
@@ -485,15 +487,17 @@ body {
   margin: 0 3vw;
   aspect-ratio: 1 / 1;
   object-fit: contain;
+  border: 6px solid #1e1e1e;
+  background: #333;
   box-sizing: border-box;
-  height: 480px;
 }
 
 .btcon2-marquee-item img {
   display: block;
+  width: 100%;
   aspect-ratio: 1 / 1;
   object-fit: contain;
-  height: 480px;
+  background: #111;
 }
 
 @keyframes scrolling {
