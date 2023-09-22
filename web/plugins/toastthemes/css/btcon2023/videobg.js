@@ -50,7 +50,7 @@
     .join("");
 
   const html = `
-    <div class="btcon2-marquee-container">
+    <div class="btcon2-marquee-container toastthemes-theme-specific">
       <div class="btcon2-marquee">
         <div class="btcon2-marquee-content"> 
           ${picsHtml}
