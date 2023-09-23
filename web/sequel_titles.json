@@ -14,6 +14,8 @@
     "%s II: The Secret of the Booze",
     "%s 2: Judgement Day",
     "%s 2: The Two Towers",
+    "%s 2: The Two Towers",
+    "%s & Knuckles",
     {"weight": 0.01, "value": "%s 3"},
     {"weight": 0.001, "value": "Night of the Day of the Dawn of the Son of the Bride of the Return of the Revenge of the Terror of the Attack of the Evil, Mutant, Alien, Flesh Eating, Hellbound, Zombified Living %s"}
 ]
