@@ -60,6 +60,8 @@ function onModuleLoaded(callback) {
 		.push(callback);
 }
 
+
+
 function showAdminFilterWindow() {
 
 	socket.emit('getFilters');
@@ -71,17 +73,39 @@ function showAdminFilterWindow() {
 		initialLoading: true
 	});
 
+
+
 	var mainOptWrap = $('<div/>').appendTo(parent).addClass('controlWindow');
 	mainOptWrap.data('rules', []);
 	var controlBar = $('<div id="filterControls"/>').addClass('controlBar').appendTo(mainOptWrap);
 	var ruleZone = $('<div/>').addClass('ruleZone').appendTo(mainOptWrap);
 	// Add "Add" Button
 	var newRuleBtn = $('<div/>').addClass('button').appendTo(controlBar);
+	var searchBox = $('<input>', {type: 'text', id: 'filterSearchBox'}).appendTo(controlBar);
+
+	const matches = (filter, query) => {
+		//TODO: strip special characters from these
+		const matchableFields = [
+			filter.nickMatch,
+			filter.chatMatch,
+			filter.chatReplace,
+			filter.name,
+			filter.meta
+		]
+
+		return matchableFields.some(s => s.includes(query));
+	}
+
+	searchBox.on('input', function(ev) {
+		for (const rule of ruleZone.children()) {
+			rule.classList.toggle('hidden', !matches($(rule).data('filter'), ev.target.value))
+		}
+	})
+
 	$('<span/>').appendTo(newRuleBtn).text("Add New Rule");
 
 	function addRule(data) {
-
-		myData = {
+		let myData = {
 			nickMatch: ".*",
 			nickParam: "i",
 			chatMatch: ".*",
@@ -90,13 +114,11 @@ function showAdminFilterWindow() {
 			actionSelector: "none",
 			enable: true,
 			name: "",
-			meta: ""
+			meta: "",
+			...data
 		};
-		for (var i in data) {
-			myData[i] = data[i];
-		}
 
-		var newRule = $('<div/>').addClass("row").appendTo(ruleZone);
+		var newRule = $('<div/>').addClass("row").appendTo(ruleZone).data('filter', myData);
 		var titleBar = $('<div/>').addClass("titleBar").appendTo(newRule);
 		setRuleTitle(titleBar, myData);
 		titleBar.click(function () {
@@ -308,10 +330,10 @@ function showAdminFilterWindow() {
 	parent.window.center();
 
 	function loadExisting() {
-		console.log(FILTERS);
-		for (var i in FILTERS) {
-			addRule(FILTERS[i]);
+		for (const filter of FILTERS) {
+			addRule(filter)
 		}
+		
 		FILTERS = false; // Reset for next load.
 		parent.window.setLoaded();
 
