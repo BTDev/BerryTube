@@ -294,48 +294,48 @@ function showAdminFilterWindow() {
 		var msg = testChat.val();
 		var actionChain = [];
 
-		for (var i = 0; i < rules.length; i++) {
-			var d = {
-				nickMatch: $(rules[i]).data('nickMatch').val(),
-				nickParam: $(rules[i]).data('nickParam').val(),
-				chatMatch: $(rules[i]).data('chatMatch').val(),
-				chatParam: $(rules[i]).data('chatParam').val(),
-				chatReplace: $(rules[i]).data('chatReplace').val(),
-				actionSelector: $(rules[i]).data('actionSelector').val(),
-				actionMetadata: $(rules[i]).data('actionMetadata').val(),
-				enable: $(rules[i]).data('enable').is(':checked')
-			};
-			if (!d.enable) {
+		for (const rule of rules) {
+			if (!rule.data('enable').is(':checked')) {
 				continue;
 			}
 
-			// Name Check
-			var nickCheck = new RegExp(d.nickMatch, d.nickParam);
-			var chatCheck = new RegExp(d.chatMatch, d.chatParam);
-			if (nick.match(nickCheck)) { //console.log("matched name");
-				if (msg.match(chatCheck)) { //console.log("matched chat");
-					// Perform Action
-					actionChain.push({ action: d.actionSelector, meta: d.actionMetadata });
+			const filter = {
+				nickMatch: rule.data('nickMatch').val(),
+				nickParam: rule.data('nickParam').val(),
+				chatMatch: rule.data('chatMatch').val(),
+				chatParam: rule.data('chatParam').val(),
+				chatReplace: rule.data('chatReplace').val(),
+				actionSelector: rule.data('actionSelector').val(),
+				actionMetadata: rule.data('actionMetadata').val(),
+				enable: rule.data('enable').is(':checked')
+			}
+
+			const nickCheck = new RegExp(filter.nickMatch, filter.nickParam);
+			const chatCheck = new RegExp(filter.chatMatch, filter.chatParam);
+
+			if (nick.match(nickCheck)) {
+				if (msg.match(chatCheck)) {
+					actionChain.push({ action: filter.actionSelector, meta: filter.actionMetadata });
 				}
-				if ($.trim(d.chatReplace).length > 0) { //console.log("doing a replace");
-					msg = msg.replace(chatCheck, d.chatReplace);
+
+				if (filter.chatReplace.trim().length > 0) {
+					msg = msg.replace(chatCheck, filter.chatReplace);
 				}
 			}
 		}
-		var a = '';
-		for (var i = 0; i < actionChain.length; i++) {
-			if (actionChain[i].action == "none") {
-				continue;
-			}
 
-			if (actionChain[i].action == "hush") {
+		const actions = actionChain.filter(act => act.action !== "none").map(act => {
+			if (act.action == "hush") {
 				msg = msg.toLowerCase();
 			}
 
-			a += "<div>ACTION: " + actionChain[i].action + ", " + actionChain[i].meta + "</div>";
-		}
-		var out = '<div>' + nick + ": " + msg + '</div>' + a;
-		exampleArea.html(out);
+			return $('<div>', {text: `ACTION: ${act.action}, ${act.meta}`});
+		});
+
+		exampleArea.empty().append(
+			$('<span>', {text: `${nick}: ${msg}`}),
+			actions
+		);
 	});
 
 	parent.window.center();
