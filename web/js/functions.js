@@ -66,7 +66,7 @@ function showAdminFilterWindow() {
 
 	socket.emit('getFilters');
 
-	var parent = $("body").dialogWindow({
+	let parent = $("body").dialogWindow({
 		title: "Modmin Filter Config",
 		uid: "adminfilter",
 		center: true,
@@ -75,16 +75,31 @@ function showAdminFilterWindow() {
 
 
 
-	var mainOptWrap = $('<div/>').appendTo(parent).addClass('controlWindow');
-	mainOptWrap.data('rules', []);
-	var controlBar = $('<div id="filterControls"/>').addClass('controlBar').appendTo(mainOptWrap);
-	var ruleZone = $('<div/>').addClass('ruleZone').appendTo(mainOptWrap);
+	let mainOptWrap = $('<div>', {class: 'controlWindow'})
+		.data('rules', [])
+		.appendTo(parent);
+
+	let controlBar = $('<div>', {id: 'filterControls', class: 'controlBar'}).appendTo(mainOptWrap);
+	let ruleZone = $('<div>', {class: 'ruleZone'}).appendTo(mainOptWrap);
 	// Add "Add" Button
-	var newRuleBtn = $('<div/>').addClass('button').appendTo(controlBar);
-	var searchBox = $('<input>', {type: 'text', id: 'filterSearchBox'}).appendTo(controlBar);
+
+	let newRuleBtn = $('<div/>', {class: 'button'}).append(
+		$('<span>', {text: 'Add New Rule'})
+	).appendTo(controlBar);
+
+	let saveBtn = $('<div/>').addClass('button').appendTo(controlBar);
+	$('<span/>').appendTo(saveBtn).text("Save Rules");
+
+	let searchBox = $('<input>', {type: 'text', id: 'filterSearchBox'}).appendTo(controlBar);
+
+	controlBar.append(
+		$('<div>', {id: 'filterSearch'}).append(
+			$('<span>', {text: 'Search: '}),
+			searchBox
+		)
+	)
 
 	const matches = (filter, query) => {
-		//TODO: strip special characters from these
 		const matchableFields = [
 			filter.nickMatch,
 			filter.chatMatch,
@@ -101,8 +116,6 @@ function showAdminFilterWindow() {
 			rule.classList.toggle('hidden', !matches($(rule).data('filter'), ev.target.value))
 		}
 	})
-
-	$('<span/>').appendTo(newRuleBtn).text("Add New Rule");
 
 	function addRule(data) {
 		let myData = {
@@ -167,12 +180,7 @@ function showAdminFilterWindow() {
 		newRule.data('chatReplace', chatReplace);
 
 		/* Actions */
-		var _actions = [ // show meta allows a extra field, for whatever purposes.
-			{ label: "No Action", tag:"none", showmeta: false },
-			{ label: "Kick User", tag:"kick", showmeta: true },
-			{ label: "Suppress Message", tag:"suppress", showmeta: true },
-			{ label: "Force Lowercase", tag:"hush", showmeta: false },
-		];
+
 		var actionRow = $('<tr/>').appendTo(newTable);
 		var actionLabelCol = $('<td/>').appendTo(actionRow);
 		var actionDataCol = $('<td/>').appendTo(actionRow);
@@ -181,13 +189,18 @@ function showAdminFilterWindow() {
 		newRule.data('actionSelector',actionSelector);
 		var actionMetadata = $('<input/>').attr('type','text').addClass("hidden").appendTo(actionDataCol);
 		newRule.data('actionMetadata',actionMetadata);
-		for (var i in _actions) {
-			$("<option/>")
-				.val(_actions[i].tag)
-				.text(_actions[i].label)
-				.appendTo(actionSelector)
-				.data("showmeta", _actions[i].showmeta);
-		}
+
+		var _actions = [ // show meta allows a extra field, for whatever purposes.
+			{ label: "No Action", tag:"none", showmeta: false },
+			{ label: "Kick User", tag:"kick", showmeta: true },
+			{ label: "Suppress Message", tag:"suppress", showmeta: true },
+			{ label: "Force Lowercase", tag:"hush", showmeta: false },
+		];
+
+		actionSelector.append(
+			_actions.map(act => $('<option>', {value: act.tag, text: act.label}).data('showmeta', act.showmeta))
+		)
+
 		actionSelector.change(function () {
 			if ($(this).children("option:selected").data('showmeta')) {
 				actionMetadata.removeClass("hidden");
@@ -247,8 +260,6 @@ function showAdminFilterWindow() {
 	var exampleArea = $('<div/>').appendTo(mainOptWrap);
 
 	/* Save Button */
-	var saveBtn = $('<div/>').addClass('button').appendTo(controlBar);
-	$('<span/>').appendTo(saveBtn).text("Save Rules");
 	saveBtn.click(function () {
 		var rules = mainOptWrap.data('rules');
 		var convertedRules = [];
