@@ -63,7 +63,6 @@ function onModuleLoaded(callback) {
 
 
 function showAdminFilterWindow() {
-
 	socket.emit('getFilters');
 
 	let parent = $("body").dialogWindow({
@@ -72,8 +71,6 @@ function showAdminFilterWindow() {
 		center: true,
 		initialLoading: true
 	});
-
-
 
 	let mainOptWrap = $('<div>', {class: 'controlWindow'})
 		.data('rules', [])
@@ -97,7 +94,7 @@ function showAdminFilterWindow() {
 			$('<span>', {text: 'Search: '}),
 			searchBox
 		)
-	)
+	);
 
 	const matches = (filter, query) => {
 		const matchableFields = [
@@ -115,7 +112,7 @@ function showAdminFilterWindow() {
 		for (const rule of ruleZone.children()) {
 			rule.classList.toggle('hidden', !matches($(rule).data('filter'), ev.target.value))
 		}
-	})
+	});
 
 	function addRule(data) {
 		let myData = {
@@ -145,7 +142,10 @@ function showAdminFilterWindow() {
 		var nameDataCol = $('<td/>').appendTo(nameRow);
 		$('<span/>').text("Rule Name:").appendTo(nameLabelCol);
 		var nameText = $('<input/>').attr('type', 'text').val(myData.name).appendTo(nameDataCol);
-		newRule.data('name', nameText);
+
+		nameText.on('change', function(ev) {
+			myData.name = ev.target.value;
+		});
 
 		/* USERNAME */
 		var userRow = $('<tr/>').appendTo(newTable);
@@ -154,10 +154,15 @@ function showAdminFilterWindow() {
 		$('<span/>').text("Match Username:").appendTo(userLabelCol);
 		$('<span/>').text("/").appendTo(userDataCol);
 		var nickMatch = $('<input/>').attr('type', 'text').val(myData.nickMatch).appendTo(userDataCol);
-		newRule.data('nickMatch', nickMatch);
 		$('<span/>').text("/").appendTo(userDataCol);
 		var nickParam = $('<input/>').attr('type', 'text').val(myData.nickParam).addClass("tiny").appendTo(userDataCol);
-		newRule.data('nickParam', nickParam);
+
+		nickMatch.on('change', function(ev) {
+			myData.nickMatch = ev.target.value;
+		});
+		nickParam.on('change', function(ev) {
+			myData.nickParam = ev.target.value;
+		});
 
 		/* Chat */
 		var chatRow = $('<tr/>').appendTo(newTable);
@@ -166,10 +171,15 @@ function showAdminFilterWindow() {
 		$('<span/>').text("Match Chat:").appendTo(chatLabelCol);
 		$('<span/>').text("/").appendTo(chatDataCol);
 		var chatMatch = $('<input/>').attr('type', 'text').val(myData.chatMatch).appendTo(chatDataCol);
-		newRule.data('chatMatch', chatMatch);
 		$('<span/>').text("/").appendTo(chatDataCol);
 		var chatParam = $('<input/>').attr('type', 'text').val(myData.chatParam).addClass("tiny").appendTo(chatDataCol);
-		newRule.data('chatParam', chatParam);
+
+		chatMatch.on('change', function(ev) {
+			myData.chatMatch = ev.target.value;
+		});
+		chatParam.on('change', function(ev) {
+			myData.chatParam = ev.target.value;
+		});
 
 		/* Replacements */
 		var replaceRow = $('<tr/>').appendTo(newTable);
@@ -177,18 +187,18 @@ function showAdminFilterWindow() {
 		var replaceDataCol = $('<td/>').appendTo(replaceRow);
 		$('<span/>').text("Replace Chat:").appendTo(replaceLabelCol);
 		var chatReplace = $('<input/>').attr('type', 'text').val(myData.chatReplace).appendTo(replaceDataCol);
-		newRule.data('chatReplace', chatReplace);
+
+		chatReplace.on('change', function(ev) {
+			myData.chatReplace = ev.target.value;
+		});
 
 		/* Actions */
-
 		var actionRow = $('<tr/>').appendTo(newTable);
 		var actionLabelCol = $('<td/>').appendTo(actionRow);
 		var actionDataCol = $('<td/>').appendTo(actionRow);
 		$('<span/>').text("Action:").appendTo(actionLabelCol);
 		var actionSelector = $('<select/>').appendTo(actionDataCol);
-		newRule.data('actionSelector',actionSelector);
 		var actionMetadata = $('<input/>').attr('type','text').addClass("hidden").appendTo(actionDataCol);
-		newRule.data('actionMetadata',actionMetadata);
 
 		var _actions = [ // show meta allows a extra field, for whatever purposes.
 			{ label: "No Action", tag:"none", showmeta: false },
@@ -199,16 +209,23 @@ function showAdminFilterWindow() {
 
 		actionSelector.append(
 			_actions.map(act => $('<option>', {value: act.tag, text: act.label}).data('showmeta', act.showmeta))
-		)
+		);
 
-		actionSelector.change(function () {
+		actionSelector.change(function (ev) {
 			if ($(this).children("option:selected").data('showmeta')) {
 				actionMetadata.removeClass("hidden");
 				actionMetadata.val(myData.actionMetadata);
 			} else {
 				actionMetadata.addClass("hidden");
 			}
+
+			myData.actionSelector = ev.target.value;
 		});
+
+		actionMetadata.on('change', function(ev) {
+			myData.actionMetadata = ev.target.value;
+		});
+
 		actionSelector.val(myData.actionSelector);
 		actionSelector.change();
 
@@ -221,7 +238,10 @@ function showAdminFilterWindow() {
 		if (myData.enable) {
 			enable.prop('checked', true);
 		}
-		newRule.data('enable', enable);
+
+		enable.on('change', function(ev) {
+			myData.enable = ev.target.checked;
+		});
 
 		var rules = mainOptWrap.data('rules');
 		rules.push(newRule);
@@ -235,13 +255,10 @@ function showAdminFilterWindow() {
 		});
 
 		function refreshTitle() {
-			var row = $(this).parents('.row');
-			var d = {
-				chatMatch: row.data('chatMatch').val(),
-				chatReplace: row.data('chatReplace').val(),
-				name: row.data('name').val()
-			};
-			setRuleTitle(row.children('.titleBar'), d);
+			let row = $(this).parents('.row');
+			let filter = row.data('filter');
+
+			setRuleTitle(row.children('.titleBar'), filter);
 		}
 		chatMatch.change(refreshTitle);
 		chatReplace.change(refreshTitle);
@@ -261,24 +278,9 @@ function showAdminFilterWindow() {
 
 	/* Save Button */
 	saveBtn.click(function () {
-		var rules = mainOptWrap.data('rules');
-		var convertedRules = [];
-		for (var i = 0; i < rules.length; i++) {
-			//console.log($(rules[i]).data());
-			var d = {
-				nickMatch: $(rules[i]).data('nickMatch').val(),
-				nickParam: $(rules[i]).data('nickParam').val(),
-				chatMatch: $(rules[i]).data('chatMatch').val(),
-				chatParam: $(rules[i]).data('chatParam').val(),
-				chatReplace: $(rules[i]).data('chatReplace').val(),
-				actionSelector: $(rules[i]).data('actionSelector').val(),
-				actionMetadata: $(rules[i]).data('actionMetadata').val(),
-				enable: $(rules[i]).data('enable').is(':checked'),
-				name: $(rules[i]).data('name').val()
-			};
-			convertedRules.push(d);
-		}
-		mainOptWrap.data('convertedRules', convertedRules);
+		const rules = mainOptWrap.data('rules');
+		const convertedRules = rules.map(rule => rule.data('filter'));
+
 		if (canSetFilters()) {
 			socket.emit("setFilters", convertedRules);
 			highlight(saveBtn);
@@ -289,25 +291,16 @@ function showAdminFilterWindow() {
 	var testBtn = $('<div/>').addClass('button').appendTo(testBar);
 	$('<span/>').appendTo(testBtn).text("Test Rules");
 	testBtn.click(function () {
-		var rules = mainOptWrap.data('rules');
-		var nick = testName.val();
-		var msg = testChat.val();
-		var actionChain = [];
+		const rules = mainOptWrap.data('rules');
+		const nick = testName.val();
+		let msg = testChat.val();
+		const actionChain = [];
 
 		for (const rule of rules) {
-			if (!rule.data('enable').is(':checked')) {
-				continue;
-			}
+			const filter = rule.data('filter');
 
-			const filter = {
-				nickMatch: rule.data('nickMatch').val(),
-				nickParam: rule.data('nickParam').val(),
-				chatMatch: rule.data('chatMatch').val(),
-				chatParam: rule.data('chatParam').val(),
-				chatReplace: rule.data('chatReplace').val(),
-				actionSelector: rule.data('actionSelector').val(),
-				actionMetadata: rule.data('actionMetadata').val(),
-				enable: rule.data('enable').is(':checked')
+			if (!filter.enable) {
+				continue;
 			}
 
 			const nickCheck = new RegExp(filter.nickMatch, filter.nickParam);
