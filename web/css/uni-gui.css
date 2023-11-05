@@ -100,7 +100,13 @@
 .ruleZone .row{
 	border: 1px solid gray;
 	margin: 5px 0;
+	padding-left: 3px;
 }
+
+#filterSearch {
+	padding-left: 3px;
+}
+
 .dialogWindow .optionList {
     list-style: none outside none;
     margin: 0;
