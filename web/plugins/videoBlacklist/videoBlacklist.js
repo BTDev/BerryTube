@@ -16,16 +16,10 @@ new function(){
     }
 
     ns.scan = function(){
-        // Scan playlist
-        var elem = PLAYLIST.first;
-        do{
-            if(!ns.isOk(ns.getStub(elem))){
-                $(elem.domobj).addClass("blacklisted");
-            } else {
-                $(elem.domobj).removeClass("blacklisted");
-            }
-            elem = elem.next;
-        }while(elem != PLAYLIST.first)
+		// Scan playlist
+		PLAYLIST.each(video => {
+			video.domobj.toggleClass('blacklisted', !ns.isOk(ns.getStub(video)));
+		});
     }
 
     ns.uid = function(digits){

@@ -68,17 +68,19 @@ socket.on("renewPos", function (data) {
 });
 socket.on("recvNewPlaylist", function (data) {
 	PLAYLIST = new LinkedList.Circular();
-	for (var i in data) {
-		PLAYLIST.append(data[i]);
+	for (const video of data) {
+		PLAYLIST.append(video);
 	}
+
 	newPlaylist($("#plul"));
 	socket.emit("renewPos");
 });
 socket.on("recvPlaylist", function (data) {
 	PLAYLIST = new LinkedList.Circular();
-	for (var i in data) {
-		PLAYLIST.append(data[i]);
+	for (const video of data) {
+		PLAYLIST.append(video);
 	}
+	
 	whenExists("#leftpane", function (obj) {
 		initPlaylist($(obj));
 		setVal("PLREADY", true);
@@ -306,15 +308,10 @@ socket.on(
 	}
 );
 socket.on("setVidVolatile", function (data) {
-	pos = data.pos;
-	isVolat = data.volat;
-	setVidVolatile(pos, isVolat);
+	setVidVolatile(data.pos, data.volat);
 });
 socket.on("setVidColorTag", function (data) {
-	var pos = data.pos;
-	var tag = data.tag;
-	var volat = data.volat;
-	setVidColorTag(pos, tag, volat);
+	setVidColorTag(data.pos, data.tag, data.volat);
 });
 socket.on("kicked", function (reason) {
 	var msg = "You have been kicked";
