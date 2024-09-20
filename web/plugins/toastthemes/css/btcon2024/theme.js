@@ -21,15 +21,15 @@
   }
 
   const pics = [
-    "https://tests.reef.ink/btcon2024/gallery/akineko_variantA.png",
-    "https://tests.reef.ink/btcon2024/gallery/BT_Con_2024_Trixie.png",
-    "https://tests.reef.ink/btcon2024/gallery/cadet_variantA_nobg.png",
-    "https://tests.reef.ink/btcon2024/gallery/guitarhero_variantA.jpg",
-    "https://tests.reef.ink/btcon2024/gallery/joro_variantA.png",
-    "https://tests.reef.ink/btcon2024/gallery/moozua_variantA.png",
-    "https://tests.reef.ink/btcon2024/gallery/naen_variantA_nobg.png",
-    "https://tests.reef.ink/btcon2024/gallery/nootaz_variantA_nobg.png",
-    "https://tests.reef.ink/btcon2024/gallery/taurson_variantB_nobg.png",
+    "/plugins/toastthemes/css/btcon2024/images/akineko_variantA.png",
+    "/plugins/toastthemes/css/btcon2024/images/BT_Con_2024_Trixie.png",
+    "/plugins/toastthemes/css/btcon2024/images/cadet_variantA_nobg.png",
+    "/plugins/toastthemes/css/btcon2024/images/guitarhero_variantA.jpg",
+    "/plugins/toastthemes/css/btcon2024/images/joro_variantA.png",
+    "/plugins/toastthemes/css/btcon2024/images/moozua_variantA.png",
+    "/plugins/toastthemes/css/btcon2024/images/naen_variantA_nobg.png",
+    "/plugins/toastthemes/css/btcon2024/images/nootaz_variantA_nobg.png",
+    "/plugins/toastthemes/css/btcon2024/images/taurson_variantB_nobg.png",
   ];
 
   shuffle(pics);
