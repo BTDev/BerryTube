@@ -974,6 +974,12 @@ function addThemeEffect(theme) {
 				src: 'plugins/toastthemes/css/btcon2023/videobg.js',
 			}).appendTo(document.head);
 			break;
+		case 'plugins/toastthemes/cdncss.php?theme=btcon2024':
+			$('<script>', {
+				class: 'toastthemes-theme-specific',
+				src: 'plugins/toastthemes/css/btcon2024/theme.js',
+			}).appendTo(document.head);
+			break;
 		case 'plugins/toastthemes/cdncss.php?theme=slam':
 			slamming = true;
 			welcomeToTheJam.play();
