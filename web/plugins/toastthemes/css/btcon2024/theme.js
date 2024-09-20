@@ -52,5 +52,9 @@
       </div>
     </div>
   `;
-  $("#videobg").prepend(html);
+
+
+  whenExists("#videobg", (videobg) => {
+    $("#videobg").prepend(html);
+  });
 })();
