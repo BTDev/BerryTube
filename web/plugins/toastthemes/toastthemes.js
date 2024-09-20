@@ -228,6 +228,7 @@ function initToastThemes(data, textStatus, jqxhr) {
 	officialGroup.addButton(new ThemeButton('btcon2021', 'BTCon 2021', 'plugins/toastthemes/cdncss.php?theme=btcon2021', '', false, false));
 	officialGroup.addButton(new ThemeButton('btcon2022', 'BTCon 2022', 'plugins/toastthemes/cdncss.php?theme=btcon2022', '', false, false));
 	officialGroup.addButton(new ThemeButton('btcon2023', 'BTCon 2023', 'plugins/toastthemes/cdncss.php?theme=btcon2023', '', false, false));
+	officialGroup.addButton(new ThemeButton('btcon2024', 'BTCon 2024', 'plugins/toastthemes/cdncss.php?theme=btcon2024', '', false, false));
 	officialGroup.addButton(new ThemeButton('berryButton', 'BerryTube', '', '', false, false), 0);
 
 	mainPonyGroup.addButton(new ThemeButton('scootsButton', 'ScootaTube', 'plugins/toastthemes/cdncss.php?theme=scoots', '', false, false));
