@@ -21,15 +21,15 @@
   }
 
   const pics = [
-    "/plugins/toastthemes/css/btcon2024/images/akineko_variantA.png",
-    "/plugins/toastthemes/css/btcon2024/images/BT_Con_2024_Trixie.png",
-    "/plugins/toastthemes/css/btcon2024/images/cadet_variantA_nobg.png",
-    "/plugins/toastthemes/css/btcon2024/images/guitarhero_variantA.jpg",
-    "/plugins/toastthemes/css/btcon2024/images/joro_variantA.png",
-    "/plugins/toastthemes/css/btcon2024/images/moozua_variantA.png",
-    "/plugins/toastthemes/css/btcon2024/images/naen_variantA_nobg.png",
-    "/plugins/toastthemes/css/btcon2024/images/nootaz_variantA_nobg.png",
-    "/plugins/toastthemes/css/btcon2024/images/taurson_variantB_nobg.png",
+    "/plugins/toastthemes/css/btcon2024/images/gallery/akineko_variantA.png",
+    "/plugins/toastthemes/css/btcon2024/images/gallery/BT_Con_2024_Trixie.png",
+    "/plugins/toastthemes/css/btcon2024/images/gallery/cadet_variantA_nobg.png",
+    "/plugins/toastthemes/css/btcon2024/images/gallery/guitarhero_variantA.jpg",
+    "/plugins/toastthemes/css/btcon2024/images/gallery/joro_variantA.png",
+    "/plugins/toastthemes/css/btcon2024/images/gallery/moozua_variantA.png",
+    "/plugins/toastthemes/css/btcon2024/images/gallery/naen_variantA_nobg.png",
+    "/plugins/toastthemes/css/btcon2024/images/gallery/nootaz_variantA_nobg.png",
+    "/plugins/toastthemes/css/btcon2024/images/gallery/taurson_variantB_nobg.png",
   ];
 
   shuffle(pics);
