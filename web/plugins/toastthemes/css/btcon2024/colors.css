@@ -419,7 +419,7 @@ body .chatbuffer .highlight {
 
 
 #banner {
-  background: url('images/banner.png') no-repeat center;
+  background: url(images/banner.png) no-repeat center;
   width: 100%;
   background-size: contain;
   height: 650px;
@@ -428,29 +428,29 @@ body .chatbuffer .highlight {
 }
 
 #chatpane.admin #adminbuffer {
-  background-image: url('images/bjork.png') !important;
+  background-image: url(images/bjork.png) !important;
   background-size: 300px;
 }
 
 
 .chatbuffer .message.drink {
-  background: url('images/dronk.png') no-repeat scroll right center transparent;
+  background: url(images/dronk.png) no-repeat scroll right center transparent;
 }
 
 
 #chatlist ul .leader {
-  background: url('images/drinkball.png') no-repeat scroll left center transparent !important;
+  background: url(images/drinkball.png) no-repeat scroll left center transparent !important;
   padding-left: 25px !important;
 }
 
 body {
-  background: url('images/bg.png') repeat #2C1A3E;
+  background: url(images/bg.png) repeat #2C1A3E;
   color: white;
 }
 
 #v {
   display: none;
-  background: url('images/toomuchdrink.png');
+  background: url(images/toomuchdrink.png);
   width: 604px;
   height: 340px;
   margin: 0 auto;
