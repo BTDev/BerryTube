@@ -415,6 +415,7 @@ body .chatbuffer .highlight {
 
 #videobg {
   background: none;
+  position: relative;
 }
 
 
@@ -467,7 +468,6 @@ body {
   display: flex;
   justify-content: center;
   height: 100%;
-  z-index: -1;
   width: 100vw;
   overflow-x: hidden;
   pointer-events: none;
