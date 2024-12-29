@@ -5,6 +5,7 @@ $stickerSize = 320; // Discord ignores the value and always uses 320, this is he
 $cacheTimeSeconds = 60 * 5;
 
 header('Content-Type: application/json');
+header('Access-Control-Allow-Origin: *');
 
 $botToken = getenv('DISCORD_BOT_TOKEN');
 if (!$botToken) {
