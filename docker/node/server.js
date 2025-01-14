@@ -5,7 +5,7 @@ const { sanitizeManifest } = require("./modules/playlist");
 const { DefaultLog, events, levels, consoleLogger, createStreamLogger } = require("./modules/log");
 const { DatabaseService } = require("./modules/database");
 const { SessionService, getSocketName, userTypes } = require("./modules/sessions");
-const { parseRawFileUrl } = require("./modules/utils");
+const { parseRawFileUrl, tryDecodeURIComponent } = require("./modules/utils");
 const { EventServer } = require("./modules/event-server");
 const fetchYoutubeVideoInfo = require("youtube-info");
 
@@ -730,13 +730,13 @@ function getCommand(msg) {
 function handleNewVideoChange() {
 	DefaultLog.info(events.EVENT_VIDEO_CHANGE,
 		"changed video to {videoTitle}",
-		{ videoTitle: decodeURI(SERVER.ACTIVE.videotitle) });
+		{ videoTitle: tryDecodeURIComponent(SERVER.ACTIVE.videotitle) });
 
 
 	eventServer.emit('videoChange', {
 		id: SERVER.ACTIVE.videoid,
 		length: SERVER.ACTIVE.videolength,
-		title: decodeURI(SERVER.ACTIVE.videotitle),
+		title: tryDecodeURIComponent(SERVER.ACTIVE.videotitle),
 		type: SERVER.ACTIVE.videotype,
 		volat: SERVER.ACTIVE.volat
 	});
@@ -876,7 +876,7 @@ function setVideoVolatile(socket, pos, isVolat) {
 
 	DefaultLog.info(events.EVENT_ADMIN_SET_VOLATILE,
 		"{mod} set {title} to {status}",
-		{ mod: getSocketName(socket), type: "playlist", title: decodeURIComponent(elem.videotitle), status: isVolat ? "volatile" : "not volatile" });
+		{ mod: getSocketName(socket), type: "playlist", title: tryDecodeURIComponent(elem.videotitle), status: isVolat ? "volatile" : "not volatile" });
 
 	io.sockets.emit("setVidVolatile", {
 		pos: pos,
@@ -1431,12 +1431,12 @@ function delVideo(video, sanity, socket) {
 
 		DefaultLog.info(events.EVENT_ADMIN_DELETED_VIDEO,
 			"{mod} deleted {title}",
-			{ mod: getSocketName(socket), type: "playlist", title: decodeURIComponent(node.videotitle) });
+			{ mod: getSocketName(socket), type: "playlist", title: tryDecodeURIComponent(node.videotitle) });
 
 	} catch (e) {
 		DefaultLog.error(events.EVENT_ADMIN_DELETED_VIDEO,
 			"{mod} could not delete {title}",
-			{ mod: getSocketName(socket), type: "playlist", title: decodeURIComponent(node.videotitle) }, e);
+			{ mod: getSocketName(socket), type: "playlist", title: tryDecodeURIComponent(node.videotitle) }, e);
 	}
 }
 
@@ -2774,7 +2774,7 @@ io.sockets.on('connection', function (ioSocket) {
 
 		DefaultLog.info(events.EVENT_ADMIN_MOVED_VIDEO,
 			"{mod} moved {title}",
-			{ mod: getSocketName(socket), title: decodeURIComponent(fromelem.videotitle), type: "playlist" });
+			{ mod: getSocketName(socket), title: tryDecodeURIComponent(fromelem.videotitle), type: "playlist" });
 	});
 	socket.on("forceVideoChange", function (data) {
 		if (!authService.can(socket.session, actions.ACTION_CONTROL_PLAYLIST)) {
