@@ -670,7 +670,9 @@ body {
 }
 
 /* mod-embedded images */
-.img-filter > img {
+#chatbuffer .img-filter > img,
+#chatbuffer .image > img, 
+#chatbuffer video {
     max-height: 150px;
     max-width: 100%;
 }
