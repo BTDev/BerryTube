@@ -811,25 +811,15 @@ function applyFilters(nick, msg, socket) {
 				SERVER.FILTERS.splice(i, 1);
 				continue;
 			}
-
-			if (nick.match(nickCheck)) {
-				if (msg.match(chatCheck)) {
-					// Perform Action
-					if(d.chance != null){
-						try{
-							if(Math.random() <= d.chance/100){
-									actionChain.push({ action: d.actionSelector, meta: d.actionMetadata });
-							}
-						}catch(e){
-							DefaultLog.error(events.EVENT_ADMIN_APPLY_FILTERS, "could not apply chance to filter {filterId}", { filterId: i }, e);
-							actionChain.push({ action: d.actionSelector, meta: d.actionMetadata });
-						}
-					}else{
+			if(d.chance == null || Math.random() <= d.chance/100){
+				if (nick.match(nickCheck)) {
+					if (msg.match(chatCheck)) {
+						// Perform Action
 						actionChain.push({ action: d.actionSelector, meta: d.actionMetadata });
 					}
-				}
-				if (d.chatReplace.trim().length > 0) {
-					msg = msg.replace(chatCheck, d.chatReplace);
+					if (d.chatReplace.trim().length > 0) {
+						msg = msg.replace(chatCheck, d.chatReplace);
+					}
 				}
 			}
 		}
