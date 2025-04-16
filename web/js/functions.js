@@ -125,6 +125,7 @@ function showAdminFilterWindow() {
 			enable: true,
 			name: "",
 			meta: "",
+			chance: 100,
 			...data
 		};
 
@@ -190,6 +191,24 @@ function showAdminFilterWindow() {
 
 		chatReplace.on('change', function(ev) {
 			myData.chatReplace = ev.target.value;
+		});
+
+		/* Chance */
+		// Handle pre-chance no values
+		if( myData.chance == null ) myData.chance = 100;
+		var chanceRow = $('<tr/>').appendTo(newTable);
+		var chanceLabelCol = $('<td/>').appendTo(chanceRow);
+		var chanceDataCol = $('<td/>').appendTo(chanceRow);
+		$('<span/>').text("Chance (%):").appendTo(chanceLabelCol);
+		var chanceInput = $('<input/>')
+			.attr('type', 'number')
+			.attr('min', '0')
+			.attr('max', '100')
+			.val(myData.chance)
+			.appendTo(chanceDataCol);
+
+		chanceInput.on('change', function(ev) {
+			myData.chance = Math.max( Math.min( +( ev.target.value || 0 ), 100 ), 0 );
 		});
 
 		/* Actions */
