@@ -811,7 +811,12 @@ function applyFilters(nick, msg, socket) {
 				SERVER.FILTERS.splice(i, 1);
 				continue;
 			}
-
+			
+			try{
+				if(d.chance != null && Math.random() >= d.chance/100)
+					continue;
+			}catch{}
+				
 			if (nick.match(nickCheck)) {
 				if (msg.match(chatCheck)) {
 					// Perform Action
