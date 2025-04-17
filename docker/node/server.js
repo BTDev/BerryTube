@@ -330,7 +330,7 @@ function initHardbant(callback) {
 			SERVER.BANS = JSON.parse(ips) || [];
 		}
 		if (callback) { callback(); }
-	});
+	});c
 }
 function initShadowbant(callback) {
 	getMisc({ name: "shadowbant_ips" }, function (ips) {
@@ -811,11 +811,9 @@ function applyFilters(nick, msg, socket) {
 				SERVER.FILTERS.splice(i, 1);
 				continue;
 			}
-			
-			try{
-				if(d.chance != null && Math.random() >= d.chance/100)
-					continue;
-			}catch{}
+		
+			if(d.chance != null && Math.random() >= d.chance/100)
+				continue;
 				
 			if (nick.match(nickCheck)) {
 				if (msg.match(chatCheck)) {
