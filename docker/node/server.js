@@ -811,15 +811,19 @@ function applyFilters(nick, msg, socket) {
 				SERVER.FILTERS.splice(i, 1);
 				continue;
 			}
-			if(d.chance == null || Math.random() <= d.chance/100){
-				if (nick.match(nickCheck)) {
-					if (msg.match(chatCheck)) {
-						// Perform Action
-						actionChain.push({ action: d.actionSelector, meta: d.actionMetadata });
-					}
-					if (d.chatReplace.trim().length > 0) {
-						msg = msg.replace(chatCheck, d.chatReplace);
-					}
+			
+			try{
+				if(d.chance != null && Math.random() >= d.chance/100)
+					continue;
+			}catch{}
+				
+			if (nick.match(nickCheck)) {
+				if (msg.match(chatCheck)) {
+					// Perform Action
+					actionChain.push({ action: d.actionSelector, meta: d.actionMetadata });
+				}
+				if (d.chatReplace.trim().length > 0) {
+					msg = msg.replace(chatCheck, d.chatReplace);
 				}
 			}
 		}
