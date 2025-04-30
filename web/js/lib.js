@@ -337,3 +337,12 @@ function onceFunction(fn) {
 		}
 	};
 }
+
+function tryDecodeURIComponent(str) {
+	try {
+		return decodeURIComponent(str);
+	} catch (err) {
+		console.warn('Ignored:', err);
+		return str;
+	}
+}
