@@ -23,7 +23,6 @@ function videoSeeked(time) {
 	}
 }
 function videoPlaying() {
-	//PLAYING_VID = getLiteralPlayingVidID();
 	if (controlsVideo()) {
 		videoGetTime(function (time) {
 			SEEK_TO = time;
@@ -48,11 +47,6 @@ function videoPaused() {
 
 socket.on("createPlayer", function (data) {
 	console.log('createPlayer', data);
-
-	if (!INIT_TIME) {
-		INIT_TIME = data.time;
-	}
-
 	const isNew = ACTIVE.videoid != data.video.videoid;
 
 	unfuckPlaylist();
