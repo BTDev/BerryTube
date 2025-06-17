@@ -330,7 +330,7 @@ function initHardbant(callback) {
 			SERVER.BANS = JSON.parse(ips) || [];
 		}
 		if (callback) { callback(); }
-	});c
+	});
 }
 function initShadowbant(callback) {
 	getMisc({ name: "shadowbant_ips" }, function (ips) {
