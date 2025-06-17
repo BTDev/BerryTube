@@ -69,7 +69,7 @@
 			<?php } ?>
 			<?php
 				if (date('n') == 6) {
-					if ($_COOKIE['no-pride'] !== 'true') {
+					if (@ $_COOKIE['no-pride'] !== 'true') {
 						$prideCookie = 'no-pride=true; expires=Thu, 01 Jan 2970 00:00:00 GMT';
 						$prideText = 'Disable pride month theme';
 					} else {

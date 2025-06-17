@@ -114,7 +114,7 @@ if (date('n') == 6) {
 		try {
 			require_once('geoip2.phar');
 			$georeader = new GeoIp2\Database\Reader('/usr/local/share/GeoIP/GeoLite2-Country.mmdb');
-			$geo = $georeader->country(CLIENT_IP);
+			@ $geo = $georeader->country(CLIENT_IP);
 			echo "'", $geo->country->isoCode, "';\n";
 		} catch (Exception $e) {
 			echo "null;\n";
