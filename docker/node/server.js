@@ -5,7 +5,7 @@ const { sanitizeManifest } = require("./modules/playlist");
 const { DefaultLog, events, levels, consoleLogger, createStreamLogger } = require("./modules/log");
 const { DatabaseService } = require("./modules/database");
 const { SessionService, getSocketName, userTypes } = require("./modules/sessions");
-const { parseRawFileUrl } = require("./modules/utils");
+const { parseRawFileUrl, tryDecodeURIComponent } = require("./modules/utils");
 const { EventServer } = require("./modules/event-server");
 const fetchYoutubeVideoInfo = require("youtube-info");
 
@@ -730,13 +730,13 @@ function getCommand(msg) {
 function handleNewVideoChange() {
 	DefaultLog.info(events.EVENT_VIDEO_CHANGE,
 		"changed video to {videoTitle}",
-		{ videoTitle: decodeURI(SERVER.ACTIVE.videotitle) });
+		{ videoTitle: tryDecodeURIComponent(SERVER.ACTIVE.videotitle) });
 
 
 	eventServer.emit('videoChange', {
 		id: SERVER.ACTIVE.videoid,
 		length: SERVER.ACTIVE.videolength,
-		title: decodeURI(SERVER.ACTIVE.videotitle),
+		title: tryDecodeURIComponent(SERVER.ACTIVE.videotitle),
 		type: SERVER.ACTIVE.videotype,
 		volat: SERVER.ACTIVE.volat
 	});
@@ -879,7 +879,7 @@ function setVideoVolatile(socket, pos, isVolat) {
 
 	DefaultLog.info(events.EVENT_ADMIN_SET_VOLATILE,
 		"{mod} set {title} to {status}",
-		{ mod: getSocketName(socket), type: "playlist", title: decodeURIComponent(elem.videotitle), status: isVolat ? "volatile" : "not volatile" });
+		{ mod: getSocketName(socket), type: "playlist", title: tryDecodeURIComponent(elem.videotitle), status: isVolat ? "volatile" : "not volatile" });
 
 	io.sockets.emit("setVidVolatile", {
 		pos: pos,
@@ -1434,12 +1434,12 @@ function delVideo(video, sanity, socket) {
 
 		DefaultLog.info(events.EVENT_ADMIN_DELETED_VIDEO,
 			"{mod} deleted {title}",
-			{ mod: getSocketName(socket), type: "playlist", title: decodeURIComponent(node.videotitle) });
+			{ mod: getSocketName(socket), type: "playlist", title: tryDecodeURIComponent(node.videotitle) });
 
 	} catch (e) {
 		DefaultLog.error(events.EVENT_ADMIN_DELETED_VIDEO,
 			"{mod} could not delete {title}",
-			{ mod: getSocketName(socket), type: "playlist", title: decodeURIComponent(node.videotitle) }, e);
+			{ mod: getSocketName(socket), type: "playlist", title: tryDecodeURIComponent(node.videotitle) }, e);
 	}
 }
 
@@ -1605,7 +1605,7 @@ function _addVideoVimeo(socket, data, meta, path, successCallback, failureCallba
 			rawAddVideo({
 				pos: pos,
 				videoid: jdata.id || jdata.video_id,
-				videotitle: encodeURI(jdata.title),
+				videotitle: encodeURIComponent(jdata.title),
 				videolength: jdata.duration,
 				videotype: "vimeo",
 				who: meta.nick,
@@ -1800,7 +1800,7 @@ function addVideoYT(socket, data, meta, successCallback, failureCallback) {
 				rawAddVideo({
 					pos: pos,
 					videoid: videoid,
-					videotitle: encodeURI(formattedTitle),
+					videotitle: encodeURIComponent(formattedTitle),
 					videolength: formattedTime,
 					videotype: "yt",
 					who: meta.nick,
@@ -1839,7 +1839,7 @@ function addVideoYT(socket, data, meta, successCallback, failureCallback) {
 			rawAddVideo({
 				pos: pos,
 				videoid: videoid,
-				videotitle: encodeURI(title),
+				videotitle: encodeURIComponent(title),
 				videolength: duration,
 				videotype: "yt",
 				who: meta.nick,
@@ -1961,7 +1961,7 @@ async function addVideoSoundCloud(socket, data, meta, successCallback, failureCa
 				pos: SERVER.PLAYLIST.length,
 				// Don't collide with vimeo
 				videoid: 'SC' + jdata.id,
-				videotitle: encodeURI(jdata.user.username + " - " + jdata.title),
+				videotitle: encodeURIComponent(jdata.user.username + " - " + jdata.title),
 				// soundcloud is millis
 				videolength: jdata.duration / 1000,
 				videotype: "soundcloud",
@@ -2083,7 +2083,7 @@ function addVideoDash(socket, data, meta, successCallback, failureCallback) {
 			if (meta.type <= 0) { volat = true; }
 			if (volat === undefined) { volat = false; }
 			const parts = videoid.split('/');
-			const videoTitle = data.videotitle ? encodeURI(data.videotitle) : parts[parts.length - 1];
+			const videoTitle = data.videotitle ? encodeURIComponent(data.videotitle) : parts[parts.length - 1];
 			rawAddVideo({
 				pos: SERVER.PLAYLIST.length,
 				videoid: videoid,
@@ -2166,7 +2166,7 @@ function addVideoTwitch(socket, data, meta, successCallback, failureCallback) {
 			rawAddVideo({
 				pos: SERVER.PLAYLIST.length,
 				videoid: 'videos/' + videoid,
-				videotitle: encodeURI(response.title),
+				videotitle: encodeURIComponent(response.title),
 				videolength: parseDuration(response.duration),
 				videotype: "twitch",
 				who: meta.nick,
@@ -2191,7 +2191,7 @@ function addVideoTwitch(socket, data, meta, successCallback, failureCallback) {
 			rawAddVideo({
 				pos: SERVER.PLAYLIST.length,
 				videoid: response.broadcaster_login,
-				videotitle: encodeURI(response.display_name),
+				videotitle: encodeURIComponent(response.display_name),
 				videolength: 0,
 				videotype: "twitch",
 				who: meta.nick,
@@ -2223,7 +2223,7 @@ function addVideoTwitchClip(socket, data, meta, successCallback, failureCallback
 		rawAddVideo({
 			pos: SERVER.PLAYLIST.length,
 			videoid: response.id,
-			videotitle: encodeURI(response.title),
+			videotitle: encodeURIComponent(response.title),
 			videolength: Math.ceil(response.duration),
 			videotype: "twitchclip",
 			who: meta.nick,
@@ -2273,7 +2273,7 @@ function addVideoDailymotion(socket, data, meta, successCallback, failureCallbac
 		rawAddVideo({
 			pos: SERVER.PLAYLIST.length,
 			videoid: videoId,
-			videotitle: encodeURI(response.title),
+			videotitle: encodeURIComponent(response.title),
 			videolength: response.duration,
 			videotype: "dm",
 			who: meta.nick,
@@ -2461,7 +2461,7 @@ io.sockets.on('connection', function (ioSocket) {
 			return;
 		}
 
-		const pattern = '%' + encodeURI(data.search).replace(/%/g, '\\%') + '%';
+		const pattern = '%' + encodeURIComponent(data.search).replace(/%/g, '\\%') + '%';
 		const { result } = await databaseService.query`
 			SELECT
 				*
@@ -2777,7 +2777,7 @@ io.sockets.on('connection', function (ioSocket) {
 
 		DefaultLog.info(events.EVENT_ADMIN_MOVED_VIDEO,
 			"{mod} moved {title}",
-			{ mod: getSocketName(socket), title: decodeURIComponent(fromelem.videotitle), type: "playlist" });
+			{ mod: getSocketName(socket), title: tryDecodeURIComponent(fromelem.videotitle), type: "playlist" });
 	});
 	socket.on("forceVideoChange", function (data) {
 		if (!authService.can(socket.session, actions.ACTION_CONTROL_PLAYLIST)) {

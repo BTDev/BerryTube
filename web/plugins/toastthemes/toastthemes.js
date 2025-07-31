@@ -453,7 +453,7 @@ function initToastThemes(data, textStatus, jqxhr) {
 
 	// Rig up the auto-theme method to the correct socket callback
 	socket.on('forceVideoChange', function(data) {
-		log('Video loaded: ' + decodeURIComponent(data.video.videotitle) + ' (id=' + data.video.videoid + ', duration=' + data.video.videolength + ')');
+		log('Video loaded: ' + tryDecodeURIComponent(data.video.videotitle) + ' (id=' + data.video.videoid + ', duration=' + data.video.videolength + ')');
 
 		// Sweetie Belle crawl
 		if (crawlId > -1) {
@@ -1128,7 +1128,7 @@ function gakify(node) {
 	var text;
 	if (gakified) {
 		text = node.data('plobject').videotitle;
-		return decodeURIComponent(text);
+		return tryDecodeURIComponent(text);
 	}
 	else {
 		text = node.find('.title').text();
