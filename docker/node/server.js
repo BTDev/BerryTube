@@ -197,6 +197,75 @@ LinkedList.Circular.prototype.toArray = function () {
 	return out;
 };
 
+
+LinkedList.Circular.prototype.some = function(cb) {
+	return this.find(cb) !== null;
+}
+
+LinkedList.Circular.prototype.find = function(cb) {
+	let video = this.first;
+
+	for (let i = 0; i < this.length; i++) {
+		if (cb(video, i)) {
+			return video;
+		}
+
+		video = video.next;
+	}
+
+	return null;
+}
+LinkedList.Circular.prototype.multiple = function(indexes) {
+	let map = new Map(
+		indexes.map(i => [i, null])
+	);
+
+	let video = this.first;
+	let max = Math.max(...indexes);
+
+	for (let i = 0; i <= max; i++) {
+		if (map.has(i)) {
+			map.set(i, video);
+		}
+
+		video = video.next;
+	}
+
+	return indexes.map(i => map.get(i));
+}
+LinkedList.Circular.prototype.at = function(index) {
+	let video = this.first;
+
+	for (let i = 0; i < index; i++) {
+		video = video.next;
+	}
+
+	return video;
+}
+
+LinkedList.Circular.prototype.each = function(cb) {
+	let video = this.first;
+
+	for (let i = 0; i < this.length; i++) {
+		cb(video, i);
+		video = video.next;
+	}
+}
+
+LinkedList.Circular.prototype.indexOf = function(cb) {
+	let video = this.first;
+
+	for (let i = 0; i < this.length; i++) {
+		if (cb(video, i)) {
+			return i;
+		}
+
+		video = video.next;
+	}
+
+	return -1;
+}
+
 /* VAR INIT */
 SERVER.PLAYLIST = new LinkedList.Circular();
 SERVER.ACTIVE = null;
@@ -279,20 +348,19 @@ function initPlaylist(callback) {
 }
 function initResumePosition(callback) {
 	getMisc({ name: 'server_active_videoid' }, function (old_videoid) {
-		var elem = SERVER.PLAYLIST.first;
-		for (var i = 0; i < SERVER.PLAYLIST.length; i++) {
-			if (elem.videoid == old_videoid) {
-				SERVER.ACTIVE = elem;
-				getMisc({ name: 'server_time' }, function (old_time) {
-					if (+old_time) {
-						SERVER.TIME = +old_time + 1;
-					}
-					if (callback) { callback(); }
-				});
-				return;
-			}
-			elem = elem.next;
+		const active = SERVER.PLAYLIST.find(video => video.videoid === old_videoid);
+		
+		if (active) {
+			SERVER.ACTIVE = active;
+			
+			getMisc({ name: 'server_time' }, function (old_time) {
+				if (+old_time) {
+					SERVER.TIME = +old_time + 1;
+				}
+				if (callback) { callback(); }
+			});
 		}
+
 		if (callback) { callback(); }
 	});
 }
@@ -481,14 +549,14 @@ function doorStuck(socket) {
 }
 function playNext() {
 	const active = {
-		position: getVideoPosition(SERVER.ACTIVE),
+		position: SERVER.PLAYLIST.indexOf(video => video.videoid === SERVER.ACTIVE.videoid),
 		node: SERVER.ACTIVE
 	};
 
 	SERVER.ACTIVE = SERVER.ACTIVE.next;
 
 	if (!active.node.volat && 'colorTagVolat' in active.node.meta) {
-		_setVideoColorTag(active.node, active.position, false, false);
+		setVideoColorTag(active.node, active.position, false, false);
 	}
 
 	if (active.node.volat) {
@@ -658,17 +726,15 @@ function kickUserByNick(socket, nick, reason) {
 	sessionService.forNick(nick, session => session.kick(reason, getSocketName(socket)));
 }
 var commit = function () {
-	var elem = SERVER.PLAYLIST.first;
-	for (var i = 0; i < SERVER.PLAYLIST.length; i++) {
+	SERVER.PLAYLIST.each((video, i) => {
 		var sql = `update ${SERVER.dbcon.video_table} set position = ? where videoid = ?`;
-		mysql.query(sql, [i, '' + elem.videoid], function (err) {
+		mysql.query(sql, [i, '' + video.videoid], function (err) {
 			if (err) {
 				DefaultLog.error(events.EVENT_DB_QUERY, "query \"{sql}\" failed", { sql }, err);
 				return;
 			}
 		});
-		elem = elem.next;
-	}
+	});
 
 	for (var i = 0; i < SERVER.AREAS.length; i++) {
 		var sql = 'update areas set html = ? where name = ?';
@@ -870,30 +936,20 @@ function applyPluginFilters(msg, socket) {
 
 	return msg;
 }
-function setVideoVolatile(socket, pos, isVolat) {
-	var elem = SERVER.PLAYLIST.first;
-	for (var i = 0; i < pos; i++) {
-		elem = elem.next;
-	}
-	elem.volat = isVolat;
-
+function setVideoVolatile(socket, video, pos, isVolat) {
+	video.volat = isVolat;
+	
 	DefaultLog.info(events.EVENT_ADMIN_SET_VOLATILE,
 		"{mod} set {title} to {status}",
-		{ mod: getSocketName(socket), type: "playlist", title: decodeURIComponent(elem.videotitle), status: isVolat ? "volatile" : "not volatile" });
+		{ mod: getSocketName(socket), type: "playlist", title: decodeURIComponent(video.videotitle), status: isVolat ? "volatile" : "not volatile" });
 
 	io.sockets.emit("setVidVolatile", {
 		pos: pos,
 		volat: isVolat
 	});
 }
-function setVideoColorTag(pos, tag, volat) {
-	var elem = SERVER.PLAYLIST.first;
-	for (var i = 0; i < pos; i++) {
-		elem = elem.next;
-	}
-	_setVideoColorTag(elem, pos, tag, volat);
-}
-function _setVideoColorTag(elem, pos, tag, volat) {
+
+function setVideoColorTag(elem, pos, tag, volat) {
 
 	if (tag == false) {
 		delete elem.meta.colorTag;
@@ -1343,41 +1399,6 @@ function sendToggleables(socket) {
 		}
 	}
 	socket.emit("setToggleables", data);
-}
-
-function getVideoPosition(node) {
-	let video = SERVER.PLAYLIST.first;
-
-	for (let index = 0; index < SERVER.PLAYLIST.length; index++) {
-		if (video === node) {
-			return index;
-		}
-
-		video = video.next;
-	}
-
-	return -1;
-}
-
-function getVideoAt(index) {
-	if (index < 0 || index > SERVER.PLAYLIST.length) {
-		return null;
-	}
-
-	let video = SERVER.PLAYLIST.first;
-
-	for (let i = 0; i < SERVER.PLAYLIST.length; i++) {
-		if (i === index) {
-			return {
-				position: index,
-				node: video
-			};
-		}
-
-		video = video.next;
-	}
-
-	return null;
 }
 
 function saveToHistory(node) {
@@ -2749,29 +2770,19 @@ io.sockets.on('connection', function (ioSocket) {
 			return;
 		}
 
-		if (data.from == data.to) { return; } //wat.
-		if (data.from < 0 || data.to < 0) { return; } //wat.
-		var elem = SERVER.PLAYLIST.first;
-		var fromelem, toelem;
-		for (var i = 0; i < SERVER.PLAYLIST.length; i++) {
-			if (i == data.from) {
-				fromelem = elem;
-				break;
-			}
-			elem = elem.next;
+		const [fromelem, toelem] = SERVER.PLAYLIST.multiple([data.from, data.to]);
+
+		if (data.sanityid && fromelem.videoid !== data.sanityid) {
+			return doorStuck(socket);
 		}
-		if (data.sanityid && elem.videoid != data.sanityid) { return doorStuck(socket); }
-		elem = SERVER.PLAYLIST.first;
-		for (var i = 0; i < SERVER.PLAYLIST.length; i++) {
-			if (i == data.to) {
-				toelem = elem;
-				break;
-			}
-			elem = elem.next;
-		}
+
 		SERVER.PLAYLIST.remove(fromelem);
-		if (data.to > data.from) { SERVER.PLAYLIST.insertAfter(toelem, fromelem); }
-		else { SERVER.PLAYLIST.insertBefore(toelem, fromelem); }
+		if (data.to > data.from) { 
+			SERVER.PLAYLIST.insertAfter(toelem, fromelem); 
+		}
+		else { 
+			SERVER.PLAYLIST.insertBefore(toelem, fromelem); 
+		}
 
 		io.sockets.emit("sortPlaylist", data);
 
@@ -2785,28 +2796,18 @@ io.sockets.on('connection', function (ioSocket) {
 			return;
 		}
 
-		let prev = null;
-		let next = null;
+		const prev = {
+			node: SERVER.ACTIVE,
+			position: SERVER.PLAYLIST.indexOf(video => video.videoid === SERVER.ACTIVE.videoid)
+		};
 
-		let video = SERVER.PLAYLIST.first;
-		for (let index = 0; index < SERVER.PLAYLIST.length; index++) {
-			if (video === SERVER.ACTIVE) {
-				prev = {node: video, position: index};
-			}
-
-			if (index === data.index) {
-				next = {node: video, position: index};
-			}
-
-			if (next && prev) {
-				break;
-			}
-
-			video = video.next;
-		}
+		const next = {
+			node: SERVER.PLAYLIST.at(data.index),
+			position: data.index
+		};
 
 		//check if we actually got both
-		if (!next || !prev) {
+		if (!next.node || prev.position === -1) {
 			return doorStuck(socket);
 		}
 
@@ -2815,7 +2816,7 @@ io.sockets.on('connection', function (ioSocket) {
 		}
 
 		if (!prev.node.volat && 'colorTagVolat' in prev.node.meta) {
-			_setVideoColorTag(prev.node, prev.position, false, false);
+			setVideoColorTag(prev.node, prev.position, false, false);
 		}
 	
 		SERVER.ACTIVE = next.node;
@@ -2837,7 +2838,7 @@ io.sockets.on('connection', function (ioSocket) {
 			return;
 		}
 
-		const video = getVideoAt(data.index);
+		const video = SERVER.PLAYLIST.at(data.index);
 
 		if (video.node.videoid !== data.sanityid) {
 			return doorStuck(socket);
@@ -3079,11 +3080,11 @@ io.sockets.on('connection', function (ioSocket) {
 	});
 	socket.on("fondleVideo", function (data) {
 		// New abstraction for messing with video details
-		var elem = SERVER.PLAYLIST.first;
-		for (var i = 0; i < data.info.pos; i++) {
-			elem = elem.next;
+		const video = SERVER.PLAYLIST.at(data.info.pos);
+
+		if (data.sanityid && video.videoid != data.sanityid) { 
+			return doorStuck(socket); 
 		}
-		if (data.sanityid && elem.videoid != data.sanityid) { return doorStuck(socket); }
 
 		if ("action" in data) {
 			if (data.action == "setVolatile") {
@@ -3093,9 +3094,7 @@ io.sockets.on('connection', function (ioSocket) {
 					return;
 				}
 
-				pos = data.pos;
-				isVolat = data.volat;
-				setVideoVolatile(socket, pos, isVolat);
+				setVideoVolatile(socket, video, data.pos, data.volat);
 			}
 			if (data.action == "setColorTag") {
 				data = data.info; // Drop action name.
@@ -3104,10 +3103,12 @@ io.sockets.on('connection', function (ioSocket) {
 					return;
 				}
 
-				pos = ("pos" in data ? data.pos : 0);
-				tag = ("tag" in data ? data.tag : false);
-				volat = ("volat" in data ? data.volat : false);
-				setVideoColorTag(pos, tag, volat);
+				setVideoColorTag(
+					video,
+					data.pos,
+					data.tag,
+					data.volat
+				);
 			}
 		}
 	});
