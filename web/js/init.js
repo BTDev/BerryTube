@@ -142,10 +142,7 @@ var btEvents = (function () {
 
 var PLAYER = false;
 var LEADER = false;
-var ADMIN = false;
-var MOD = false;
 var NAME = false;
-var TIME = new Date();
 var TYPE = -1;
 var CHATLIST = {};
 var TOGGLEABLES = {};
@@ -153,14 +150,6 @@ var IGNORELIST = [];
 var CONNECTED = 0;
 var PLAYLIST = new LinkedList.Circular();
 var ACTIVE = new Video();
-var PLAYING_VID;
-var HB_DELAY = 5000;
-var leaderHeartbeat = false;
-var PLAYLIST_DRAGFROM = 0;
-var PLAYLIST_DRAGTO = 0;
-var PLAYLIST_DRAGSANITY = '';
-var LEGACY_PLAYER = false;
-var INIT_TIME = 0;
 var SEEK_FROM = 0;
 var SEEK_TO = 0;
 var HISTORY = [];
@@ -173,7 +162,6 @@ var CHAT_NOTIFY = false;
 var VIDEO_TYPE = false;
 var MY_FLAIR_ID = 0;
 var DRINKS = 0;
-var LAST_SEND_TIME = false;
 var NOTIFY_TITLE = "Chat!";
 var NOTIFY = window.NOTIFY || new Audio(CDN_ORIGIN + "/sounds/notify.wav"); // buffers automatically when created
 var DRINK = window.DRINK || new Audio(CDN_ORIGIN + "/sounds/drink.wav"); // buffers automatically when created
@@ -190,7 +178,6 @@ var VOLUME = false;
 var PLAYERS = {};
 var IGNORE_GHOST_MESSAGES = false;
 var ADMIN_LOG = [];
-var HIGHLIGHT_LIST = [];
 var ACTIVE_CHAT = 'main';
 var MAIN_NOTIFY = false;
 var ADMIN_NOTIFY = false;
@@ -199,18 +186,7 @@ var POLL_TITLE_FORMAT = '';
 var POLL_OPTIONS = [];
 var DEBUG_DUMPS = [];
 
-(function () {
-	// This isn't 100% necessary, but it keeps things a bit tidier by not making storedList global
-	var storedList = localStorage.getItem('highlightList');
-	if (storedList != null) {
-		var storedListArray = storedList.split(';');
-		for (var i in storedListArray) {
-			if (storedListArray[i].length > 0) {
-				HIGHLIGHT_LIST.push(storedListArray[i]);
-			}
-		}
-	}
-})();
+var HIGHLIGHT_LIST = (localStorage.getItem('highlightList') || '').split(';').filter(n => n.length > 0);
 
 try {
 	const stored = localStorage.getItem('ignoreList');

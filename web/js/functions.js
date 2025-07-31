@@ -1171,19 +1171,17 @@ function handleACL() {
 					});
 					playlist.sortable({
 						start: function (event, ui) {
-							PLAYLIST_DRAGFROM = ui.item.index();
-							PLAYLIST_DRAGSANITY = ui.item.data('plobject').videoid;
+							ui.item.parent().data('drag', {
+								from: ui.item.index(),
+								sanityid: ui.item.data('plobject').videoid
+							});
 						},
 						update: function (event, ui) {
-							PLAYLIST_DRAGTO = ui.item.index();
 							if (controlsPlaylist()) {
-								var data = {
-									from: PLAYLIST_DRAGFROM,
-									to: PLAYLIST_DRAGTO,
-									sanityid: PLAYLIST_DRAGSANITY
-								};
-								dbg(data);
-								socket.emit("sortPlaylist", data);
+								socket.emit("sortPlaylist", {
+									...ui.item.parent().data('drag'),
+									to: ui.item.index()
+								});
 							}
 							$(this).sortable('cancel');
 						},
@@ -2458,69 +2456,6 @@ function secondsToString(seconds) {
 
 	return days + ":" + hours + ":" + minutes + ":" + seconds;
 }
-function isMainGameOn() {
-	TIME = new Date();
-	// Main game runs from 4AM Saturday UTC "to" 10AM Saturday UTC.
-	if (
-		TIME.getUTCDay() == 6 && // 6 for Saturday
-		TIME.getUTCHours() >= 4 &&
-		TIME.getUTCHours() < 10
-	) {
-		return true;
-	}
-	return false;
-}
-function timeToMainGame() {
-	var WEEK = 604800;
-	TIME = new Date();
-	GAME = new Date();
-	var startDay = 6;
-	var startHr = 4;
-	var stopHr = 10;
-
-	var dayOffset = 0;
-	var day = TIME.getUTCDay();
-	while (day != startDay) {
-		dayOffset++;
-		day++;
-		if (day >= 7) {
-			day = 0;
-		}
-	}
-
-	console.log(TIME.getUTCDate() + dayOffset);
-	GAME.setUTCDate(TIME.getUTCDate() + dayOffset);
-	GAME.setUTCHours(startHr);
-	GAME.setUTCMinutes(0);
-	GAME.setUTCSeconds(-1);
-
-	var timeUntilGameStarts = (GAME.getTime() / 1000) - (TIME.getTime() / 1000);
-	if (timeUntilGameStarts < 0) {
-		timeUntilGameStarts += WEEK;
-	}
-
-	GAME.setUTCHours(stopHr);
-
-	var timeUntilGameStops = (GAME.getTime() / 1000) - (TIME.getTime() / 1000);
-	if (timeUntilGameStops < 0) {
-		timeUntilGameStops += WEEK;
-	}
-
-	return {
-		start: timeUntilGameStarts,
-		stop: timeUntilGameStops
-	};
-}
-/*function isMainGameOn(){
-	TIME = new Date();
-	var gameStartsAt = new Date()
-	// Get days to friday.
-	var dtf = (5 - TIME.getUTCDay())
-
-	var dow = DATE.getUTCDay()
-
-	if(dow = DATE.getUTCDay()
-}*/
 function detectName(nick, msg) {
 	var list = '';
 	if (nick) {
