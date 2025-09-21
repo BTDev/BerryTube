@@ -1,10 +1,10 @@
 # https://hub.docker.com/_/nginx
-ARG nginx_version=1.20.1
+ARG nginx_version=1.28.0
 
 FROM nginx:${nginx_version}-alpine AS build
 
-# https://github.com/openresty/headers-more-nginx-module/releases
-ARG headersmore_version=0.33
+# https://github.com/openresty/headers-more-nginx-module/tags
+ARG headersmore_version=0.39
 
 # https://github.com/nginxinc/docker-nginx/blob/master/mainline/alpine/Dockerfile
 RUN apk add --no-cache --virtual .build-deps \
@@ -56,5 +56,5 @@ COPY --from=build /var/dhparam.pem /var/dhparam.pem
 COPY misc/* /
 COPY config /etc/nginx.source
 
-RUN env DOMAIN=berrytube.tv HTTP_PORT=8080 HTTPS_PORT=8443 LEGACY_SOCKET_PORT=8344 TLS_TYPE=selfsigned /entrypoint.sh nginx -t && \
+RUN env DOMAIN=berrytube.tv HTTP_PORT=8080 HTTPS_PORT=8443 LEGACY_SOCKET_PORT=8344 GACHA_PORT=8788 TLS_TYPE=selfsigned /entrypoint.sh nginx -t && \
     rm -r /var/selfsigned

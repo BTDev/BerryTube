@@ -14,6 +14,7 @@ services:
             - HTTP_PORT
             - HTTPS_PORT
             - LEGACY_SOCKET_PORT
+            - GACHA_PORT
             - TLS_TYPE
         volumes:
             - ./docker/nginx/config:/etc/nginx.source:ro
