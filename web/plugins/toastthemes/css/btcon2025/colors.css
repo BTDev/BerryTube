@@ -152,7 +152,7 @@ body.fancyfy #playlist #plul > li.active + li + li {
 }
 
 button,
-li.ui-sortable-handle,
+#plul > li,
 div.submit,
 div.btn,
 div.slideBtn,
@@ -200,7 +200,7 @@ input[type="reset"].default {
 
 button:not(:disabled):active,
 div.btn:not(:disabled):active,
-li.ui-sortable-handle.active,
+#plul > li.active,
 input[type="submit"]:not(:disabled):active,
 input[type="reset"]:not(:disabled):active {
     box-shadow: var(--border-sunken-outer), var(--border-sunken-inner)!important;
@@ -224,7 +224,7 @@ input[type="reset"].default:not(:disabled):active {
 
 button:focus,
 div.btn:focus,
-li.ui-sortable-handle.volatile,
+#plul > li.volatile,
 input[type="submit"]:focus,
 input[type="reset"]:focus {
     outline: 1px dotted #000000!important;
@@ -336,16 +336,16 @@ form > table {
 }
 
 #playlist,
-li.ui-sortable-handle {
+#plul > li {
     background: var(--surface)!important;
     color: black!important;
 }
 
-li.ui-sortable-handle.active > .title::before {
+#plul > li.active > .title::before {
     content: "[ Now playing ]  ";
 }
 
-li.ui-sortable-handle.active > .title {
+#plul > li.active > .title {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
