@@ -1182,3 +1182,7 @@ body {
     background-attachment: fixed;
     background-size: cover;
 }
+
+.poll table {
+    background: transparent;
+}
