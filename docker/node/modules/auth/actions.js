@@ -29,4 +29,5 @@ exports.actions = {
 	CAN_SEE_OBSCURED_POLLS: "canSeeObscuredPolls",
 	CAN_SEE_PRIVILEGED_USER_DATA: "canSeePrivilegedUserData",
 	CAN_SEE_SHADOWBANS: "canSeeShadowbans",
+	ACTION_POST_IMAGE: "postImage",
 };
