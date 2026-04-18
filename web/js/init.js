@@ -230,16 +230,19 @@ try {
 		'reconnection delay': 500 + Math.random() * 1000,
 		'reopen delay': 500 + Math.random() * 1000,
 		'max reconnection attempts': 10,
-        'transports': ['websocket']
+		'transports': ['websocket']
 	});
 
 	window.socket.on('error', function (reason) {
 		if (reason == "handshake error") {
 			window.location = "ban.php";
-		} else {
+		} else if (typeof reason === 'string') {
 			$(function () {
 				var AWSHIT = $("<center><h1>Unable to connect Socket.IO: " + reason + "</h1></center>").prependTo(document.body);
 			});
+			console.error(reason);
+		} else {
+			// websocket drop, reconnect handles it
 			console.error(reason);
 		}
 	});
@@ -1280,7 +1283,7 @@ function initPlaylistControls(plwrap) {
 						queue:false,
 						videotype:type,
 						videoid:id,
-                        videotitle:videotitle,
+						videotitle:videotitle,
 						volat:false
 					};
 					socket.emit("addVideo", LAST_QUEUE_ATTEMPT);
