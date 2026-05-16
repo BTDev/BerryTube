@@ -28,20 +28,20 @@ Copy `.env.sample` to `.env` and tweak the values.
 
 ## Running
 
-To run (or apply changes): `docker-compose up -d --build`
+To run (or apply changes): `docker compose up -d --build`
 
-To stop and remove containers, keeping database content: `docker-compose down`
+To stop and remove containers, keeping database content: `docker compose down`
 
-To stop and remove everything, including database content: `docker-compose down --volumes`
+To stop and remove everything, including database content: `docker compose down --volumes`
 
 Note that the `web` and `berrymotes` directories are bind mounted into the containers, so any changes there will be visible without a restart.
 
 ## Testing In Development
 
-Simply execute `docker-compose -f docker-compose.test.yml up` to startup the testing container. This container will autorun scripts specfied in `docker/watcher/test/index.js`. It has access to all of berrytube's files via the `berrytube` module that is imported via `file:` in the package.json.
+Simply execute `docker compose -f docker compose.test.yml up` to startup the testing container. This container will autorun scripts specfied in `docker/watcher/test/index.js`. It has access to all of berrytube's files via the `berrytube` module that is imported via `file:` in the package.json.
 
 Each run will perform a `yarn install` - however, the node_moduels directory is cached locally in a named volume called `watcher_node_modules`.
 
 ## Database
 
-The database is placed in a docker volume. To get an SQL prompt, run `docker-compose exec mysql mysql -uberrytube -pberrytube berrytube`.
+The database is placed in a docker volume. To get an SQL prompt, run `docker compose exec mysql mysql -uberrytube -pberrytube berrytube`.

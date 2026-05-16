@@ -1,5 +1,4 @@
 # just runs the test watcher
-version: "3.7"
 
 services:
     watcher:
