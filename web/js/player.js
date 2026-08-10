@@ -549,6 +549,17 @@ window.PLAYERS.file = {
 
 			player.append(source);
 		}
+		if (Array.isArray(meta.manifest.textTracks) && meta.manifest.textTracks.length > 0) {
+			for (const track of meta.manifest.textTracks) {
+				player.append($("<track>", {
+					src: track.url,
+					kind: track.kind,
+					label: track.name,
+					srclang: track.srclang,
+					"default": track.default,
+				}));
+			}
+		}
 
         $("#ytapiplayer").append(player);
 		const videoJsPlayer = videojs("vjs_player");
