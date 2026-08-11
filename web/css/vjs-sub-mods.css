@@ -1,0 +1,11 @@
+.vjs-text-track-settings .vjs-modal-dialog-content {
+	grid-template-columns: 1fr 1fr 1fr;
+	backdrop-filter: blur(4px);
+}
+.vjs-text-track-settings .vjs-track-settings-sublang {
+	display:table-cell;
+}
+.vjs-text-track-settings .vjs-track-settings-sublang input[type=checkbox]:disabled+label,
+.vjs-text-track-settings .vjs-track-settings-sublang select:disabled+legend {
+  opacity:0.6;
+}

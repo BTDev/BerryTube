@@ -549,22 +549,54 @@ window.PLAYERS.file = {
 
 			player.append(source);
 		}
+
 		if (Array.isArray(meta.manifest.textTracks) && meta.manifest.textTracks.length > 0) {
-			for (const track of meta.manifest.textTracks) {
-				player.append($("<track>", {
+			const	tracks = meta.manifest.textTracks;
+			const chosenIndex = pickTextTrackIndex(tracks);
+
+			for (let i = 0; i < tracks.length; i++) {
+				const track = tracks[i];
+				const trackEl = $("<track>", {
 					src: track.url,
 					kind: track.kind,
 					label: track.name,
 					srclang: track.srclang,
-					"default": track.default,
-				}));
+					"data-iso2": track.iso2,
+					default: chosenIndex||false});
+				player.append(trackEl);
 			}
 		}
 
-        $("#ytapiplayer").append(player);
-		const videoJsPlayer = videojs("vjs_player");
+		$("#ytapiplayer").append(player);
+
+		//this lets us change the defaults, but only first time
+		let vjs_had_local = localStorage.getItem('vjs-text-track-settings')?true:false;
+
+		window.videoJsPlayer = videojs("vjs_player", {
+			persistTextTrackSettings: true,
+		});
+
+		if (!vjs_had_local)
+			videoJsPlayer.textTrackSettings.setValues({
+				color: "#FFF",
+				backgroundOpacity:"0",
+				edgeStyle:"uniform",
+				fontPercent:1.25
+			});
+		videoJsPlayer.textTrackSettings.options().pauseOnOpen = false;
+		videoJsPlayer.textTrackSettings.restoreSettings();
+		addSubtitlePrefs(videoJsPlayer);
+
 
 		videoJsPlayer.ready(function(){
+			//hypothetically tying this to "off" into loadstart should avoid a 'change' that would
+			//trigger when a new video is loaded in the same player. If ever we start doing that.
+			this.on("loadstart",()=>{console.log("loadstart",this);this.textTracks().off('change',updateChosenLang)});
+			//attaching on/after loadedmetadata is necessary, because a 'change' fires as soon as
+			//the text tracks are loaded; so a "forced" track could become the user's new "lastUsed"
+			//choice, despite not being manually clicked. (other means were even less elegant)
+			this.on("loadedmetadata",()=>{console.log("loadedmetadata",this);this.textTracks().on('change',updateChosenLang)});
+
 			this.volume(volume);
 
             this.on("volumechange",function(){

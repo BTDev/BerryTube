@@ -48,6 +48,7 @@
 	}
 </script>
 
+<link rel="stylesheet" href="<?= cdn('css/vjs-sub-mods.css') ?>"/>
 <link rel="stylesheet" href="<?= cdn('css/layout-other.css') ?>" />
 <link rel="stylesheet" href="<?= cdn('css/uni-gui.css') ?>" />
 <link rel="stylesheet" href="<?= cdn('css/countdown.css') ?>" />
@@ -75,6 +76,8 @@ if (date('n') == 6) {
 <script src="<?= cdn('js/init.js') ?>" defer></script>
 <script src="<?= cdn('js/functions.js') ?>" defer></script>
 <script src="<?= cdn('js/callbacks.js') ?>" defer></script>
+<script src="<?= cdn('js/langarray.js') ?>" defer></script>
+<script src="<?= cdn('js/vjs-sub-mods.js') ?>" defer></script>
 <script src="<?= cdn('js/player.js') ?>" defer></script>
 <script src="<?= cdn('js/modules/main.js') ?>" type="module"></script>
 
