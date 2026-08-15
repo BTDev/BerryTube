@@ -1,17 +1,3 @@
-use berrytube;
-DROP PROCEDURE IF EXISTS update_schema;
-DELIMITER //
-CREATE PROCEDURE update_schema()
-BEGIN
-
--- name is not yet a unique key, can't on dup key update
-
-IF NOT EXISTS(SELECT value FROM misc WHERE name='dbversion') THEN
-INSERT INTO misc (name,value) SELECT 'dbversion',1 WHERE NOT EXISTS (SELECT * FROM `misc` WHERE name='dbversion');
-END IF;
-
-IF (SELECT CAST(value AS DECIMAL) FROM misc WHERE name='dbversion') < 2 THEN
-
 -- necessary to avoid errors on conversion due to 0 values; we got a column for it, let's use it.
 
 UPDATE videos_history SET date_added = FROM_UNIXTIME(JSON_EXTRACT(meta,"$.addedon")/1000) WHERE date_added = 0 AND JSON_VALID(meta) AND JSON_EXTRACT(meta,"$.addedon") IS NOT NULL;
@@ -63,12 +49,3 @@ UPDATE misc SET value = FROM_BASE64(value) WHERE value IS NOT NULL AND FROM_BASE
 
 ALTER TABLE `areas` CHANGE `html` `html` MEDIUMTEXT CHARACTER SET utf8mb4, COLLATE = utf8mb4_0900_ai_ci;
 UPDATE areas SET html = FROM_BASE64(html) WHERE html IS NOT NULL AND FROM_BASE64(html) IS NOT NULL;
-
-UPDATE misc SET value=2 WHERE name='dbversion';
-END IF;
-END; //
-DELIMITER ;
-
-call update_schema();
-DROP PROCEDURE IF EXISTS update_schema;
-

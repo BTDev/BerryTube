@@ -2,7 +2,7 @@ const http = require("http");
 const parseUrl = require("url").parse;
 
 class EventServer {
-	constructor(port) {
+	constructor() {
 		// stores the latest body of each event, so they can be sent to new clients
 		this.latests = {};
 
@@ -10,12 +10,15 @@ class EventServer {
 
 		this.native = http.createServer();
 		this.native.on("request", this.handleRequest.bind(this));
-		this.native.listen(port);
 
 		setInterval(() => {
 			this._send("keepalive", ": keepalive\n\n");
 		}, 1000 * 15);
-	}
+  }
+
+  listen(port) {
+    this.native.listen(port);
+  }
 
 	handleRequest(req, res) {
 		try {

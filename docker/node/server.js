@@ -16,7 +16,7 @@ SERVER.ponts = require('./bt_data/ponts.js');
 SERVER.dbcon = require('./bt_data/db_info.js');
 SERVER.nick_blacklist = require('./bt_data/nick_blacklist.js');
 
-const eventServer = new EventServer(SERVER.settings.core.nodeport);
+const eventServer = new EventServer();
 const io = require('socket.io').listen(eventServer.native);
 
 // Configure
@@ -565,29 +565,6 @@ function isUserBanned(o) {
 
 	return false;
 }
-function augmentBan(ban, o) {
-
-	if (!getToggleable("spaceaids")) { return; }
-
-	// Merge IPs, Nicks, Take earlier time, take longer duration.
-	for (ip in o.ips) {
-		if (ban.ips.indexOf(o.ips[ip]) < 0) {
-			ban.ips.push(o.ips[ip]);
-		}
-	}
-	for (nick in o.nicks) {
-		if (ban.nicks.indexOf(o.nicks[nick]) < 0) {
-			ban.nicks.push(o.nicks[nick]);
-		}
-	}
-
-	// Take earlier ban time.
-	if (o.bannedOn < ban.bannedOn) { ban.bannedOn = o.bannedOn; }
-
-	// Take all special values direct, otherwise, replace only if longer period.
-	if (o.duration <= 0) { ban.duration = o.duration; }
-	else if (o.duration > ban.duration) { ban.duration = o.duration; }
-}
 function isUserPartyRoom(o) {
 	var required = ['ips', 'nicks'];
 	for (elem in required) { if (!(required[elem] in o)) return; }
@@ -811,10 +788,10 @@ function applyFilters(nick, msg, socket) {
 				SERVER.FILTERS.splice(i, 1);
 				continue;
 			}
-		
+
 			if(d.chance != null && Math.random() >= d.chance/100)
 				continue;
-				
+
 			if (nick.match(nickCheck)) {
 				if (msg.match(chatCheck)) {
 					// Perform Action
@@ -1188,7 +1165,7 @@ function _sendChat(nick, type, incoming, socket) {
 	const { channel = "main" } = metadata;
 	const timestamp = new Date().toUTCString();
 	const isSocketBanned = isUserShadowBanned(socket);
-	
+
 	const flags = {
 		addToBuffer: true,
 		sendToAdmins: false,
@@ -1245,7 +1222,7 @@ function _sendChat(nick, type, incoming, socket) {
 
 		flags[key] = value;
 	}
-	
+
 	const parsed = getCommand(filterResult.message);
 
 	const messageData = {
@@ -1415,7 +1392,7 @@ function delVideo(video, sanity, socket) {
 			position,
 			sanityid: node.videoid
 		});
-		
+
 		const query = `delete from ${SERVER.dbcon.video_table} where videoid = ? limit 1`;
 
 		mysql.query(query, [String(node.videoid)], function (err) {
@@ -2349,8 +2326,8 @@ async function addVideoReddit(socket, data, meta, successCallback, failureCallba
 			if (!result.length) {
 				addVideoDash(socket, {...data, videoid, videotitle}, meta, successCallback, failureCallback);
 			} else {
-				if (failureCallback) { 
-					failureCallback(new Error(`Reddit video is already on playlist: ${videoid}`)); 
+				if (failureCallback) {
+					failureCallback(new Error(`Reddit video is already on playlist: ${videoid}`));
 				}
 			}
 		});
@@ -2365,17 +2342,23 @@ function isTrackingTime() {
 }
 
 /* RUN ONCE INIT */
-initPlaylist(function () {
-	initResumePosition(function () {
-		initTimer();
+databaseService.migrate().then(() => {
+	initPlaylist(function () {
+		initResumePosition(function () {
+			initTimer();
+		});
 	});
+	initShadowbant();
+	initHardbant();
+	initPartyRooms();
+	initFilters();
+	initAreas();
+	eventServer.listen(SERVER.settings.core.nodeport);
+	DefaultLog.info(events.EVENT_SERVER_STATUS, "server version {version} started up", { version: SERVER.settings.core.version });
+}, (err) => {
+	console.error('Failed to migrate database: ', err);
+	process.exit(1);
 });
-initShadowbant();
-initHardbant();
-initPartyRooms();
-initFilters();
-initAreas();
-DefaultLog.info(events.EVENT_SERVER_STATUS, "server version {version} started up", { version: SERVER.settings.core.version });
 
 io.configure(function () {
 	io.set('authorization', function (handshakeData, callback) {
@@ -2817,19 +2800,19 @@ io.sockets.on('connection', function (ioSocket) {
 		if (!prev.node.volat && 'colorTagVolat' in prev.node.meta) {
 			_setVideoColorTag(prev.node, prev.position, false, false);
 		}
-	
+
 		SERVER.ACTIVE = next.node;
-	
+
 		DefaultLog.info(events.EVENT_ADMIN_FORCED_VIDEO_CHANGE,
 			"{mod} forced video change",
 			{ mod: getSocketName(socket), type: "playlist" });
-	
+
 		handleNewVideoChange();
 		sendStatus("forceVideoChange", io.sockets);
 
 		if (prev.node.volat) {
 			delVideo(prev, null, socket);
-		} 
+		}
 	});
 	socket.on("delVideo", function (data) {
 		if (!authService.can(socket.session, actions.ACTION_DELETE_VIDEO)) {
@@ -2850,7 +2833,7 @@ io.sockets.on('connection', function (ioSocket) {
 			handleNewVideoChange();
 			sendStatus("forceVideoChange", io.sockets);
 		}
-		
+
 		delVideo(video, data.sanityid, socket);
 	});
 	socket.on("addVideo", function (data) {
