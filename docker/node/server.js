@@ -1058,6 +1058,30 @@ const chatCommandMap = {
 		return doSuppressChat;
 	}),
 
+	// /ban nlaq
+	...withAliases(["ban"], (parsed, socket, _messageData) => {
+		if (!authService.can(socket.session, actions.ACTION_BAN)) {
+			kickForIllegalActivity(socket);
+			return doSuppressChat;
+		}
+
+		const ips = [];
+		const nicks = [];
+		for (const arg of parsed.msg.split(/\s+/)) {
+			if (/^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$/.test(arg)) {
+				ips.push(arg);
+			} else {
+				nicks.push(arg);
+			}
+		}
+
+		if (ips.length > 0 || nicks.length > 0) {
+			banUser({ ips, nicks, duration: -1 }, getSocketName(socket));
+		}
+
+		return doSuppressChat;
+	}),
+
 	// what does this even do
 	...withAliases(["shitpost"], (parsed, socket, messageData) => {
 		if (!authService.can(socket.session, actions.ACTION_SHITPOST)) {
