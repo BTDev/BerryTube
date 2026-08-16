@@ -93,9 +93,6 @@ process.stdin.on('data', function (chunk) {
 	}
 });
 
-services.forEach(s => s.init());
-const mysql = databaseService.connection;
-
 // Add new feature to socket.io, for granular broadcasts and such
 // This is probably the best solution to sending packets to all people matching x criteria easily.
 // Perhaps implement some way to let superusers see secret info, like IP's, shadownban status etc
@@ -248,6 +245,9 @@ DefaultLog.addLogger(
 
 		sessionService.forCan(actions.CAN_SEE_ADMIN_LOG, session => session.emit("adminLog", adminMessage));
 	});
+
+services.forEach(s => s.init());
+const mysql = databaseService.connection;
 
 function initPlaylist(callback) {
 	var sql = `select * from ${SERVER.dbcon.video_table} order by position`;

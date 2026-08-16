@@ -12,28 +12,32 @@ exports.DatabaseService = class extends ServiceBase {
 	}
 
 	init() {
-		super.init();
-
-		this.log.info(events.EVENT_DB_CONNECTION, "starting database connection to {user}@{host}:{port}", {
-			host: config.host,
-			port: config.post,
-			user: config.mysql_user,
-		});
-
-    this.connect();
+    super.init();
+    this.connect('connection');
+    this.connect('multiConnection', { multipleStatements: true });
   }
 
-  /** @param {mysql.ConnectionConfig} [options] */
-  connect(options) {
-    this.connection = mysql.createConnection({
+  /**
+   * @param {string} prop
+   * @param {mysql.ConnectionConfig} [options]
+   */
+  connect(prop, options = {}) {
+    this.log.info(events.EVENT_DB_CONNECTION, "starting database {prop} to {user}@{host}:{port}", {
 			host: config.host,
-			port: config.post,
+			port: config.port,
+      user: config.mysql_user,
+      prop,
+    });
+
+    this[prop] = mysql.createConnection({
+			host: config.host,
+			port: config.port,
 			user: config.mysql_user,
       password: config.mysql_pass,
 			...options,
     });
 
-    this.connection.on("error", err => {
+    this[prop].on("error", err => {
 			this.log.error(
 				events.EVENT_DB_CONNECTION,
 				"the database connection threw an error: attempting reconnect",
@@ -41,16 +45,16 @@ exports.DatabaseService = class extends ServiceBase {
 				err,
 			);
 			setTimeout(() => {
-				this.init();
+				this.connect(prop, options);
 			}, 1000);
 		});
 
-		this.connection.query(`use ${config.database}`);
+    this[prop].query(`use ${config.database}`);
   }
 
-	rawQuery(sql, params = []) {
+	rawQuery(sql, params = [], connection = this.connection) {
 		return new Promise((res, rej) => {
-			this.connection.query(sql, params, (err, result, fields) => {
+			connection.query(sql, params, (err, result, fields) => {
 				if (err) {
 					rej(err);
 					this.log.error(events.EVENT_DB_QUERY, 'query "{sql}" failed', { sql }, err);
@@ -83,17 +87,13 @@ exports.DatabaseService = class extends ServiceBase {
 
 				console.log(`Running migration ${fname}`);
 				const source = await fs.readFile(`${folder}/${fname}`, { encoding: "utf8" });
-				await this.rawQuery(source);
+				await this.rawQuery(source, [], this.multiConnection);
 
 				if (migrationVersion) {
 					await this.query`UPDATE misc SET value=${migrationVersion} WHERE name='dbversion'`;
 				}
 			}
     };
-
-    this.connect({
-      multipleStatements: true
-    });
 
 		const { result: lockResult } = await this.query`SELECT GET_LOCK('berrytube-migrate', -1) AS locked`;
 		if (lockResult[0].locked !== 1) {
@@ -116,7 +116,5 @@ exports.DatabaseService = class extends ServiceBase {
 		if (releaseResult[0].released !== 1) {
 			throw new Error("Failed to release migration lock");
     }
-
-    this.connect();
 	}
 };

@@ -7,10 +7,8 @@
 #
 set -euo pipefail
 
-source .env
-
 if [ "$#" -eq 0 ]; then
-    docker compose exec -T mysql mysql --table -uberrytube -p"$MYSQL_PASSWORD" berrytube <<'EOF'
+    docker compose exec -T mysql sh -c 'mysql --table -u"$MYSQL_USER" -p"$MYSQL_PASSWORD" "$MYSQL_DATABASE"' <<'EOF'
 SELECT
     IF(json.enable, '[X]', '[ ]') AS `Enabled`,
     (json.index - 1) AS `Index`,
@@ -22,7 +20,7 @@ FROM
         '$[*]'
         COLUMNS (
             `index` FOR ORDINALITY,
-            `name` VARCHAR(100) PATH '$.name',
+            `name` TEXT PATH '$.name',
             `enable` BOOL PATH '$.enable'
         )
     ) AS json
@@ -30,7 +28,7 @@ WHERE
     misc.name = 'filters'
 EOF
 elif [ "$#" -eq 1 ]; then
-    docker compose exec -T mysql mysql --table -uberrytube -p"$MYSQL_PASSWORD" berrytube <<EOF
+    docker compose exec -T mysql sh -c 'mysql --table -u"$MYSQL_USER" -p"$MYSQL_PASSWORD" "$MYSQL_DATABASE"' <<EOF
 UPDATE
     misc
 SET
