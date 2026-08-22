@@ -1,6 +1,7 @@
 <?php
 
 	require_once('config.php');
+	define('LAYOUT', 'other');
 	if(!isset($_COOKIE['retainVote'])) {
 		setcookie('retainVote', 1, time()+60, '/', $domain);
 	}
