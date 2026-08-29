@@ -1568,6 +1568,47 @@ function addChatMsg(data, _to) {
 				newmsg.addClass("server").appendTo(msgwrap);
 				$("<span/>").appendTo(newmsg).html(msgText);
 				break;
+			case "image":
+				const linkAttrs = {
+					href: msgText, 
+					class: 'image', 
+					target: '_blank', 
+					rel: 'noopener noreferrer'
+				};
+
+				newmsg.addClass("message").append(
+					$('<span>', {class: `nick`, nick, text: `${nick}:`}),
+					$('<a>', linkAttrs).append(
+						$('<img>', {
+							src: msgText,
+							referrerpolicy: "no-referrer",
+							alt: 'Loading image...',
+							onload: "scrollBuffersToBottom()"
+						})
+					)
+				).appendTo(msgwrap);
+
+				includeTimestamp = true;
+				break;
+			case "video": {
+				const attributes = {
+					autoplay: '', 
+					loop: '', 
+					muted: '', 
+					src: msgText,
+					referrerpolicy: 'noreferrer',
+					alt: 'Loading video...',
+					onload: "scrollBuffersToBottom()"
+				};
+
+				newmsg.addClass("message").append(
+					$('<span>', {class: `nick`, nick, text: `${nick}:`}),
+					$('<video>', attributes)
+				).appendTo(msgwrap);
+
+				includeTimestamp = true;
+				break;
+			}
 			default:
 				dbg("Unknown message type, emote=" + data.msg.emote);
 				return;
