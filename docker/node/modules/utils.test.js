@@ -1,6 +1,6 @@
 const { expect } = require("chai");
 
-const { parseFormat, parseRawFileUrl } = require("./utils");
+const { parseFormat, parseRawFileUrl, tryDecodeURIComponent } = require("./utils");
 
 describe("parseFormat", function() {
 	it("parses: left {middle} right", function() {
@@ -115,5 +115,22 @@ describe("parseRawFileUrl", function() {
 	it("rejects a completely invalid url", function() {
 		const ret = parseRawFileUrl("THIS IS NOT EVEN CLOSE TO BEING A url.mp4 !!");
 		expect(ret).to.be.null;
+	});
+});
+
+describe("tryDecodeURIComponent", function() {
+	it("leaves non-encoded string untouched", function() {
+		const ret = tryDecodeURIComponent("foobar");
+		expect(ret).to.equal("foobar");
+	});
+
+	it("decodes an encoded string", function() {
+		const ret = tryDecodeURIComponent("Any%25%20Speedrun");
+		expect(ret).to.equal("Any% Speedrun");
+	});
+
+	it("doesn't throw on invalid encoding", function() {
+		const ret = tryDecodeURIComponent("Any% Speedrun");
+		expect(ret).to.equal("Any% Speedrun");
 	});
 });

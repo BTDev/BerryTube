@@ -93,7 +93,7 @@ socket.on('searchHistoryResults', function (data) {
 		entry.data('plobject', vid);
 		vid.domobj = entry;
 
-		$("<div/>").addClass('title').text(decodeURIComponent(vid.videotitle)).appendTo(entry);
+		$("<div/>").addClass('title').text(tryDecodeURIComponent(vid.videotitle)).appendTo(entry);
 
 		$("<div/>").addClass('delete').text("X").click(function () {
 			var video = $(this).parent().data('plobject');

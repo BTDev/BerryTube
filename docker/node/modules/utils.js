@@ -62,3 +62,12 @@ exports.isUrl = function(maybeUrl) {
 		return false;
 	}
 };
+
+exports.tryDecodeURIComponent = function(str) {
+	try {
+		return decodeURIComponent(str);
+	} catch (err) {
+		console.warn('Ignored:', err);
+		return str;
+	}
+};
