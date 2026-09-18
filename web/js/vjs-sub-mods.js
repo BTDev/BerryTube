@@ -1,5 +1,15 @@
-//This is a bit tedious. Documentation on creating a proper videoJS plugin looked even more tedious
-//While independent of stuff like jquery, it's pretty specific to our/cytube's manifest style
+//This is a bit tedious. Documentation on creating a proper videoJS plugin looked even more tedious/unclear.
+//at some point it could/should be perhaps turned into a proper plugin.
+//Kept it independent of stuff like jquery, and named similarly for that reason
+//ofc it's pretty specific to our/cytube's manifest style
+//and yeah, a bit overkill, but goal was to support every file I had
+const SLPREF_DEFAULT = {
+	useLast: null,
+	lastUsed: null,
+	pref1: null,
+	pref2: null,
+	pref3: null
+};
 function addSubtitlePrefs(vjs) {
 	try {
 		var sublangPrefs = JSON.parse(localStorage.sublangPrefs);
@@ -17,9 +27,7 @@ function addSubtitlePrefs(vjs) {
   const sublangCont = document.createElement('div');
   sublangCont.classList.add("vjs-track-settings-sublang");
 
-
   //videojs uses fieldsets for everything, so like, I guess we go with it...
-
   const sublangFieldsetUseLast = document.createElement('fieldset');
   sublangFieldsetUseLast.classList.add("vjs-track-settings","vjs-sublang-fieldset-uselast");
 
@@ -42,7 +50,6 @@ function addSubtitlePrefs(vjs) {
   const sublangEnableLabel = document.createElement('label');
   sublangEnableLabel.innerText = "Prefer Specific Subtitles(if available)";
   sublangEnableLabel.htmlFor = "vjs-sublang-enable";
-
 
   const sublangEnable = document.createElement('input');
   sublangEnable.type = "checkbox";
@@ -68,24 +75,22 @@ function addSubtitlePrefs(vjs) {
   sublangFieldsetUseCC.appendChild(sublangUseCC);
   sublangFieldsetUseCC.appendChild(sublangUseCCLabel);
 
-
   sublangCont.appendChild(sublangFieldsetUseLast);
   sublangCont.appendChild(sublangFieldsetEnable);
   sublangCont.appendChild(sublangFieldsetUseCC);
 
   for (let i = 0; i < 3; i++) {
-    let sublangFieldsetPref = document.createElement('fieldset');
+    const sublangFieldsetPref = document.createElement('fieldset');
     sublangFieldsetPref.classList.add("vjs-track-settings","vjs-sublang-fieldset-pref");
-    let label = document.createElement("legend");
+    const label = document.createElement("legend");
     label.classList.add("vjs-sublang-label-pref");
     label.htmlFor = `vjs-sublang-pref${i}`;
     label.innerText = `Preference ${i+1}`;
-    let select = document.createElement("select");
+    const select = document.createElement("select");
     select.id = `vjs-sublang-pref${i}`;
 		select.disabled = !sublangEnable.checked;
     for (let l = 0; l < LANG_ARRAY.length; l++) {
-      let option = document.createElement("option");
-
+      const option = document.createElement("option");
       option.innerText = LANG_ARRAY[l].lang;
       option.value = JSON.stringify(LANG_ARRAY[l]);
 
@@ -109,40 +114,145 @@ function addSubtitlePrefs(vjs) {
   vjs.textTrackSettings.contentEl_.insertBefore(sublangCont, vjs.textTrackSettings.contentEl_.lastChild);
 	vjs.textTrackSettings.on('modalclose',vjsSubPrefSettingsSave);
 }
-
-
+//save the preferences..
 function vjsSubPrefSettingsSave() {
 	try {
 		var sublangPrefsOld = JSON.parse(localStorage.sublangPrefs);
 	}catch(e){
-		console.warn("no valid sublang prefs set")
+		console.warn("no valid sublang prefs set");
 		var sublangPrefsOld = {};
 	}
-	let sublangPrefs = {
+	const sublangPrefs = {
 		useLast: this.$('#vjs-sublang-uselast').checked,
 		enable: this.$('#vjs-sublang-enable').checked,
 		useCC: this.$('#vjs-sublang-usecc').checked,
 		pref0: JSON.parse(this.$('#vjs-sublang-pref0').value),
 		pref1: JSON.parse(this.$('#vjs-sublang-pref1').value),
 		pref2: JSON.parse(this.$('#vjs-sublang-pref2').value)
-	}
+	};
 	//keep lastUsed only if wanted
 	if (sublangPrefsOld.lastUsed && sublangPrefs.useLast)
 		sublangPrefs.lastUsed = sublangPrefsOld.lastUsed;
 	localStorage.sublangPrefs = JSON.stringify(sublangPrefs);
 }
 
+//Levenshtein distance, calculates string similarity
+//for matching preference language names to whatever's available
+//from https://github.com/gustf/js-levenshtein/
+const levenshtein = (function() {
+	function _min(d0, d1, d2, bx, ay) {
+		return d0 < d1 || d2 < d1 ?
+			d0 > d2 ?
+			d2 + 1 :
+			d0 + 1 :
+			bx === ay ?
+			d1 :
+			d1 + 1;
+	}
+	return function(a, b) {
+		if(a === b) {
+			return 0;
+		}
+		if(a.length > b.length) {
+			var tmp = a;
+			a = b;
+			b = tmp;
+		}
+		var la = a.length;
+		var lb = b.length;
+		while(la > 0 && (a.charCodeAt(la - 1) === b.charCodeAt(lb - 1))) {
+			la--;
+			lb--;
+		}
+		var offset = 0;
+		while(offset < la && (a.charCodeAt(offset) === b.charCodeAt(offset))) {
+			offset++;
+		}
+		la -= offset;
+		lb -= offset;
+		if(la === 0 || lb < 3) {
+			return lb;
+		}
+		var x = 0;
+		var y, d0, d1, d2, d3, dd, dy, ay, bx0, bx1, bx2, bx3;
+		var vector = [];
+		for(y = 0; y < la; y++) {
+			vector.push(y + 1);
+			vector.push(a.charCodeAt(offset + y));
+		}
+		var len = vector.length - 1;
+		for(; x < lb - 3;) {
+			bx0 = b.charCodeAt(offset + (d0 = x));
+			bx1 = b.charCodeAt(offset + (d1 = x + 1));
+			bx2 = b.charCodeAt(offset + (d2 = x + 2));
+			bx3 = b.charCodeAt(offset + (d3 = x + 3));
+			dd = (x += 4);
+			for(y = 0; y < len; y += 2) {
+				dy = vector[y];
+				ay = vector[y + 1];
+				d0 = _min(dy, d0, d1, bx0, ay);
+				d1 = _min(d0, d1, d2, bx1, ay);
+				d2 = _min(d1, d2, d3, bx2, ay);
+				dd = _min(d2, d3, dd, bx3, ay);
+				vector[y] = dd;
+				d3 = d2;
+				d2 = d1;
+				d1 = d0;
+				d0 = dy;
+			}
+		}
+		for(; x < lb;) {
+			bx0 = b.charCodeAt(offset + (d0 = x));
+			dd = ++x;
+			for(y = 0; y < len; y += 2) {
+				dy = vector[y];
+				vector[y] = dd = _min(dy, d0, dd, bx0, vector[y + 1]);
+				d0 = dy;
+			}
+		}
+		return dd;
+	};
+})();
+// MIT License
+//
+// Copyright (c) 2017 Gustaf Andersson
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+
+
+//turn all foreign characters to a-z, strip all spaces, for better comparison
+function stringSimplify(str) {
+	return str?.normalize("NFD")?.replace(/[\u0300-\u036f]/g, "")?.replace(/[^a-zA-Z]/g,"")?.toLowerCase();
+}
+
 //compares two language identifier objects, either missing stuff
-//a spaghetti way of finding the closest match.
-//*should* weight closer matches in the the case of videos with a
-//subs of multiple dialects.
-//track-to-weight, ideal values, store the weight, return if filtering
-function trackMatchVal(t,ideal, update, filter) {
+//a spaghetti way of narrowing down to likely options
+//just trying to cover literally every language in every file
+//available to test with.
+//args: track to check, ideal values
+//previously used for sorting/weighting, now just a filter
+function trackMatchVal(t,ideal) {
 	let val = 0;
-	let idealLang = ideal?.lang?.replace(/[^a-zA-Z ]/g,"").toLowerCase();
-	let idealSrclang = ideal?.srclang.toLowerCase() || ideal?.bcp47?.toLowerCase();
-	let trackLang = t?.lang?.replace(/[^a-zA-Z ]/g,"").toLowerCase();
-	let trackSrclang = t?.srclang?.toLowerCase() || t?.bcp47?.toLowerCase();
+	const idealLang = stringSimplify(ideal?.lang);
+	const idealSrclang = ideal?.srclang?.toLowerCase() || ideal?.bcp47?.toLowerCase();
+	const trackLang = stringSimplify(t?.lang);
+	const trackSrclang = t?.srclang?.toLowerCase() || t?.bcp47?.toLowerCase();
 	if (trackLang && idealLang && trackLang == idealLang) //exact match
 		val += 2;
 	else if (idealLang?.match(new RegExp(`^${trackLang}.+`,"i"))
@@ -154,119 +264,114 @@ function trackMatchVal(t,ideal, update, filter) {
 					  || trackSrclang?.match(new RegExp(`^${idealSrclang}.+`,"i")) )
 		val += 1;
 	if (trackSrclang && ideal.iso2 && t.Srclang == ideal.iso2)
-		val += 1;
+		val += 2;
 	else if (idealSrclang && t.iso2 && idealSrclang == t.iso2)
-		val += 1;
-	if (update && t.val === 0)
-		t.val += val;
-	if (filter) {
-		return (val>0);
-	}
-	//full code exists
-	/*if (BCP47_OBJ[i.srclang]) {
-		let matchLang = BCP47_OBJ[srclang].lang.replace(/[^a-zA-Z ]/g,"").toLowerCase();
-		
-		if (matchLang == lang) //full name match
-			t.val += 3;
-		else if (matchLang.match(new RegExp(`^${srclang}`,"i")) )
-			t.val += 1; // start of name match
-	}
-	if (ISO639_2_OBJ[t.iso2.toLowerCase()]) {
-		let matchLang = ISO639_2_OBJ[t.iso2.toLowerCase()].lang.replace(/[^a-zA-Z ]/g,"").toLowerCase();
-		if (matchLang == lang)
-			t.val += 2;
-		else if (matchLang.match(new RegExp(`^${srclang}(\W|$)`,"i")) )
-			t.val += 1;
-	}
-	//base code match
-	let isomatch = (ISO639_1_OBJ[t.] || ISO639_2_OBJ[t.iso2]);
-	if (isomatch) {
-		if (isomatch.lang.replace(/\W/g,"").toLowerCase().match()
-			?.srclang.match(new RegExp(`^${ISO639_1_OBJ[t.iso1]}(\W|$)`,"i"
-		//t.val += 2;
-		//base corresponding name match..removing nonword chars.
-		if ((ISO639_1_OBJ[t.iso1] || ISO639_2_OBJ[t.iso2])?.lang.replace(/\W/g,"")
-				.match(new RegExp(`^${t.lang}(\W|$)`,"i")[0])) {
-			t.val += 2
-		}
-	}*/
+		val += 2;
+	return (val>0);
 }
 
-function sortTrackArray(tlist,pref) {
-	let list = structuredClone(tlist).filter((e)=>trackMatchVal(e,pref,true,true));
-	return list.sort((a,b)=>{
-//		let aval = trackMatchVal(a,ideal);
-//		let bval = trackMatchVal(b,ideal);
-		if (a.val>b.val) return -1; else return b.val>a.val;
-	});
+//returns a sorter for ranking closest to a given language name string
+function levenshteinSort(comp) {
+	const complang = comp.lang.replace(/(sdh|cc)/i,'');
+	return function(a,b){
+		//remove sdh/cc and focus on the lang name
+		const alang = a.lang.replace(/(sdh|cc)/i,'');
+		const blang = b.lang.replace(/(sdh|cc)/i,'');
+		const alev = levenshtein(stringSimplify(complang),stringSimplify(alang));
+		const blev = levenshtein(stringSimplify(complang),stringSimplify(blang));
+		if (alev < blev) return -1; else return (blev < alev)*1;
+	};
 }
 
+//filters to only langs with some amount of matching props
+function filterTrackArray(tlist,pref) {
+	const list = structuredClone(tlist).filter((e)=>trackMatchVal(e,pref));
+	return list;
+}
+
+//finds the closest match to update the last preference
 function updateChosenLang() {
 	const sublangPrefs = window.JSON.parse(localStorage.sublangPrefs);
-	const {label, language} = Array.from(this).find((e)=>e.mode=="showing")||{};
-	if (!(label || language)) {
+	const presentTracks = Array.from(this);
+	const activeTrack = presentTracks.find((e)=>e.mode=="showing");
+	if (typeof activeTrack === "undefined") {
+		//none active
+		if (presentTracks.length) {
+			//but some are present, so they set it to no captions
+			delete sublangPrefs.lastUsed;
+			localStorage.sublangPrefs = window.JSON.stringify(sublangPrefs);
+		}
 		return;
 	} else {
-		let foundLang = sortTrackArray(LANG_ARRAY,{srclang:language,lang:label})[0];
-		console.log(foundLang);
-		if (!foundLang) return;
-		sublangPrefs.lastUsed = foundLang;
+		const {label, language} = activeTrack;
+		const available = filterTrackArray(LANG_ARRAY,{srclang:language,lang:label});
+		const best = available.sort(levenshteinSort({srclang:language,lang:label}));
+		if (best.length == 0) return;
+		sublangPrefs.lastUsed = best[0];
 		localStorage.sublangPrefs = window.JSON.stringify(sublangPrefs);
 	}
 }
 
+//first compare the last used, then check preferences, and if still nothing,
+//force it to the "forced"/default one, if any
 function pickTextTrackIndex(tracks) {
-	let sublangPrefs={};
+	let sublangPrefs = structuredClone(SLPREF_DEFAULT);
 	try {
 		sublangPrefs = JSON.parse(localStorage.sublangPrefs);
-	}catch(e){}
-	
-	
-	let forcedTrackIndex = tracks.findIndex(e=>e.default==true);
-	if (forcedTrackIndex == -1) forcedTrackIndex = null;
+	}catch(e){
+		//reset if something is wrong
+		localStorage.sublangPrefs = JSON.stringify(SLPREF_DEFAULT);
+	}
 
-	let prefArr = tracks.filter(e=>e?.kind.match(/^(subtitles|captions)$/gi)).map((e,i)=>{
+	//anything not subs or caps isn't for display
+	const useable = tracks.filter(e=>e?.kind.match(/^(subtitles|captions)$/gi)).map((e,i)=>{
 		return {
-		i:i, useCC:(e.kind=="subtitles"), lang:e.name,
-		srclang:e.srclang, iso2:e.iso2, val:0
-		}
+			i:i, isCC:(e.kind=="captions"), lang:e.name,
+			srclang:e.srclang, iso2:e.iso2, val:0
+		};
 	});
+
+	let lastMatches;
+	if (sublangPrefs.lastUsed) {
+		//sort by some matching/similar tags, then find the closest name
+		lastMatches = filterTrackArray(useable,sublangPrefs.lastUsed);
+		lastMatches.sort(levenshteinSort(sublangPrefs.lastUsed));
+	}
 	
-	const lastMatch = sublangPrefs.lastMatch ? sortTrackArray(prefArr,sublangPrefs.lastMatch)[0].i : null;
-	let finalIndex = lastMatch;
-	
+	let found = [];
 	if (sublangPrefs.enable) {
-		let found = null;
-
-		if (sublangPrefs.pref1)
-			found = sortTrackArray(prefArr,sublangPrefs.pref1);
-		if (!found && sublangPrefs.pref2)
-			found = sortTrackArray(prefArr,sublangPrefs.pref2);
-		if (!found && sublangPrefs.pref3)
-			found = sortTrackArray(prefArr,sublangPrefs.pref3);
-
-		if (sublangPrefs.useCC && found) {
-			let cctracks = prefArr.filter((e)=>(
-				e.useCC || e?.lang.match(/(SDH|hearing|closed captions)/i)
-			));
-			if (cctracks && cctracks[0].val > 0) finalIndex = cctracks[0].i;
-		} else if (found){
-			finalIndex = found[0].i;
+		if (sublangPrefs.pref0?.lang !== 'None') {
+			const list = filterTrackArray(useable,sublangPrefs.pref0);
+			found = found.concat(list.sort(levenshteinSort(sublangPrefs.pref0)));
+		}
+		if (sublangPrefs.pref1?.lang !== 'None') {
+			const list = filterTrackArray(useable,sublangPrefs.pref1);
+			found = found.concat(list.sort(levenshteinSort(sublangPrefs.pref1)));
+		}
+		if (sublangPrefs.pref2?.lang !== 'None') {
+			const list = filterTrackArray(useable,sublangPrefs.pref2);
+			found = found.concat(list.sort(levenshteinSort(sublangPrefs.pref2)));
 		}
 	}
-	if (!finalIndex) {
-		//you still get forced/default subtitles
+
+	let finalIndex = null;
+	//put the ones that match the last used after those that match the preferences
+	if (lastMatches)
+		found = found.concat(lastMatches);
+	if (sublangPrefs.useCC && found.length > 0) {
+		const firstCC = found.find(t=>t.isCC);
+		if (firstCC)
+			finalIndex = firstCC.i;
+	} else if (found.length) {
+		finalIndex = found[0].i;
+	}
+	//
+	let forcedTrackIndex = tracks.findIndex(e=>e.default);
+	if (forcedTrackIndex == -1) forcedTrackIndex = null;
+	if (finalIndex === null && Number.isInteger(forcedTrackIndex)) {
+		//you still get forced/default subtitles if set
 		finalIndex = forcedTrackIndex;
 	}
 	return finalIndex;
 }	
-
-	//const lang_arr = structuredClone(LANG_ARRAY);
-	//lang_arr.filter((e)=>{
-		//trackMatchVal(e,{srclang:language,lang:label}, true, true);
-	//});
-//	const foundlang = lang_array.find((e)=>{
-//		return label?.match(new regexp(`^${e.lang}(\w|$)`,"i")) ||
-//			language?.match(new regexp(`^${e.iso1}(\w|$)`,"i"));
-//	});
 

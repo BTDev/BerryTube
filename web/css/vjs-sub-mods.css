@@ -1,5 +1,7 @@
 .vjs-text-track-settings .vjs-modal-dialog-content {
 	grid-template-columns: 1fr 1fr 1fr;
+}
+.vjs-text-track-settings .vjs-modal-dialog-content,.vjs-menu-content {
 	backdrop-filter: blur(4px);
 }
 .vjs-text-track-settings .vjs-track-settings-sublang {
@@ -8,4 +10,13 @@
 .vjs-text-track-settings .vjs-track-settings-sublang input[type=checkbox]:disabled+label,
 .vjs-text-track-settings .vjs-track-settings-sublang select:disabled+legend {
   opacity:0.6;
+}
+.vjs-modal-dialog.vjs-text-track-settings {
+	background-color:rgba(43, 51, 63, 0.45);
+}
+.vjs-subs-caps-button.vjs-menu-button-popup .vjs-menu {
+	width:16em;
+}
+.vjs-menu-button-popup,.vjs-menu-button-popup .vjs-menu,.vjs-menu-button-popup .vjs-menu .vjs-menu-content {
+	overscroll-behavior: contain;
 }

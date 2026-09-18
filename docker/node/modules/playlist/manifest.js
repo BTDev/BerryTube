@@ -1,9 +1,17 @@
 const { isUrl } = require("../utils");
 
-exports.supportedSourceMediaTypes = new Set(["video/mp4","audio/mp4","audio/aac","audio/mpeg","video/webm","audio/webm","video/av1"]);
-exports.supportedTrackTypes = new Set(["text/vtt"]);
+exports.supportedSourceMediaTypes = new Set(["video/mp4","video/webm","video/av1","video/quicktime","video/ogg"]);
+exports.supportedAudioTrackTypes = new Set(["audio/mp4","audio/mpeg","audio/webm","audio/m4a"]);
+
+//"application/octet-stream" = futureproofing for later support of dvd/blu-ray bitmap subtitle support
+exports.supportedTextTrackTypes = new Set(["text/vtt"]);
+exports.supportedBitmapTrackTypes = new Set(["application/octet-stream"]);
+exports.supportedBitmapTrackFormats = new Set(["vobsub","pgs","dvb","mks"]);
+
+exports.supportedAudioTrackKinds = new Set(["main","alternative","descriptions","main-desc","translation","commentary",""]);
+
 //we don't need the latter 3(yet?), but they're valid
-exports.supportedTrackKinds = new Set(["subtitles","captions","descriptions","chapters","metadata"]);
+exports.supportedTextTrackKinds = new Set(["subtitles","captions","descriptions","chapters","metadata"]);
 
 exports.sanitizeTitle = function(title) {
 	if (typeof title !== "string") {
@@ -64,27 +72,63 @@ exports.sanitizeSource = function(source, index = "unknown") {
 };
 
 
-exports.sanitizeTrack = function(track, index = "unknown") {
+
+exports.sanitizeAudioTrack = function(audioTrack, index = "unknown") {
+	if (typeof audioTrack !== "object") {
+		throw new Error(audioTrackError("expected object"));
+	}
+
+	const { url, contentType, language, label, kind } = audioTrack;
+	if (!isUrl(url)) {
+		throw new Error(audioTrackError("expected string url"));
+	}
+
+	if (typeof contentType !== "string" || !exports.supportedAudioTrackTypes.has(contentType)) {
+		throw new Error(
+			audioTrackError(`unsupported audio type, expected ${Array.from(exports.supportedAudioTrackTypes).join(", ")}`),
+		);
+	}
+	//omission allowed
+	if (typeof language !== "string" && typeof language !== "undefined") {
+		throw new Error(audioTrackError("audio track language must be a string"));
+	}
+	
+	if (typeof label !== "string") {
+		throw new Error(audioTrackError("audio track label must be a string"));
+	}
+	
+	//can be empty or missing, but if present should be a valid one.
+	if (typeof kind !== "undefined" && (typeof kind !== "string" ||
+	 !exports.supportedAudioTrackKinds.has(kind))) {
+		throw new Error(audioTrackError("audio kind must be a string if present"));
+	}
+
+	return { url, contentType, language, label, kind };
+
+	function audioTrackError(message) {
+		return `invalid audio track at index ${index}: ${message}`;
+	}
+};
+
+function trackError(message) {
+	return `invalid track at index ${index}: ${message}`;
+}
+function sanitizeSubTrack(track, index = "unknown") {
 	if (typeof track !== "object") {
 		throw new Error(trackError("expected object"));
 	}
 
-	const { url, contentType, name, srclang, kind, iso2} = track;
+	const { url, contentType, name, srclang, kind} = track;
+
 	const isDefault = track.default;
 	if (!isUrl(url)) {
 		throw new Error(trackError("expected string url"));
 	}
-
-	if (typeof contentType !== "string" || !exports.supportedTrackTypes.has(contentType)) {
-		throw new Error(
-			trackError(`unsupported track type, got "${contentType}" expected ${Array.from(exports.supportedTrackTypes).join(", ")}`),
-		);
-	}
-
+	
 	//omission allowed
-	if ( (typeof kind !== "string" || !exports.supportedTrackKinds.has(kind)) && typeof kind !== "undefined") {
+	if ( (typeof kind !== "string" || !exports.supportedTextTrackKinds.has(kind)) && typeof kind !== "undefined") {
 		throw new Error(
-			trackError(`unsupported track kind, expected ${Array.from(exports.supportedTrackKinds).join(", ")}`),
+			trackError(`unsupported track kind, expected ${Array.from(exports.supportedTextTrackKinds).join(", ")}`),
 		);
 	}
 
@@ -92,15 +136,6 @@ exports.sanitizeTrack = function(track, index = "unknown") {
 	if (typeof srclang !== "string" && typeof srclang !== "undefined") {
 		throw new Error(
 			trackError(`invalid srclang, expected a string`),
-		);
-	}
-
-	//not a normal field, but useful since ffmpeg doesn't show 2-character ISO 369-1 codes
-	//serves as a intermediar since not everyone might map em to to srclang
-	//omission allowed
-	if (typeof iso2 !== "string" && typeof iso2 !== "undefined") {
-		throw new Error(
-			trackError(`invalid iso-369-2 string, expected a string`),
 		);
 	}
 
@@ -117,38 +152,80 @@ exports.sanitizeTrack = function(track, index = "unknown") {
 		);
 	}
 
-	//omission allowed
-	if (typeof forced !== "boolean" && typeof forced !== "undefined") {
+	return { url, contentType, name, srclang, kind, default:isDefault};
+
+}
+
+exports.sanitizeTextTrack = function(track, index = "unknown") {
+	track = sanitizeSubTrack(track,index);
+	const contentType = track.contentType;
+	//cytube spec allows for content type, but it's actually not a valid attribute for text tracks
+	if (typeof contentType !== "undefined" && (typeof contentType !== "string" || !exports.supportedTextTrackTypes.has(contentType))) {
 		throw new Error(
-			trackError(`invalid value for "forced", expected a boolean`),
+			trackError(`unsupported track type, got "${contentType}" expected ${Array.from(exports.supportedTextTrackTypes).join(", ")}`),
+		);
+	}
+	return track;
+}
+
+exports.sanitizeBitmapTrack = function(track, index = "unknown") {
+	const { bitmapType, idxUrl }	= track;
+	track = sanitizeSubTrack(track,index);
+	const contentType = track.contentType;
+	if (typeof contentType !== "undefined" && (typeof contentType !== "string" || !exports.supportedBitmapTrackTypes.has(contentType))) {
+		throw new Error(
+			trackError(`unsupported bitmapTrack type, got "${contentType}" expected ${Array.from(exports.supportedBitmapTrackTypes).join(", ")}`),
 		);
 	}
 
-	return { url, contentType, name, srclang, kind, default:isDefault};
-
-	function trackError(message) {
-		return `invalid track at index ${index}: ${message}`;
+	//for support of in-browser parsing of pgs and dvdsub bitmap subs, packaged as matroska.
+	//clientside library can actually auto-detect, but it feels dirty to rely on that
+	if ((typeof bitmapType !== "string" || !exports.supportedBitmapTrackFormats.has(bitmapType))) {
+		throw new Error(
+			trackError(`Unsupported bitmapTrack format, got "${bitmapType}" expected ${Array.from(exports.supportedBitmapTrackFormats).join(", ")}`),
+		);
 	}
-};
+	if (bitmapType !== "vobsub" && idxUrl) {
+		throw new Error(trackError("idxUrl is only for vobsub subs"));
+	}
+
+	if (bitmapType === "vobsub" && (!idxUrl || !isUrl(idxUrl))) {
+		throw new Error(trackError("expected string idxUrl with bitmapType vobsub"));
+	}
+	track.bitmapType = bitmapType;
+	track.idxUrl = idxUrl;
+	return track;
+}
 
 exports.sanitizeManifest = function(object) {
 	if (typeof object !== "object" || object === null) {
 		throw new Error("invalid manifest: expected object");
 	}
 
-	const { title, sources, duration, textTracks, thumbnail} = object;
-	if (!Array.isArray(sources)) {
+	const { title, sources, duration, audioTracks, textTracks, bitmapTracks, thumbnail} = object;
+	if (typeof sources !== 'undefined' && !Array.isArray(sources)) {
 		throw new Error("invalid sources: expected array");
 	}
-	if (!Array.isArray(textTracks)) {
+	if (typeof audioTracks !== 'undefined' && !Array.isArray(audioTracks)) {
+		throw new Error("invalid audioTracks: expected array");
+	}
+	if (typeof textTracks !== 'undefined' && !Array.isArray(textTracks)) {
 		throw new Error("invalid textTracks: expected array");
+	}
+	if (typeof bitmapTracks !== 'undefined' && !Array.isArray(bitmapTracks)) {
+		throw new Error("invalid bitmapTracks: expected array");
+	}
+	if (!sources && !audioTracks) {
+		throw new Error("invalid manifest: must have video and/or audio tracks");
 	}
 
 	return {
 		title: exports.sanitizeTitle(title),
 		duration: exports.sanitizeDuration(duration),
 		thumbnail: exports.sanitizeThumbnail(thumbnail),
-		sources: sources.map(exports.sanitizeSource),
-		textTracks: textTracks.map(exports.sanitizeTrack),
+		sources: sources?.map(exports.sanitizeSource)||undefined,
+		audioTracks: audioTracks?.map(exports.sanitizeAudioTrack)||undefined,
+		textTracks: textTracks?.map(exports.sanitizeTextTrack)||undefined,
+		bitmapTracks: bitmapTracks?.map(exports.sanitizeBitmapTrack)||undefined,
 	};
 };
