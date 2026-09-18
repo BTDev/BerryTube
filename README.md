@@ -44,4 +44,4 @@ Each run will perform a `yarn install` - however, the node_moduels directory is 
 
 ## Database
 
-The database is placed in a docker volume. To get an SQL prompt, run `docker compose exec mysql mysql -uberrytube -pberrytube berrytube`.
+The database is placed in a docker volume. To get an SQL prompt, run `docker compose exec mysql sh -c 'mysql --table -u"$MYSQL_USER" -p"$MYSQL_PASSWORD" "$MYSQL_DATABASE"'`.
