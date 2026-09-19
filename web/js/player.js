@@ -502,6 +502,8 @@ window.PLAYERS.file = {
 			"data-setup" : '{ "autoplay": true, "controls": true }',
 			"class" : "video-js vjs-default-skin"
 		});
+		if (typeof meta?.manifest?.thumbnail === "string")
+			player.attr("poster", meta.manifest.thumbnail);
 		if (!videojs.getPlugins().bitsub) {
 			registerBitSubPlugin(videojs);
 		};
