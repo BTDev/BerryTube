@@ -4,13 +4,10 @@
 -- ------------------------------------------------------
 -- Server version	8.0.11
 
- SET NAMES utf8mb4 ;
-
 --
 -- Table structure for table `api`
 --
 
- SET character_set_client = utf8mb4 ;
 CREATE TABLE `api` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `ip` varchar(20) NOT NULL,
@@ -22,7 +19,6 @@ CREATE TABLE `api` (
 -- Table structure for table `areas`
 --
 
- SET character_set_client = utf8mb4 ;
 CREATE TABLE `areas` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
@@ -35,7 +31,6 @@ CREATE TABLE `areas` (
 -- Table structure for table `misc`
 --
 
- SET character_set_client = utf8mb4 ;
 CREATE TABLE `misc` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
@@ -48,7 +43,6 @@ CREATE TABLE `misc` (
 -- Table structure for table `users`
 --
 
- SET character_set_client = utf8mb4 ;
 CREATE TABLE `users` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(16) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
@@ -63,7 +57,6 @@ CREATE TABLE `users` (
 -- Table structure for table `videos`
 --
 
- SET character_set_client = utf8mb4 ;
 CREATE TABLE `videos` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `position` bigint(20) unsigned NOT NULL,
@@ -81,7 +74,6 @@ CREATE TABLE `videos` (
 -- Table structure for table `videos_history`
 --
 
- SET character_set_client = utf8mb4 ;
 CREATE TABLE `videos_history` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `videoid` varchar(1000) CHARACTER SET latin1 COLLATE latin1_swedish_ci DEFAULT NULL,

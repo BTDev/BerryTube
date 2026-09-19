@@ -103,7 +103,7 @@ services:
 
     mysql:
         build: ./docker/mysql/
-        command: --default-authentication-plugin=mysql_native_password --skip-performance-schema
+        command: --mysql-native-password=ON --skip-performance-schema
         restart: unless-stopped
         cap_add:
             - SYS_NICE

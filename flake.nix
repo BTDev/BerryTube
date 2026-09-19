@@ -9,15 +9,13 @@
     };
   };
 
-  outputs = { self, nixpkgs, flake-utils, ... }: flake-utils.lib.eachDefaultSystem (system:
+  outputs = { nixpkgs, flake-utils, ... }: flake-utils.lib.eachDefaultSystem (system:
     let
       pkgs = import nixpkgs {
         inherit system;
-        config.permittedInsecurePackages = [
-          "nodejs-16.20.2"
-        ];
       };
-      nodejs = pkgs.nodejs-16_x;
+      node-major = pkgs.lib.versions.major (pkgs.lib.removePrefix "v" (builtins.readFile ./.nvmrc));
+      nodejs = pkgs."nodejs_${node-major}";
     in
     {
       devShells.default = pkgs.mkShell {

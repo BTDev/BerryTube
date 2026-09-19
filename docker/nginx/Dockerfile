@@ -1,10 +1,10 @@
 # https://hub.docker.com/_/nginx
-ARG nginx_version=1.28.0
+ARG nginx_version=1.31.3
 
 FROM nginx:${nginx_version}-alpine AS build
 
 # https://github.com/openresty/headers-more-nginx-module/tags
-ARG headersmore_version=0.39
+ARG headersmore_version=0.40
 
 # https://github.com/nginxinc/docker-nginx/blob/master/mainline/alpine/Dockerfile
 RUN apk add --no-cache --virtual .build-deps \
