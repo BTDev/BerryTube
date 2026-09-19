@@ -522,6 +522,10 @@ window.PLAYERS.file = {
 
 		//bitmap sub implementation requires player to exist, so this is for later
 		const bitmapSubsToAdd = [];
+		
+		//videojs's use of <track> "default" attribute is bugged...so we activate it after load
+		//relying on the attribute randomly causes multiple tracks to be active at once >_>
+		let defaultSubToActivate = null;
 		let surroundToggle;
 
 		if (meta.manifest) {
@@ -555,8 +559,8 @@ window.PLAYERS.file = {
 
 			//ensure all are arrays, for later logic
 			const	audioTracks = meta.manifest.audioTracks||[];
-			const	textTracks = meta.manifest.textTracks||[];
-			const	bitmapTracks = meta.manifest.bitmapTracks||[];
+			let	textTracks = meta.manifest.textTracks||[];
+			let	bitmapTracks = meta.manifest.bitmapTracks||[];
 
 			//at some point probably better to spin off to the plugin
 			const useSurround = localStorage.audioPref == "surround";
@@ -571,31 +575,43 @@ window.PLAYERS.file = {
 				setTimeout(()=>{(e.target.control||e.target).checked = true;},10);//videojs blocks click without delay
 				localStorage.audioPref = (e.target.control||e.target)?.value || localStorage.audioPref;
 			});
-			//non-english main tracks are presumably rare enough to skip a language preference menu for audio.
-			const mainTrack = audioTracks.find(t=>t.kind?.toLowerCase() == "main");
-			const engTracks = audioTracks.filter(t=>t.language.match(/^en/i));
-			const engSurroundTracks = engTracks.filter(t=>t.label.match(/((5|7)\.(1|0)|surr|srnd)/i));
-			const engStereoTracks = engTracks.filter(t=>t.label.match(/(2 ?ch|2\.0|stereo)/i));
-			const surroundTracks = audioTracks.filter(t=>t.label.match(/((5|7)\.(1|0)|surr|srnd)/i));
-			const stereoTracks = audioTracks.filter(t=>t.label.match(/(2 ?ch|2\.0|stereo)/i));
 
-			let defaultAudio;
-			//prefer the preference(in english), then, if no english, the "main" track,
-			//then the preference (whatever remains), and failing that, the first listed
-			//docs indicate there should only be one "main"
-			if (useSurround) {
-				defaultAudio = engSurroundTracks[0] || engStereoTracks[0] ||
-					mainTrack || surroundTracks[0] || stereoTracks[0] || audioTracks[0];
-			} else {
-				defaultAudio = engStereoTracks[0] || engSurroundTracks[0] ||
-					mainTrack || stereoTracks[0] || surroundTracks[0] || audioTracks[0];
+			if (audioTracks.length > 0) {
+				//non-english main tracks are presumably rare enough to skip a language preference menu for audio.
+				const mainTrack = audioTracks.find(t=>t.kind?.toLowerCase() == "main");
+				const engTracks = audioTracks.filter(t=>t.language.match(/^en/i));
+				const engSurroundTracks = engTracks.filter(t=>t.label.match(/((5|7)\.(1|0)|surr|srnd)/i));
+				const engStereoTracks = engTracks.filter(t=>t.label.match(/(2 ?ch|2\.0|stereo)/i));
+				const surroundTracks = audioTracks.filter(t=>t.label.match(/((5|7)\.(1|0)|surr|srnd)/i));
+				const stereoTracks = audioTracks.filter(t=>t.label.match(/(2 ?ch|2\.0|stereo)/i));
+
+				let defaultAudio;
+				//prefer the preference(in english), then, if no english, the "main" track,
+				//then the preference (whatever remains), and failing that, the first listed
+				//docs indicate there should only be one "main"
+				if (useSurround) {
+					defaultAudio = engSurroundTracks[0] || engStereoTracks[0] ||
+						mainTrack || surroundTracks[0] || stereoTracks[0] || audioTracks[0];
+				} else {
+					defaultAudio = engStereoTracks[0] || engSurroundTracks[0] ||
+						mainTrack || stereoTracks[0] || surroundTracks[0] || audioTracks[0];
+				}
+				defaultAudio.enabled = true;
 			}
-			defaultAudio.enabled = true;
 
+			//filter them to valid ones
+			if (textTracks.length > 0)
+				textTracks = textTracks.filter((e)=>{
+					return e.kind=="captions"||e.kind=="subtitles";
+				});
+			if (bitmapTracks.length > 0)
+				bitmapTracks = bitmapTracks.filter((e)=>{
+					return e.kind=="captions"||e.kind=="subtitles";
+				});
 			//just so the track picker can evaluate the best option
 			//While uncommon, some files do include both bitmap and text subs
-			const defaultIndex = pickTextTrackIndex(textTracks.concat(bitmapTracks));
-			//console.log(chosenIndex);
+			defaultSubToActivate = pickTextTrackIndex(textTracks.concat(bitmapTracks));
+
 			for (let i = 0; i < textTracks.length; i++) {
 				const track = textTracks[i];
 				const trackEl = $("<track>", {
@@ -604,10 +620,6 @@ window.PLAYERS.file = {
 					label: track.name,
 					srclang: track.srclang,
 				});
-				if (defaultIndex === i) {
-					trackEl.attr('default',true);
-					console.log(track.name);
-				}
 				player.append(trackEl);
 			}
 			//inserting bitmap tracks as <track>s causes issues, but we still want to stick to using
@@ -620,8 +632,7 @@ window.PLAYERS.file = {
 					kind: track.kind,
 					label: track.name,
 					srclang: track.srclang,
-					id: `bitmaptrack${i}`,
-					"default": ((textTracks.length + i) == defaultIndex)
+					id: `bitmaptrack${i}`
 				});
 			}
 		} else {
@@ -661,10 +672,10 @@ window.PLAYERS.file = {
 		videoJsPlayer.textTrackSettings.options().pauseOnOpen = false;
 		videoJsPlayer.textTrackSettings.restoreSettings();
 		addSubtitlePrefs(videoJsPlayer);
-		let colorsPane = videoJsPlayer.textTrackSettings.contentEl_.firstChild;
-		let notice = document.createElement("span");
+		const colorsPane = videoJsPlayer.textTrackSettings.contentEl_.firstChild;
+		const notice = document.createElement("span");
 		notice.innerText =
-				'Note: Styles do not apply to blocky, DVD/BluRay overlay subtitles, only modern "text" subtitles.';
+				'Note: Styles do not apply to blocky DVD/BluRay overlay subtitles, only modern "text" subtitles.';
 		colorsPane.insertBefore(notice, colorsPane.firstChild);
 
 		//a small seek resyncs video&audio when tracks are changed.
@@ -676,7 +687,6 @@ window.PLAYERS.file = {
 		}
 
 		videoJsPlayer.textTracks().on('change',function(e){
-			console.log("change");
 			const activeTrack = Array.from(this)?.find(e=>e.mode == "showing");
 			//dispose before creating a new one, or if turned off
 			if (PLAYERS.file?.bitsub)
@@ -704,6 +714,8 @@ window.PLAYERS.file = {
 			//without manually clicked. (other means were even more inelegant)
 			this.one("loadedmetadata", ()=>{
 				if (doAudioTracks) $('.vjs-audio-button .vjs-menu .vjs-menu-content').prepend(surroundToggle);
+				if (Number.isInteger(defaultSubToActivate)
+					this.textTracks()[defaultSubToActivate].mode = "showing";
 				this.textTracks().on('change', updateChosenLang);
 				this.audioTracks().on('change', resyncAudio); //a fix for audio desync on track change.
 			});
