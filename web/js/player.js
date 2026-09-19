@@ -714,7 +714,7 @@ window.PLAYERS.file = {
 			//without manually clicked. (other means were even more inelegant)
 			this.one("loadedmetadata", ()=>{
 				if (doAudioTracks) $('.vjs-audio-button .vjs-menu .vjs-menu-content').prepend(surroundToggle);
-				if (Number.isInteger(defaultSubToActivate)
+				if (Number.isInteger(defaultSubToActivate))
 					this.textTracks()[defaultSubToActivate].mode = "showing";
 				this.textTracks().on('change', updateChosenLang);
 				this.audioTracks().on('change', resyncAudio); //a fix for audio desync on track change.
