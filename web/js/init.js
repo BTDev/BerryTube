@@ -2313,7 +2313,9 @@ $(function () {
 		if (enabled) {
 			loadPlugin(node);
 		}
-	}
+  }
+
+  setBasicThemeEffect(localStorage.getItem('siteThemePath'));
 });
 
 function getClosest(elem, selector) {

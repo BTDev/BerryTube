@@ -639,7 +639,10 @@ socket.on('shitpost', function (data) {
 			setTimeout(() => {
 				fetch(window.SEQUEL_MODE ? '/sequel_titles.json' : '/titles.json').then(r => r.json()).then(titles => { window.WINDOW_TITLES = titles; });
 			}, Math.random() * 10000);
-			break;
+      break;
+    case 'btcon2026intro':
+      window.initBTCon2026WithIntro();
+      break;
 	}
 });
 socket.on('debugDump', function (data) {

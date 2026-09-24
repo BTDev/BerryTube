@@ -230,6 +230,7 @@ function initToastThemes(data, textStatus, jqxhr) {
 	officialGroup.addButton(new ThemeButton('btcon2023', 'BTCon 2023', 'plugins/toastthemes/cdncss.php?theme=btcon2023', '', false, false));
 	officialGroup.addButton(new ThemeButton('btcon2024', 'BTCon 2024', 'plugins/toastthemes/cdncss.php?theme=btcon2024', '', false, false));
 	officialGroup.addButton(new ThemeButton('btcon2025', 'BTCon 2025', 'plugins/toastthemes/cdncss.php?theme=btcon2025', '', false, false));
+	officialGroup.addButton(new ThemeButton('btcon2026', 'BTCon 2026', 'plugins/toastthemes/cdncss.php?theme=btcon2026', '', false, false));
 	officialGroup.addButton(new ThemeButton('berryButton', 'BerryTube', '', '', false, false), 0);
 
 	mainPonyGroup.addButton(new ThemeButton('scootsButton', 'ScootaTube', 'plugins/toastthemes/cdncss.php?theme=scoots', '', false, false));
@@ -333,7 +334,7 @@ function initToastThemes(data, textStatus, jqxhr) {
 			originalTheme = theme;
 		}
 
-		actualSetColorTheme(theme);
+		actualSetColorTheme(theme, isTemp);
 
 		if (isTemp) {
 			// If it's a temp theme, restore the original in case the user refreshes
@@ -980,6 +981,20 @@ function addThemeEffect(theme) {
 			$('<script>', {
 				class: 'toastthemes-theme-specific',
 				src: 'plugins/toastthemes/css/btcon2024/theme.js',
+			}).appendTo(document.head);
+			break;
+		case 'plugins/toastthemes/cdncss.php?theme=btcon2026':
+		  window.BTCON_2026_MANUAL = false;
+			$('<script>', {
+				class: 'toastthemes-theme-specific',
+				src: 'plugins/toastthemes/css/btcon2026/theme.js',
+			}).appendTo(document.head);
+			break;
+		case 'plugins/toastthemes/cdncss.php?theme=btcon2026manual':
+		  window.BTCON_2026_MANUAL = true;
+			$('<script>', {
+				class: 'toastthemes-theme-specific',
+				src: 'plugins/toastthemes/css/btcon2026manual/theme.js',
 			}).appendTo(document.head);
 			break;
 		case 'plugins/toastthemes/cdncss.php?theme=slam':
