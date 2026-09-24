@@ -21,6 +21,13 @@
 .vjs-menu-button-popup .vjs-menu .menu-icon-right{
 	float:right;
 }
+/*IMHO the buttons don't indicate well enough which exactly is being hovered over*/
+.vjs-menu-button-popup:hover>.vjs-menu-button>.vjs-icon-placeholder::before, .vjs-button:hover>.vjs-icon-placeholder::before {
+	text-shadow: 0 0 4px rgb(255,255,255,0.85);
+}
+.vjs-button:hover {
+	background-color: rgb(255,255,255,0.06);
+}
 .vjs-audio-button.vjs-menu-button-popup .vjs-menu {
 	width:18em;
 }
