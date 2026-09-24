@@ -683,34 +683,34 @@ window.PLAYERS.file = {
 
 		if (doBitmapSubs) {
 			videoJsPlayer.textTracks().on('change',function(e){
-				const activeTrack = Array.from(this)?.find(e=>e.mode == "showing");
+				const menuOptions = videoJsPlayer.controlBar.subsCapsButton.menu.children();
+				//non track options don't have "tech_"
+				const activeTrack = menuOptions.find(t=>t.tech_&&t.track.mode=="showing");
 				//dispose before creating a new one, or if turned off
 				if (PLAYERS.file?.bitsub)
 					try {PLAYERS.file?.bitsub.clear();}catch(e){console.log(e);};
 				//either captions were turned off, or a normal text track was selected.
-				if (activeTrack === undefined || activeTrack.src !== undefined) return;
-				//get the manifest index out of the id.
-				const bmpIndex = parseInt(activeTrack.id.replace(/\D/g,""));
-				if (!Number.isInteger(bmpIndex)) {
-					console.error("Couldn't get bitmap track index??");
+				if (activeTrack === undefined) return;
+				const internal = activeTrack.options().track;
+				if (internal.src || !internal.bitmapSubUrl) {
+					console.error("no valid source for bitmap track");
 					return;
 				}
-				const bitmapSub = meta.manifest?.bitmapTracks[bmpIndex];
-				if (!bitmapSub) {
-					console.error("no bitmapSub");
-					return;
-				}
-				const bitsubProps = { subUrl: bitmapSub.url, idxUrl: bitmapSub?.idxUrl};
+				const bitsubProps = { subUrl: internal.bitmapSubUrl, idxUrl: internal?.bitmapIdxUrl};
 				PLAYERS.file.bitsub.load(bitsubProps);
 			});
 		}
 
 		videoJsPlayer.ready(function(){
-			bitmapSubsToAdd.forEach((s)=>{
+			bitmapSubsToAdd.forEach((t,i,a)=>{
 				//false=auto cleanup
-				const trackEl = videoJsPlayer.addRemoteTextTrack(s, false);
+				const trackEl = videoJsPlayer.addRemoteTextTrack(t, false);
 				//tags these for later styling
 				trackEl.track.bitmap = true;
+				//turns out we can insert arbitrary data, but only after the internal
+				//track element has been created, and only if we can be certain of the order.
+				trackEl.track.bitmapSubUrl = meta.manifest?.bitmapTracks[i].url;
+				trackEl.track.bitmapIdxUrl = meta.manifest?.bitmapTracks[i].idxUrl;
 			});
 			this.one("loadedmetadata", ()=>{
 				if (Number.isInteger(defaultSubToActivate))

@@ -46,10 +46,9 @@ function addSubtitlePrefs(vjs) {
 	
 	//a notice so folks will know why the styles only affect some subtitles.
 	const colorsPane = vjs.textTrackSettings.contentEl_.firstChild;
-	const notice = document.createElement("span");
-	notice.innerHTML =
-		"<b>Note:</b> Styles only apply to \"text\" subtitles (<i class='icon icon-vjs-track-icons-text menu-icon-right'></i>).<br>"+
-		"We can't style old DVD/BR bitmap subtitles (<i class='icon icon-vjs-track-icons-disc menu-icon-right'></i>).";
+	const notice = document.createRange().createContextualFragment(
+		"<span><b>Note:</b> Styles only apply to \"text\" subtitles (<i class='icon icon-vjs-track-icons-text menu-icon-right'></i>).<br>"+
+		"We can't style old DVD/BR bitmap subtitles (<i class='icon icon-vjs-track-icons-disc menu-icon-right'></i>).</span>).").firstChild;
 	colorsPane.append(notice);
   
 	const sublangCont = document.createElement('div');
@@ -248,6 +247,8 @@ function pickTextTrackIndex(tracks) {
 		const firstCC = found.find(t=>t.isCC);
 		if (firstCC)
 			finalIndex = firstCC.i;
+		else
+			finalIndex = found[0].i; //no CC, so go with best nonCC match
 	} else if (found.length > 0) {
 		finalIndex = found[0].i;
 	}
@@ -256,7 +257,7 @@ function pickTextTrackIndex(tracks) {
 	if (finalIndex === null && Number.isInteger(forcedTrackIndex))
 		finalIndex = forcedTrackIndex;//forced tracks are forced
 	return finalIndex;
-}	
+}
 
 
 //icons for audio and sub menus. text/overlay sub icons, stereo/surround icons
@@ -302,13 +303,13 @@ function resyncAudio(){
 
 function createSurroundControl(vjs) {
 	const useSurround = localStorage.audioPref == "surround";
-	const surroundToggle = document.createRange().createContextualFragment(`
-		<li class="vjs-menu-item vjs-alternative-menu-item" role="menuitemradio" tabindex="-1">
-		<span class="vjs-menu-item-text">Prefer Surround:<br>
-		<input type="radio" id="prefstereo" name="chpref" value="stereo" ${!useSurround ? "checked" : ""}>
-		<label for="prefstereo">No</label>
-		<input type="radio" id="prefsurround" name="chpref" value="surround" ${useSurround ? "checked" : ""}>
-		<label for="prefsurround">Yes</label></span></li>`);
+	const surroundToggle = document.createRange().createContextualFragment(`\
+<li class="vjs-menu-item vjs-alternative-menu-item" role="menuitemradio" tabindex="-1">\
+<span class="vjs-menu-item-text">Prefer Surround:<br>\
+<input type="radio" id="prefstereo" name="chpref" value="stereo" ${!useSurround ? "checked" : ""}>\
+<label for="prefstereo">No</label>\
+<input type="radio" id="prefsurround" name="chpref" value="surround" ${useSurround ? "checked" : ""}>\
+<label for="prefsurround">Yes</label></span></li>`);
 	surroundToggle.querySelectorAll("input,label").forEach(t=>t.addEventListener("click",e=>{
 		setTimeout(()=>{(e.target.control||e.target).checked = true;},10);//videojs blocks click without delay
 		localStorage.audioPref = (e.target.control || e.target)?.value || localStorage.audioPref;
@@ -331,6 +332,17 @@ function addExtraControls(vjs, doAudioTracks, doTextTracks, doBitmapSubs) {
 			}
 			if(doBitmapSubs || doTextTracks || doBitmapSubs)
 				addMenuIcons(vjs);
+		});
+		//center sub/audio menus on selected options
+		this.controlBar.subsCapsButton.on('mouseover',function(e){
+			if(e.target.classList.contains('vjs-icon-placeholder')) {
+				setTimeout(()=>{ this.$('.vjs-selected').scrollIntoView({container:"nearest",block:"center"}); },10);
+			}
+		});
+		this.controlBar.audioTrackButton.on('mouseover',function(e){
+			if(e.target.classList.contains('vjs-icon-placeholder')) {
+				setTimeout(()=>{ this.$('.vjs-selected').scrollIntoView({container:"nearest",block:"center"}); },10);
+			}
 		});
 	});
 }
