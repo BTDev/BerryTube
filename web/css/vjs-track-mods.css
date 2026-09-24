@@ -35,17 +35,18 @@
 }
 .vjs-menu-button .vjs-menu li {text-transform:none}
 @font-face {
-  font-family: 'btplay';
+  font-family: 'vjs-track-icons';
   src: 
-    url('./btplay.woff2') format('woff2');
+    url('./vjs-track-icons.woff2') format('woff2');
+    url('./vjs-track-icons.woff') format('woff');
+    url('./vjs-track-icons.ttf') format('truetype');
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
-[class^="icon-btplay-"], [class*=" icon-btplay-"] {
-  font-family: 'btplay' !important;
-  speak: none;
+[class^="icon-vjs-track-icons-"], [class*=" icon-vjs-track-icons-"] {
+  font-family: 'vjs-track-icons' !important;
   font-style: normal;
   font-weight: normal;
   font-variant: normal;
@@ -56,21 +57,21 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-.icon-btplay-51::before {
+.icon-vjs-track-icons-51::before {
   content: "\e001";
 }
-.icon-btplay-71::before {
+.icon-vjs-track-icons-71::before {
   content: "\e002";
 }
-.icon-btplay-disc::before {
+.icon-vjs-track-icons-disc::before {
   content: "\e003";
 }
-.icon-btplay-mono::before {
+.icon-vjs-track-icons-mono::before {
   content: "\e004";
 }
-.icon-btplay-stereo::before {
+.icon-vjs-track-icons-stereo::before {
   content: "\e005";
 }
-.icon-btplay-text::before {
+.icon-vjs-track-icons-text::before {
   content: "\e006";
 }

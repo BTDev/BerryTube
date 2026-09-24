@@ -253,7 +253,7 @@ function pickTextTrackIndex(tracks) {
 //icons for audio and sub menus. text/overlay sub icons, stereo/surround icons
 function makeIcon(icon) {
   const iconEl = document.createElement('i');
-	iconEl.classList.add('icon',`icon-btplay-${icon}`,'menu-icon-right');
+	iconEl.classList.add('icon',`icon-vjs-track-icons-${icon}`,'menu-icon-right');
 	return iconEl;
 }
 
