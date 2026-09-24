@@ -571,7 +571,7 @@ window.PLAYERS.file = {
 			if (audioTracks.length > 0) {
 				//non-english main tracks are presumably rare enough to skip a language preference menu for audio.
 				const mainTrack = audioTracks.find(t=>t.kind?.toLowerCase() == "main");
-				const engTracks = audioTracks.filter(t=>t.language.match(/^en/i));
+				const engTracks = audioTracks.filter(t=>(t.language.match(/^en/i) && !/(commentary|description)/.test(t?.kind)));
 				function surroundFilter(t) {
 					return t.label.match(/((5|7)\.(1|0)|surr|srnd)/i) || t?.channels > 3; //6=5.1, 8=7.1 etc
 				}
