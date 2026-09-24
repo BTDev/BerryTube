@@ -705,7 +705,7 @@ window.PLAYERS.file = {
 			});
 		}
 
-			videoJsPlayer.ready(function(){
+		videoJsPlayer.ready(function(){
 			bitmapSubsToAdd.forEach((t,i,a)=>{
 				//false=auto cleanup
 				const trackEl = videoJsPlayer.addRemoteTextTrack(t, false);
@@ -728,9 +728,9 @@ window.PLAYERS.file = {
 				window.volume.set(this.muted()?0.0:this.volume());
 			});
 
-            this.on("seeked",function(){
-                videoSeeked(this.currentTime());
-            });
+			this.on("seeked",function(){
+				videoSeeked(this.currentTime());
+			});
 
 			this.on("qualitySelected", (e, { label }) => {
 				setUserQualityPreference(parseInt(label));

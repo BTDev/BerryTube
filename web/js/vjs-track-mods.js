@@ -336,14 +336,30 @@ function addExtraControls(vjs, doAudioTracks, doTextTracks, doBitmapSubs) {
 		//center sub/audio menus on selected options
 		this.controlBar.subsCapsButton.on('mouseover',function(e){
 			if(e.target.classList.contains('vjs-icon-placeholder')) {
-				setTimeout(()=>{ this.$('.vjs-selected').scrollIntoView({container:"nearest",block:"center"}); },10);
+				setTimeout(()=>{ scrollIntoContainer(this.$('.vjs-selected')); },10);
 			}
 		});
 		this.controlBar.audioTrackButton.on('mouseover',function(e){
 			if(e.target.classList.contains('vjs-icon-placeholder')) {
-				setTimeout(()=>{ this.$('.vjs-selected').scrollIntoView({container:"nearest",block:"center"}); },10);
+				setTimeout(()=>{ scrollIntoContainer(this.$('.vjs-selected')); },10);
 			}
 		});
 	});
 }
 
+
+//sigh, scrollIntoView is great, but firefox doesn't like nice things....
+function scrollIntoContainer(el) {
+  let p = el.parentElement;
+  while (p && !/(auto|scroll|overlay)/.test(
+    getComputedStyle(p).overflowY
+  )) p = p.parentElement;
+  if (!p) return;
+  const item = el.getBoundingClientRect();
+  const cont = p.getBoundingClientRect();
+	const contMidOff = (cont.bottom - cont.top)/2;
+  if (item.top < cont.top)
+    p.scrollTop += item.top - cont.top - contMidOff;
+  else if (item.bottom > cont.bottom)
+    p.scrollTop += item.bottom - cont.bottom + contMidOff;
+}
