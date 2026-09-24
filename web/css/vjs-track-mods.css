@@ -37,8 +37,8 @@
 @font-face {
   font-family: 'vjs-track-icons';
   src: 
-    url('./vjs-track-icons.woff2') format('woff2');
-    url('./vjs-track-icons.woff') format('woff');
+    url('./vjs-track-icons.woff2') format('woff2'),
+    url('./vjs-track-icons.woff') format('woff'),
     url('./vjs-track-icons.ttf') format('truetype');
   font-weight: normal;
   font-style: normal;
@@ -53,6 +53,7 @@
   text-transform: none;
   line-height: 1;
 	font-size:1.5em;
+	vertical-align: middle;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }

@@ -1,8 +1,9 @@
-//This is a bit tedious. Documentation on creating a proper videoJS plugin looked even more tedious/unclear.
-//at some point it could/should be perhaps turned into a proper plugin.
+//This is a bit tedious. Parts could/should at some point be spun off into a proper vjs plugin.
 //Kept it independent of stuff like jquery, and mimiced naming style for that reason
 //ofc it's pretty specific to our/cytube's manifest style
-//and yeah, a bit overkill, but damn lang names can vary between files.
+//It's a bit overkill, however this is in part because various "independent" video file sources
+//have a LOT of odd variations in their subtitle schemes. Felt it prudent to accomodate _some_
+//of that, rather than put the burden entirely on folks doing the (re)encoding.
 const SLPREF_DEFAULT = {
 	useLast: true,
 	lastUsed: null,
@@ -22,6 +23,7 @@ function getOrResetPrefs() {
 	return sublangPrefs;
 }
 
+//for adding check fields
 function addCheckField(name, labelTxt, state, disabled) {
   //videojs uses fieldsets for everything, so like, I guess we go with it...
   const field = document.createElement('fieldset');
@@ -40,8 +42,17 @@ function addCheckField(name, labelTxt, state, disabled) {
 	return field;
 }
 
+//add the subtitle language preferences to VJS's existing caption config menu
 function addSubtitlePrefs(vjs) {
 	const sublangPrefs = getOrResetPrefs();
+	
+	//a notice so folks will know why the styles only affect some subtitles.
+	const colorsPane = vjs.textTrackSettings.contentEl_.firstChild;
+	const notice = document.createElement("span");
+	notice.innerHTML =
+		"<b>Note:</b> Styles only apply to \"text\" subtitles (<i class='icon icon-vjs-track-icons-text menu-icon-right'></i>).<br>"+
+		"We can't style old DVD/BR bitmap subtitles (<i class='icon icon-vjs-track-icons-disc menu-icon-right'></i>).";
+	colorsPane.append(notice);
   
 	const sublangCont = document.createElement('div');
   sublangCont.classList.add("vjs-track-settings-sublang");
@@ -204,7 +215,7 @@ function updateChosenLang() {
 
 //check the last used, then preferences, else use "forced"/default one, if any
 function pickTextTrackIndex(tracks) {
-	const sublangPrefs = getOrResetPrefs();
+	const sublangPrefs = JSON.parse(localStorage.sublangPrefs);
 
 	const searchObjs = tracks.map((e,i)=>{
 		return {i:i, isCC:(e.kind=="captions"), lang:e.name, srclang:e.srclang};
@@ -257,6 +268,7 @@ function makeIcon(icon) {
 	return iconEl;
 }
 
+//yes this adds to the audio menu....can split it off later.
 function addMenuIcons(vjs) {
 	const manifest = ACTIVE.meta.manifest;
 	const allTracks = (manifest.textTracks||[]).concat(manifest.bitmapTracks||[]);
@@ -268,6 +280,7 @@ function addMenuIcons(vjs) {
 		}
 	});
 	vjs.controlBar.audioTrackButton.menu.$$('li.vjs-menu-item>.vjs-menu-item-text').forEach((e,i)=>{
+		console.log(e);
 		if (e.firstChild.textContent.match(/(5)\.(1|0)/i)) {
 			e.insertBefore(makeIcon('51'),e.firstElementChild);
 		} else if (e.firstChild.textContent.match(/(7)\.(1|0)/i)) {

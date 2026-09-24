@@ -681,13 +681,6 @@ window.PLAYERS.file = {
 			});
 		videoJsPlayer.textTrackSettings.options().pauseOnOpen = false;
 		videoJsPlayer.textTrackSettings.restoreSettings();
-		
-		//a notice so folks will know why the styles only affect some subtitles.
-		const colorsPane = videoJsPlayer.textTrackSettings.contentEl_.firstChild;
-		const notice = document.createElement("span");
-		notice.innerText =
-				'Note: Styles do not apply to blocky DVD/BluRay overlay subtitles, only modern "text" subtitles.';
-		colorsPane.insertBefore(notice, colorsPane.firstChild);
 
 		//a small seek resyncs video&audio when tracks are changed.
 		//otherwise audio may get out of sync. wait 1.5s for track to initialize 
