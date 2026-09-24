@@ -666,7 +666,7 @@ window.PLAYERS.file = {
 			};
 		}
 
-		window.videoJsPlayer = videojs("vjs_player", vjsSettings);
+		const videoJsPlayer = videojs("vjs_player", vjsSettings);
 		this.bitsub = videoJsPlayer.bitsub();
 		addExtraControls(videoJsPlayer, doAudioTracks, doTextTracks, doBitmapSubs);
 	
@@ -685,10 +685,10 @@ window.PLAYERS.file = {
 			videoJsPlayer.textTracks().on('change',function(e){
 				const menuOptions = videoJsPlayer.controlBar.subsCapsButton.menu.children();
 				//non track options don't have "tech_"
-				const activeTrack = menuOptions.find(t=>t.tech_&&t.track.mode=="showing");
+				const activeTrack = menuOptions.find(t=>t.track.tech_ && t.track.mode == "showing");
 				//dispose before creating a new one, or if turned off
 				if (PLAYERS.file?.bitsub)
-					try {PLAYERS.file?.bitsub.clear();}catch(e){console.log(e);};
+					try { PLAYERS.file?.bitsub.clear(); }catch(e){ console.error("bitsub:",e); };
 				//either captions were turned off, or a normal text track was selected.
 				if (activeTrack === undefined) return;
 				const internal = activeTrack.options().track;
@@ -696,12 +696,16 @@ window.PLAYERS.file = {
 					console.error("no valid source for bitmap track");
 					return;
 				}
-				const bitsubProps = { subUrl: internal.bitmapSubUrl, idxUrl: internal?.bitmapIdxUrl};
+				const bitsubProps = {
+					subUrl: internal.bitmapSubUrl,
+					idxUrl: internal?.bitmapIdxUrl,
+					displaySettings: {aspectMode: 'contain'}
+				};
 				PLAYERS.file.bitsub.load(bitsubProps);
 			});
 		}
 
-		videoJsPlayer.ready(function(){
+			videoJsPlayer.ready(function(){
 			bitmapSubsToAdd.forEach((t,i,a)=>{
 				//false=auto cleanup
 				const trackEl = videoJsPlayer.addRemoteTextTrack(t, false);
