@@ -204,7 +204,7 @@ function updateChosenLang() {
 
 //check the last used, then preferences, else use "forced"/default one, if any
 function pickTextTrackIndex(tracks) {
-	const sublangPrefs = JSON.parse(localStorage.sublangPrefs);
+	const sublangPrefs = getOrResetPrefs();
 
 	const searchObjs = tracks.map((e,i)=>{
 		return {i:i, isCC:(e.kind=="captions"), lang:e.name, srclang:e.srclang};
@@ -257,7 +257,6 @@ function makeIcon(icon) {
 	return iconEl;
 }
 
-//yes this adds to the audio menu....can split it off later.
 function addMenuIcons(vjs) {
 	const manifest = ACTIVE.meta.manifest;
 	const allTracks = (manifest.textTracks||[]).concat(manifest.bitmapTracks||[]);
@@ -269,7 +268,6 @@ function addMenuIcons(vjs) {
 		}
 	});
 	vjs.controlBar.audioTrackButton.menu.$$('li.vjs-menu-item>.vjs-menu-item-text').forEach((e,i)=>{
-		console.log(e);
 		if (e.firstChild.textContent.match(/(5)\.(1|0)/i)) {
 			e.insertBefore(makeIcon('51'),e.firstElementChild);
 		} else if (e.firstChild.textContent.match(/(7)\.(1|0)/i)) {

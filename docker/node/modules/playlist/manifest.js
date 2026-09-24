@@ -65,8 +65,8 @@ exports.sanitizeSource = function(source, index = "unknown") {
 	}
 
 	//if defined it must be a finite positive number. Not currently used, just here for cytube parity.
-	if (typeof bitrate !== undefined && (typeof bitrate !== "number" || !Number.isFinite(bitrate) || bitrate < 1)) {
-		throw new Error("Channels must be an integer");
+	if (typeof bitrate !== "undefined" && (typeof bitrate !== "number" || !Number.isFinite(bitrate) || bitrate < 1)) {
+		throw new Error("If present, bitrate must be an integer");
 	}
 
 	return { url, contentType, quality, bitrate };
@@ -108,8 +108,8 @@ exports.sanitizeAudioTrack = function(audioTrack, index = "unknown") {
 	}
 
 	//nonstandard, if present it serves as a hint for preferences/UI. # of audio channels (6=5.1, 2=stereo, etc )
-	if (typeof channels !== undefined && (typeof channels !== "number" || !Number.isInteger(channels))) {
-		throw new Error("Channels must be an integer");
+	if (typeof channels !== "undefined" && (typeof channels !== "number" || !Number.isInteger(channels))) {
+		throw new Error("If present, channels must be an integer");
 	}
 
 	return { url, contentType, language, label, kind, channels };
