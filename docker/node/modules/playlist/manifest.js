@@ -1,9 +1,9 @@
 const { isUrl } = require("../utils");
 
-exports.supportedSourceMediaTypes = new Set(["video/mp4","video/webm","video/av1","video/quicktime","video/ogg"]);
-exports.supportedAudioTrackTypes = new Set(["audio/mp4","audio/mpeg","audio/webm","audio/m4a"]);
+exports.supportedSourceMediaTypes = new Set(["video/mp4","video/webm","video/quicktime","video/ogg"]);
+exports.supportedAudioTrackTypes = new Set(["audio/mp4","audio/mpeg","audio/webm","audio/m4a","audio/aac","audio/ogg","audio/flac"]);
 
-//"application/octet-stream" = futureproofing for later support of dvd/blu-ray bitmap subtitle support
+//"application/octet-stream" = there's no standard MIME type for the various bitmap subtitle formats
 exports.supportedTextTrackTypes = new Set(["text/vtt"]);
 exports.supportedBitmapTrackTypes = new Set(["application/octet-stream"]);
 exports.supportedBitmapTrackFormats = new Set(["vobsub","pgs","dvb","mks"]);
@@ -49,7 +49,7 @@ exports.sanitizeSource = function(source, index = "unknown") {
 		throw new Error(sourceError("expected object"));
 	}
 
-	const { url, contentType, quality } = source;
+	const { url, contentType, quality, bitrate } = source;
 	if (!isUrl(url)) {
 		throw new Error(sourceError("expected string url"));
 	}
@@ -64,7 +64,12 @@ exports.sanitizeSource = function(source, index = "unknown") {
 		throw new Error(sourceError("invalid quality, expected number"));
 	}
 
-	return { url, contentType, quality };
+	//if defined it must be a finite positive number. Not currently used, just here for cytube parity.
+	if (typeof bitrate !== undefined && (typeof bitrate !== "number" || !Number.isFinite(bitrate) || bitrate < 1)) {
+		throw new Error("Channels must be an integer");
+	}
+
+	return { url, contentType, quality, bitrate };
 
 	function sourceError(message) {
 		return `invalid source at index ${index}: ${message}`;
@@ -72,13 +77,12 @@ exports.sanitizeSource = function(source, index = "unknown") {
 };
 
 
-
 exports.sanitizeAudioTrack = function(audioTrack, index = "unknown") {
 	if (typeof audioTrack !== "object") {
 		throw new Error(audioTrackError("expected object"));
 	}
 
-	const { url, contentType, language, label, kind } = audioTrack;
+	const { url, contentType, language, label, kind, channels } = audioTrack;
 	if (!isUrl(url)) {
 		throw new Error(audioTrackError("expected string url"));
 	}
@@ -88,9 +92,9 @@ exports.sanitizeAudioTrack = function(audioTrack, index = "unknown") {
 			audioTrackError(`unsupported audio type, expected ${Array.from(exports.supportedAudioTrackTypes).join(", ")}`),
 		);
 	}
-	//omission allowed
-	if (typeof language !== "string" && typeof language !== "undefined") {
-		throw new Error(audioTrackError("audio track language must be a string"));
+	
+	if (typeof language !== "string") {
+		throw new Error(audioTrackError("audio track language must be present and be a string"));
 	}
 	
 	if (typeof label !== "string") {
@@ -103,7 +107,12 @@ exports.sanitizeAudioTrack = function(audioTrack, index = "unknown") {
 		throw new Error(audioTrackError("audio kind must be a string if present"));
 	}
 
-	return { url, contentType, language, label, kind };
+	//nonstandard, if present it serves as a hint for preferences/UI. # of audio channels (6=5.1, 2=stereo, etc )
+	if (typeof channels !== undefined && (typeof channels !== "number" || !Number.isInteger(channels))) {
+		throw new Error("Channels must be an integer");
+	}
+
+	return { url, contentType, language, label, kind, channels };
 
 	function audioTrackError(message) {
 		return `invalid audio track at index ${index}: ${message}`;
@@ -159,7 +168,8 @@ function sanitizeSubTrack(track, index = "unknown") {
 exports.sanitizeTextTrack = function(track, index = "unknown") {
 	track = sanitizeSubTrack(track,index);
 	const contentType = track.contentType;
-	//cytube spec allows for content type, but it's actually not a valid attribute for text tracks
+	//cytube spec allows for text track content type, but it's actually not a valid attribute for text tracks...we can do without, but users
+	//seeking cross compatibility can't.
 	if (typeof contentType !== "undefined" && (typeof contentType !== "string" || !exports.supportedTextTrackTypes.has(contentType))) {
 		throw new Error(
 			trackError(`unsupported track type, got "${contentType}" expected ${Array.from(exports.supportedTextTrackTypes).join(", ")}`),
@@ -178,8 +188,8 @@ exports.sanitizeBitmapTrack = function(track, index = "unknown") {
 		);
 	}
 
-	//for support of in-browser parsing of pgs and dvdsub bitmap subs, packaged as matroska.
-	//clientside library can actually auto-detect, but it feels dirty to rely on that
+	//for support of in-browser parsing of bitmap subs: pgs, dvdsub idx/sub bitmap subs, and dvdsubs packaged in matroska.
+	//clientside library can actually auto-detect, but it feels dirty to rely solely that
 	if ((typeof bitmapType !== "string" || !exports.supportedBitmapTrackFormats.has(bitmapType))) {
 		throw new Error(
 			trackError(`Unsupported bitmapTrack format, got "${bitmapType}" expected ${Array.from(exports.supportedBitmapTrackFormats).join(", ")}`),

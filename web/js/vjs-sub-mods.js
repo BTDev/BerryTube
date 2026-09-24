@@ -21,64 +21,46 @@ function getOrResetPrefs() {
 	}
 	return sublangPrefs;
 }
+
+function addCheckField(name, labelTxt, state, disabled) {
+  //videojs uses fieldsets for everything, so like, I guess we go with it...
+  const field = document.createElement('fieldset');
+  field.classList.add("vjs-track-settings",`vjs-sublang-fieldset-${name}`);
+  const label = document.createElement('label');
+  label.innerText = labelTxt;
+  label.htmlFor = `vjs-sublang-${name}`;
+	const input = document.createElement('input');
+  input.type = "checkbox";
+  input.checked = state;
+	if (typeof disabled == 'boolean')
+		input.disabled = disabled;
+  input.id = `vjs-sublang-${name}`;
+	field.appendChild(input);
+	field.appendChild(label);
+	return field;
+}
+
 function addSubtitlePrefs(vjs) {
 	const sublangPrefs = getOrResetPrefs();
   
 	const sublangCont = document.createElement('div');
   sublangCont.classList.add("vjs-track-settings-sublang");
-
-  //videojs uses fieldsets for everything, so like, I guess we go with it...
-  const sublangFieldsetUseLast = document.createElement('fieldset');
-  sublangFieldsetUseLast.classList.add("vjs-track-settings","vjs-sublang-fieldset-uselast");
-
-  const sublangUseLastLabel = document.createElement('label');
-  sublangUseLastLabel.innerText = "Use Last Picked Language";
-  sublangUseLastLabel.htmlFor = "vjs-sublang-uselast";
-
-  const sublangUseLast = document.createElement('input');
-  sublangUseLast.type = "checkbox";
 	//if simply unset, default to true;
-  sublangUseLast.checked = (sublangPrefs.useLast===false ? false : true);
-  sublangUseLast.id = "vjs-sublang-uselast";
-
-  sublangFieldsetUseLast.appendChild(sublangUseLast);
-  sublangFieldsetUseLast.appendChild(sublangUseLastLabel);
+  const sublangFieldsetUseLast = addCheckField("uselast",
+		"Use Last Picked Language", (sublangPrefs.useLast===false ? false : true),
+		false);
+  const sublangFieldsetEnable = addCheckField("enable",
+		"Prefer Specific Subtitles(if available)", (sublangPrefs.enable==true || false),
+		false);
+  const sublangFieldsetUseCC = addCheckField("usecc",
+		"Prefer SDH(Deaf) subs (if available)", sublangPrefs.useCC==true || false,
+	!sublangPrefs.enable);
   
-	const sublangFieldsetEnable = document.createElement('fieldset');
-  sublangFieldsetEnable.classList.add("vjs-track-settings","vjs-sublang-fieldset-enable");
-
-  const sublangEnableLabel = document.createElement('label');
-  sublangEnableLabel.innerText = "Prefer Specific Subtitles(if available)";
-  sublangEnableLabel.htmlFor = "vjs-sublang-enable";
-
-  const sublangEnable = document.createElement('input');
-  sublangEnable.type = "checkbox";
-  sublangEnable.checked = (sublangPrefs.enable==true || false);
-  sublangEnable.id = "vjs-sublang-enable";
-
-  sublangFieldsetEnable.appendChild(sublangEnable);
-  sublangFieldsetEnable.appendChild(sublangEnableLabel);
-
-  const sublangFieldsetUseCC = document.createElement('fieldset');
-  sublangFieldsetUseCC.classList.add("vjs-track-settings","vjs-sublang-fieldset-usecc");
-
-  const sublangUseCCLabel = document.createElement('label');
-  sublangUseCCLabel.innerText = "Prefer SDH(Deaf) subs (if available)";
-  sublangUseCCLabel.htmlFor = "vjs-sublang-usecc";
-
-  const sublangUseCC = document.createElement('input');
-  sublangUseCC.type = "checkbox";
-  sublangUseCC.checked = (sublangPrefs.useCC==true || false);
-	sublangUseCC.disabled = !sublangEnable.checked;
-  sublangUseCC.id = "vjs-sublang-usecc";
-
-  sublangFieldsetUseCC.appendChild(sublangUseCC);
-  sublangFieldsetUseCC.appendChild(sublangUseCCLabel);
-
   sublangCont.appendChild(sublangFieldsetUseLast);
   sublangCont.appendChild(sublangFieldsetEnable);
   sublangCont.appendChild(sublangFieldsetUseCC);
 
+	const prefs = [];
   for (let i = 0; i < 3; i++) {
     const sublangFieldsetPref = document.createElement('fieldset');
     sublangFieldsetPref.classList.add("vjs-track-settings","vjs-sublang-fieldset-pref");
@@ -86,31 +68,51 @@ function addSubtitlePrefs(vjs) {
     label.classList.add("vjs-sublang-label-pref");
     label.htmlFor = `vjs-sublang-pref${i}`;
     label.innerText = `Preference ${i+1}`;
-    const select = document.createElement("select");
-    select.id = `vjs-sublang-pref${i}`;
-		select.disabled = !sublangEnable.checked;
+    prefs.push(document.createElement("select"));
+    prefs[i].id = `vjs-sublang-pref${i}`;
+
     for (let l = 0; l < LANG_ARRAY.length; l++) {
       const option = document.createElement("option");
       option.innerText = LANG_ARRAY[l].lang;
       option.value = JSON.stringify(LANG_ARRAY[l]);
 
-      if ( (l == 0 && !sublangEnable.checked) ||
+      if ( (l == 0 && !sublangFieldsetEnable.firstChild.checked) ||
 					JSON.stringify(sublangPrefs[`pref${i}`]) == option.value) {
 				option.selected = true;
 			}
-			select.appendChild(option);
+			prefs[i].appendChild(option);
     }
-    sublangFieldsetPref.appendChild(select);
+		
+		prefs[i].disabled = !sublangFieldsetEnable.firstChild.checked ||
+			(i>0 && prefs[i-1].selectedIndex == 0);
+		//overly fancy select disabling
+		prefs[i].addEventListener('change', function(e) {
+			if (i<2) {
+				if (prefs[i].selectedIndex == 0) {
+					if (prefs[i+1].selectedIndex == 0)
+						prefs[i+1].disabled = true;
+					else {
+						prefs[i].selectedIndex = prefs[i+1].selectedIndex;
+						prefs[i+1].selectedIndex = 0;
+						prefs[i+1].disabled = false;
+					}
+				} else
+					prefs[i+1].disabled = false;
+				prefs[i+1].dispatchEvent(new Event("change"));
+			}
+		});
+    sublangFieldsetPref.appendChild(prefs[i]);
     sublangFieldsetPref.appendChild(label);
     sublangCont.appendChild(sublangFieldsetPref);
   }
-	sublangEnable.addEventListener('input',function(){
+	sublangFieldsetEnable.firstChild.addEventListener('input',function(){
 		document.getElementById('vjs-sublang-usecc').disabled = !this.checked;
-		document.getElementById('vjs-sublang-pref0').disabled = !this.checked;
-		document.getElementById('vjs-sublang-pref1').disabled = !this.checked;
-		document.getElementById('vjs-sublang-pref2').disabled = !this.checked;
+		for (let i = 0; i < 3; i++) {
+			prefs[i].disabled = !this.checked;
+		}
+		if (this.checked)
+			prefs[0].dispatchEvent(new Event("change"));
 	});
-
   vjs.textTrackSettings.contentEl_.insertBefore(sublangCont, vjs.textTrackSettings.contentEl_.lastChild);
 	vjs.textTrackSettings.on('modalclose',vjsSubPrefSettingsSave);
 }
@@ -136,9 +138,8 @@ function stringSimplify(str) {
 	return str?.normalize("NFD")?.replace(/[\u0300-\u036f]/g, "")?.replace(/[^a-zA-Z]/g,"")?.toLowerCase();
 }
 
-//compares two language identifier objects, either missing stuff
 //a spaghetti way of narrowing down to likely options
-//previously did some weighting, now just a filter w/ some redundancy
+//previously did some weighting, now just a filter w/ some redundant bits
 function trackMatchVal(track,ideal) {
 	const idealLang = stringSimplify(ideal?.lang);
 	const idealSrclang = ideal?.srclang?.toLowerCase() || ideal?.bcp47?.toLowerCase();
@@ -187,7 +188,11 @@ function updateChosenLang() {
 		return;
 	} else {
 		const {label, language, src} = activeTrack;
-		const manifestMatch = ACTIVE.meta.manifest.textTracks.find(t=>t.url==src);
+		const manifest = ACTIVE.meta.manifest;
+		const allTracks = (manifest.textTracks||[]).concat(manifest.bitmapTracks||[]);
+		//most accurate way to be sure if it's a "true" forced one, since we use "default"
+		//to set the starting track, sometimes different.
+		const manifestMatch = allTracks.find(t=>t.url==src);
 		//if a forced track is chosen, don't update last used
 		if (manifestMatch?.default === true) return;
 		const best = filterSortBestTracks(LANG_ARRAY,{srclang:language,lang:label});
@@ -205,7 +210,7 @@ function pickTextTrackIndex(tracks) {
 		return {i:i, isCC:(e.kind=="captions"), lang:e.name, srclang:e.srclang};
 	});
 
-	let lastMatches;
+	let lastMatches = [];
 	if (sublangPrefs.useLast && sublangPrefs.lastUsed) {
 		//sort by some matching/similar tags, then find the closest name
 		lastMatches = filterSortBestTracks(searchObjs,sublangPrefs.lastUsed);
@@ -239,9 +244,38 @@ function pickTextTrackIndex(tracks) {
 	}
 	let forcedTrackIndex = tracks.findIndex(e=>e.default);
 	if (forcedTrackIndex == -1) forcedTrackIndex = null;
-	if (finalIndex === null && Number.isInteger(forcedTrackIndex)) {
+	if (finalIndex === null && Number.isInteger(forcedTrackIndex))
 		finalIndex = forcedTrackIndex;//forced tracks are forced
-	}
 	return finalIndex;
 }	
 
+
+//icons for audio and sub menus. text/overlay sub icons, stereo/surround icons
+function makeIcon(icon) {
+  const iconEl = document.createElement('i');
+	iconEl.classList.add('icon',`icon-btplay-${icon}`,'menu-icon-right');
+	return iconEl;
+}
+
+//yes this adds to the audio menu....can split it off later.
+function addMenuIcons(vjs) {
+	const manifest = ACTIVE.meta.manifest;
+	const allTracks = (manifest.textTracks||[]).concat(manifest.bitmapTracks||[]);
+	vjs.controlBar.subsCapsButton.menu.$$('li:is(.vjs-subtitles-menu-item, .vjs-captions-menu-item)>.vjs-menu-item-text').forEach((e,i)=>{
+		if (allTracks[i]?.bitmapType) {
+			e.insertBefore(makeIcon('disc'),e.firstElementChild);
+		} else {
+			e.insertBefore(makeIcon('text'),e.firstElementChild);
+		}
+	});
+	vjs.controlBar.audioTrackButton.menu.$$('li.vjs-menu-item>.vjs-menu-item-text').forEach((e,i)=>{
+		console.log(e);
+		if (e.firstChild.textContent.match(/(5)\.(1|0)/i)) {
+			e.insertBefore(makeIcon('51'),e.firstElementChild);
+		} else if (e.firstChild.textContent.match(/(7)\.(1|0)/i)) {
+			e.insertBefore(makeIcon('71'),e.firstElementChild);
+		}	else if (e.firstChild.textContent.match(/(2 ?ch|2\.0|stereo)/i)){
+			e.insertBefore(makeIcon('stereo'),e.firstElementChild);
+		}
+	});
+}

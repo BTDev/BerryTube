@@ -525,8 +525,9 @@ window.PLAYERS.file = {
 		//bitmap sub implementation requires player to exist, so this is for later
 		const bitmapSubsToAdd = [];
 		
-		//videojs's use of <track> "default" attribute is bugged...so we activate it after load
-		//relying on the attribute randomly causes multiple tracks to be active at once >_>
+		//videojs's use of <track> "default" attribute is bugged...so we activate it after load.
+		//Relying on the attribute randomly causes multiple tracks to be active at once >_>
+		//It turns on multiple of a given language, say Eng and Eng(SDH), or multiple spanishes
 		let defaultSubToActivate = null;
 		let surroundToggle;
 
@@ -602,12 +603,18 @@ window.PLAYERS.file = {
 			}
 
 			//filter them to valid ones
+			//for cytube compatibility, we allow empty "kind", so we'll also replace
+			//empty "kind"s with "subtitles"
 			if (textTracks.length > 0)
 				textTracks = textTracks.filter((e)=>{
+					if (typeof e.kind == "undefined")
+						e.kind = "subtitles";
 					return e.kind=="captions"||e.kind=="subtitles";
 				});
 			if (bitmapTracks.length > 0)
 				bitmapTracks = bitmapTracks.filter((e)=>{
+					if (typeof e.kind == "undefined")
+						e.kind = "subtitles";
 					return e.kind=="captions"||e.kind=="subtitles";
 				});
 			//just so the track picker can evaluate the best option
@@ -622,6 +629,7 @@ window.PLAYERS.file = {
 					label: track.name,
 					srclang: track.srclang,
 				});
+				//see earlier note on "default" attribute vjs bug. Activates multiple tracks.
 				player.append(trackEl);
 			}
 			//inserting bitmap tracks as <track>s causes issues, but we still want to stick to using
@@ -673,7 +681,8 @@ window.PLAYERS.file = {
 			});
 		videoJsPlayer.textTrackSettings.options().pauseOnOpen = false;
 		videoJsPlayer.textTrackSettings.restoreSettings();
-		addSubtitlePrefs(videoJsPlayer);
+		
+		//a notice so folks will know why the styles only affect some subtitles.
 		const colorsPane = videoJsPlayer.textTrackSettings.contentEl_.firstChild;
 		const notice = document.createElement("span");
 		notice.innerText =
@@ -681,18 +690,18 @@ window.PLAYERS.file = {
 		colorsPane.insertBefore(notice, colorsPane.firstChild);
 
 		//a small seek resyncs video&audio when tracks are changed.
-		//otherwise audio may get out of sync. wait 1s for track to initialize 
+		//otherwise audio may get out of sync. wait 1.5s for track to initialize 
 		function resyncAudio(){
-			setTimeout(()=>{
-				videoJsPlayer.currentTime(videoJsPlayer.currentTime()+0.2);
-			},1000);
+			setTimeout(()=>{videoJsPlayer.currentTime(videoJsPlayer.currentTime()-0.3);},1500);
+			setTimeout(()=>{videoJsPlayer.currentTime(videoJsPlayer.currentTime()+0.5);},1700);
 		}
 
+		if (doBitmapSubs)
 		videoJsPlayer.textTracks().on('change',function(e){
 			const activeTrack = Array.from(this)?.find(e=>e.mode == "showing");
 			//dispose before creating a new one, or if turned off
 			if (PLAYERS.file?.bitsub)
-				try {PLAYERS.file?.bitsub.clear()}catch(e){console.log(e)};
+				try {PLAYERS.file?.bitsub.clear();}catch(e){console.log(e);};
 			//either captions were turned off, or a normal text track was selected.
 			if (activeTrack === undefined || activeTrack.src !== undefined) return;
 			//get the manifest index out of the id.
@@ -712,14 +721,15 @@ window.PLAYERS.file = {
 
 		videoJsPlayer.ready(function(){
 			bitmapSubsToAdd.forEach((s)=>{videoJsPlayer.addRemoteTextTrack(s, false);});//false=auto cleanup
-			//attaching on/after loadedmetadata; 'change' fires at start of load; avoid user pref overwrite
-			//without manually clicked. (other means were even more inelegant)
+			//'change' fires at start of load; any that follow are presumably initiated by the user
 			this.one("loadedmetadata", ()=>{
 				if (doAudioTracks) $('.vjs-audio-button .vjs-menu .vjs-menu-content').prepend(surroundToggle);
 				if (Number.isInteger(defaultSubToActivate))
 					this.textTracks()[defaultSubToActivate].mode = "showing";
-				this.textTracks().on('change', updateChosenLang);
-				this.audioTracks().on('change', resyncAudio); //a fix for audio desync on track change.
+				if (doTextTracks||doBitmapSubs) this.textTracks().on('change', updateChosenLang);
+				if (doAudioTracks) this.audioTracks().on('change', resyncAudio); //a fix for audio desync on track change.
+				addSubtitlePrefs(this);
+				addMenuIcons(this);
 			});
 
 			this.volume(volume);

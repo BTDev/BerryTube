@@ -15,8 +15,62 @@
 	background-color:rgba(43, 51, 63, 0.45);
 }
 .vjs-subs-caps-button.vjs-menu-button-popup .vjs-menu {
-	width:16em;
+	width:18em;
+	max-width:18em;
+}
+.vjs-menu-button-popup .vjs-menu .menu-icon-right{
+	float:right;
+}
+.vjs-audio-button.vjs-menu-button-popup .vjs-menu {
+	width:18em;
+}
+.vjs-subs-caps-button.vjs-menu-button-popup .vjs-menu .vjs-menu-content{
+	max-height:30em;
+}
+.vjs-audio-button.vjs-menu-button-popup .vjs-menu .vjs-menu-content{
+	max-height:30em;
 }
 .vjs-menu-button-popup,.vjs-menu-button-popup .vjs-menu,.vjs-menu-button-popup .vjs-menu .vjs-menu-content {
 	overscroll-behavior: contain;
+}
+.vjs-menu-button .vjs-menu li {text-transform:none}
+@font-face {
+  font-family: 'btplay';
+  src: 
+    url('./btplay.woff2') format('woff2');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+[class^="icon-btplay-"], [class*=" icon-btplay-"] {
+  font-family: 'btplay' !important;
+  speak: none;
+  font-style: normal;
+  font-weight: normal;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1;
+	font-size:1.5em;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-btplay-51::before {
+  content: "\e001";
+}
+.icon-btplay-71::before {
+  content: "\e002";
+}
+.icon-btplay-disc::before {
+  content: "\e003";
+}
+.icon-btplay-mono::before {
+  content: "\e004";
+}
+.icon-btplay-stereo::before {
+  content: "\e005";
+}
+.icon-btplay-text::before {
+  content: "\e006";
 }
