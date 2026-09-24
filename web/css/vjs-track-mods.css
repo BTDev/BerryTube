@@ -24,6 +24,9 @@
 .vjs-audio-button.vjs-menu-button-popup .vjs-menu {
 	width:18em;
 }
+.vjs-menu li {
+	padding: 0.2em 0.3em;
+}
 .vjs-subs-caps-button.vjs-menu-button-popup .vjs-menu .vjs-menu-content{
 	max-height:30em;
 }

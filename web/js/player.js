@@ -286,7 +286,7 @@ window.PLAYERS.vimeo = {
     this.PLAYER.loadVideo(id).then(()=>{
       //this didn't seem to work earlier in the process, stayed blue
       //complains about not enough contrast, looks fine to me.
-      this.PLAYER.setColor('C600AD').catch(()=>{});
+  this.PLAYER.setColor('C600AD').catch(()=>{});
       this.status.ready = true;
       //Loading takes a bit of time, adjust for this
       //may want to use an eventlistener like bufferfinish or whatever
@@ -536,7 +536,7 @@ window.PLAYERS.file = {
 			if (sourceCount > 1) {
 				const targetSource = pickSourceAtQuality(meta.manifest.sources, getUserQualityPreference());
 				for (const source of meta.manifest.sources) {
-					let $source = $("<source>", {
+					const $source = $("<source>", {
 						src: source.url,
 						type: source.contentType,
 						label: source.quality,
@@ -566,27 +566,22 @@ window.PLAYERS.file = {
 			let	bitmapTracks = meta.manifest.bitmapTracks||[];
 
 			//at some point probably better to spin off to the plugin
-			const useSurround = localStorage.audioPref == "surround";
-			surroundToggle = $(`
-				<li class="vjs-menu-item vjs-alternative-menu-item" role="menuitemradio" tabindex="-1">
-				<span class="vjs-menu-item-text">Prefer Surround:<br>
-				<input type="radio" id="prefstereo" name="chpref" value="stereo" ${!useSurround ? "checked" : ""}>
-				<label for="prefstereo">No</label>
-				<input type="radio" id="prefsurround" name="chpref" value="surround" ${useSurround ? "checked" : ""}>
-				<label for="prefsurround">Yes</label></span></li>`);
-			surroundToggle.find('input,label').on('click', function(e){
-				setTimeout(()=>{(e.target.control||e.target).checked = true;},10);//videojs blocks click without delay
-				localStorage.audioPref = (e.target.control||e.target)?.value || localStorage.audioPref;
-			});
+			const useSurround = localStorage.audioPref === "surround";
 
 			if (audioTracks.length > 0) {
 				//non-english main tracks are presumably rare enough to skip a language preference menu for audio.
 				const mainTrack = audioTracks.find(t=>t.kind?.toLowerCase() == "main");
 				const engTracks = audioTracks.filter(t=>t.language.match(/^en/i));
-				const engSurroundTracks = engTracks.filter(t=>t.label.match(/((5|7)\.(1|0)|surr|srnd)/i));
-				const engStereoTracks = engTracks.filter(t=>t.label.match(/(2 ?ch|2\.0|stereo)/i));
-				const surroundTracks = audioTracks.filter(t=>t.label.match(/((5|7)\.(1|0)|surr|srnd)/i));
-				const stereoTracks = audioTracks.filter(t=>t.label.match(/(2 ?ch|2\.0|stereo)/i));
+				function surroundFilter(t) {
+					return t.label.match(/((5|7)\.(1|0)|surr|srnd)/i) || t?.channels > 3; //6=5.1, 8=7.1 etc
+				}
+				function stereoFilter(t) {
+					return t.label.match(/(2 ?ch|2\.(1|0)|stereo)/i) || t?.channels <= 3; //3 = presumably 2.1, 2=2.0, etc;
+				}
+				const engSurroundTracks = engTracks.filter(surroundFilter);
+				const engStereoTracks = engTracks.filter(stereoFilter);
+				const surroundTracks = audioTracks.filter(surroundFilter);
+				const stereoTracks = audioTracks.filter(stereoFilter);
 
 				let defaultAudio;
 				//prefer the preference(in english), then, if no english, the "main" track,
@@ -599,11 +594,14 @@ window.PLAYERS.file = {
 					defaultAudio = engStereoTracks[0] || engSurroundTracks[0] ||
 						mainTrack || stereoTracks[0] || surroundTracks[0] || audioTracks[0];
 				}
-				defaultAudio.enabled = true;
+				//turn off any other enabled ones, in case of weird presets
+				audioTracks.forEach((at,i,arr)=>{
+					arr[i].enabled = (defaultAudio === at);
+				});
 			}
 
 			//filter them to valid ones
-			//for cytube compatibility, we allow empty "kind", so we'll also replace
+			//for cytube cross-compatibility, we allow empty "kind", so we'll also replace
 			//empty "kind"s with "subtitles"
 			if (textTracks.length > 0)
 				textTracks = textTracks.filter((e)=>{
@@ -629,7 +627,7 @@ window.PLAYERS.file = {
 					label: track.name,
 					srclang: track.srclang,
 				});
-				//see earlier note on "default" attribute vjs bug. Activates multiple tracks.
+				//see earlier note on "default" attribute vjs bug. Sometiems activates multiple tracks.
 				player.append(trackEl);
 			}
 			//inserting bitmap tracks as <track>s causes issues, but we still want to stick to using
@@ -670,6 +668,7 @@ window.PLAYERS.file = {
 
 		window.videoJsPlayer = videojs("vjs_player", vjsSettings);
 		this.bitsub = videoJsPlayer.bitsub();
+		addExtraControls(videoJsPlayer, doAudioTracks, doTextTracks, doBitmapSubs);
 	
 		//set defaults if no preferences saved
 		if (!localStorage.getItem('vjs-text-track-settings'))
@@ -682,53 +681,47 @@ window.PLAYERS.file = {
 		videoJsPlayer.textTrackSettings.options().pauseOnOpen = false;
 		videoJsPlayer.textTrackSettings.restoreSettings();
 
-		//a small seek resyncs video&audio when tracks are changed.
-		//otherwise audio may get out of sync. wait 1.5s for track to initialize 
-		function resyncAudio(){
-			setTimeout(()=>{videoJsPlayer.currentTime(videoJsPlayer.currentTime()-0.3);},1500);
-			setTimeout(()=>{videoJsPlayer.currentTime(videoJsPlayer.currentTime()+0.5);},1700);
+		if (doBitmapSubs) {
+			videoJsPlayer.textTracks().on('change',function(e){
+				const activeTrack = Array.from(this)?.find(e=>e.mode == "showing");
+				//dispose before creating a new one, or if turned off
+				if (PLAYERS.file?.bitsub)
+					try {PLAYERS.file?.bitsub.clear();}catch(e){console.log(e);};
+				//either captions were turned off, or a normal text track was selected.
+				if (activeTrack === undefined || activeTrack.src !== undefined) return;
+				//get the manifest index out of the id.
+				const bmpIndex = parseInt(activeTrack.id.replace(/\D/g,""));
+				if (!Number.isInteger(bmpIndex)) {
+					console.error("Couldn't get bitmap track index??");
+					return;
+				}
+				const bitmapSub = meta.manifest?.bitmapTracks[bmpIndex];
+				if (!bitmapSub) {
+					console.error("no bitmapSub");
+					return;
+				}
+				const bitsubProps = { subUrl: bitmapSub.url, idxUrl: bitmapSub?.idxUrl};
+				PLAYERS.file.bitsub.load(bitsubProps);
+			});
 		}
 
-		if (doBitmapSubs)
-		videoJsPlayer.textTracks().on('change',function(e){
-			const activeTrack = Array.from(this)?.find(e=>e.mode == "showing");
-			//dispose before creating a new one, or if turned off
-			if (PLAYERS.file?.bitsub)
-				try {PLAYERS.file?.bitsub.clear();}catch(e){console.log(e);};
-			//either captions were turned off, or a normal text track was selected.
-			if (activeTrack === undefined || activeTrack.src !== undefined) return;
-			//get the manifest index out of the id.
-			const bmpIndex = parseInt(activeTrack.id.replace(/\D/g,""));
-			if (!Number.isInteger(bmpIndex)) {
-				console.error("Couldn't get bitmap track index??");
-				return;
-			}
-			const bitmapSub = meta.manifest?.bitmapTracks[bmpIndex];
-			if (!bitmapSub) {
-				console.error("no bitmapSub");
-				return;
-			}
-			const bitsubProps = { subUrl: bitmapSub.url, idxUrl: bitmapSub?.idxUrl};
-			PLAYERS.file.bitsub.load(bitsubProps);
-		});
-
 		videoJsPlayer.ready(function(){
-			bitmapSubsToAdd.forEach((s)=>{videoJsPlayer.addRemoteTextTrack(s, false);});//false=auto cleanup
-			//'change' fires at start of load; any that follow are presumably initiated by the user
+			bitmapSubsToAdd.forEach((s)=>{
+				//false=auto cleanup
+				const trackEl = videoJsPlayer.addRemoteTextTrack(s, false);
+				//tags these for later styling
+				trackEl.track.bitmap = true;
+			});
 			this.one("loadedmetadata", ()=>{
-				if (doAudioTracks) $('.vjs-audio-button .vjs-menu .vjs-menu-content').prepend(surroundToggle);
 				if (Number.isInteger(defaultSubToActivate))
 					this.textTracks()[defaultSubToActivate].mode = "showing";
-				if (doTextTracks||doBitmapSubs) this.textTracks().on('change', updateChosenLang);
-				if (doAudioTracks) this.audioTracks().on('change', resyncAudio); //a fix for audio desync on track change.
-				addSubtitlePrefs(this);
-				addMenuIcons(this);
 			});
 
 			this.volume(volume);
 
-            this.on("volumechange",function(){
-                window.volume.set(this.volume());
+			this.on("volumechange",function(){
+				//when muted, volume stays the same, but event still fires.
+				window.volume.set(this.muted()?0.0:this.volume());
 			});
 
             this.on("seeked",function(){
@@ -738,8 +731,6 @@ window.PLAYERS.file = {
 			this.on("qualitySelected", (e, { label }) => {
 				setUserQualityPreference(parseInt(label));
 			});
-
-
 		});
 
 		videoJsPlayer.controlBar.addChild("QualitySelector");

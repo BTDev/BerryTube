@@ -4,6 +4,14 @@
 //It's a bit overkill, however this is in part because various "independent" video file sources
 //have a LOT of odd variations in their subtitle schemes. Felt it prudent to accomodate _some_
 //of that, rather than put the burden entirely on folks doing the (re)encoding.
+
+//initially this was dedicated just to subtitle matters, but in order slim down the additions
+//in PLAYERS, I've moved in various audio-track bits, just to keep PLAYERS.file a bit smaller
+
+//Ideal plan is to have all of this be independent of the manifests, and leave manifest logic
+//to PLAYERS, but not 100% there yet.
+
+
 const SLPREF_DEFAULT = {
 	useLast: true,
 	lastUsed: null,
@@ -26,20 +34,10 @@ function getOrResetPrefs() {
 //for adding check fields
 function addCheckField(name, labelTxt, state, disabled) {
   //videojs uses fieldsets for everything, so like, I guess we go with it...
-  const field = document.createElement('fieldset');
-  field.classList.add("vjs-track-settings",`vjs-sublang-fieldset-${name}`);
-  const label = document.createElement('label');
-  label.innerText = labelTxt;
-  label.htmlFor = `vjs-sublang-${name}`;
-	const input = document.createElement('input');
-  input.type = "checkbox";
-  input.checked = state;
-	if (typeof disabled == 'boolean')
-		input.disabled = disabled;
-  input.id = `vjs-sublang-${name}`;
-	field.appendChild(input);
-	field.appendChild(label);
-	return field;
+	return document.createRange().createContextualFragment(`<fieldset class="vjs-track-settings vjs-sublang-fieldset-${name}">\
+<input type="checkbox" id="vjs-sublang-${name}" ${state?"checked":""} ${disabled?"disabled":""}>\
+<label for="vjs-sublang-${name}">${labelTxt}</label>\
+</fieldset>`).firstChild;
 }
 
 //add the subtitle language preferences to VJS's existing caption config menu
@@ -61,10 +59,10 @@ function addSubtitlePrefs(vjs) {
 		"Use Last Picked Language", (sublangPrefs.useLast===false ? false : true),
 		false);
   const sublangFieldsetEnable = addCheckField("enable",
-		"Prefer Specific Subtitles(if available)", (sublangPrefs.enable==true || false),
+		"Prefer Specific Subtitles(if available)", !!sublangPrefs.enable,
 		false);
   const sublangFieldsetUseCC = addCheckField("usecc",
-		"Prefer SDH(Deaf) subs (if available)", sublangPrefs.useCC==true || false,
+		"Prefer SDH(Deaf) subs (if available)", !!sublangPrefs.useCC,
 	!sublangPrefs.enable);
   
   sublangCont.appendChild(sublangFieldsetUseLast);
@@ -268,25 +266,72 @@ function makeIcon(icon) {
 	return iconEl;
 }
 
-//yes this adds to the audio menu....can split it off later.
+//inserts from friendly icons to indicate the nature of various tracks
+//utilizes the manifests, because it's difficult to pass arbitrary data on to the menu items
+//note: found a solution for doing so with text tracks. Doing same for audio tracks
+//will require reworking of the audio track switcher.
 function addMenuIcons(vjs) {
 	const manifest = ACTIVE.meta.manifest;
-	const allTracks = (manifest.textTracks||[]).concat(manifest.bitmapTracks||[]);
-	vjs.controlBar.subsCapsButton.menu.$$('li:is(.vjs-subtitles-menu-item, .vjs-captions-menu-item)>.vjs-menu-item-text').forEach((e,i)=>{
-		if (allTracks[i]?.bitmapType) {
-			e.insertBefore(makeIcon('disc'),e.firstElementChild);
-		} else {
-			e.insertBefore(makeIcon('text'),e.firstElementChild);
-		}
+	vjs.controlBar.subsCapsButton.menu.children().filter((c)=>c.constructor.name == "SubsCapsMenuItem").forEach(sc=>{
+		const isBitmap = !!sc.options().track?.bitmap;
+		sc.el().insertBefore(makeIcon(isBitmap?'disc':'text'),sc.el().firstElementChild);
 	});
-	vjs.controlBar.audioTrackButton.menu.$$('li.vjs-menu-item>.vjs-menu-item-text').forEach((e,i)=>{
-		console.log(e);
-		if (e.firstChild.textContent.match(/(5)\.(1|0)/i)) {
-			e.insertBefore(makeIcon('51'),e.firstElementChild);
-		} else if (e.firstChild.textContent.match(/(7)\.(1|0)/i)) {
-			e.insertBefore(makeIcon('71'),e.firstElementChild);
-		}	else if (e.firstChild.textContent.match(/(2 ?ch|2\.0|stereo)/i)){
-			e.insertBefore(makeIcon('stereo'),e.firstElementChild);
+
+	const allAudioTracks = manifest.audioTracks;
+	vjs.controlBar.audioTrackButton.menu.children().forEach((e,i)=>{
+		const menuName = e.options_.track.label;
+		const menuLang = e.options_.track.language;
+		const manifestMatch = allAudioTracks.find((t)=>t.label==menuName && t.language == menuLang);
+		const mfstChans = manifestMatch?.channels;
+		if (mfstChans == 7 || mfstChans == 8 || menuName.match(/(7)\.(1|0)/i)) {
+			e.el_.insertBefore(makeIcon('71'),e.firstElementChild);
+		} else if (mfstChans == 5 || mfstChans == 6 || menuName.match(/(5\.(1|0)|surr)/i)) {
+			e.el_.insertBefore(makeIcon('51'),e.firstElementChild);
+		} else if (mfstChans == 2 || mfstChans ==2 || menuName.match(/(2 ?ch|2\.0|stereo)/i)) {
+			e.el_.insertBefore(makeIcon('stereo'),e.firstElementChild);
 		}
 	});
 }
+
+//a small seek resyncs video&audio when tracks are changed.
+//otherwise audio may get out of sync. wait 1.5s for track to initialize 
+function resyncAudio(){
+	setTimeout(()=>{videoJsPlayer.currentTime(videoJsPlayer.currentTime()-0.3);},1500);
+	setTimeout(()=>{videoJsPlayer.currentTime(videoJsPlayer.currentTime()+0.5);},1700);
+}
+
+function createSurroundControl(vjs) {
+	const useSurround = localStorage.audioPref == "surround";
+	const surroundToggle = document.createRange().createContextualFragment(`
+		<li class="vjs-menu-item vjs-alternative-menu-item" role="menuitemradio" tabindex="-1">
+		<span class="vjs-menu-item-text">Prefer Surround:<br>
+		<input type="radio" id="prefstereo" name="chpref" value="stereo" ${!useSurround ? "checked" : ""}>
+		<label for="prefstereo">No</label>
+		<input type="radio" id="prefsurround" name="chpref" value="surround" ${useSurround ? "checked" : ""}>
+		<label for="prefsurround">Yes</label></span></li>`);
+	surroundToggle.querySelectorAll("input,label").forEach(t=>t.addEventListener("click",e=>{
+		setTimeout(()=>{(e.target.control||e.target).checked = true;},10);//videojs blocks click without delay
+		localStorage.audioPref = (e.target.control || e.target)?.value || localStorage.audioPref;
+	}));
+	return surroundToggle;
+}
+
+function addExtraControls(vjs, doAudioTracks, doTextTracks, doBitmapSubs) {
+	vjs.ready(function(){
+		this.one("loadedmetadata", ()=>{
+			//'change' fires at start of load; any that follow are presumably initiated by the user
+			if (doAudioTracks) {
+				surroundControl = createSurroundControl();
+				vjs.controlBar.audioTrackButton.menu.contentEl().prepend(surroundControl);
+				this.audioTracks().on('change', resyncAudio);
+			}
+			if(doTextTracks || doBitmapSubs) {
+				addSubtitlePrefs(vjs);
+				this.textTracks().on('change', updateChosenLang);
+			}
+			if(doBitmapSubs || doTextTracks || doBitmapSubs)
+				addMenuIcons(vjs);
+		});
+	});
+}
+
