@@ -1,0 +1,108 @@
+.vjs-text-track-settings {
+  .vjs-modal-dialog-content {
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+  .vjs-track-settings-sublang {
+    display: table-cell;
+  }
+  .vjs-track-settings-sublang input[type="checkbox"]:disabled + label,
+  .vjs-track-settings-sublang select:disabled + legend {
+    opacity: 0.6;
+  }
+}
+.vjs-text-track-settings .vjs-modal-dialog-content,
+.vjs-menu-content {
+  backdrop-filter: blur(3px);
+}
+.vjs-modal-dialog.vjs-text-track-settings {
+  background-color: rgba(43, 51, 63, 0.45);
+}
+.vjs-menu-button-popup {
+  & .vjs-menu {
+    z-index: 11;
+  }
+  &,
+  & .vjs-menu,
+  & .vjs-menu .vjs-menu-content {
+    overscroll-behavior: contain;
+  }
+  & .vjs-menu .menu-icon-right {
+    float: right;
+  }
+  .vjs-subs-caps-button& .vjs-menu {
+    width: 18em;
+    max-width: 18em;
+  }
+}
+/*IMHO the buttons don't indicate well enough which exactly is being hovered over*/
+.vjs-menu-button-popup:hover > .vjs-menu-button > .vjs-icon-placeholder::before,
+.vjs-button:hover > .vjs-icon-placeholder::before {
+  text-shadow: 0 0 4px rgb(255, 255, 255, 0.85);
+}
+.vjs-button:hover {
+  background-color: rgb(255, 255, 255, 0.06);
+}
+/*even/odd striping, to make multiline items easier to distinguish*/
+.vjs-menu-content
+  > .vjs-menu-item:nth-child(even):not(.vjs-selected):not(:hover) {
+  background-color: rgb(0, 0, 0, 0.1);
+}
+.vjs-menu li {
+  padding: 0.2em 0.3em;
+}
+.vjs-subs-caps-button.vjs-menu-button-popup .vjs-menu .vjs-menu-content {
+  max-height: 30em;
+}
+.vjs-audio-button.vjs-menu-button-popup {
+  .vjs-menu .vjs-menu-content {
+    max-height: 30em;
+  }
+  .vjs-menu {
+    width: 18em;
+  }
+}
+.vjs-menu-button .vjs-menu li {
+  text-transform: none;
+}
+@font-face {
+  font-family: "vjs-track-icons";
+  src: url("./vjs-track-icons.woff2") format("woff2"),
+    url("./vjs-track-icons.woff") format("woff"),
+    url("./vjs-track-icons.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+[class^="icon-vjs-track-icons-"],
+[class*=" icon-vjs-track-icons-"] {
+  font-family: "vjs-track-icons" !important;
+  font-style: normal;
+  font-weight: normal;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1;
+  font-size: 1.5em;
+  vertical-align: middle;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-vjs-track-icons-51::before {
+  content: "\e001";
+}
+.icon-vjs-track-icons-71::before {
+  content: "\e002";
+}
+.icon-vjs-track-icons-disc::before {
+  content: "\e003";
+}
+.icon-vjs-track-icons-mono::before {
+  content: "\e004";
+}
+.icon-vjs-track-icons-stereo::before {
+  content: "\e005";
+}
+.icon-vjs-track-icons-text::before {
+  content: "\e006";
+}

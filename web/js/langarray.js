@@ -1,0 +1,400 @@
+//an exhaustive list of almost all standard language identifiers
+//with iso639-1, 639-2, and bcp47/RFC 5646 codes, and associated names
+//provides objects for finding close matches
+//list generated with some references fed into chatgpt
+const LANG_ARRAY=
+[
+	{"lang":"None","iso1":null,"iso2":null,"bcp47":null},
+	{"lang":"English","iso1":"en","iso2":"eng","bcp47":"en"},
+	{"lang":"Spanish","iso1":"es","iso2":"spa","bcp47":"es"},
+	{"lang":"French","iso1":"fr","iso2":"fre","bcp47":"fr"},
+	{"lang":"German","iso1":"de","iso2":"ger","bcp47":"de"},
+	{"lang":"Portuguese","iso1":"pt","iso2":"por","bcp47":"pt"},
+	{"lang":"Italian","iso1":"it","iso2":"ita","bcp47":"it"},
+	{"lang":"Japanese","iso1":"ja","iso2":"jpn","bcp47":"ja"},
+	{"lang":"Korean","iso1":"ko","iso2":"kor","bcp47":"ko"},
+	{"lang":"Chinese","iso1":"zh","iso2":"chi","bcp47":"zh"},
+	{"lang":"Chinese (Simplified)","iso1":"zh","iso2":"chi","bcp47":"zh-Hans"},
+	{"lang":"Chinese (Traditional)","iso1":"zh","iso2":"chi","bcp47":"zh-Hant"},
+	{"lang":"Arabic","iso1":"ar","iso2":"ara","bcp47":"ar"},
+	{"lang":"Russian","iso1":"ru","iso2":"rus","bcp47":"ru"},
+	{"lang":"Dutch","iso1":"nl","iso2":"dut","bcp47":"nl"},
+	{"lang":"Dutch (Belgium)","iso1":"nl","iso2":"dut","bcp47":"nl-BE"},
+	{"lang":"Polish","iso1":"pl","iso2":"pol","bcp47":"pl"},
+	{"lang":"Turkish","iso1":"tr","iso2":"tur","bcp47":"tr"},
+	{"lang":"Hindi","iso1":"hi","iso2":"hin","bcp47":"hi"},
+	{"lang":"Swedish","iso1":"sv","iso2":"swe","bcp47":"sv"},
+	{"lang":"Danish","iso1":"da","iso2":"dan","bcp47":"da"},
+	{"lang":"Norwegian","iso1":"no","iso2":"nor","bcp47":"no"},
+	{"lang":"Finnish","iso1":"fi","iso2":"fin","bcp47":"fi"},
+	{"lang":"Czech","iso1":"cs","iso2":"cze","bcp47":"cs"},
+	{"lang":"Abkhazian","iso1":"ab","iso2":"abk","bcp47":"ab"},
+	{"lang":"Afar","iso1":"aa","iso2":"aar","bcp47":"aa"},
+	{"lang":"Afrikaans","iso1":"af","iso2":"afr","bcp47":"af"},
+	{"lang":"Akan","iso1":"ak","iso2":"aka","bcp47":"ak"},
+	{"lang":"Albanian","iso1":"sq","iso2":"alb","bcp47":"sq"},
+	{"lang":"Amharic","iso1":"am","iso2":"amh","bcp47":"am"},
+	{"lang":"Arabic (Saudi Arabia)","iso1":"ar","iso2":"ara","bcp47":"ar-SA"},
+	{"lang":"Arabic (Syria)","iso1":"ar","iso2":"ara","bcp47":"ar-SY"},
+	{"lang":"Arabic (United Arab Emirates)","iso1":"ar","iso2":"ara","bcp47":"ar-AE"},
+	{"lang":"Arabic (Yemen)","iso1":"ar","iso2":"ara","bcp47":"ar-YE"},
+	{"lang":"Aragonese","iso1":"an","iso2":"arg","bcp47":"an"},
+	{"lang":"Armenian","iso1":"hy","iso2":"arm","bcp47":"hy"},
+	{"lang":"Assamese","iso1":"as","iso2":"asm","bcp47":"as"},
+	{"lang":"Avaric","iso1":"av","iso2":"ava","bcp47":"av"},
+	{"lang":"Avestan","iso1":"ae","iso2":"ave","bcp47":"ae"},
+	{"lang":"Aymara","iso1":"ay","iso2":"aym","bcp47":"ay"},
+	{"lang":"Azerbaijani","iso1":"az","iso2":"aze","bcp47":"az"},
+	{"lang":"Bambara","iso1":"bm","iso2":"bam","bcp47":"bm"},
+	{"lang":"Bashkir","iso1":"ba","iso2":"bak","bcp47":"ba"},
+	{"lang":"Basque","iso1":"eu","iso2":"baq","bcp47":"eu"},
+	{"lang":"Belarusian","iso1":"be","iso2":"bel","bcp47":"be"},
+	{"lang":"Bengali","iso1":"bn","iso2":"ben","bcp47":"bn"},
+	{"lang":"Bengali (India)","iso1":"bn","iso2":"ben","bcp47":"bn-IN"},
+	{"lang":"Bislama","iso1":"bi","iso2":"bis","bcp47":"bi"},
+	{"lang":"Bosnian","iso1":"bs","iso2":"bos","bcp47":"bs"},
+	{"lang":"Breton","iso1":"br","iso2":"bre","bcp47":"br"},
+	{"lang":"Breton (France)","iso1":"br","iso2":"bre","bcp47":"br-FR"},
+	{"lang":"Bulgarian","iso1":"bg","iso2":"bul","bcp47":"bg"},
+	{"lang":"Burmese","iso1":"my","iso2":"bur","bcp47":"my"},
+	{"lang":"Catalan","iso1":"ca","iso2":"cat","bcp47":"ca"},
+	{"lang":"Catalan (Spain)","iso1":"ca","iso2":"cat","bcp47":"ca-ES"},
+	{"lang":"Central Khmer","iso1":"km","iso2":"khm","bcp47":"km"},
+	{"lang":"Chamorro","iso1":"ch","iso2":"cha","bcp47":"ch"},
+	{"lang":"Chechen","iso1":"ce","iso2":"che","bcp47":"ce"},
+	{"lang":"Church Slavic","iso1":"cu","iso2":"chu","bcp47":"cu"},
+	{"lang":"Chuvash","iso1":"cv","iso2":"chv","bcp47":"cv"},
+	{"lang":"Cornish","iso1":"kw","iso2":"cor","bcp47":"kw"},
+	{"lang":"Corsican","iso1":"co","iso2":"cos","bcp47":"co"},
+	{"lang":"Corsican (France)","iso1":"co","iso2":"cos","bcp47":"co-FR"},
+	{"lang":"Cree","iso1":"cr","iso2":"cre","bcp47":"cr"},
+	{"lang":"Croatian","iso1":"hr","iso2":"hrv","bcp47":"hr"},
+	{"lang":"Croatian (Bosnia & Herzegovina)","iso1":"hr","iso2":"hrv","bcp47":"hr-BA"},
+	{"lang":"Dhivehi","iso1":"dv","iso2":"div","bcp47":"dv"},
+	{"lang":"Dzongkha","iso1":"dz","iso2":"dzo","bcp47":"dz"},
+	{"lang":"English (Australia)","iso1":"en","iso2":"eng","bcp47":"en-AU"},
+	{"lang":"English (Belize)","iso1":"en","iso2":"eng","bcp47":"en-BZ"},
+	{"lang":"English (Canada)","iso1":"en","iso2":"eng","bcp47":"en-CA"},
+	{"lang":"English (Caribbean)","iso1":"en","iso2":"eng","bcp47":"en-029"},
+	{"lang":"English (Hong Kong SAR China)","iso1":"en","iso2":"eng","bcp47":"en-HK"},
+	{"lang":"English (India)","iso1":"en","iso2":"eng","bcp47":"en-IN"},
+	{"lang":"English (Indonesia)","iso1":"en","iso2":"eng","bcp47":"en-ID"},
+	{"lang":"English (Ireland)","iso1":"en","iso2":"eng","bcp47":"en-IE"},
+	{"lang":"English (Jamaica)","iso1":"en","iso2":"eng","bcp47":"en-JM"},
+	{"lang":"English (Malaysia)","iso1":"en","iso2":"eng","bcp47":"en-MY"},
+	{"lang":"English (New Zealand)","iso1":"en","iso2":"eng","bcp47":"en-NZ"},
+	{"lang":"English (Philippines)","iso1":"en","iso2":"eng","bcp47":"en-PH"},
+	{"lang":"English (Singapore)","iso1":"en","iso2":"eng","bcp47":"en-SG"},
+	{"lang":"English (South Africa)","iso1":"en","iso2":"eng","bcp47":"en-ZA"},
+	{"lang":"English (Sweden)","iso1":"en","iso2":"eng","bcp47":"en-SE"},
+	{"lang":"English (Trinidad & Tobago)","iso1":"en","iso2":"eng","bcp47":"en-TT"},
+	{"lang":"English (United Arab Emirates)","iso1":"en","iso2":"eng","bcp47":"en-AE"},
+	{"lang":"English (United Kingdom)","iso1":"en","iso2":"eng","bcp47":"en-GB"},
+	{"lang":"English (United States)","iso1":"en","iso2":"eng","bcp47":"en-US"},
+	{"lang":"English (Zimbabwe)","iso1":"en","iso2":"eng","bcp47":"en-ZW"},
+	{"lang":"Esperanto","iso1":"eo","iso2":"epo","bcp47":"eo"},
+	{"lang":"Estonian","iso1":"et","iso2":"est","bcp47":"et"},
+	{"lang":"Ewe","iso1":"ee","iso2":"ewe","bcp47":"ee"},
+	{"lang":"Faroese","iso1":"fo","iso2":"fao","bcp47":"fo"},
+	{"lang":"Fijian","iso1":"fj","iso2":"fij","bcp47":"fj"},
+	{"lang":"French (Belgium)","iso1":"fr","iso2":"fre","bcp47":"fr-BE"},
+	{"lang":"French (Canada)","iso1":"fr","iso2":"fre","bcp47":"fr-CA"},
+	{"lang":"French (Cameroon)","iso1":"fr","iso2":"fre","bcp47":"fr-CM"},
+	{"lang":"French (Caribbean)","iso1":"fr","iso2":"fre","bcp47":"fr-029"},
+	{"lang":"French (Congo - Kinshasa)","iso1":"fr","iso2":"fre","bcp47":"fr-CD"},
+	{"lang":"French (Côte d’Ivoire)","iso1":"fr","iso2":"fre","bcp47":"fr-CI"},
+	{"lang":"French (Haiti)","iso1":"fr","iso2":"fre","bcp47":"fr-HT"},
+	{"lang":"French (Luxembourg)","iso1":"fr","iso2":"fre","bcp47":"fr-LU"},
+	{"lang":"French (Mali)","iso1":"fr","iso2":"fre","bcp47":"fr-ML"},
+	{"lang":"French (Monaco)","iso1":"fr","iso2":"fre","bcp47":"fr-MC"},
+	{"lang":"French (Morocco)","iso1":"fr","iso2":"fre","bcp47":"fr-MA"},
+	{"lang":"French (Réunion)","iso1":"fr","iso2":"fre","bcp47":"fr-RE"},
+	{"lang":"French (Senegal)","iso1":"fr","iso2":"fre","bcp47":"fr-SN"},
+	{"lang":"French (Switzerland)","iso1":"fr","iso2":"fre","bcp47":"fr-CH"},
+	{"lang":"Fulah","iso1":"ff","iso2":"ful","bcp47":"ff"},
+	{"lang":"Fulah (Nigeria)","iso1":"ff","iso2":"ful","bcp47":"ff-NG"},
+	{"lang":"Galician","iso1":"gl","iso2":"glg","bcp47":"gl"},
+	{"lang":"Ganda","iso1":"lg","iso2":"lug","bcp47":"lg"},
+	{"lang":"Georgian","iso1":"ka","iso2":"geo","bcp47":"ka"},
+	{"lang":"German (Austria)","iso1":"de","iso2":"ger","bcp47":"de-AT"},
+	{"lang":"German (Liechtenstein)","iso1":"de","iso2":"ger","bcp47":"de-LI"},
+	{"lang":"German (Luxembourg)","iso1":"de","iso2":"ger","bcp47":"de-LU"},
+	{"lang":"German (Switzerland)","iso1":"de","iso2":"ger","bcp47":"de-CH"},
+	{"lang":"Greek","iso1":"el","iso2":"gre","bcp47":"el"},
+	{"lang":"Guarani","iso1":"gn","iso2":"grn","bcp47":"gn"},
+	{"lang":"Gujarati","iso1":"gu","iso2":"guj","bcp47":"gu"},
+	{"lang":"Haitian","iso1":"ht","iso2":"hat","bcp47":"ht"},
+	{"lang":"Hausa","iso1":"ha","iso2":"hau","bcp47":"ha"},
+	{"lang":"Hebrew","iso1":"he","iso2":"heb","bcp47":"he"},
+	{"lang":"Herero","iso1":"hz","iso2":"her","bcp47":"hz"},
+	{"lang":"Hiri Motu","iso1":"ho","iso2":"hmo","bcp47":"ho"},
+	{"lang":"Hungarian","iso1":"hu","iso2":"hun","bcp47":"hu"},
+	{"lang":"Icelandic","iso1":"is","iso2":"ice","bcp47":"is"},
+	{"lang":"Ido","iso1":"io","iso2":"ido","bcp47":"io"},
+	{"lang":"Igbo","iso1":"ig","iso2":"ibo","bcp47":"ig"},
+	{"lang":"Indonesian","iso1":"id","iso2":"ind","bcp47":"id"},
+	{"lang":"Interlingua (IALA)","iso1":"ia","iso2":"ina","bcp47":"ia"},
+	{"lang":"Interlingue","iso1":"ie","iso2":"ile","bcp47":"ie"},
+	{"lang":"Inuktitut","iso1":"iu","iso2":"iku","bcp47":"iu"},
+	{"lang":"Inupiaq","iso1":"ik","iso2":"ipk","bcp47":"ik"},
+	{"lang":"Irish","iso1":"ga","iso2":"gle","bcp47":"ga"},
+	{"lang":"Italian (Switzerland)","iso1":"it","iso2":"ita","bcp47":"it-CH"},
+	{"lang":"Javanese","iso1":"jv","iso2":"jav","bcp47":"jv"},
+	{"lang":"Kalaallisut","iso1":"kl","iso2":"kal","bcp47":"kl"},
+	{"lang":"Kannada","iso1":"kn","iso2":"kan","bcp47":"kn"},
+	{"lang":"Kanuri","iso1":"kr","iso2":"kau","bcp47":"kr"},
+	{"lang":"Kanuri (Nigeria)","iso1":"kr","iso2":"kau","bcp47":"kr-NG"},
+	{"lang":"Kashmiri","iso1":"ks","iso2":"kas","bcp47":"ks"},
+	{"lang":"Kazakh","iso1":"kk","iso2":"kaz","bcp47":"kk"},
+	{"lang":"Kikuyu","iso1":"ki","iso2":"kik","bcp47":"ki"},
+	{"lang":"Kinyarwanda","iso1":"rw","iso2":"kin","bcp47":"rw"},
+	{"lang":"Kirghiz","iso1":"ky","iso2":"kir","bcp47":"ky"},
+	{"lang":"Komi","iso1":"kv","iso2":"kom","bcp47":"kv"},
+	{"lang":"Kongo","iso1":"kg","iso2":"kon","bcp47":"kg"},
+	{"lang":"Kuanyama","iso1":"kj","iso2":"kua","bcp47":"kj"},
+	{"lang":"Kurdish","iso1":"ku","iso2":"kur","bcp47":"ku"},
+	{"lang":"Lao","iso1":"lo","iso2":"lao","bcp47":"lo"},
+	{"lang":"Latin","iso1":"la","iso2":"lat","bcp47":"la"},
+	{"lang":"Latin (Vatican City)","iso1":"la","iso2":"lat","bcp47":"la-VA"},
+	{"lang":"Latvian","iso1":"lv","iso2":"lav","bcp47":"lv"},
+	{"lang":"Limburgan","iso1":"li","iso2":"lim","bcp47":"li"},
+	{"lang":"Lingala","iso1":"ln","iso2":"lin","bcp47":"ln"},
+	{"lang":"Lithuanian","iso1":"lt","iso2":"lit","bcp47":"lt"},
+	{"lang":"Luba-Katanga","iso1":"lu","iso2":"lub","bcp47":"lu"},
+	{"lang":"Luxembourgish","iso1":"lb","iso2":"ltz","bcp47":"lb"},
+	{"lang":"Macedonian","iso1":"mk","iso2":"mac","bcp47":"mk"},
+	{"lang":"Malagasy","iso1":"mg","iso2":"mlg","bcp47":"mg"},
+	{"lang":"Malay","iso1":"ms","iso2":"may","bcp47":"ms"},
+	{"lang":"Malay (Brunei)","iso1":"ms","iso2":"may","bcp47":"ms-BN"},
+	{"lang":"Malay (Malaysia)","iso1":"ms","iso2":"may","bcp47":"ms-MY"},
+	{"lang":"Malayalam","iso1":"ml","iso2":"mal","bcp47":"ml"},
+	{"lang":"Maltese","iso1":"mt","iso2":"mlt","bcp47":"mt"},
+	{"lang":"Manx","iso1":"gv","iso2":"glv","bcp47":"gv"},
+	{"lang":"Maori","iso1":"mi","iso2":"mao","bcp47":"mi"},
+	{"lang":"Marathi","iso1":"mr","iso2":"mar","bcp47":"mr"},
+	{"lang":"Marshallese","iso1":"mh","iso2":"mah","bcp47":"mh"},
+	{"lang":"Mongolian","iso1":"mn","iso2":"mon","bcp47":"mn"},
+	{"lang":"Mongolian (China)","iso1":"mn","iso2":"mon","bcp47":"mn-CN"},
+	{"lang":"Nauru","iso1":"na","iso2":"nau","bcp47":"na"},
+	{"lang":"Navajo","iso1":"nv","iso2":"nav","bcp47":"nv"},
+	{"lang":"Ndonga","iso1":"ng","iso2":"ndo","bcp47":"ng"},
+	{"lang":"Nepali","iso1":"ne","iso2":"nep","bcp47":"ne"},
+	{"lang":"Nepali (India)","iso1":"ne","iso2":"nep","bcp47":"ne-IN"},
+	{"lang":"North Ndebele","iso1":"nd","iso2":"nde","bcp47":"nd"},
+	{"lang":"Northern Sami","iso1":"se","iso2":"sme","bcp47":"se"},
+	{"lang":"Northern Sami (Finland)","iso1":"se","iso2":"sme","bcp47":"se-FI"},
+	{"lang":"Northern Sami (Norway)","iso1":"se","iso2":"sme","bcp47":"se-NO"},
+	{"lang":"Northern Sami (Sweden)","iso1":"se","iso2":"sme","bcp47":"se-SE"},
+	{"lang":"Norwegian Bokmål","iso1":"nb","iso2":"nob","bcp47":"nb"},
+	{"lang":"Norwegian Nynorsk","iso1":"nn","iso2":"nno","bcp47":"nn"},
+	{"lang":"Nyanja","iso1":"ny","iso2":"nya","bcp47":"ny"},
+	{"lang":"Occitan (post 1500)","iso1":"oc","iso2":"oci","bcp47":"oc"},
+	{"lang":"Ojibwa","iso1":"oj","iso2":"oji","bcp47":"oj"},
+	{"lang":"Oriya","iso1":"or","iso2":"ori","bcp47":"or"},
+	{"lang":"Oromo","iso1":"om","iso2":"orm","bcp47":"om"},
+	{"lang":"Ossetian","iso1":"os","iso2":"oss","bcp47":"os"},
+	{"lang":"Pali","iso1":"pi","iso2":"pli","bcp47":"pi"},
+	{"lang":"Panjabi","iso1":"pa","iso2":"pan","bcp47":"pa"},
+	{"lang":"Pashto","iso1":"ps","iso2":"pus","bcp47":"ps"},
+	{"lang":"Persian","iso1":"fa","iso2":"per","bcp47":"fa"},
+	{"lang":"Portuguese (Brazil)","iso1":"pt","iso2":"por","bcp47":"pt-BR"},
+	{"lang":"Quechua","iso1":"qu","iso2":"que","bcp47":"qu"},
+	{"lang":"Quechua (Bolivia)","iso1":"qu","iso2":"que","bcp47":"qu-BO"},
+	{"lang":"Quechua (Ecuador)","iso1":"qu","iso2":"que","bcp47":"qu-EC"},
+	{"lang":"Quechua (Peru)","iso1":"qu","iso2":"que","bcp47":"qu-PE"},
+	{"lang":"Romanian","iso1":"ro","iso2":"rum","bcp47":"ro"},
+	{"lang":"Romanian (Moldova)","iso1":"ro","iso2":"rum","bcp47":"ro-MD"},
+	{"lang":"Romansh","iso1":"rm","iso2":"roh","bcp47":"rm"},
+	{"lang":"Rundi","iso1":"rn","iso2":"run","bcp47":"rn"},
+	{"lang":"Russian (Moldova)","iso1":"ru","iso2":"rus","bcp47":"ru-MD"},
+	{"lang":"Samoan","iso1":"sm","iso2":"smo","bcp47":"sm"},
+	{"lang":"Sango","iso1":"sg","iso2":"sag","bcp47":"sg"},
+	{"lang":"Sanskrit","iso1":"sa","iso2":"san","bcp47":"sa"},
+	{"lang":"Sardinian","iso1":"sc","iso2":"srd","bcp47":"sc"},
+	{"lang":"Scottish Gaelic","iso1":"gd","iso2":"gla","bcp47":"gd"},
+	{"lang":"Serbian","iso1":"sr","iso2":"srp","bcp47":"sr"},
+	{"lang":"Serbian (Bosnia & Herzegovina)","iso1":"sr","iso2":"srp","bcp47":"sr-BA"},
+	{"lang":"Serbian (Montenegro)","iso1":"sr","iso2":"srp","bcp47":"sr-ME"},
+	{"lang":"Shona","iso1":"sn","iso2":"sna","bcp47":"sn"},
+	{"lang":"Sichuan Yi","iso1":"ii","iso2":"iii","bcp47":"ii"},
+	{"lang":"Sindhi","iso1":"sd","iso2":"snd","bcp47":"sd"},
+	{"lang":"Sindhi (India)","iso1":"sd","iso2":"snd","bcp47":"sd-IN"},
+	{"lang":"Sinhala","iso1":"si","iso2":"sin","bcp47":"si"},
+	{"lang":"Slovak","iso1":"sk","iso2":"slo","bcp47":"sk"},
+	{"lang":"Slovenian","iso1":"sl","iso2":"slv","bcp47":"sl"},
+	{"lang":"Somali","iso1":"so","iso2":"som","bcp47":"so"},
+	{"lang":"South Ndebele","iso1":"nr","iso2":"nbl","bcp47":"nr"},
+	{"lang":"Southern Sotho","iso1":"st","iso2":"sot","bcp47":"st"},
+	{"lang":"Spanish (Argentina)","iso1":"es","iso2":"spa","bcp47":"es-AR"},
+	{"lang":"Spanish (Bolivia)","iso1":"es","iso2":"spa","bcp47":"es-BO"},
+	{"lang":"Spanish (Chile)","iso1":"es","iso2":"spa","bcp47":"es-CL"},
+	{"lang":"Spanish (Colombia)","iso1":"es","iso2":"spa","bcp47":"es-CO"},
+	{"lang":"Spanish (Costa Rica)","iso1":"es","iso2":"spa","bcp47":"es-CR"},
+	{"lang":"Spanish (Cuba)","iso1":"es","iso2":"spa","bcp47":"es-CU"},
+	{"lang":"Spanish (Dominican Republic)","iso1":"es","iso2":"spa","bcp47":"es-DO"},
+	{"lang":"Spanish (Ecuador)","iso1":"es","iso2":"spa","bcp47":"es-EC"},
+	{"lang":"Spanish (El Salvador)","iso1":"es","iso2":"spa","bcp47":"es-SV"},
+	{"lang":"Spanish (Guatemala)","iso1":"es","iso2":"spa","bcp47":"es-GT"},
+	{"lang":"Spanish (Honduras)","iso1":"es","iso2":"spa","bcp47":"es-HN"},
+	{"lang":"Spanish (Mexico)","iso1":"es","iso2":"spa","bcp47":"es-MX"},
+	{"lang":"Spanish (Latin America)","iso1":"es","iso2":"spa","bcp47":"es-419"},
+	{"lang":"Spanish (Nicaragua)","iso1":"es","iso2":"spa","bcp47":"es-NI"},
+	{"lang":"Spanish (Panama)","iso1":"es","iso2":"spa","bcp47":"es-PA"},
+	{"lang":"Spanish (Paraguay)","iso1":"es","iso2":"spa","bcp47":"es-PY"},
+	{"lang":"Spanish (Peru)","iso1":"es","iso2":"spa","bcp47":"es-PE"},
+	{"lang":"Spanish (Puerto Rico)","iso1":"es","iso2":"spa","bcp47":"es-PR"},
+	{"lang":"Spanish (United States)","iso1":"es","iso2":"spa","bcp47":"es-US"},
+	{"lang":"Spanish (Uruguay)","iso1":"es","iso2":"spa","bcp47":"es-UY"},
+	{"lang":"Spanish (Venezuela)","iso1":"es","iso2":"spa","bcp47":"es-VE"},
+	{"lang":"Sundanese","iso1":"su","iso2":"sun","bcp47":"su"},
+	{"lang":"Swahili","iso1":"sw","iso2":"swa","bcp47":"sw"},
+	{"lang":"Swahili (Kenya)","iso1":"sw","iso2":"swa","bcp47":"sw-KE"},
+	{"lang":"Swati","iso1":"ss","iso2":"ssw","bcp47":"ss"},
+	{"lang":"Swedish (Finland)","iso1":"sv","iso2":"swe","bcp47":"sv-FI"},
+	{"lang":"Tagalog","iso1":"tl","iso2":"tgl","bcp47":"tl"},
+	{"lang":"Tahitian","iso1":"ty","iso2":"tah","bcp47":"ty"},
+	{"lang":"Tajik","iso1":"tg","iso2":"tgk","bcp47":"tg"},
+	{"lang":"Tamil","iso1":"ta","iso2":"tam","bcp47":"ta"},
+	{"lang":"Tatar","iso1":"tt","iso2":"tat","bcp47":"tt"},
+	{"lang":"Telugu","iso1":"te","iso2":"tel","bcp47":"te"},
+	{"lang":"Thai","iso1":"th","iso2":"tha","bcp47":"th"},
+	{"lang":"Tibetan","iso1":"bo","iso2":"tib","bcp47":"bo"},
+	{"lang":"Tigrinya","iso1":"ti","iso2":"tir","bcp47":"ti"},
+	{"lang":"Tonga (Tonga Islands)","iso1":"to","iso2":"ton","bcp47":"to"},
+	{"lang":"Tsonga","iso1":"ts","iso2":"tso","bcp47":"ts"},
+	{"lang":"Tswana","iso1":"tn","iso2":"tsn","bcp47":"tn"},
+	{"lang":"Tswana (Botswana)","iso1":"tn","iso2":"tsn","bcp47":"tn-BW"},
+	{"lang":"Turkmen","iso1":"tk","iso2":"tuk","bcp47":"tk"},
+	{"lang":"Twi","iso1":"tw","iso2":"twi","bcp47":"tw"},
+	{"lang":"Uighur","iso1":"ug","iso2":"uig","bcp47":"ug"},
+	{"lang":"Ukrainian","iso1":"uk","iso2":"ukr","bcp47":"uk"},
+	{"lang":"Urdu","iso1":"ur","iso2":"urd","bcp47":"ur"},
+	{"lang":"Uzbek","iso1":"uz","iso2":"uzb","bcp47":"uz"},
+	{"lang":"Venda","iso1":"ve","iso2":"ven","bcp47":"ve"},
+	{"lang":"Vietnamese","iso1":"vi","iso2":"vie","bcp47":"vi"},
+	{"lang":"Volapük","iso1":"vo","iso2":"vol","bcp47":"vo"},
+	{"lang":"Walloon","iso1":"wa","iso2":"wln","bcp47":"wa"},
+	{"lang":"Welsh","iso1":"cy","iso2":"wel","bcp47":"cy"},
+	{"lang":"Western Frisian","iso1":"fy","iso2":"fry","bcp47":"fy"},
+	{"lang":"Wolof","iso1":"wo","iso2":"wol","bcp47":"wo"},
+	{"lang":"Xhosa","iso1":"xh","iso2":"xho","bcp47":"xh"},
+	{"lang":"Yiddish","iso1":"yi","iso2":"yid","bcp47":"yi"},
+	{"lang":"Yoruba","iso1":"yo","iso2":"yor","bcp47":"yo"},
+	{"lang":"Zhuang","iso1":"za","iso2":"zha","bcp47":"za"},
+	{"lang":"Zulu","iso1":"zu","iso2":"zul","bcp47":"zu"},
+	{"lang":"N/A","iso1":"zxx","iso2":"zxx","bcp47":"zxx"}
+];
+const LANG_OBJ = {};
+const ISO639_1_OBJ={};
+const ISO639_2_OBJ={};
+const BCP47_OBJ={};
+LANG_ARRAY.forEach((e,i)=>{
+	if (!i) return;
+	e.bcp47 = e.bcp47.toLowerCase();
+	//All lanuages have a name
+	LANG_OBJ[e.lang]=e;
+	//some might not have values, if expanded to, idk, klingon
+	//prefer the more generic(shorter) ones for collisions
+	if ( !ISO639_1_OBJ[e.iso1] || ISO639_1_OBJ[e.iso1].lang.length > e.lang.length) ISO639_1_OBJ[e.iso1]=e;
+	if ( !ISO639_2_OBJ[e.iso2] || ISO639_2_OBJ[e.iso2].lang.length > e.lang.length) ISO639_2_OBJ[e.iso2]=e;
+	BCP47_OBJ[e.bcp47]=e;
+});
+
+//Levenshtein distance, calculates string similarity
+//for matching preference language names to whatever's available
+//from https://github.com/gustf/js-levenshtein/
+// MIT License
+//
+// Copyright (c) 2017 Gustaf Andersson
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+const levenshtein = (function() {
+	function _min(d0, d1, d2, bx, ay) {
+		return d0 < d1 || d2 < d1 ?
+			d0 > d2 ?
+			d2 + 1 :
+			d0 + 1 :
+			bx === ay ?
+			d1 :
+			d1 + 1;
+	}
+	return function(a, b) {
+		if(a === b) {
+			return 0;
+		}
+		if(a.length > b.length) {
+			var tmp = a;
+			a = b;
+			b = tmp;
+		}
+		var la = a.length;
+		var lb = b.length;
+		while(la > 0 && (a.charCodeAt(la - 1) === b.charCodeAt(lb - 1))) {
+			la--;
+			lb--;
+		}
+		var offset = 0;
+		while(offset < la && (a.charCodeAt(offset) === b.charCodeAt(offset))) {
+			offset++;
+		}
+		la -= offset;
+		lb -= offset;
+		if(la === 0 || lb < 3) {
+			return lb;
+		}
+		var x = 0;
+		var y, d0, d1, d2, d3, dd, dy, ay, bx0, bx1, bx2, bx3;
+		var vector = [];
+		for(y = 0; y < la; y++) {
+			vector.push(y + 1);
+			vector.push(a.charCodeAt(offset + y));
+		}
+		var len = vector.length - 1;
+		for(; x < lb - 3;) {
+			bx0 = b.charCodeAt(offset + (d0 = x));
+			bx1 = b.charCodeAt(offset + (d1 = x + 1));
+			bx2 = b.charCodeAt(offset + (d2 = x + 2));
+			bx3 = b.charCodeAt(offset + (d3 = x + 3));
+			dd = (x += 4);
+			for(y = 0; y < len; y += 2) {
+				dy = vector[y];
+				ay = vector[y + 1];
+				d0 = _min(dy, d0, d1, bx0, ay);
+				d1 = _min(d0, d1, d2, bx1, ay);
+				d2 = _min(d1, d2, d3, bx2, ay);
+				dd = _min(d2, d3, dd, bx3, ay);
+				vector[y] = dd;
+				d3 = d2;
+				d2 = d1;
+				d1 = d0;
+				d0 = dy;
+			}
+		}
+		for(; x < lb;) {
+			bx0 = b.charCodeAt(offset + (d0 = x));
+			dd = ++x;
+			for(y = 0; y < len; y += 2) {
+				dy = vector[y];
+				vector[y] = dd = _min(dy, d0, dd, bx0, vector[y + 1]);
+				d0 = dy;
+			}
+		}
+		return dd;
+	};
+})();

@@ -48,6 +48,7 @@
 	}
 </script>
 
+<link rel="stylesheet" href="<?= cdn('css/vjs-track-mods.css') ?>"/>
 <link rel="stylesheet" href="<?= cdn('css/layout-other.css') ?>" />
 <link rel="stylesheet" href="<?= cdn('css/uni-gui.css') ?>" />
 <link rel="stylesheet" href="<?= cdn('css/countdown.css') ?>" />
@@ -70,12 +71,16 @@ if (date('n') == 6) {
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/0.9.16/socket.io.min.js" integrity="sha256-bFYtqOZj1MLDlOrOlxCU9aruDP2zxiIKvmoo+dHsy4w=" crossorigin="anonymous" defer></script>
 
 <script src="<?= cdn('vendor/videojs-quality-selector/silvermine-videojs-quality-selector.js') ?>" defer></script>
+<script src="<?= cdn('js/videojs-audio-switcher.js') ?>" defer></script>
 
 <script src="<?= cdn('js/lib.js') ?>" defer></script>
 <script src="<?= cdn('js/init.js') ?>" defer></script>
 <script src="<?= cdn('js/functions.js') ?>" defer></script>
 <script src="<?= cdn('js/callbacks.js') ?>" defer></script>
+<script src="<?= cdn('js/langarray.js') ?>" defer></script>
+<script src="<?= cdn('js/vjs-track-mods.js') ?>" defer></script>
 <script src="<?= cdn('js/player.js') ?>" defer></script>
+<script src="<?= cdn('vendor/libbitsub/libbitsub_videojs.js') ?>" type="module"></script>
 <script src="<?= cdn('js/modules/main.js') ?>" type="module"></script>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/cookieconsent2/3.1.0/cookieconsent.min.js" integrity="sha256-y0EpKQP2vZljM73+b7xY4dvbYQkHRQXuPqRjc7sjvnA=" crossorigin="anonymous" defer></script>
