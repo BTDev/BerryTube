@@ -9,7 +9,6 @@ function getDirContents($dir, &$results = array()) {
             $results[] = $path;
         } else if ($value != "." && $value != "..") {
             getDirContents($path, $results);
-            $results[] = $path;
         }
     }
 
