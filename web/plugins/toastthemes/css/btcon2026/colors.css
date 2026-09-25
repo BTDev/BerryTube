@@ -432,8 +432,7 @@ html.btcon2026-enabled {
   }
 
   #banner {
-    background: url("/sha1/1kBXHzpKGTenlEKvN7PLKEuZjNo/plugins/toastthemes/css/btcon2024/images/banner.png")
-      no-repeat center;
+    background: url("./images/static/btcon2026_banner.png") no-repeat center;
     width: 100%;
     background-size: contain;
     height: 650px;
@@ -442,18 +441,16 @@ html.btcon2026-enabled {
   }
 
   #chatpane.admin #adminbuffer {
-    background-image: url("/sha1/rTSN_pvhD2GenFj1bGL4a69oCMA/plugins/toastthemes/css/btcon2024/images/bjork.png") !important;
+    background-image: url("./images/static/admin_chat.png") !important;
     background-size: 300px;
   }
 
   .chatbuffer .message.drink {
-    background: url("/sha1/2L3HyRRLoijVT9k0A-OWXTIA7HQ/plugins/toastthemes/css/btcon2024/images/dronk.png")
-      no-repeat scroll right center transparent;
+    background: url("./images/static/drink.png") no-repeat scroll right center transparent;
   }
 
   #chatlist ul .leader {
-    background: url("/sha1/kHVuW4N8rbrqMh-7q3Ki4kToGcM/plugins/toastthemes/css/btcon2024/images/drinkball.png")
-      no-repeat scroll left center transparent !important;
+    background: url("./images/static/leader.png") no-repeat scroll left center transparent !important;
     padding-left: 25px !important;
   }
 
@@ -464,7 +461,7 @@ html.btcon2026-enabled {
 
   #v {
     display: none;
-    background: url("/sha1/KSl8LRoGJri8ckW4UYAcsgTQjgg/plugins/toastthemes/css/btcon2024/images/toomuchdrink.png");
+    background: url("./images/static/toomuchdrink.png");
     width: 604px;
     height: 340px;
     margin: 0 auto;
@@ -634,7 +631,7 @@ html.btcon2026-enabled {
     filter: blur(20px);
     &.static {
       filter: none;
-      background-image: url("https://tests.reef.ink/btcon2026/background.png");
+      background-image: url("./images/static/background.png");
       background-size: cover;
     }
   }
