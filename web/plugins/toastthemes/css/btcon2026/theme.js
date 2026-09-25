@@ -191,7 +191,7 @@
   const getRule = (rules) =>
     Object.entries(rules).reduce(
       (p, [k, v]) => (typeof p === "number" ? (v < p ? p - v : k) : p),
-      Math.random() * Object.values(BG_RULES).reduce((c, p) => p + c, 0),
+      Math.random() * Object.values(BG_RULES).reduce((c, p) => p + c, 0)
     );
 
   const updateBG = async () => {
@@ -238,31 +238,6 @@
   };
 
   const getGallery = async () => {
-    return {
-      artists: {
-        yellow: {
-          gold: "https://placehold.co/600x400/white/gold/?text=1",
-          asd: "https://placehold.co/600x600/white/gold/?text=2",
-          aa: "https://placehold.co/400x600/white/gold/?text=3",
-        },
-        purple: {
-          ddd: "https://placehold.co/400x400/white/black",
-        },
-      },
-      submissions: {
-        ka: {
-          a: "https://placehold.co/600x400/purple/white/?text=a",
-          b: "https://placehold.co/600x600/purple/white/?text=b",
-          c: "https://placehold.co/400x600/purple/white/?text=c",
-          d: "https://placehold.co/400x400/purple/white/?text=d",
-          e: "https://placehold.co/600x400/purple/white/?text=e",
-          f: "https://placehold.co/600x600/purple/white/?text=f",
-          g: "https://placehold.co/400x600/purple/white/?text=g",
-        },
-        ad: { a: "https://placehold.co/400x400/black/white" },
-      },
-    };
-
     const prefix = "/plugins/toastthemes/css/btcon2026/";
     try {
       const list = await (
@@ -287,7 +262,7 @@
     return {};
   };
 
-  const galleryAll = await getGallery();
+  let galleryAll = await getGallery();
 
   const getGalleryQueue = (galleryAll) => {
     const submissions = Object.entries(galleryAll.submissions).flatMap(
@@ -299,18 +274,26 @@
           ...pics.splice(Math.floor(Math.random() * pics.length), 1),
           ...pics.splice(Math.floor(Math.random() * pics.length), 1),
         ];
-      },
+      }
     );
     const artists = Object.entries(galleryAll.artists).flatMap(
       ([submitter, picsObj]) => {
         const pics = Object.values(picsObj);
         return pics;
-      },
+      }
     );
     return { submissions: shuffle(submissions), artists: shuffle(artists) };
   };
 
   let gallery = getGalleryQueue(galleryAll);
+
+  const galleryRefreshScheduler = async () => {
+    while (true) {
+      await wait(600_000);
+      galleryAll = await getGallery();
+      gallery = getGalleryQueue(galleryAll);
+    }
+  };
 
   let slideSpawnerEl;
   const addImg = async (src, dir, size, pos) => {
@@ -324,7 +307,7 @@
     wrapper.style.setProperty("--posZ", `-100vh`);
     wrapper.style.setProperty(
       "--posY",
-      `${size === "small" ? (pos === "top" ? -20 : 20) : 0}%`,
+      `${size === "small" ? (pos === "top" ? -20 : 20) : 0}%`
     );
     wrapper.style.setProperty("--rotY", `${70 * mod}deg`);
 
@@ -547,6 +530,7 @@
         void backgroundScheduler();
         addPic("left");
         addPic("right");
+        galleryRefreshScheduler();
       },
     },
     {
@@ -631,7 +615,9 @@
       if (setting.type === "button") {
         menuEl.innerHTML = `<label><button class="control" type="button">${setting.text}</button></label>`;
       } else if (setting.type === "checkbox") {
-        menuEl.innerHTML = `<label><input class="control" type="checkbox" ${setting.value ? 'checked="true"' : ""} />${setting.text}</label>`;
+        menuEl.innerHTML = `<label><input class="control" type="checkbox" ${
+          setting.value ? 'checked="true"' : ""
+        } />${setting.text}</label>`;
       }
       menu.append(menuEl);
       menuEl.querySelector(".control").addEventListener("click", (ev) => {
@@ -671,6 +657,7 @@
     if (!settings.disableGallery) {
       addPic("left");
       addPic("right");
+      galleryRefreshScheduler();
     }
   };
 
@@ -685,3 +672,4 @@
     window.initBTCon2026WithoutIntro();
   }
 })();
+
