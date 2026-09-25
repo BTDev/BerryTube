@@ -641,7 +641,11 @@ socket.on('shitpost', function (data) {
 			}, Math.random() * 10000);
       break;
     case 'btcon2026intro':
-      window.initBTCon2026WithIntro();
+      if (window.initBTCon2026WithIntro) {
+        window.initBTCon2026WithIntro();
+      } else { 
+        console.warn('BTCon 2026 theme not loaded');
+      }
       break;
 	}
 });
