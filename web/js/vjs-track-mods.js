@@ -297,8 +297,8 @@ function addMenuIcons(vjs) {
 //a small seek resyncs video&audio when tracks are changed.
 //otherwise audio may get out of sync. wait 1.5s for track to initialize 
 function resyncAudio(){
-	setTimeout(()=>{videoJsPlayer.currentTime(videoJsPlayer.currentTime()-0.3);},1500);
-	setTimeout(()=>{videoJsPlayer.currentTime(videoJsPlayer.currentTime()+0.5);},1700);
+	setTimeout(()=>{this.currentTime(this.currentTime()-0.3);},1500);
+	setTimeout(()=>{this.currentTime(this.currentTime()+0.5);},1700);
 }
 
 function createSurroundControl(vjs) {
@@ -324,7 +324,7 @@ function addExtraControls(vjs, doAudioTracks, doTextTracks, doBitmapSubs) {
 			if (doAudioTracks) {
 				surroundControl = createSurroundControl();
 				vjs.controlBar.audioTrackButton.menu.contentEl().prepend(surroundControl);
-				this.audioTracks().on('change', resyncAudio);
+				this.audioTracks().on('change', resyncAudio.bind(this));
 			}
 			if(doTextTracks || doBitmapSubs) {
 				addSubtitlePrefs(vjs);
