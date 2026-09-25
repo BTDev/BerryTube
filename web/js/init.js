@@ -2315,7 +2315,7 @@ $(function () {
 		}
   }
 
-  setBasicThemeEffect(localStorage.getItem('siteThemePath'));
+  setBuiltinThemeEffect(localStorage.getItem('siteThemePath'));
 });
 
 function getClosest(elem, selector) {

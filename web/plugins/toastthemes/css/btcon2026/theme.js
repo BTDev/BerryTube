@@ -246,7 +246,7 @@
       const tree = {};
 
       for (const file of list) {
-        const [, ...parts] = file.split("/");
+        const [, , ...parts] = file.split("/");
         let branch = tree;
         parts.forEach((part, i) => {
           if (i + 1 < parts.length) {
@@ -672,4 +672,3 @@
     window.initBTCon2026WithoutIntro();
   }
 })();
-
