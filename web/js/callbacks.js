@@ -639,7 +639,14 @@ socket.on('shitpost', function (data) {
 			setTimeout(() => {
 				fetch(window.SEQUEL_MODE ? '/sequel_titles.json' : '/titles.json').then(r => r.json()).then(titles => { window.WINDOW_TITLES = titles; });
 			}, Math.random() * 10000);
-			break;
+      break;
+    case 'btcon2026intro':
+      if (window.initBTCon2026WithIntro) {
+        window.initBTCon2026WithIntro();
+      } else { 
+        console.warn('BTCon 2026 theme not loaded');
+      }
+      break;
 	}
 });
 socket.on('debugDump', function (data) {

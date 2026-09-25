@@ -2264,10 +2264,36 @@ function _setVidColorTag(domobj, tag, volat) {
 		}
 	}
 }
-function setColorTheme(cssPath) {
-	$('#themeCss').remove();
-	if (cssPath.length > 0) { $("<link/>").insertAfter("#mainTheme").attr('href', cssPath).attr('rel', 'stylesheet').attr('id', "themeCss"); }
-	setStorage("siteThemePath", cssPath);
+function setBuiltinThemeEffect(cssPath) {
+  // if ToastThemes is (going to be) loaded, it will handle script injection
+  if (localStorage.getItem('scriptNodeToastThemesEnabled') === 'true') {
+    return;
+  }
+  $('.toastthemes-theme-specific').remove();
+  switch (cssPath) {
+    case 'plugins/toastthemes/cdncss.php?theme=btcon2026':
+      window.BTCON_2026_MANUAL = false;
+ 			$('<script>', {
+				class: 'toastthemes-theme-specific',
+				src: 'plugins/toastthemes/css/btcon2026/theme.js',
+ 			}).appendTo(document.head);
+ 			break;
+    case 'plugins/toastthemes/cdncss.php?theme=btcon2026manual':
+      window.BTCON_2026_MANUAL = true;
+ 			$('<script>', {
+				class: 'toastthemes-theme-specific',
+				src: 'plugins/toastthemes/css/btcon2026manual/theme.js',
+ 			}).appendTo(document.head);
+ 			break;
+  }
+}
+function setColorTheme(cssPath, isTemp) {
+  $('#themeCss').remove();
+  if (cssPath.length > 0) { $("<link/>").insertAfter("#mainTheme").attr('href', cssPath).attr('rel', 'stylesheet').attr('id', "themeCss"); }
+  setBuiltinThemeEffect(cssPath);
+  if (!isTemp) {
+    setStorage("siteThemePath", cssPath);
+  }
 }
 /* Permission Abstractions */
 function controlsVideo() {
