@@ -212,7 +212,7 @@ function updateChosenLang() {
 
 //check the last used, then preferences, else use "forced"/default one, if any
 function pickTextTrackIndex(tracks) {
-	const sublangPrefs = JSON.parse(localStorage.sublangPrefs);
+	const sublangPrefs = getOrResetPrefs();
 
 	const searchObjs = tracks.map((e,i)=>{
 		return {i:i, isCC:(e.kind=="captions"), lang:e.name, srclang:e.srclang};
