@@ -645,7 +645,6 @@
 
     if (!settings.staticBackground) {
       spriteContainer = document.querySelector(".sprites");
-      slideSpawnerEl = document.querySelector(".spawner");
       for (let i = 0; i < 7; i++) fogs.push(new Fog(bgContainer));
 
       for (let i = 0; i < 24; i++) sprites.push(new Sprite(spriteContainer));
@@ -655,6 +654,7 @@
     }
 
     if (!settings.disableGallery) {
+      slideSpawnerEl = document.querySelector(".spawner");
       addPic("left");
       addPic("right");
       galleryRefreshScheduler();
