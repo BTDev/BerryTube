@@ -9,7 +9,6 @@ function getDirContents($dir, &$results = array()) {
             $results[] = $path;
         } else if ($value != "." && $value != "..") {
             getDirContents($path, $results);
-            $results[] = $path;
         }
     }
 
@@ -18,4 +17,4 @@ function getDirContents($dir, &$results = array()) {
 
 header('Content-Type: application/json');
 header('Cache-Control: no-cache, stale-if-error=3600');
-echo json_encode(getDirContents('images'), JSON_UNESCAPED_SLASHES);
+echo json_encode(getDirContents('images/gallery'), JSON_UNESCAPED_SLASHES);

@@ -5,7 +5,17 @@
     new Promise((res) => setTimeout(res, interval));
   const waitFrame = async () =>
     new Promise((res) => requestAnimationFrame(() => res()));
+  function shuffle(array) {
+    // Loop from back to front
+    for (let i = array.length - 1; i > 0; i--) {
+      // Pick a random element from 0 to i
+      const j = Math.floor(Math.random() * (i + 1));
 
+      // Swap elements using destructuring assignment
+      [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+  }
   const stuff = `
     <div class="scene">
       <div class="bg"></div>
@@ -181,7 +191,7 @@
   const getRule = (rules) =>
     Object.entries(rules).reduce(
       (p, [k, v]) => (typeof p === "number" ? (v < p ? p - v : k) : p),
-      Math.random() * Object.values(BG_RULES).reduce((c, p) => p + c, 0),
+      Math.random() * Object.values(BG_RULES).reduce((c, p) => p + c, 0)
     );
 
   const updateBG = async () => {
@@ -220,23 +230,69 @@
     }
   };
 
-  const gallery = {
-    art: [
-      "https://placehold.co/600x400/white/black",
-      "https://placehold.co/600x600/white/black",
-      "https://placehold.co/400x600/white/black",
-      "https://placehold.co/400x400/white/black",
-    ],
-    submissions: [
-      "https://placehold.co/600x400/black/white",
-      "https://placehold.co/600x600/black/white",
-      "https://placehold.co/400x600/black/white",
-      "https://placehold.co/400x400/black/white",
-      "https://placehold.co/600x400/black/white",
-      "https://placehold.co/600x600/black/white",
-      "https://placehold.co/400x600/black/white",
-      "https://placehold.co/400x400/black/white",
-    ],
+  const galleryScheduler = async () => {
+    while (true) {
+      if (Math.random() < 0.01) gallery = getGalleryQueue(galleryAll);
+      await wait(INTERVAL);
+    }
+  };
+
+  const getGallery = async () => {
+    const prefix = "/plugins/toastthemes/css/btcon2026/";
+    try {
+      const list = await (
+        await fetch("/plugins/toastthemes/css/btcon2026/list.php")
+      ).json();
+      const tree = {};
+
+      for (const file of list) {
+        const [, , ...parts] = file.split("/");
+        let branch = tree;
+        parts.forEach((part, i) => {
+          if (i + 1 < parts.length) {
+            if (!branch[part]) branch[part] = {};
+            branch = branch[part];
+          } else {
+            branch[part] = prefix + file;
+          }
+        });
+      }
+      return tree;
+    } catch {}
+    return {};
+  };
+
+  let galleryAll = await getGallery();
+
+  const getGalleryQueue = (galleryAll) => {
+    const submissions = Object.entries(galleryAll.submissions).flatMap(
+      ([submitter, picsObj]) => {
+        const pics = Object.values(picsObj);
+        if (pics.length <= 3) return pics;
+        return [
+          ...pics.splice(Math.floor(Math.random() * pics.length), 1),
+          ...pics.splice(Math.floor(Math.random() * pics.length), 1),
+          ...pics.splice(Math.floor(Math.random() * pics.length), 1),
+        ];
+      }
+    );
+    const artists = Object.entries(galleryAll.artists).flatMap(
+      ([submitter, picsObj]) => {
+        const pics = Object.values(picsObj);
+        return pics;
+      }
+    );
+    return { submissions: shuffle(submissions), artists: shuffle(artists) };
+  };
+
+  let gallery = getGalleryQueue(galleryAll);
+
+  const galleryRefreshScheduler = async () => {
+    while (true) {
+      await wait(600_000);
+      galleryAll = await getGallery();
+      gallery = getGalleryQueue(galleryAll);
+    }
   };
 
   let slideSpawnerEl;
@@ -251,7 +307,7 @@
     wrapper.style.setProperty("--posZ", `-100vh`);
     wrapper.style.setProperty(
       "--posY",
-      `${size === "small" ? (pos === "top" ? -20 : 20) : 0}%`,
+      `${size === "small" ? (pos === "top" ? -20 : 20) : 0}%`
     );
     wrapper.style.setProperty("--rotY", `${70 * mod}deg`);
 
@@ -294,10 +350,10 @@
     await wait(Math.random() * 4000);
 
     if (counters.count[side] === 0) {
-      pic = gallery.art[counters.index.artists];
+      pic = gallery.artists[counters.index.artists];
       size = "big";
       counters.index.artists =
-        (counters.index.artists + 1) % gallery.art.length;
+        (counters.index.artists + 1) % gallery.artists.length;
     } else {
       pic = gallery.submissions[counters.index.submissions];
       size = "small";
@@ -474,6 +530,7 @@
         void backgroundScheduler();
         addPic("left");
         addPic("right");
+        galleryRefreshScheduler();
       },
     },
     {
@@ -558,7 +615,9 @@
       if (setting.type === "button") {
         menuEl.innerHTML = `<label><button class="control" type="button">${setting.text}</button></label>`;
       } else if (setting.type === "checkbox") {
-        menuEl.innerHTML = `<label><input class="control" type="checkbox" ${setting.value ? 'checked="true"' : ""} />${setting.text}</label>`;
+        menuEl.innerHTML = `<label><input class="control" type="checkbox" ${
+          setting.value ? 'checked="true"' : ""
+        } />${setting.text}</label>`;
       }
       menu.append(menuEl);
       menuEl.querySelector(".control").addEventListener("click", (ev) => {
@@ -586,18 +645,19 @@
 
     if (!settings.staticBackground) {
       spriteContainer = document.querySelector(".sprites");
-      slideSpawnerEl = document.querySelector(".spawner");
       for (let i = 0; i < 7; i++) fogs.push(new Fog(bgContainer));
 
       for (let i = 0; i < 24; i++) sprites.push(new Sprite(spriteContainer));
+      void backgroundScheduler();
     } else {
       bgContainer.classList.add("static");
     }
 
     if (!settings.disableGallery) {
-      void backgroundScheduler();
+      slideSpawnerEl = document.querySelector(".spawner");
       addPic("left");
       addPic("right");
+      galleryRefreshScheduler();
     }
   };
 
