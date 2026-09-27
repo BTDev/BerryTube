@@ -273,7 +273,7 @@ function makeIcon(icon) {
 //will require reworking of the audio track switcher.
 function addMenuIcons(vjs) {
 	const manifest = ACTIVE.meta.manifest;
-	vjs.controlBar.subsCapsButton.menu.children().filter((c)=>c.constructor.name == "SubsCapsMenuItem").forEach(sc=>{
+	vjs.controlBar.subsCapsButton.menu.children().filter((c)=>!!c.track.tech_).forEach(sc=>{
 		const isBitmap = !!sc.options().track?.bitmap;
 		sc.el().insertBefore(makeIcon(isBitmap?'disc':'text'),sc.el().firstElementChild);
 	});
