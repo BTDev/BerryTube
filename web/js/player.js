@@ -661,6 +661,7 @@ window.PLAYERS.file = {
 		};
 		if (doAudioTracks) {
 			vjsSettings.plugins.audioSwitch = {
+				syncInterval: 5000,
 				audioTracks: meta.manifest.audioTracks,
 				volume: volume
 			};
