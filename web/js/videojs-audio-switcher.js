@@ -492,17 +492,19 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
         const time = player.currentTime();
         const atime = audio.currentTime;
         if (syncTolerance &&
-            atime - time < syncTolerance &&
-            time - atime < syncTolerance) {
+            Math.abs(atime - time) < syncTolerance) {
           secondChance = 0;
           return;
         }
-        if (!syncTolerance && !secondChance) {
+        if (syncTolerance && !secondChance) {
           secondChance = 1;
           return;
         }
-        secondChance = 0;
-  		  syncTolerance = 0;
+        //magic reverse uno! If "close", sync the *video* to the *audio* after
+        //No drift, barely noticable, and gets us back under .1ms alignment. O_O
+        if (syncTolerance && Math.abs(atime - time) < 0.1) {
+          setTimeout(()=>{player.tech_.el_.currentTime = audio.currentTime;},10);
+        }
         audio.currentTime = time;
     };
     function audioSwitchPlugin(options) {
