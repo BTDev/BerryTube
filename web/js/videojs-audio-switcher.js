@@ -491,19 +491,18 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
     const syncTime = (player, audio, syncTolerance) => {
         const time = player.currentTime();
         const atime = audio.currentTime;
-        if (!force && syncTolerance &&
+        if (syncTolerance &&
             atime - time < syncTolerance &&
             time - atime < syncTolerance) {
           secondChance = 0;
           return;
         }
-        console.log(atime - time, syncTolerance, atime - time, time - atime);
         if (!syncTolerance && !secondChance) {
           secondChance = 1;
           return;
         }
         secondChance = 0;
-			  syncTolerance = 0;
+  		  syncTolerance = 0;
         audio.currentTime = time;
     };
     function audioSwitchPlugin(options) {
@@ -559,16 +558,16 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
         var audioTrackList = player.audioTracks();
         audioTrackList.addEventListener('change', onAudioTracksChange.bind(null, player, audio));
         if (audioTracks.length > 0) {
-					let mainTrack = audioTracks.find(t=>t.kind=='main');
-					let enabledTrack = audioTracks.find(t=>t.enabled);
-					if (!mainTrack) {
-						audioTracks[0].kind = 'main';
-						mainTrack = audioTracks[0];
-					}
-					if (!enabledTrack) {
-						audioTracks[0].enabled = true;
-						enabledTrack = audioTracks[0];
-					}
+        let mainTrack = audioTracks.find(t=>t.kind=='main');
+        let enabledTrack = audioTracks.find(t=>t.enabled);
+        if (!mainTrack) {
+            audioTracks[0].kind = 'main';
+            mainTrack = audioTracks[0];
+        }
+        if (!enabledTrack) {
+            audioTracks[0].enabled = true;
+            enabledTrack = audioTracks[0];
+        }
           audioTracks.forEach(track => audioTrackList.addTrack(new videojs.AudioTrack(track)));
           audio.setAttribute('src', enabledTrack.url);
         }
