@@ -661,6 +661,10 @@ window.PLAYERS.file = {
 		};
 		if (doAudioTracks) {
 			vjsSettings.plugins.audioSwitch = {
+				syncInterval: 2500,
+				//up to a frame of tolerance smooths out unnecessary jerking around
+				//which can cause further desync in the long run.
+				syncTolerance: 0.04172, 
 				audioTracks: meta.manifest.audioTracks,
 				volume: volume
 			};

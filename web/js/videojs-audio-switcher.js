@@ -487,12 +487,29 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
             'trailing': trailing
         });
     }
-    const syncTime = (player, audio) => {
+    let secondChance = 0;
+    const syncTime = (player, audio, syncTolerance) => {
         const time = player.currentTime();
+        const atime = audio.currentTime;
+        if (syncTolerance &&
+            Math.abs(atime - time) < syncTolerance) {
+          secondChance = 0;
+          return;
+        }
+        if (syncTolerance && !secondChance) {
+          secondChance = 1;
+          return;
+        }
+        //magic reverse uno! If "close", sync the *video* to the *audio* after
+        //No drift, barely noticable, and gets us back under .1ms alignment. O_O
+        if (syncTolerance && Math.abs(atime - time) < 0.1) {
+          setTimeout(()=>{player.tech_.el_.currentTime = audio.currentTime;},10);
+        }
         audio.currentTime = time;
     };
     function audioSwitchPlugin(options) {
         const {audioElement, audioTracks, debugInterval, syncInterval, volume, handleDisposal} = options;
+        const syncTolerance = options.syncTolerance || 0;
         const player = this;
         const checkAudioElement = () => {
             const videoElement = player.el_;
@@ -535,7 +552,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
                 if (isPlaying)
                     player.pause();
                 audio.setAttribute('src', audioTracks.find(audioTrack => audioTrack.label === enabledTrack.label)?.url);
-                syncTime(player, audio);
+                syncTime(player, audio, 0);
                 if (isPlaying)
                     player.play();
             }
@@ -543,16 +560,16 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
         var audioTrackList = player.audioTracks();
         audioTrackList.addEventListener('change', onAudioTracksChange.bind(null, player, audio));
         if (audioTracks.length > 0) {
-					let mainTrack = audioTracks.find(t=>t.kind=='main');
-					let enabledTrack = audioTracks.find(t=>t.enabled);
-					if (!mainTrack) {
-						audioTracks[0].kind = 'main';
-						mainTrack = audioTracks[0];
-					}
-					if (!enabledTrack) {
-						audioTracks[0].enabled = true;
-						enabledTrack = audioTracks[0];
-					}
+        let mainTrack = audioTracks.find(t=>t.kind=='main');
+        let enabledTrack = audioTracks.find(t=>t.enabled);
+        if (!mainTrack) {
+            audioTracks[0].kind = 'main';
+            mainTrack = audioTracks[0];
+        }
+        if (!enabledTrack) {
+            audioTracks[0].enabled = true;
+            enabledTrack = audioTracks[0];
+        }
           audioTracks.forEach(track => audioTrackList.addTrack(new videojs.AudioTrack(track)));
           audio.setAttribute('src', enabledTrack.url);
         }
@@ -564,12 +581,12 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
             }
         });
         player.on('play', () => {
-            syncTime(player, audio);
+            syncTime(player, audio, 0);
             if (audio.paused)
                 audio.play();
         });
         player.on('pause', () => {
-            syncTime(player, audio);
+            syncTime(player, audio, 0);
             if (!audio.paused)
                 audio.pause();
         });
@@ -578,7 +595,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
                 player.pause();
             player.one('canplay', () => {
                 const sync = () => {
-                    syncTime(player, audio);
+                    syncTime(player, audio, 0);
                     audio.removeEventListener('canplay', sync);
                     if (player.paused())
                         player.play();
@@ -596,7 +613,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
         });
         if (syncInterval) {
             const syncOnInterval = throttle(() => {
-                syncTime(player, audio);
+                syncTime(player, audio, syncTolerance);
             }, syncInterval);
             player.on('timeupdate', syncOnInterval);
         }
