@@ -594,6 +594,55 @@
         saveSettings();
       },
     },
+    {
+      text: "Open Gallery",
+      type: "button",
+      do: () => {
+        const gal = document.createElement("div");
+        gal.classList.add("big-chonk");
+        gal.style.position = "fixed";
+        gal.style.top = "0";
+        gal.style.left = "0";
+        gal.style.width = "100vw";
+        gal.style.height = "100vh";
+        gal.style.zIndex = "9001";
+        gal.style.overflow = "auto";
+        gal.style.background = "#221133B0";
+        console.log(galleryAll);
+        gal.innerHTML = `
+        <button type="button">Close</button>
+        <div>
+          ${[
+            ...Object.entries(galleryAll.artists),
+            ...Object.entries(galleryAll.submissions),
+          ]
+            .map(([artist, pics]) =>
+              Object.values(pics)
+                .map(
+                  (pic) => `    
+              <div style="display:inline-flex; flex-direction:column;align-items: center; margin:30px;padding: 20px;border: 1px solid #666; background: #1119">
+                <div style="display:inline">
+                  <img 
+                    src="${pic}"
+                    style="max-width: 300px; max-height: 300px;"
+                  />
+                </div>
+                <span>${artist}</span>
+              </div>`
+                )
+                .join("")
+            )
+            .join("")}
+        </div>
+        `;
+        gal
+          .querySelector("button")
+          .addEventListener("click", () =>
+            document.querySelector(".big-chonk").remove()
+          );
+        document.body.append(gal);
+      },
+    },
   ];
 
   const buildSettingsMenu = () => {
@@ -672,3 +721,4 @@
     window.initBTCon2026WithoutIntro();
   }
 })();
+
