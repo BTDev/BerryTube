@@ -1,5 +1,5 @@
 # https://hub.docker.com/_/php
-FROM php:8.1.34-fpm-alpine
+FROM php:8.5.12-fpm-alpine
 
 ARG MAXMIND_KEY
 
@@ -10,10 +10,13 @@ HEALTHCHECK --interval=10s --timeout=3s --start-period=10s CMD /usr/local/bin/ph
 RUN apk add --no-cache fcgi ffmpeg
 
 RUN docker-php-ext-install pdo_mysql mysqli && \
-    curl -SsL https://github.com/renatomefi/php-fpm-healthcheck/raw/refs/tags/v0.6.0/php-fpm-healthcheck >/usr/local/bin/php-fpm-healthcheck  && \
+    curl -SsL https://github.com/renatomefi/php-fpm-healthcheck/raw/refs/tags/v0.6.0/php-fpm-healthcheck >/usr/local/bin/php-fpm-healthcheck && \
     chmod +x /usr/local/bin/php-fpm-healthcheck && \
     mkdir -p /usr/local/share/GeoIP/ && \
-    if [ -n "$MAXMIND_KEY" ]; then curl -SsL "https://download.maxmind.com/app/geoip_download?edition_id=GeoLite2-Country&suffix=tar.gz&license_key=$MAXMIND_KEY" | tar xvz --strip-components=1 -C /usr/local/share/GeoIP/; fi
+    if [ -n "$MAXMIND_KEY" ]; then \
+        curl -SsL "https://download.maxmind.com/app/geoip_download?edition_id=GeoLite2-Country&suffix=tar.gz&license_key=$MAXMIND_KEY" \
+            | tar xvz --strip-components=1 -C /usr/local/share/GeoIP/; \
+    fi
 
 COPY php-fpm.ini /usr/local/etc/php-fpm.d/zzz-berrytube.conf
 COPY php.ini /usr/local/etc/php/conf.d/zzz-berrytube.ini
